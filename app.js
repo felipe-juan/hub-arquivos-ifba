@@ -94,7 +94,10 @@ function inferFormat(resource) {
   if (/\.(png|jpe?g|webp|gif|tif?f)($|[?#])/.test(url)) return "Imagem";
   if (/\.(txt|md|csv)($|[?#])/.test(url)) return "Texto";
   if (/\.(docx?|odt|rtf)($|[?#])/.test(url)) return "Word/Writer";
-  if (/\.(xlsx?|ods)($|[?#])/.test(url) || title.includes("planilha") || title.includes("horarios") || title.includes("horários")) return "Excel/Calc";
+  if (url.includes("powerbi.com") || title.includes("power bi")) return "Power BI";
+  if (url.includes("docs.google.com/spreadsheets") || /\.(xlsx?|ods)($|[?#])/.test(url) || title.includes("planilha") || title.includes("horarios") || title.includes("horários")) return "Planilha";
+  if (url.includes("drive.google.com/drive/folders")) return "Drive";
+  if (title.includes("fluxograma") || title.includes("flowchart") || title.includes("grade atual") || title.includes("grade antiga")) return "Fluxograma";
   if (/\.(pptx?|odp)($|[?#])/.test(url)) return "PowerPoint/Impress";
   if ((resource.category || "").toLowerCase().includes("form")) return "Formulário";
   return resource.type === "link" ? "Link" : "Arquivo";
@@ -403,6 +406,10 @@ function emojiForResource(resource = {}, type = "link") {
   if (url.startsWith("mailto:") || haystack.includes("email") || haystack.includes("e-mail")) return "✉️";
   if (url.includes("wa.me") || haystack.includes("whatsapp")) return "💬";
   if (url.includes("instagram.com") || haystack.includes("instagram")) return "📸";
+  if (url.includes("powerbi.com") || haystack.includes("power bi") || haystack.includes("ensalamento")) return "📊";
+  if (url.includes("docs.google.com/spreadsheets") || haystack.includes("planilha")) return "📗";
+  if (url.includes("drive.google.com") || haystack.includes("drive") || haystack.includes("provas passadas")) return "📂";
+  if (haystack.includes("fluxograma") || haystack.includes("grade atual") || haystack.includes("grade antiga")) return "🗺️";
   if (url.includes("forms.gle") || url.includes("docs.google.com/forms") || haystack.includes("protocolo") || haystack.includes("formulario")) return "📝";
   if (haystack.includes("estagio") || haystack.includes("caens")) return "🧭";
   if (haystack.includes("assistencia") || haystack.includes("servicos sociais")) return "🤝";

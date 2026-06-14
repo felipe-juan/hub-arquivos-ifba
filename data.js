@@ -189,6 +189,109 @@ window.HUB_DATA = {
         "esportes",
         "instagram"
       ]
+    },
+    {
+      "id": "link-ensalamento-professores",
+      "title": "Ensalamento dos Professores",
+      "description": "Painel do Power BI para consultar ensalamento/horários de professores.",
+      "url": "https://app.powerbi.com/view?r=eyJrIjoiN2JhMWNmYjMtOWRiNy00OTFlLTg5ODItMWU1ZWZhYzVhNWFjIiwidCI6IjZmZjM3NGY1LWUzZWItNGM2Zi1iN2I1LTUwOTE2NDA5MzdmOCJ9",
+      "category": "Power BI",
+      "tags": [
+        "ensalamento",
+        "professores",
+        "horários",
+        "horario",
+        "aulas",
+        "power bi",
+        "painel",
+        "salas"
+      ]
+    },
+    {
+      "id": "link-fluxograma-antigo",
+      "title": "Fluxograma antigo",
+      "description": "Fluxograma da matriz antiga do curso de Sistemas de Informação.",
+      "url": "https://anadisigant.github.io/grade2017/",
+      "category": "Fluxograma",
+      "tags": [
+        "fluxograma",
+        "matriz antiga",
+        "grade antiga",
+        "PPC 2017",
+        "currículo",
+        "disciplinas",
+        "pré-requisitos"
+      ]
+    },
+    {
+      "id": "link-fluxograma-atual",
+      "title": "Fluxograma atual",
+      "description": "Fluxograma da matriz atual no Guia do Universitário.",
+      "url": "https://www.guiadouniversitario.com/en/course/flowchart/17?curriculumId=1754",
+      "category": "Fluxograma",
+      "tags": [
+        "fluxograma",
+        "matriz atual",
+        "grade atual",
+        "PPC 2024",
+        "currículo",
+        "disciplinas",
+        "pré-requisitos",
+        "guia do universitário"
+      ]
+    },
+    {
+      "id": "link-barema-atual-planilha",
+      "title": "Planilha do Barema atual",
+      "description": "Planilha do Barema de Atividades Complementares aplicável ao PPC atual.",
+      "url": "https://docs.google.com/spreadsheets/d/1n_yYWBVc4_TdxIyi00SvyEn5JlqYMLPN/edit?gid=906433510#gid=906433510",
+      "category": "Planilha",
+      "tags": [
+        "barema",
+        "barema atual",
+        "atividades complementares",
+        "horas complementares",
+        "certificados",
+        "PPC 2024",
+        "planilha",
+        "google sheets"
+      ]
+    },
+    {
+      "id": "link-barema-antigo-planilha",
+      "title": "Planilha do Barema antigo",
+      "description": "Planilha do Barema de Atividades Complementares aplicável aos PPCs anteriores.",
+      "url": "https://docs.google.com/spreadsheets/d/1GsMckfh2cb9za9uDBVU87sKiBZD4LKwP/edit?gid=337060538#gid=337060538",
+      "category": "Planilha",
+      "tags": [
+        "barema",
+        "barema antigo",
+        "atividades complementares",
+        "horas complementares",
+        "certificados",
+        "PPC antigo",
+        "PPC 2017",
+        "planilha",
+        "google sheets"
+      ]
+    },
+    {
+      "id": "link-provas-atividades-passadas",
+      "title": "Provas e Atividades Passadas",
+      "description": "Pasta no Google Drive com provas, listas e atividades antigas compartilhadas para consulta estudantil.",
+      "url": "https://drive.google.com/drive/folders/1WC7rQ6et4OiSq_4eZ9rLbKqGNeUm37dA",
+      "category": "Drive",
+      "tags": [
+        "provas passadas",
+        "atividades passadas",
+        "listas",
+        "exercícios",
+        "drive",
+        "google drive",
+        "materiais",
+        "estudo",
+        "prova"
+      ]
     }
   ],
   "apps": [
@@ -232,7 +335,6 @@ window.HUB_DATA = {
         "MP"
       ]
     },
-
     {
       "id": "app-onde-resolvo",
       "title": "Onde resolvo isso?",
@@ -333,6 +435,22 @@ window.HUB_DATA = {
         {
           "type": "link",
           "id": "link-whatsapp-caens"
+        },
+        {
+          "type": "link",
+          "id": "link-ensalamento-professores"
+        },
+        {
+          "type": "link",
+          "id": "link-fluxograma-atual"
+        },
+        {
+          "type": "link",
+          "id": "link-barema-atual-planilha"
+        },
+        {
+          "type": "link",
+          "id": "link-provas-atividades-passadas"
         }
       ]
     },
@@ -340,13 +458,31 @@ window.HUB_DATA = {
       "id": "group-ppc-atual",
       "title": "PPC 2024.1 - Atual",
       "description": "Adicione aqui PPC, matriz, optativas, migração curricular, ementário e resolução vigente.",
-      "items": []
+      "items": [
+        {
+          "type": "link",
+          "id": "link-fluxograma-atual"
+        },
+        {
+          "type": "link",
+          "id": "link-barema-atual-planilha"
+        }
+      ]
     },
     {
       "id": "group-ppc-antigos",
       "title": "PPCs anteriores",
       "description": "Adicione aqui os PPCs e matrizes 2017.2–2023.2 e 2010.2–2017.1.",
-      "items": []
+      "items": [
+        {
+          "type": "link",
+          "id": "link-fluxograma-antigo"
+        },
+        {
+          "type": "link",
+          "id": "link-barema-antigo-planilha"
+        }
+      ]
     },
     {
       "id": "group-diretrizes-nacionais",
@@ -793,6 +929,77 @@ window.HUB_DATA = {
       "CAENS",
       "termo de estágio",
       "relatório"
+    ],
+    "ensalamento": [
+      "professores",
+      "horários",
+      "salas",
+      "aulas",
+      "power bi"
+    ],
+    "professores": [
+      "ensalamento",
+      "horários",
+      "salas",
+      "aulas"
+    ],
+    "horario professor": [
+      "ensalamento",
+      "professores",
+      "salas",
+      "aulas"
+    ],
+    "horário professor": [
+      "ensalamento",
+      "professores",
+      "salas",
+      "aulas"
+    ],
+    "fluxograma antigo": [
+      "grade antiga",
+      "matriz antiga",
+      "PPC 2017",
+      "disciplinas"
+    ],
+    "fluxograma atual": [
+      "grade atual",
+      "matriz atual",
+      "PPC 2024",
+      "disciplinas"
+    ],
+    "grade atual": [
+      "fluxograma atual",
+      "matriz atual",
+      "PPC 2024"
+    ],
+    "barema atual": [
+      "atividades complementares",
+      "PPC 2024",
+      "planilha",
+      "horas complementares"
+    ],
+    "barema antigo": [
+      "atividades complementares",
+      "PPC antigo",
+      "PPC 2017",
+      "planilha"
+    ],
+    "provas passadas": [
+      "atividades passadas",
+      "listas",
+      "drive",
+      "materiais de estudo"
+    ],
+    "atividades passadas": [
+      "provas passadas",
+      "listas",
+      "drive",
+      "materiais de estudo"
+    ],
+    "provas antigas": [
+      "provas passadas",
+      "atividades passadas",
+      "drive"
     ]
   },
   "answers": [
