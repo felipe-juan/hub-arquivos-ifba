@@ -77,14 +77,6 @@
         <label>Formato
           <select id="formatFilter"><option value="all">Todos</option></select>
         </label>
-        <label>Status
-          <select id="statusFilter">
-            <option value="all">Todos</option>
-            <option value="verified">Verificado</option>
-            <option value="review">Revisar link</option>
-            <option value="archived">Histórico</option>
-          </select>
-        </label>
       </div>
 
       <div class="result-toolbar">
@@ -105,19 +97,6 @@
           <button type="button" class="active" data-view="grid">Grade</button>
           <button type="button" data-view="list">Diretório</button>
         </div>
-      </div>
-
-      <div class="archive-tools">
-        <button id="selectModeButton" class="secondary-button" type="button">Selecionar para edição em lote</button>
-        <div id="bulkPanel" class="bulk-panel" hidden>
-          <strong><span id="selectedCount">0</span> selecionado(s)</strong>
-          <label>Adicionar tag <input id="bulkTagInput" placeholder="ex.: matrícula" /></label>
-          <label>Tipo doc. <input id="bulkTypeInput" placeholder="ex.: Regulamento" /></label>
-          <label>Correspondente <input id="bulkCorrespondentInput" placeholder="ex.: Coordenação SI" /></label>
-          <button id="bulkApplyButton" type="button">Aplicar nesta sessão</button>
-          <button id="bulkExportButton" class="secondary-button" type="button">Gerar JSON</button>
-        </div>
-        <textarea id="bulkOutput" class="copy-box bulk-output" readonly hidden></textarea>
       </div>
 
       <div id="documentGrid" class="cards-grid archive-view"></div>
@@ -197,6 +176,7 @@
   </footer>
 
   <script src="data.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js" referrerpolicy="no-referrer"></script>
   <script src="app.js"></script>
 </body>
 </html>

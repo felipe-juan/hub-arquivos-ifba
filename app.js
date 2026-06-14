@@ -355,7 +355,10 @@ function thumbnailHtml(resource, type = "document", options = {}) {
 }
 
 function setupPdfJs() {
-  if (!window.pdfjsLib) return false;
+  if (!window.pdfjsLib) {
+    console.warn("PDF.js não carregou; miniaturas reais de PDF ficarão no fallback visual.");
+    return false;
+  }
   if (!window.pdfjsLib.GlobalWorkerOptions.workerSrc) {
     window.pdfjsLib.GlobalWorkerOptions.workerSrc = "https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js";
   }
@@ -412,6 +415,14 @@ function renderPdfThumbnails() {
   }
 
   thumbs.slice(0, 40).forEach(renderSinglePdfThumbnail);
+}
+
+function schedulePdfThumbnailRender() {
+  requestAnimationFrame(() => {
+    renderPdfThumbnails();
+    window.setTimeout(renderPdfThumbnails, 350);
+    window.setTimeout(renderPdfThumbnails, 1200);
+  });
 }
 
 
@@ -1061,7 +1072,7 @@ function renderResults(results, query) {
   summary.textContent = `${results.length} resultado(s): ${countText}. Ordenado por relevância.`;
 
   container.innerHTML = results.map((result, index) => renderResultCard(result, index)).join("");
-  requestAnimationFrame(renderPdfThumbnails);
+  schedulePdfThumbnailRender();
 }
 
 
@@ -1108,6 +1119,7 @@ function runSearch(query = document.getElementById("searchInput").value) {
 
 function populateSelect(id, values) {
   const el = document.getElementById(id);
+  if (!el) return;
   el.querySelectorAll("option:not([value='all'])").forEach(option => option.remove());
   el.insertAdjacentHTML(
     "beforeend",
@@ -1349,7 +1361,7 @@ function renderDocuments() {
   grid.innerHTML = documents.length
     ? documents.map(doc => renderResourceCard(doc, "document")).join("")
     : emptyStateHtml("Nenhum documento cadastrado ainda", "A base pública está limpa. Adicione seus documentos reais em data.js e coloque os PDFs na pasta documents/.");
-  requestAnimationFrame(renderPdfThumbnails);
+  schedulePdfThumbnailRender();
 }
 
 function renderLinks() {
@@ -1499,7 +1511,7 @@ function openPreview(result) {
     </div>
   `;
   modal.setAttribute("aria-hidden", "false");
-  requestAnimationFrame(renderPdfThumbnails);
+  schedulePdfThumbnailRender();
 }
 
 function setupModal() {
@@ -1522,24 +1534,6 @@ function setupModal() {
       openPreviewFromDoc(doc);
     }
 
-    const docShareButton = event.target.closest("[data-doc-share]");
-    if (docShareButton) {
-      const doc = documents.find(item => item.id === docShareButton.dataset.docShare);
-      openPreviewFromDoc(doc);
-      setTimeout(() => document.getElementById("shareUrl")?.focus(), 20);
-    }
-
-
-
-    const shareButton = event.target.closest("[data-share-index]");
-    if (shareButton) {
-      const result = state.lastResults[Number(shareButton.dataset.shareIndex)];
-      if (result?.doc) {
-        openPreview(result);
-        setTimeout(() => document.getElementById("shareUrl")?.focus(), 20);
-      }
-    }
-
     const openDoc = event.target.closest("[data-open-doc]");
     if (openDoc) {
       const doc = documents.find(item => item.id === openDoc.dataset.openDoc);
@@ -1553,14 +1547,6 @@ function setupModal() {
       const previous = copyButton.textContent;
       copyButton.textContent = "Copiado";
       setTimeout(() => copyButton.textContent = previous, 1400);
-    }
-
-    const copyShare = event.target.closest("[data-copy-share]");
-    if (copyShare) {
-      const input = document.getElementById("shareUrl");
-      navigator.clipboard?.writeText(input.value);
-      copyShare.textContent = "Copiado";
-      setTimeout(() => copyShare.textContent = "Copiar", 1400);
     }
 
     if (event.target.matches("[data-close-modal]")) modal.setAttribute("aria-hidden", "true");
@@ -1596,6 +1582,7 @@ function updateBulkUI() {
 
 function setupBulkEditing() {
   const button = document.getElementById("selectModeButton");
+  if (!button) return;
   button.addEventListener("click", () => {
     state.selectMode = !state.selectMode;
     if (!state.selectMode) state.selectedDocs.clear();
@@ -1852,13 +1839,13 @@ async function boot() {
   renderApps();
   renderLinks();
   renderGuides();
-  renderMetrics();
   setupSearch();
   setupModal();
   setupArchiveViews();
   setupCalculators();
   setupNavigation();
   backgroundIndexMissingPdfText();
+  schedulePdfThumbnailRender();
 }
 
 boot();
