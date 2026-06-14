@@ -1,54 +1,52 @@
 # HUB Arquivos IFBA — Sistemas de Informação
 
-Protótipo estático de um hub acadêmico para o curso de Sistemas de Informação do IFBA Vitória da Conquista.
+Protótipo estático e gratuito para reunir documentos, links e apps úteis do curso de Bacharelado em Sistemas de Informação do IFBA Vitória da Conquista.
 
-## Como testar localmente
+## O que há nesta versão
 
-Abra `index.html` no navegador ou rode:
+- Busca geral em documentos, links e apps.
+- Resultados por relevância.
+- Acervo em duas visualizações: grade e diretório.
+- Prévia de documentos em modal.
+- Filtros por tipo, tags, correspondente, tipo de documento e formato.
+- Edição em lote local para gerar JSON de metadados.
+- Calculadora de média final conforme regra MP, PF e faltas.
+- Assistente de horas complementares baseado no Barema PPC 2024.
+- Links públicos compartilháveis para documentos.
+
+## Assistente de horas complementares
+
+O app usa as regras do arquivo `Barema (PPC 2024).xlsx`:
+
+- mínimo de 200 horas;
+- mínimo de 3 categorias com horas aproveitadas;
+- teto por categoria;
+- teto por atividade;
+- cálculo automático por unidade;
+- resumo copiável para o estudante organizar a documentação.
+
+Os dados lançados pelo estudante ficam apenas no navegador via `localStorage`.
+
+## Rodar localmente
 
 ```bash
 python3 -m http.server 8000
 ```
 
-Depois acesse:
+Abrir:
 
 ```text
 http://localhost:8000
 ```
 
-## Como adicionar arquivos manualmente
+## Publicar atualização
 
-1. Coloque os arquivos em `documents/`.
-2. Edite `data.js`.
-3. Para cada documento, preencha `sourceUrl`, `pdfUrl`, `tags`, `documentType`, `correspondent`, `fileFormat` e `chunks`.
-
-Exemplo:
-
-```js
-{
-  id: "doc-exemplo",
-  title: "Regulamento de Exemplo",
-  kind: "Regulamento",
-  documentType: "Regulamento",
-  correspondent: "Coordenação de Sistemas de Informação",
-  fileFormat: "PDF",
-  status: "verified",
-  sourceUrl: "https://link-oficial",
-  pdfUrl: "documents/regulamento-exemplo.pdf",
-  tags: ["regulamento", "curso"],
-  summary: "Resumo do documento.",
-  chunks: [
-    {
-      id: "doc-exemplo-1",
-      page: 1,
-      heading: "Trecho principal",
-      semanticTags: ["regulamento"],
-      text: "Trecho pesquisável do documento."
-    }
-  ]
-}
+```bash
+git add .
+git commit -m "Update site"
+git push
 ```
 
 ## Observação
 
-Este projeto é estático. Ele não possui login, banco de dados nem importação automática nesta versão. Isso mantém a publicação gratuita e simples.
+Os links dos documentos ainda precisam ser substituídos pelos URLs oficiais reais. O site não substitui a fonte oficial; ele ajuda a encontrar, organizar e conferir as informações.

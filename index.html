@@ -3,185 +3,266 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>HUB Arquivos IFBA — SI</title>
-  <meta name="description" content="Busca rápida por documentos, links, apps e informações do curso de Sistemas de Informação do IFBA Vitória da Conquista." />
+  <title>HUB Arquivos IFBA — Sistemas de Informação</title>
+  <meta name="description" content="Hub moderno de documentos acadêmicos, busca verificada, calculadoras e links úteis para Sistemas de Informação." />
   <link rel="stylesheet" href="styles.css" />
 </head>
 <body>
-  <div class="ambient" aria-hidden="true"></div>
+  <div class="site-bg" aria-hidden="true">
+    <span class="orb orb-a"></span>
+    <span class="orb orb-b"></span>
+    <span class="grid-glow"></span>
+  </div>
 
   <header class="topbar">
-    <a class="brand" href="#buscar" aria-label="Ir para busca">
-      <span class="brand-mark">SI</span>
-      <span class="brand-text">
-        <strong>HUB SI</strong>
-        <small>IFBA · VCA</small>
+    <a class="brand" href="#inicio" aria-label="Ir para o início">
+      <span class="brand-mark">H</span>
+      <span>
+        <strong>HUB Arquivos IFBA</strong>
+        <small>Sistemas de Informação</small>
       </span>
     </a>
 
-    <nav class="nav" aria-label="Navegação principal">
-      <a href="#buscar" class="active">Buscar</a>
-      <a href="#acervo">Acervo</a>
-      <a href="#apps">Apps</a>
+    <button class="mobile-menu" id="mobileMenuButton" aria-label="Abrir menu" aria-expanded="false">☰</button>
+
+    <nav class="nav" id="mainNav" aria-label="Navegação principal">
+      <a href="#inicio">Início</a>
+      <a href="#buscar">Buscar</a>
+      <a href="#documentos">Documentos</a>
+      <a href="#calculadoras">Calculadoras</a>
       <a href="#links">Links</a>
+      <a href="#guias">Guias</a>
     </nav>
   </header>
 
   <main>
-    <section id="buscar" class="search-home section" data-nav-section>
-      <div class="search-shell search-first">
-        <div class="search-topline">
-          <span class="status-dot"></span>
-          <span>Busca geral em documentos, links, apps e informações do curso</span>
-        </div>
+    <section id="inicio" class="hero section active-section" data-section="inicio">
+      <div class="hero-content">
+        <p class="eyebrow"><span></span> Central acadêmica verificada</p>
+        <h1>O documento certo, a página certa, sem caçar PDF perdido.</h1>
+        <p class="hero-text">
+          Um hub bonito, rápido e gratuito para reunir normas, editais, calendários, formulários, links e calculadoras do curso de Sistemas de Informação.
+          A busca aponta para o trecho oficial; o documento continua sendo a autoridade.
+        </p>
 
-        <form id="searchForm" class="main-search" autocomplete="off">
-          <label class="sr-only" for="searchInput">Pesquisar no hub</label>
-          <span aria-hidden="true" class="search-icon">⌕</span>
-          <input id="searchInput" type="search" placeholder="Buscar PPC, matriz, TCC, estágio, horários, protocolo..." list="autocompleteTerms" />
-          <datalist id="autocompleteTerms"></datalist>
+        <form class="hero-search" id="heroSearchForm">
+          <label class="sr-only" for="heroSearchInput">Buscar documentos</label>
+          <span class="search-icon" aria-hidden="true">⌕</span>
+          <input id="heroSearchInput" type="search" placeholder="Pergunte: horas complementares, faltas, TCC, estágio..." autocomplete="off" />
           <button type="submit">Buscar</button>
         </form>
-        <div id="smartSuggestions" class="smart-suggestions" aria-label="Sugestões de busca"></div>
 
-        <div class="quick-chips" aria-label="Buscas rápidas">
-          <button data-example="PPC 2024">PPC 2024</button>
-          <button data-example="quadro de horários">horários</button>
-          <button data-example="fluxograma 2024">fluxograma</button>
-          <button data-example="atividades complementares">atividades compl.</button>
-          <button data-example="TCC">TCC</button>
-          <button data-example="estágio">estágio</button>
-          <button data-example="protocolo">protocolo</button>
-          <button data-example="média final">média final</button>
+        <div class="hero-actions">
+          <a class="button" href="#buscar">Testar busca</a>
+          <a class="button secondary" href="#calculadoras">Calculadoras</a>
+          <a class="button ghost" href="admin.html">Admin local</a>
+        </div>
+
+        <div class="hero-proof" aria-label="Princípios do sistema">
+          <span>Fonte oficial</span>
+          <span>Página citada</span>
+          <span>Trecho destacado</span>
+          <span>Sem dados pessoais</span>
         </div>
       </div>
 
-      <div class="filters-card expanded-filters">
-        <label>Item
-          <select id="typeFilter">
-            <option value="all">Tudo</option>
-            <option value="document">Documentos</option>
-            <option value="link">Links</option>
-            <option value="app">Apps</option>
-          </select>
-        </label>
-        <label>Tipo doc.
-          <select id="docTypeFilter"><option value="all">Todos</option></select>
-        </label>
-        <label>Correspondente
-          <select id="correspondentFilter"><option value="all">Todos</option></select>
-        </label>
-        <label>Tag
-          <select id="tagFilter"><option value="all">Todas</option></select>
-        </label>
-        <label>Formato
-          <select id="formatFilter"><option value="all">Todos</option></select>
-        </label>
+      <aside class="hero-visual" aria-label="Prévia visual do produto">
+        <div class="window-card">
+          <div class="window-top">
+            <span></span><span></span><span></span>
+            <strong>Busca verificada</strong>
+          </div>
+          <div class="mock-search">
+            <small>Pergunta do aluno</small>
+            <p>“Posso reprovar por falta?”</p>
+          </div>
+          <div class="mock-result">
+            <div>
+              <span class="badge review">Precisa revisar</span>
+              <span class="badge">p. 2</span>
+            </div>
+            <h3>Normas de frequência e avaliação</h3>
+            <p><mark>frequência mínima</mark> · presença · reprovação · nota</p>
+          </div>
+          <div class="mock-paper">
+            <div class="paper-head"></div>
+            <div class="paper-line"></div>
+            <div class="paper-line short"></div>
+            <div class="paper-line hit"></div>
+            <div class="paper-line"></div>
+            <div class="paper-line short"></div>
+          </div>
+        </div>
+      </aside>
+    </section>
+
+    <section class="section metrics-grid" aria-label="Resumo do acervo">
+      <article class="metric-card">
+        <strong id="metricDocuments">0</strong>
+        <span>documentos indexados</span>
+      </article>
+      <article class="metric-card">
+        <strong id="metricChunks">0</strong>
+        <span>trechos pesquisáveis</span>
+      </article>
+      <article class="metric-card">
+        <strong id="metricTags">0</strong>
+        <span>temas acadêmicos</span>
+      </article>
+      <article class="metric-card">
+        <strong>0</strong>
+        <span>dados pessoais armazenados</span>
+      </article>
+    </section>
+
+    <section id="buscar" class="section app-section" data-section="buscar">
+      <div class="section-header">
+        <p class="eyebrow"><span></span> Busca verificada</p>
+        <h2>Faça uma pergunta e confira o trecho antes de acreditar.</h2>
+        <p>O protótipo usa busca local híbrida: palavras, sinônimos acadêmicos, tags e contexto. Depois entram OCR e embeddings reais.</p>
       </div>
 
-      <div class="result-toolbar">
-        <p id="resultsSummary" aria-live="polite">Itens mais usados aparecem abaixo. Digite para filtrar.</p>
-        <button id="clearSearch" class="text-button" type="button">limpar</button>
+      <div class="search-panel surface-card">
+        <form id="searchForm" class="search-form">
+          <label for="searchInput">Pergunta ou termo</label>
+          <div class="search-row">
+            <span class="search-icon" aria-hidden="true">⌕</span>
+            <input id="searchInput" type="search" placeholder="Ex.: Posso reprovar por falta?" autocomplete="off" />
+            <button type="submit">Encontrar</button>
+          </div>
+        </form>
+
+        <div class="filters" aria-label="Filtros">
+          <label>
+            Tipo
+            <select id="kindFilter">
+              <option value="all">Todos</option>
+            </select>
+          </label>
+          <label>
+            Tema
+            <select id="tagFilter">
+              <option value="all">Todos</option>
+            </select>
+          </label>
+          <label>
+            Status
+            <select id="statusFilter">
+              <option value="all">Todos</option>
+              <option value="verified">Verificado</option>
+              <option value="review">Precisa revisar</option>
+              <option value="archived">Arquivado</option>
+            </select>
+          </label>
+        </div>
       </div>
 
+      <div class="search-help">
+        <button class="pill" data-example="quantas horas complementares preciso cumprir?">Horas complementares</button>
+        <button class="pill" data-example="como funciona reprovação por falta?">Frequência/faltas</button>
+        <button class="pill" data-example="regras para estágio obrigatório">Estágio</button>
+        <button class="pill" data-example="quando devo fazer matrícula?">Matrícula</button>
+        <button class="pill" data-example="normas para TCC">TCC</button>
+      </div>
+
+      <div id="resultsSummary" class="results-summary" aria-live="polite"></div>
       <div id="searchResults" class="results-list"></div>
     </section>
 
-    <section id="acervo" class="section content-section" data-nav-section>
-      <div class="section-heading archive-heading">
+    <section id="documentos" class="section app-section" data-section="documentos">
+      <div class="section-header split">
         <div>
-          <p class="eyebrow">Acervo</p>
-          <h2>Documentos e diretório</h2>
+          <p class="eyebrow"><span></span> Acervo</p>
+          <h2>Documentos acadêmicos</h2>
+          <p>Substitua os exemplos por documentos reais do curso. Cada item deve ter fonte, data, tags e status de verificação.</p>
         </div>
-        <div class="view-toggle" role="group" aria-label="Modo de visualização">
-          <button type="button" class="active" data-view="grid">Grade</button>
-          <button type="button" data-view="list">Diretório</button>
-        </div>
+        <a class="button secondary" href="admin.html">Adicionar documento</a>
       </div>
-
-      <div class="archive-tools">
-        <button id="selectModeButton" class="secondary-button" type="button">Selecionar para edição em lote</button>
-        <div id="bulkPanel" class="bulk-panel" hidden>
-          <strong><span id="selectedCount">0</span> selecionado(s)</strong>
-          <label>Adicionar tag <input id="bulkTagInput" placeholder="ex.: matrícula" /></label>
-          <label>Tipo doc. <input id="bulkTypeInput" placeholder="ex.: Regulamento" /></label>
-          <label>Correspondente <input id="bulkCorrespondentInput" placeholder="ex.: Coordenação SI" /></label>
-          <button id="bulkApplyButton" type="button">Aplicar nesta sessão</button>
-          <button id="bulkExportButton" class="secondary-button" type="button">Gerar JSON</button>
-        </div>
-        <textarea id="bulkOutput" class="copy-box bulk-output" readonly hidden></textarea>
-      </div>
-
-      <div id="documentGrid" class="cards-grid archive-view"></div>
-      <div id="directoryGrid" class="directory-grid archive-view" hidden></div>
+      <div id="documentGrid" class="document-grid"></div>
     </section>
 
-    <section id="apps" class="section content-section" data-nav-section>
-      <div class="section-heading">
-        <div>
-          <p class="eyebrow">Ferramentas</p>
-          <h2>Apps acadêmicos</h2>
-        </div>
+    <section id="calculadoras" class="section app-section" data-section="calculadoras">
+      <div class="section-header">
+        <p class="eyebrow"><span></span> Ferramentas</p>
+        <h2>Calculadoras acadêmicas</h2>
+        <p>Calculadoras determinísticas: elas não usam IA e não salvam dados do aluno.</p>
       </div>
 
-      <div id="appsGrid" class="cards-grid"></div>
+      <div class="tools-grid">
+        <article class="tool-card">
+          <h3>Calculadora de média ponderada</h3>
+          <p>Informe nota e peso de cada avaliação. Campos vazios são ignorados.</p>
+          <div id="weightedInputs" class="grade-list"></div>
+          <button class="button secondary" id="addGradeRow">Adicionar avaliação</button>
+          <div class="result-box" id="weightedResult">Média: —</div>
+        </article>
 
-      <div class="calculator-panel" id="calc-media">
-        <div class="section-heading inline">
-          <div>
-            <p class="eyebrow">App</p>
-            <h2>Cálculo de média final</h2>
-          </div>
-        </div>
-        <div class="calc-grid">
-          <article class="tool-card main-grade-card" id="calc-preciso">
-            <h3>Média parcial, final e situação</h3>
-            <p class="helper-text">Regra: MP = (N1 + N2)/2. Final: MF = (MP×2 + PF)/3. Para passar na final, precisa de MF ≥ 5,0.</p>
-            <div class="grade-form-grid">
-              <label>N1 <input type="number" id="n1Final" min="0" max="10" step="0.01" placeholder="Ex.: 6,5" /></label>
-              <label>N2 <input type="number" id="n2Final" min="0" max="10" step="0.01" placeholder="Ex.: 7,0" /></label>
-              <label>Total de aulas <input type="number" id="totalClasses" min="1" step="1" placeholder="Ex.: 80" /></label>
-              <label>Faltas <input type="number" id="absences" min="0" step="1" placeholder="Ex.: 12" /></label>
-              <label>PF opcional <input type="number" id="pfFinal" min="0" max="10" step="0.01" placeholder="Depois da prova final" /></label>
-            </div>
-            <button id="finalGradeButton" type="button">Calcular situação</button>
-            <div class="result-box" id="finalGradeResult">Resultado: —</div>
-          </article>
+        <article class="tool-card">
+          <h3>Quanto preciso tirar?</h3>
+          <p>Calcule a nota necessária na próxima avaliação para alcançar uma média desejada.</p>
+          <label>Nota atual acumulada
+            <input type="number" id="currentScore" min="0" max="100" step="0.01" placeholder="Ex.: 62" />
+          </label>
+          <label>Peso já concluído
+            <input type="number" id="completedWeight" min="0" max="100" step="0.01" placeholder="Ex.: 70" />
+          </label>
+          <label>Média desejada
+            <input type="number" id="targetScore" min="0" max="100" step="0.01" placeholder="Ex.: 60" />
+          </label>
+          <label>Peso da próxima avaliação
+            <input type="number" id="nextWeight" min="0" max="100" step="0.01" placeholder="Ex.: 30" />
+          </label>
+          <button class="button" id="neededGradeButton">Calcular</button>
+          <div class="result-box" id="neededGradeResult">Resultado: —</div>
+        </article>
 
-          <article class="tool-card" id="calc-horas">
-            <h3>Horas complementares</h3>
-            <label>Horas exigidas <input type="number" id="requiredHours" min="0" step="1" value="120" /></label>
-            <label>Horas cumpridas <input type="number" id="completedHours" min="0" step="1" placeholder="Ex.: 75" /></label>
-            <button id="hoursButton" type="button">Calcular</button>
-            <div class="progress-shell"><div id="hoursProgress" class="progress-bar"></div></div>
-            <div class="result-box" id="hoursResult">Resultado: —</div>
-          </article>
-        </div>
+        <article class="tool-card">
+          <h3>Horas complementares</h3>
+          <p>Acompanhe o total de horas já registradas.</p>
+          <label>Horas exigidas
+            <input type="number" id="requiredHours" min="0" step="1" value="120" />
+          </label>
+          <label>Horas já cumpridas
+            <input type="number" id="completedHours" min="0" step="1" placeholder="Ex.: 75" />
+          </label>
+          <button class="button" id="hoursButton">Calcular</button>
+          <div class="progress-shell" aria-hidden="true"><div id="hoursProgress" class="progress-bar"></div></div>
+          <div class="result-box" id="hoursResult">Resultado: —</div>
+        </article>
       </div>
     </section>
 
-    <section id="links" class="section content-section" data-nav-section>
-      <div class="section-heading">
-        <div>
-          <p class="eyebrow">Atalhos</p>
-          <h2>Links, sistemas e páginas externas</h2>
-        </div>
+    <section id="links" class="section app-section" data-section="links">
+      <div class="section-header">
+        <p class="eyebrow"><span></span> Atalhos</p>
+        <h2>Links relevantes</h2>
+        <p>Um lugar para reunir SUAP, Moodle, biblioteca, calendário, formulários e páginas oficiais.</p>
       </div>
-      <div id="linksGrid" class="cards-grid"></div>
+      <div id="linksGrid" class="links-grid"></div>
     </section>
 
+    <section id="guias" class="section app-section" data-section="guias">
+      <div class="section-header">
+        <p class="eyebrow"><span></span> Guias rápidos</p>
+        <h2>Explicações curtas, sempre ligadas ao documento oficial</h2>
+        <p>Guias humanos ajudam quando o documento é longo. Cada guia deve apontar para fontes oficiais.</p>
+      </div>
+      <div id="guideList" class="guide-list"></div>
+    </section>
   </main>
 
   <div id="previewModal" class="modal" aria-hidden="true" role="dialog" aria-modal="true" aria-labelledby="previewTitle">
     <div class="modal-backdrop" data-close-modal></div>
-    <article class="modal-card paperless-modal">
+    <article class="modal-card">
       <button class="modal-close" data-close-modal aria-label="Fechar prévia">×</button>
       <div id="modalContent"></div>
     </article>
   </div>
 
   <footer class="footer">
-    <span>HUB SI · protótipo livre · sempre confira a fonte oficial.</span>
+    <p>
+      HUB Arquivos IFBA — protótipo livre. Use apenas documentos oficiais e mantenha fonte, data e status de revisão visíveis.
+    </p>
   </footer>
 
   <script src="data.js"></script>
