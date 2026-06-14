@@ -16,7 +16,6 @@
 - [x] Classificação automática leve de tags/tipos/correspondentes no navegador
 - [x] Calculadora de média ponderada
 - [x] Calculadora de nota necessária
-- [x] Calculadora de horas complementares
 
 ## Versão 0.2 — Acervo real
 

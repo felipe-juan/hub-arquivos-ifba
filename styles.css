@@ -368,6 +368,7 @@ h2 { font-size: clamp(1.35rem, 4vw, 2rem); }
 
 .calculator-panel { margin-top: 1rem; }
 .calc-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: .75rem; }
+.calc-grid.single-tool { grid-template-columns: minmax(0, 780px); justify-content: start; }
 .tool-card {
   border-radius: 20px;
   padding: .9rem;
@@ -380,8 +381,12 @@ h2 { font-size: clamp(1.35rem, 4vw, 2rem); }
   gap: .55rem;
 }
 .main-grade-card { grid-column: span 2; }
+.calc-grid.single-tool .main-grade-card { grid-column: auto; }
 .grade-list { display: grid; gap: .45rem; }
-.grade-row { display: grid; grid-template-columns: 1fr 1fr auto; gap: .4rem; }
+.grade-row { display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: .45rem; align-items: end; }
+.grade-row label { margin: 0; }
+.grade-actions { display: flex; gap: .5rem; flex-wrap: wrap; margin: .4rem 0 .6rem; }
+.final-grade-grid { margin-top: .2rem; max-width: 360px; }
 .grade-row button.remove-row {
   min-width: 40px;
   padding: 0;
@@ -939,3 +944,25 @@ h2 { font-size: clamp(1.35rem, 4vw, 2rem); }
   .result-actions { grid-template-columns: 1fr 1fr; }
   .doc-format, .thumb-page { font-size: .54rem; }
 }
+
+@media (max-width: 620px) {
+  .calc-grid.single-tool { grid-template-columns: 1fr; }
+  .grade-row { grid-template-columns: 1fr auto; }
+  .grade-actions { display: grid; grid-template-columns: 1fr; }
+  .final-grade-grid { max-width: none; }
+}
+
+.empty-state {
+  grid-column: 1 / -1;
+  border: 1px dashed rgba(148, 163, 184, .32);
+  border-radius: 22px;
+  padding: 1rem;
+  background: rgba(15, 23, 42, .42);
+  color: var(--muted);
+}
+.empty-state strong {
+  display: block;
+  color: var(--text);
+  margin-bottom: .25rem;
+}
+.empty-state p { margin: 0; }

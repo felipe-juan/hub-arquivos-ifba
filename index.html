@@ -133,28 +133,24 @@
             <h2>Cálculo de média final</h2>
           </div>
         </div>
-        <div class="calc-grid">
+        <div class="calc-grid single-tool">
           <article class="tool-card main-grade-card" id="calc-preciso">
             <h3>Média parcial, final e situação</h3>
-            <p class="helper-text">Regra: MP = (N1 + N2)/2. Final: MF = (MP×2 + PF)/3. Para passar na final, precisa de MF ≥ 5,0.</p>
-            <div class="grade-form-grid">
-              <label>N1 <input type="number" id="n1Final" min="0" max="10" step="0.01" placeholder="Ex.: 6,5" /></label>
-              <label>N2 <input type="number" id="n2Final" min="0" max="10" step="0.01" placeholder="Ex.: 7,0" /></label>
-              <label>Total de aulas <input type="number" id="totalClasses" min="1" step="1" placeholder="Ex.: 80" /></label>
-              <label>Faltas <input type="number" id="absences" min="0" step="1" placeholder="Ex.: 12" /></label>
-              <label>PF opcional <input type="number" id="pfFinal" min="0" max="10" step="0.01" placeholder="Depois da prova final" /></label>
+            <p class="helper-text">Informe todas as notas parciais lançadas no diário. A MP é a média aritmética das notas informadas. Se houver prova final, a MF é calculada por: (MP×2 + PF)/3.</p>
+
+            <div class="grade-list" id="partialGrades" aria-label="Notas parciais"></div>
+
+            <div class="grade-actions">
+              <button id="addGradeButton" class="secondary-button" type="button">+ Adicionar nota</button>
+              <button id="clearGradesButton" class="text-button" type="button">limpar notas</button>
             </div>
+
+            <div class="grade-form-grid final-grade-grid">
+              <label>PF opcional <input type="number" id="pfFinal" min="0" max="10" step="0.01" inputmode="decimal" placeholder="Depois da prova final" /></label>
+            </div>
+
             <button id="finalGradeButton" type="button">Calcular situação</button>
             <div class="result-box" id="finalGradeResult">Resultado: —</div>
-          </article>
-
-          <article class="tool-card" id="calc-horas">
-            <h3>Horas complementares</h3>
-            <label>Horas exigidas <input type="number" id="requiredHours" min="0" step="1" value="120" /></label>
-            <label>Horas cumpridas <input type="number" id="completedHours" min="0" step="1" placeholder="Ex.: 75" /></label>
-            <button id="hoursButton" type="button">Calcular</button>
-            <div class="progress-shell"><div id="hoursProgress" class="progress-bar"></div></div>
-            <div class="result-box" id="hoursResult">Resultado: —</div>
           </article>
         </div>
       </div>

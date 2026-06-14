@@ -219,11 +219,8 @@ function detectSearchIntent(query = "") {
   if (!normalized.trim()) return intent;
 
   // App/tool intent: the user wants to calculate, simulate, or use an internal tool.
-  if (has("calcular", "calcule", "calculo", "cálculo", "calculadora", "simular", "simule", "quanto preciso", "preciso tirar", "nota necessária", "nota necessaria", "média final", "media final", "média", "media", "nota", "horas restantes", "faltam horas", "controle de horas")) {
+  if (has("calcular", "calcule", "calculo", "cálculo", "calculadora", "simular", "simule", "quanto preciso", "preciso tirar", "nota necessária", "nota necessaria", "média final", "media final", "média", "media", "nota", "prova final")) {
     intent.app += 18;
-  }
-  if (has("atividade complementar", "atividades complementares", "horas complementares", "certificados") && has("calcular", "faltam", "restante", "controle", "quanto")) {
-    intent.app += 12;
   }
 
   // Link intent: the user wants to open an external system/page rather than read a PDF.
@@ -494,7 +491,6 @@ function scoreResource(resource, query, filters, intent = detectSearchIntent(que
     if (terms.exact.some(term => ["calcular", "calculo", "cálculo", "calculadora", "simular"].includes(term))) score += 10;
     if ((title.includes("media") || title.includes("média")) && terms.exact.some(term => ["media", "média", "nota", "final"].includes(term))) score += 14;
     if (title.includes("preciso") && phrase.includes("preciso")) score += 18;
-    if (title.includes("horas") && terms.exact.some(term => ["horas", "complementares", "certificados"].includes(term))) score += 14;
   }
 
   // Extra precision for common external shortcuts.
@@ -753,7 +749,7 @@ function renderDirectory() {
   const container = document.getElementById("directoryGrid");
   if (!container) return;
 
-  container.innerHTML = directoryGroups.map(group => {
+  const renderedGroups = directoryGroups.map(group => {
     const items = (group.items || [])
       .map(ref => ({ ref, resource: findResourceByRef(ref) }))
       .filter(item => item.resource)
@@ -784,20 +780,45 @@ function renderDirectory() {
         <div class="directory-items">${items}</div>
       </article>
     `;
-  }).join("");
+  }).filter(Boolean).join("");
+
+  container.innerHTML = renderedGroups || emptyStateHtml(
+    "Nenhum documento no diretório ainda",
+    "Quando você adicionar documentos reais em data.js e apontar para seus PDFs/links, eles aparecerão aqui organizados por grupo."
+  );
+}
+
+function emptyStateHtml(title, text) {
+  return `
+    <article class="empty-state">
+      <strong>${escapeHtml(title)}</strong>
+      <p>${escapeHtml(text)}</p>
+    </article>
+  `;
 }
 
 function renderDocuments() {
-  document.getElementById("documentGrid").innerHTML = documents.map(doc => renderResourceCard(doc, "document")).join("");
+  const grid = document.getElementById("documentGrid");
+  const archiveTools = document.querySelector(".archive-tools");
+  if (archiveTools) archiveTools.hidden = !documents.length;
+  grid.innerHTML = documents.length
+    ? documents.map(doc => renderResourceCard(doc, "document")).join("")
+    : emptyStateHtml("Nenhum documento cadastrado ainda", "A base pública está limpa. Adicione seus documentos reais em data.js e coloque os PDFs na pasta documents/.");
   updateBulkUI();
 }
 
 function renderLinks() {
-  document.getElementById("linksGrid").innerHTML = usefulLinks.map(link => renderResourceCard(link, "link")).join("");
+  const grid = document.getElementById("linksGrid");
+  grid.innerHTML = usefulLinks.length
+    ? usefulLinks.map(link => renderResourceCard(link, "link")).join("")
+    : emptyStateHtml("Nenhum link cadastrado ainda", "Quando você adicionar links reais em data.js, eles aparecerão aqui.");
 }
 
 function renderApps() {
-  document.getElementById("appsGrid").innerHTML = apps.map(app => renderResourceCard(app, "app")).join("");
+  const grid = document.getElementById("appsGrid");
+  grid.innerHTML = apps.length
+    ? apps.map(app => renderResourceCard(app, "app")).join("")
+    : emptyStateHtml("Nenhum app cadastrado", "Os apps internos do hub aparecerão aqui.");
 }
 
 function renderGuides() {
@@ -1098,98 +1119,122 @@ function formatGrade(value) {
 function setupCalculators() {
   const finalButton = document.getElementById("finalGradeButton");
   const finalOutput = document.getElementById("finalGradeResult");
+  const gradeList = document.getElementById("partialGrades");
+  const addGradeButton = document.getElementById("addGradeButton");
+  const clearGradesButton = document.getElementById("clearGradesButton");
 
-  function readGrade(id) {
-    const raw = document.getElementById(id)?.value?.replace?.(",", ".") ?? "";
-    if (!raw.trim()) return null;
-    const value = Number(raw);
+  function parseNumber(raw) {
+    const normalized = (raw ?? "").toString().replace(",", ".").trim();
+    if (!normalized) return null;
+    const value = Number(normalized);
     return Number.isFinite(value) ? value : null;
   }
 
-  function readNumber(id) {
-    const raw = document.getElementById(id)?.value?.replace?.(",", ".") ?? "";
-    if (!raw.trim()) return null;
-    const value = Number(raw);
-    return Number.isFinite(value) ? value : null;
+  function readGradeInput(input) {
+    return parseNumber(input?.value);
+  }
+
+  function readGrade(id) {
+    return parseNumber(document.getElementById(id)?.value);
+  }
+
+  function renumberGrades() {
+    [...gradeList?.querySelectorAll(".grade-row") || []].forEach((row, index) => {
+      const label = row.querySelector("label span");
+      if (label) label.textContent = `Nota ${index + 1}`;
+      const input = row.querySelector("input");
+      if (input) input.placeholder = index === 0 ? "Ex.: 6,5" : index === 1 ? "Ex.: 7,0" : "Ex.: 8,0";
+      const remove = row.querySelector("button");
+      if (remove) remove.disabled = (gradeList.querySelectorAll(".grade-row").length <= 1);
+    });
+  }
+
+  function createGradeRow(value = "") {
+    if (!gradeList) return;
+    const row = document.createElement("div");
+    row.className = "grade-row";
+    row.innerHTML = `
+      <label><span>Nota</span><input type="number" class="partial-grade" min="0" max="10" step="0.01" inputmode="decimal" value="${escapeHtml(value)}" /></label>
+      <button class="remove-row" type="button" aria-label="Remover nota">×</button>
+    `;
+    row.querySelector("input")?.addEventListener("input", calculateFinalSituation);
+    row.querySelector("button")?.addEventListener("click", () => {
+      row.remove();
+      if (!gradeList.querySelector(".grade-row")) createGradeRow();
+      renumberGrades();
+      calculateFinalSituation();
+    });
+    gradeList.appendChild(row);
+    renumberGrades();
+  }
+
+  function resetGrades() {
+    if (!gradeList) return;
+    gradeList.innerHTML = "";
+    createGradeRow();
+    createGradeRow();
+    document.getElementById("pfFinal").value = "";
+    finalOutput.textContent = "Resultado: —";
+  }
+
+  function getPartialGrades() {
+    return [...gradeList?.querySelectorAll(".partial-grade") || []]
+      .map(input => readGradeInput(input))
+      .filter(value => value !== null);
   }
 
   function calculateFinalSituation() {
-    const n1 = readGrade("n1Final");
-    const n2 = readGrade("n2Final");
-    const totalClasses = readNumber("totalClasses");
-    const absences = readNumber("absences") ?? 0;
+    const grades = getPartialGrades();
     const pf = readGrade("pfFinal");
 
-    if (n1 === null || n2 === null) {
-      finalOutput.textContent = "Resultado: informe N1 e N2.";
+    if (!grades.length) {
+      finalOutput.textContent = "Resultado: informe pelo menos uma nota parcial.";
       return;
     }
 
-    if (n1 < 0 || n1 > 10 || n2 < 0 || n2 > 10 || (pf !== null && (pf < 0 || pf > 10))) {
+    if (grades.some(value => value < 0 || value > 10) || (pf !== null && (pf < 0 || pf > 10))) {
       finalOutput.textContent = "Resultado: as notas devem estar entre 0 e 10.";
       return;
     }
 
-    if (totalClasses !== null && (totalClasses <= 0 || absences < 0 || absences > totalClasses)) {
-      finalOutput.textContent = "Resultado: confira o total de aulas e o número de faltas.";
-      return;
-    }
-
-    const mp = (n1 + n2) / 2;
-    const absencePercent = totalClasses ? (absences / totalClasses) * 100 : null;
-    const absenceText = absencePercent === null ? "faltas não calculadas" : `${formatGrade(absencePercent)}% de faltas`;
-
-    if (absencePercent !== null && absencePercent > 25) {
-      finalOutput.innerHTML = `<strong>Reprovado por falta.</strong><br>MP = ${formatGrade(mp)} · ${absenceText}. Acima de 25% do total de aulas não há aprovação.`;
-      return;
-    }
+    const mp = grades.reduce((sum, value) => sum + value, 0) / grades.length;
+    const gradesText = grades.map(formatGrade).join(" · ");
 
     if (mp >= 7) {
-      finalOutput.innerHTML = `<strong>Aprovado por média.</strong><br>MP = ${formatGrade(mp)} · ${absenceText}. Não precisa de prova final.`;
+      finalOutput.innerHTML = `<strong>Aprovado por média.</strong><br>Notas: ${gradesText}<br>MP = ${formatGrade(mp)}. Não precisa de prova final.`;
       return;
     }
 
     if (mp < 2.5) {
-      finalOutput.innerHTML = `<strong>Reprovado sem direito à prova final.</strong><br>MP = ${formatGrade(mp)} · ${absenceText}. Abaixo de 2,5 não dá direito à final.`;
+      finalOutput.innerHTML = `<strong>Reprovado sem direito à prova final.</strong><br>Notas: ${gradesText}<br>MP = ${formatGrade(mp)}. Abaixo de 2,5 não dá direito à final.`;
       return;
     }
 
     const neededPf = 15 - (mp * 2);
 
     if (pf === null) {
-      finalOutput.innerHTML = `<strong>Precisa fazer prova final.</strong><br>MP = ${formatGrade(mp)} · ${absenceText}. Para atingir média final 5,0, precisa tirar <strong>${formatGrade(neededPf)}</strong> na PF.`;
+      finalOutput.innerHTML = `<strong>Precisa fazer prova final.</strong><br>Notas: ${gradesText}<br>MP = ${formatGrade(mp)}. Para atingir média final 5,0, precisa tirar <strong>${formatGrade(neededPf)}</strong> na PF.`;
       return;
     }
 
     const mf = ((mp * 2) + pf) / 3;
     const finalStatus = mf >= 5 ? "Aprovado após a final." : "Reprovado após a final.";
-    finalOutput.innerHTML = `<strong>${finalStatus}</strong><br>MP = ${formatGrade(mp)} · PF = ${formatGrade(pf)} · MF = ${formatGrade(mf)} · ${absenceText}.`;
+    finalOutput.innerHTML = `<strong>${finalStatus}</strong><br>Notas: ${gradesText}<br>MP = ${formatGrade(mp)} · PF = ${formatGrade(pf)} · MF = ${formatGrade(mf)}.`;
   }
 
+  addGradeButton?.addEventListener("click", () => {
+    createGradeRow();
+    const lastInput = gradeList?.querySelector(".grade-row:last-child input");
+    lastInput?.focus();
+  });
+  clearGradesButton?.addEventListener("click", resetGrades);
   finalButton?.addEventListener("click", calculateFinalSituation);
-  ["n1Final", "n2Final", "totalClasses", "absences", "pfFinal"].forEach(id => {
-    document.getElementById(id)?.addEventListener("input", calculateFinalSituation);
-  });
+  document.getElementById("pfFinal")?.addEventListener("input", calculateFinalSituation);
 
-  document.getElementById("hoursButton")?.addEventListener("click", () => {
-    const required = Number(document.getElementById("requiredHours").value);
-    const completed = Number(document.getElementById("completedHours").value);
-    const output = document.getElementById("hoursResult");
-    const bar = document.getElementById("hoursProgress");
-
-    if (Number.isNaN(required) || Number.isNaN(completed) || required <= 0 || completed < 0) {
-      output.textContent = "Resultado: preencha horas válidas.";
-      bar.style.width = "0%";
-      return;
-    }
-
-    const remaining = Math.max(0, required - completed);
-    const percent = Math.min(100, (completed / required) * 100);
-    bar.style.width = `${percent}%`;
-    output.textContent = remaining === 0
-      ? `Resultado: carga atingida (${completed}/${required} h).`
-      : `Resultado: faltam ${remaining} h (${completed}/${required} h).`;
-  });
+  if (gradeList && !gradeList.querySelector(".grade-row")) {
+    createGradeRow();
+    createGradeRow();
+  }
 }
 
 function setupNavigation() {
