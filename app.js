@@ -247,8 +247,18 @@ function detectSearchIntent(query = "") {
 }
 
 
+
+function regexAccentPattern(term = "") {
+  const escaped = escapeHtml(term).replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+  const map = {
+    a: "[aàáâãäå]", e: "[eèéêë]", i: "[iìíîï]", o: "[oòóôõö]", u: "[uùúûü]", c: "[cç]",
+    A: "[AÀÁÂÃÄÅ]", E: "[EÈÉÊË]", I: "[IÌÍÎÏ]", O: "[OÒÓÔÕÖ]", U: "[UÙÚÛÜ]", C: "[CÇ]"
+  };
+  return escaped.replace(/[aeioucAEIOUC]/g, char => map[char] || char);
+}
+
 function highlight(text, exactTerms = [], semanticTerms = []) {
-  let safe = escapeHtml(text);
+  let safe = escapeHtml(text || "");
   const allTerms = [
     ...exactTerms.map(term => ({ term, cls: "" })),
     ...semanticTerms.map(term => ({ term, cls: "semantic" }))
@@ -257,11 +267,34 @@ function highlight(text, exactTerms = [], semanticTerms = []) {
     .sort((a, b) => b.term.length - a.term.length);
 
   for (const { term, cls } of allTerms) {
-    const escapedTerm = escapeHtml(term).replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
-    const regex = new RegExp(`(${escapedTerm})`, "gi");
+    const regex = new RegExp(`(${regexAccentPattern(term)})`, "gi");
     safe = safe.replace(regex, `<mark class="${cls}">$1</mark>`);
   }
   return safe;
+}
+
+function plainSnippet(text = "", exactTerms = [], semanticTerms = [], limit = 220) {
+  const clean = (text || "").toString().replace(/\s+/g, " ").trim();
+  if (!clean) return "";
+  const terms = [...exactTerms, ...semanticTerms].map(normalize).filter(Boolean);
+  const normalized = normalize(clean);
+  let hit = -1;
+  for (const term of terms) {
+    hit = normalized.indexOf(term);
+    if (hit >= 0) break;
+  }
+  if (hit < 0 || clean.length <= limit) return compactText(clean, limit);
+  const start = Math.max(0, hit - Math.floor(limit / 3));
+  const end = Math.min(clean.length, start + limit);
+  return `${start > 0 ? "…" : ""}${clean.slice(start, end).trim()}${end < clean.length ? "…" : ""}`;
+}
+
+function resultSnippet(result) {
+  const source = result.type === "document"
+    ? `${result.chunk?.heading || ""}. ${result.text || ""}`
+    : `${result.title}. ${result.text || ""}`;
+  const snippet = plainSnippet(source, result.exactTerms || [], result.semanticTerms || [], 210);
+  return highlight(snippet, result.exactTerms || [], result.semanticTerms || []);
 }
 
 function statusBadge(status) {
@@ -289,13 +322,15 @@ function resourceFormat(resource, type = "document") {
   return "ITEM";
 }
 
+
 function thumbnailHtml(resource, type = "document", options = {}) {
   const title = resource?.title || "Item";
   const format = resourceFormat(resource || {}, type);
   const page = options.page ? `<span class="thumb-page">p. ${escapeHtml(options.page)}</span>` : "";
   const image = resource?.thumbnailUrl || resource?.coverUrl;
-  const href = resource?.pdfUrl || resource?.sourceUrl || resource?.url || "#";
+  const href = resource?.pdfUrl || resource?.fileUrl || resource?.sourceUrl || resource?.url || "#";
   const kindClass = `thumb-${type}`;
+  const isPdf = type === "document" && /\.pdf($|[?#])/i.test(href || "");
 
   if (image) {
     return `
@@ -306,8 +341,9 @@ function thumbnailHtml(resource, type = "document", options = {}) {
     `;
   }
 
+  const pdfAttrs = isPdf ? `data-pdf-url="${escapeHtml(href)}"` : "";
   return `
-    <div class="doc-thumb ${kindClass}" aria-label="Miniatura de ${escapeHtml(title)}">
+    <div class="doc-thumb ${kindClass} ${isPdf ? "thumb-pdf" : ""}" ${pdfAttrs} aria-label="Miniatura de ${escapeHtml(title)}">
       <div class="doc-sheet">
         <span class="doc-format">${escapeHtml(format)}</span>
         ${page}
@@ -316,6 +352,66 @@ function thumbnailHtml(resource, type = "document", options = {}) {
       </div>
     </div>
   `;
+}
+
+function setupPdfJs() {
+  if (!window.pdfjsLib) return false;
+  if (!window.pdfjsLib.GlobalWorkerOptions.workerSrc) {
+    window.pdfjsLib.GlobalWorkerOptions.workerSrc = "https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js";
+  }
+  return true;
+}
+
+async function renderSinglePdfThumbnail(el) {
+  if (!setupPdfJs() || !el || el.dataset.pdfRendered) return;
+  const url = el.dataset.pdfUrl;
+  if (!url) return;
+  el.dataset.pdfRendered = "loading";
+  try {
+    const pdf = await window.pdfjsLib.getDocument(url).promise;
+    const page = await pdf.getPage(1);
+    const box = el.getBoundingClientRect();
+    const targetWidth = Math.max(110, Math.min(260, box.width || 160));
+    const viewport1 = page.getViewport({ scale: 1 });
+    const scale = targetWidth / viewport1.width;
+    const viewport = page.getViewport({ scale });
+    const canvas = document.createElement("canvas");
+    const ratio = Math.min(window.devicePixelRatio || 1, 2);
+    canvas.width = Math.floor(viewport.width * ratio);
+    canvas.height = Math.floor(viewport.height * ratio);
+    canvas.style.width = "100%";
+    canvas.style.height = "100%";
+    canvas.setAttribute("aria-hidden", "true");
+    const context = canvas.getContext("2d");
+    context.setTransform(ratio, 0, 0, ratio, 0, 0);
+    await page.render({ canvasContext: context, viewport }).promise;
+    el.classList.add("thumb-rendered");
+    el.prepend(canvas);
+    el.dataset.pdfRendered = "done";
+  } catch (error) {
+    el.dataset.pdfRendered = "error";
+    console.warn("Não foi possível gerar miniatura do PDF:", url, error);
+  }
+}
+
+function renderPdfThumbnails() {
+  const thumbs = [...document.querySelectorAll(".doc-thumb[data-pdf-url]:not([data-pdf-rendered])")];
+  if (!thumbs.length || !setupPdfJs()) return;
+
+  if ("IntersectionObserver" in window) {
+    const observer = new IntersectionObserver(entries => {
+      entries.forEach(entry => {
+        if (entry.isIntersecting) {
+          observer.unobserve(entry.target);
+          renderSinglePdfThumbnail(entry.target);
+        }
+      });
+    }, { rootMargin: "240px" });
+    thumbs.forEach(el => observer.observe(el));
+    return;
+  }
+
+  thumbs.slice(0, 40).forEach(renderSinglePdfThumbnail);
 }
 
 function getAllTags() {
@@ -805,12 +901,14 @@ function renderResults(results, query) {
     : `Principais itens do hub: ${countText}.`;
 
   container.innerHTML = results.map((result, index) => renderResultCard(result, index)).join("");
+  requestAnimationFrame(renderPdfThumbnails);
 }
+
 
 function renderResultCard(result, index) {
   const openLabel = result.type === "document" ? "Prévia" : "Abrir";
   const subtitle = escapeHtml(result.subtitle);
-  const tags = (result.tags || []).slice(0, 6).map(tag => `<span class="badge">${escapeHtml(tag)}</span>`).join("");
+  const tags = (result.tags || []).slice(0, 5).map(tag => `<span class="badge">${escapeHtml(tag)}</span>`).join("");
   const thumbResource = result.type === "document" ? result.doc : result;
   const thumb = thumbnailHtml(thumbResource, result.type, result.type === "document" ? { page: result.chunk.page } : {});
   const primaryAction = result.type === "document"
@@ -826,19 +924,17 @@ function renderResultCard(result, index) {
       <div class="result-body">
         <div class="result-head">
           ${typeBadge(result.type)}
-          ${statusBadge(result.status)}
           ${metaBadge(result.fileFormat)}
           ${result.type === "document" ? `<span class="badge">p. ${escapeHtml(result.chunk.page)}</span>` : ""}
         </div>
         <h3>${escapeHtml(result.title)}</h3>
         <p class="result-subtitle">${subtitle}</p>
+        <p class="snippet result-snippet">${resultSnippet(result)}</p>
         <div class="badge-row">${tags}</div>
       </div>
       <div class="result-actions">
         ${primaryAction}
         ${secondaryAction}
-        ${result.type === "document" ? `<button type="button" class="secondary-button" data-share-index="${index}">Compartilhar</button>` : ""}
-        ${result.type === "document" ? `<button type="button" class="secondary-button" data-copy-resource="${index}">Copiar ref.</button>` : ""}
       </div>
     </article>
   `;
@@ -961,22 +1057,20 @@ function setupSearch() {
   runSearch("");
 }
 
+
 function renderResourceCard(resource, kind) {
-  const status = statusBadge(resource.status || "review");
   const tags = (resource.tags || []).slice(0, 5).map(tag => `<span class="badge">${escapeHtml(tag)}</span>`).join("");
   const formatText = kind === "document" ? resource.fileFormat : inferFormat({ ...resource, type: kind });
   const format = metaBadge(formatText);
-  const select = kind === "document" ? `<label class="select-doc" ${state.selectMode ? "" : "hidden"}><input type="checkbox" data-select-doc="${escapeHtml(resource.id)}" ${state.selectedDocs.has(resource.id) ? "checked" : ""}> selecionar</label>` : "";
   const action = kind === "document"
-    ? `<button type="button" data-doc-preview="${escapeHtml(resource.id)}">Prévia</button><a class="secondary-button" href="${escapeHtml(resource.pdfUrl || resource.sourceUrl || '#')}" target="_blank" rel="noopener">Arquivo</a><button type="button" class="secondary-button" data-doc-share="${escapeHtml(resource.id)}">Link público</button>`
+    ? `<button type="button" data-doc-preview="${escapeHtml(resource.id)}">Prévia</button><a class="secondary-button" href="${escapeHtml(resource.pdfUrl || resource.sourceUrl || '#')}" target="_blank" rel="noopener">Arquivo</a>`
     : `<a class="small-action" href="${escapeHtml(resource.url)}">Abrir</a>`;
   const subtitle = kind === "document" ? resource.correspondent : (resource.category || "Atalho");
 
   return `
     <article class="resource-card resource-${escapeHtml(kind)}" id="${escapeHtml(resource.id)}">
-      ${select}
       ${thumbnailHtml(resource, kind)}
-      <div class="badge-row">${typeBadge(kind)}${status}${format}<span class="badge">${escapeHtml(resource.documentType || resource.kind || resource.category || "")}</span></div>
+      <div class="badge-row">${typeBadge(kind)}${format}<span class="badge">${escapeHtml(resource.documentType || resource.kind || resource.category || "")}</span></div>
       <h3>${escapeHtml(resource.title)}</h3>
       <p class="result-subtitle">${escapeHtml(subtitle || "")}</p>
       <p>${escapeHtml(compactText(resource.summary || resource.description || resource.body || "", 132))}</p>
@@ -1095,7 +1189,7 @@ function renderDocuments() {
   grid.innerHTML = documents.length
     ? documents.map(doc => renderResourceCard(doc, "document")).join("")
     : emptyStateHtml("Nenhum documento cadastrado ainda", "A base pública está limpa. Adicione seus documentos reais em data.js e coloque os PDFs na pasta documents/.");
-  updateBulkUI();
+  requestAnimationFrame(renderPdfThumbnails);
 }
 
 function renderLinks() {
@@ -1150,17 +1244,25 @@ function similarDocuments(doc, limit = 6) {
     .map(item => item.doc);
 }
 
+
 function bestChunksForDoc(doc, exactTerms = [], semanticTerms = []) {
-  const terms = [...exactTerms, ...semanticTerms];
-  const scored = (doc.chunks || []).map(chunk => {
-    const haystack = normalize(`${chunk.heading || ""} ${chunk.text || ""} ${(chunk.semanticTags || []).join(" ")}`);
+  const terms = [...exactTerms, ...semanticTerms].map(normalize).filter(Boolean);
+  const chunks = (doc.chunks || []).length ? doc.chunks : [
+    { id: `${doc.id}-summary`, page: "—", heading: doc.title, text: doc.summary || doc.title || "" }
+  ];
+
+  const scored = chunks.map(chunk => {
+    const haystack = normalize(`${doc.title || ""} ${doc.summary || ""} ${doc.documentType || ""} ${doc.correspondent || ""} ${(doc.tags || []).join(" ")} ${chunk.heading || ""} ${chunk.text || ""} ${(chunk.semanticTags || []).join(" ")}`);
     let score = 0;
-    terms.forEach(term => { if (haystack.includes(normalize(term))) score += exactTerms.includes(term) ? 3 : 1; });
+    terms.forEach(term => {
+      if (haystack.includes(term)) score += exactTerms.map(normalize).includes(term) ? 3 : 1;
+    });
     return { chunk, score };
   }).sort((a, b) => b.score - a.score);
 
-  if (!terms.length) return (doc.chunks || []).slice(0, 3);
-  return scored.filter(item => item.score > 0).slice(0, 4).map(item => item.chunk).concat((doc.chunks || []).slice(0, 1)).slice(0, 4);
+  if (!terms.length) return chunks.slice(0, 3);
+  const matched = scored.filter(item => item.score > 0).slice(0, 4).map(item => item.chunk);
+  return matched.length ? matched : chunks.slice(0, 1);
 }
 
 function createShareUrl(docId, expires = "") {
@@ -1186,11 +1288,13 @@ function renderShareBox(doc) {
   `;
 }
 
+
 function openPreviewFromDoc(doc, options = {}) {
   if (!doc) return;
-  const exactTerms = options.exactTerms || expandedTerms(state.lastQuery).exact || [];
-  const semanticTerms = options.semanticTerms || expandedTerms(state.lastQuery).semantic || [];
-  const chunk = options.chunk || bestChunksForDoc(doc, exactTerms, semanticTerms)[0] || doc.chunks?.[0] || { page: "—", heading: "Prévia", text: doc.summary || "" };
+  const queryTerms = expandedTerms(state.lastQuery || "");
+  const exactTerms = options.exactTerms || queryTerms.exact || [];
+  const semanticTerms = options.semanticTerms || queryTerms.semantic || [];
+  const chunk = options.chunk || bestChunksForDoc(doc, exactTerms, semanticTerms)[0] || doc.chunks?.[0] || { page: "—", heading: "Prévia", text: doc.summary || doc.title || "" };
   openPreview({ type: "document", doc, chunk, exactTerms, semanticTerms });
 }
 
@@ -1199,61 +1303,43 @@ function openPreview(result) {
   const modalContent = document.getElementById("modalContent");
   if (!result || result.type !== "document") return;
   const doc = result.doc;
-  const chunks = bestChunksForDoc(doc, result.exactTerms || [], result.semanticTerms || []);
+  const exactTerms = result.exactTerms || [];
+  const semanticTerms = result.semanticTerms || [];
+  const chunks = bestChunksForDoc(doc, exactTerms, semanticTerms);
+  const shownChunks = chunks.length ? chunks : [{ page: "—", heading: "Prévia", text: doc.summary || doc.title || "" }];
+
   modalContent.innerHTML = `
-    <div class="full-preview">
-      <header class="preview-header">
+    <div class="full-preview compact-preview">
+      <header class="preview-header compact-preview-header">
+        <div class="preview-cover">
+          ${thumbnailHtml(doc, "document")}
+        </div>
         <div>
           <div class="badge-row">
-            ${typeBadge(result.type)}${statusBadge(doc.status)}${metaBadge(doc.fileFormat)}${metaBadge(doc.documentType)}${metaBadge(doc.correspondent, "correspondent")}
+            ${typeBadge(result.type)}${metaBadge(doc.fileFormat)}${metaBadge(doc.documentType || doc.kind)}
           </div>
-          <h2 id="previewTitle">${escapeHtml(doc.title)}</h2>
-          <p class="result-subtitle">${escapeHtml(doc.summary)}</p>
+          <h2 id="previewTitle">${highlight(doc.title, exactTerms, semanticTerms)}</h2>
+          <p class="result-subtitle">${highlight(doc.summary || doc.correspondent || "", exactTerms, semanticTerms)}</p>
+          <p class="preview-actions-line"><a class="small-action" href="${escapeHtml(doc.pdfUrl || doc.sourceUrl || '#')}" target="_blank" rel="noopener">Abrir arquivo</a></p>
         </div>
       </header>
 
-      <div class="preview-layout">
-        <aside class="preview-meta">
-          <h3>Metadados</h3>
-          <p><strong>Tipo:</strong> ${escapeHtml(doc.documentType || doc.kind)}</p>
-          <p><strong>Correspondente:</strong> ${escapeHtml(doc.correspondent)}</p>
-          <p><strong>Formato:</strong> ${escapeHtml(doc.fileFormat)}</p>
-          <p><strong>Data:</strong> ${escapeHtml(doc.docDate)} · <strong>Coleta:</strong> ${escapeHtml(doc.collectedDate)}</p>
-          <p><strong>Observação:</strong> ${escapeHtml(doc.trust)}</p>
-          <div class="tag-list">${(doc.tags || []).slice(0, 14).map(tag => `<span class="badge">${escapeHtml(tag)}</span>`).join("")}</div>
-          <h3>Classificação automática</h3>
-          <p class="result-subtitle">Sugestões baseadas no conteúdo indexado.</p>
-          <div class="tag-list auto-tags">
-            ${metaBadge(doc.autoMetadata.documentType || doc.documentType, "auto")}
-            ${metaBadge(doc.autoMetadata.correspondent || doc.correspondent, "auto")}
-            ${(doc.autoMetadata.tags || []).slice(0, 6).map(tag => metaBadge(tag, "auto")).join("")}
-          </div>
-          <p><a href="${escapeHtml(doc.pdfUrl || doc.sourceUrl || '#')}" target="_blank" rel="noopener">Abrir arquivo/fonte</a></p>
-        </aside>
-        <section class="preview-main">
-          <h3>Prévia com destaque</h3>
-          ${chunks.map(chunk => `
-            <article class="preview-paper">
-              <div class="result-head"><span class="badge">p. ${escapeHtml(chunk.page)}</span><span class="badge">${escapeHtml(chunk.heading)}</span></div>
-              <p>${highlight(chunk.text, result.exactTerms || [], result.semanticTerms || [])}</p>
-            </article>
-          `).join("")}
-          <label><strong>Referência rápida</strong>
-            <textarea class="copy-box" readonly>${escapeHtml(buildCitation({ ...result, chunk }))}</textarea>
-          </label>
-          ${renderShareBox(doc)}
-
-        </section>
-      </div>
+      <section class="preview-main">
+        <h3>Trechos encontrados</h3>
+        ${shownChunks.map(chunk => `
+          <article class="preview-paper">
+            <div class="result-head">
+              <span class="badge">p. ${escapeHtml(chunk.page || "—")}</span>
+              <span class="badge">${highlight(chunk.heading || "Trecho", exactTerms, semanticTerms)}</span>
+            </div>
+            <p>${highlight(chunk.text || doc.summary || doc.title || "", exactTerms, semanticTerms)}</p>
+          </article>
+        `).join("")}
+      </section>
     </div>
   `;
   modal.setAttribute("aria-hidden", "false");
-
-  const expiry = modalContent.querySelector("#shareExpiry");
-  const shareUrl = modalContent.querySelector("#shareUrl");
-  expiry?.addEventListener("change", () => {
-    shareUrl.value = createShareUrl(doc.id, expiry.value);
-  });
+  requestAnimationFrame(renderPdfThumbnails);
 }
 
 function setupModal() {
@@ -1528,6 +1614,7 @@ function setupCalculators() {
   }
 }
 
+
 function setupNavigation() {
   const navLinks = [...document.querySelectorAll(".nav a[href^='#']")];
   const sections = [...document.querySelectorAll("[data-nav-section]")];
@@ -1536,21 +1623,43 @@ function setupNavigation() {
     navLinks.forEach(link => link.classList.toggle("active", link.getAttribute("href") === `#${id}`));
   };
 
-  const observer = new IntersectionObserver(entries => {
-    const visible = entries
-      .filter(entry => entry.isIntersecting)
-      .sort((a, b) => b.intersectionRatio - a.intersectionRatio)[0];
-    if (visible) mark(visible.target.id);
-  }, { rootMargin: "-18% 0px -64% 0px", threshold: [0.08, 0.15, 0.25, 0.4] });
+  const currentSection = () => {
+    const offset = 92;
+    const position = window.scrollY + offset;
+    let current = sections[0]?.id || "buscar";
+    sections.forEach(section => {
+      if (section.offsetTop <= position) current = section.id;
+    });
 
-  sections.forEach(section => observer.observe(section));
+    const nearBottom = window.innerHeight + window.scrollY >= document.documentElement.scrollHeight - 12;
+    if (nearBottom && sections.length) current = sections[sections.length - 1].id;
+    return current;
+  };
 
-  window.addEventListener("hashchange", () => {
-    const id = (location.hash || "#buscar").replace("#", "");
-    if (sections.some(section => section.id === id)) mark(id);
+  let ticking = false;
+  const update = () => {
+    ticking = false;
+    mark(currentSection());
+  };
+
+  const requestUpdate = () => {
+    if (!ticking) {
+      ticking = true;
+      requestAnimationFrame(update);
+    }
+  };
+
+  navLinks.forEach(link => {
+    link.addEventListener("click", () => {
+      const id = link.getAttribute("href")?.replace("#", "");
+      if (id) mark(id);
+    });
   });
 
-  mark((location.hash || "#buscar").replace("#", ""));
+  window.addEventListener("scroll", requestUpdate, { passive: true });
+  window.addEventListener("resize", requestUpdate);
+  window.addEventListener("hashchange", requestUpdate);
+  requestUpdate();
 }
 
 function handleSharedLink() {
@@ -1587,10 +1696,8 @@ async function boot() {
   setupSearch();
   setupModal();
   setupArchiveViews();
-  setupBulkEditing();
   setupCalculators();
   setupNavigation();
-  handleSharedLink();
 }
 
 boot();
