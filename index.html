@@ -1,0 +1,190 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>HUB Arquivos IFBA — SI</title>
+  <meta name="description" content="Busca rápida por documentos, links, apps e informações do curso de Sistemas de Informação do IFBA Vitória da Conquista." />
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+  <div class="ambient" aria-hidden="true"></div>
+
+  <header class="topbar">
+    <a class="brand" href="#buscar" aria-label="Ir para busca">
+      <span class="brand-mark">SI</span>
+      <span class="brand-text">
+        <strong>HUB SI</strong>
+        <small>IFBA · VCA</small>
+      </span>
+    </a>
+
+    <nav class="nav" aria-label="Navegação principal">
+      <a href="#buscar" class="active">Buscar</a>
+      <a href="#acervo">Acervo</a>
+      <a href="#apps">Apps</a>
+      <a href="#links">Links</a>
+    </nav>
+  </header>
+
+  <main>
+    <section id="buscar" class="search-home section" data-nav-section>
+      <div class="search-shell search-first">
+        <div class="search-topline">
+          <span class="status-dot"></span>
+          <span>Busca geral em documentos, links, apps e informações do curso</span>
+        </div>
+
+        <form id="searchForm" class="main-search" autocomplete="off">
+          <label class="sr-only" for="searchInput">Pesquisar no hub</label>
+          <span aria-hidden="true" class="search-icon">⌕</span>
+          <input id="searchInput" type="search" placeholder="Buscar PPC, matriz, TCC, estágio, horários, protocolo..." list="autocompleteTerms" />
+          <datalist id="autocompleteTerms"></datalist>
+          <button type="submit">Buscar</button>
+        </form>
+        <div id="smartSuggestions" class="smart-suggestions" aria-label="Sugestões de busca"></div>
+
+        <div class="quick-chips" aria-label="Buscas rápidas">
+          <button data-example="PPC 2024">PPC 2024</button>
+          <button data-example="quadro de horários">horários</button>
+          <button data-example="fluxograma 2024">fluxograma</button>
+          <button data-example="atividades complementares">atividades compl.</button>
+          <button data-example="TCC">TCC</button>
+          <button data-example="estágio">estágio</button>
+          <button data-example="protocolo">protocolo</button>
+          <button data-example="média final">média final</button>
+        </div>
+      </div>
+
+      <div class="filters-card expanded-filters">
+        <label>Item
+          <select id="typeFilter">
+            <option value="all">Tudo</option>
+            <option value="document">Documentos</option>
+            <option value="link">Links</option>
+            <option value="app">Apps</option>
+          </select>
+        </label>
+        <label>Tipo doc.
+          <select id="docTypeFilter"><option value="all">Todos</option></select>
+        </label>
+        <label>Correspondente
+          <select id="correspondentFilter"><option value="all">Todos</option></select>
+        </label>
+        <label>Tag
+          <select id="tagFilter"><option value="all">Todas</option></select>
+        </label>
+        <label>Formato
+          <select id="formatFilter"><option value="all">Todos</option></select>
+        </label>
+      </div>
+
+      <div class="result-toolbar">
+        <p id="resultsSummary" aria-live="polite">Itens mais usados aparecem abaixo. Digite para filtrar.</p>
+        <button id="clearSearch" class="text-button" type="button">limpar</button>
+      </div>
+
+      <div id="searchResults" class="results-list"></div>
+    </section>
+
+    <section id="acervo" class="section content-section" data-nav-section>
+      <div class="section-heading archive-heading">
+        <div>
+          <p class="eyebrow">Acervo</p>
+          <h2>Documentos e diretório</h2>
+        </div>
+        <div class="view-toggle" role="group" aria-label="Modo de visualização">
+          <button type="button" class="active" data-view="grid">Grade</button>
+          <button type="button" data-view="list">Diretório</button>
+        </div>
+      </div>
+
+      <div class="archive-tools">
+        <button id="selectModeButton" class="secondary-button" type="button">Selecionar para edição em lote</button>
+        <div id="bulkPanel" class="bulk-panel" hidden>
+          <strong><span id="selectedCount">0</span> selecionado(s)</strong>
+          <label>Adicionar tag <input id="bulkTagInput" placeholder="ex.: matrícula" /></label>
+          <label>Tipo doc. <input id="bulkTypeInput" placeholder="ex.: Regulamento" /></label>
+          <label>Correspondente <input id="bulkCorrespondentInput" placeholder="ex.: Coordenação SI" /></label>
+          <button id="bulkApplyButton" type="button">Aplicar nesta sessão</button>
+          <button id="bulkExportButton" class="secondary-button" type="button">Gerar JSON</button>
+        </div>
+        <textarea id="bulkOutput" class="copy-box bulk-output" readonly hidden></textarea>
+      </div>
+
+      <div id="documentGrid" class="cards-grid archive-view"></div>
+      <div id="directoryGrid" class="directory-grid archive-view" hidden></div>
+    </section>
+
+    <section id="apps" class="section content-section" data-nav-section>
+      <div class="section-heading">
+        <div>
+          <p class="eyebrow">Ferramentas</p>
+          <h2>Apps acadêmicos</h2>
+        </div>
+      </div>
+
+      <div id="appsGrid" class="cards-grid"></div>
+
+      <div class="calculator-panel" id="calc-media">
+        <div class="section-heading inline">
+          <div>
+            <p class="eyebrow">App</p>
+            <h2>Cálculo de média final</h2>
+          </div>
+        </div>
+        <div class="calc-grid">
+          <article class="tool-card main-grade-card" id="calc-preciso">
+            <h3>Média parcial, final e situação</h3>
+            <p class="helper-text">Regra: MP = (N1 + N2)/2. Final: MF = (MP×2 + PF)/3. Para passar na final, precisa de MF ≥ 5,0.</p>
+            <div class="grade-form-grid">
+              <label>N1 <input type="number" id="n1Final" min="0" max="10" step="0.01" placeholder="Ex.: 6,5" /></label>
+              <label>N2 <input type="number" id="n2Final" min="0" max="10" step="0.01" placeholder="Ex.: 7,0" /></label>
+              <label>Total de aulas <input type="number" id="totalClasses" min="1" step="1" placeholder="Ex.: 80" /></label>
+              <label>Faltas <input type="number" id="absences" min="0" step="1" placeholder="Ex.: 12" /></label>
+              <label>PF opcional <input type="number" id="pfFinal" min="0" max="10" step="0.01" placeholder="Depois da prova final" /></label>
+            </div>
+            <button id="finalGradeButton" type="button">Calcular situação</button>
+            <div class="result-box" id="finalGradeResult">Resultado: —</div>
+          </article>
+
+          <article class="tool-card" id="calc-horas">
+            <h3>Horas complementares</h3>
+            <label>Horas exigidas <input type="number" id="requiredHours" min="0" step="1" value="120" /></label>
+            <label>Horas cumpridas <input type="number" id="completedHours" min="0" step="1" placeholder="Ex.: 75" /></label>
+            <button id="hoursButton" type="button">Calcular</button>
+            <div class="progress-shell"><div id="hoursProgress" class="progress-bar"></div></div>
+            <div class="result-box" id="hoursResult">Resultado: —</div>
+          </article>
+        </div>
+      </div>
+    </section>
+
+    <section id="links" class="section content-section" data-nav-section>
+      <div class="section-heading">
+        <div>
+          <p class="eyebrow">Atalhos</p>
+          <h2>Links, sistemas e páginas externas</h2>
+        </div>
+      </div>
+      <div id="linksGrid" class="cards-grid"></div>
+    </section>
+
+  </main>
+
+  <div id="previewModal" class="modal" aria-hidden="true" role="dialog" aria-modal="true" aria-labelledby="previewTitle">
+    <div class="modal-backdrop" data-close-modal></div>
+    <article class="modal-card paperless-modal">
+      <button class="modal-close" data-close-modal aria-label="Fechar prévia">×</button>
+      <div id="modalContent"></div>
+    </article>
+  </div>
+
+  <footer class="footer">
+    <span>HUB SI · protótipo livre · sempre confira a fonte oficial.</span>
+  </footer>
+
+  <script src="data.js"></script>
+  <script src="app.js"></script>
+</body>
+</html>
