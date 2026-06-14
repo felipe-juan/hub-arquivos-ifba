@@ -14,7 +14,8 @@ const state = {
   archiveView: "grid",
   selectMode: false,
   selectedDocs: new Set(),
-  temporaryEdits: new Map()
+  temporaryEdits: new Map(),
+  desktopColumns: "auto"
 };
 
 function setLoadingStatus(message = "", kind = "info") {
@@ -23,6 +24,25 @@ function setLoadingStatus(message = "", kind = "info") {
   box.textContent = message;
   box.dataset.kind = kind;
   box.hidden = !message;
+}
+
+function applyDesktopColumns(value = "auto") {
+  const allowed = new Set(["auto", "2", "3", "4", "5", "6", "7", "8", "9", "10", "11", "12"]);
+  const clean = allowed.has(String(value)) ? String(value) : "auto";
+  state.desktopColumns = clean;
+  document.body.dataset.desktopColumns = clean;
+}
+
+function setupDesktopColumnsControl() {
+  const select = document.getElementById("desktopColumnsSelect");
+  const saved = localStorage.getItem("hubDesktopColumns") || "auto";
+  applyDesktopColumns(saved);
+  if (!select) return;
+  select.value = state.desktopColumns;
+  select.addEventListener("change", () => {
+    applyDesktopColumns(select.value);
+    try { localStorage.setItem("hubDesktopColumns", state.desktopColumns); } catch (_) {}
+  });
 }
 
 const statusLabel = {
@@ -2583,7 +2603,7 @@ function setupAppsMenu() {
   if (!wrapper || !button || !menu) return;
 
   const currentApps = apps.length ? apps : [];
-  menu.innerHTML = [
+  const menuHtml = [
     `<a href="#apps" data-app-menu-main><span>🧰</span><strong>Todos os apps</strong><small>Ver seção completa</small></a>`,
     ...currentApps.map(app => {
       const isExternal = app.openMode === "new-tab" || /^(https?:)?\/\//.test(app.url || "") || (app.url || "").endsWith(".html");
@@ -2592,31 +2612,114 @@ function setupAppsMenu() {
     })
   ].join("");
 
-  const close = () => {
-    menu.hidden = true;
-    button.setAttribute("aria-expanded", "false");
-  };
-  const toggle = () => {
-    const open = menu.hidden;
-    menu.hidden = !open;
-    button.setAttribute("aria-expanded", open ? "true" : "false");
+  menu.innerHTML = menuHtml;
+
+  // Mobile fix: render the apps list in a body-level portal.
+  // This avoids clipping/stacking problems caused by the fixed bottom nav on phones.
+  let mobileMenu = document.getElementById("mobileAppsMenuPortal");
+  if (!mobileMenu) {
+    mobileMenu = document.createElement("div");
+    mobileMenu.id = "mobileAppsMenuPortal";
+    mobileMenu.className = "mobile-apps-panel";
+    mobileMenu.hidden = true;
+    mobileMenu.setAttribute("role", "menu");
+    document.body.appendChild(mobileMenu);
+  }
+  mobileMenu.innerHTML = menuHtml;
+
+  const isMobileMenu = () => window.matchMedia("(max-width: 920px)").matches;
+
+  const positionMobileMenu = () => {
+    if (!mobileMenu || !isMobileMenu()) return;
+    const topbar = document.querySelector(".topbar");
+    const rect = topbar?.getBoundingClientRect();
+    const fallbackTop = 70;
+    const top = Math.max(8, Math.round((rect?.bottom || fallbackTop) + 8));
+    const bottomReserved = 96;
+    const available = Math.max(220, window.innerHeight - top - bottomReserved);
+    mobileMenu.style.top = `${top}px`;
+    mobileMenu.style.bottom = "auto";
+    mobileMenu.style.maxHeight = `${Math.min(450, available)}px`;
   };
 
-  button.addEventListener("click", event => {
+  const setOpen = open => {
+    const mobile = isMobileMenu();
+    if (mobile && open) positionMobileMenu();
+    menu.hidden = mobile ? true : !open;
+    mobileMenu.hidden = mobile ? !open : true;
+    wrapper.classList.toggle("is-open", open);
+    button.setAttribute("aria-expanded", open ? "true" : "false");
+    document.body.classList.toggle("apps-menu-open", open);
+  };
+  const close = () => setOpen(false);
+  const toggle = () => setOpen(button.getAttribute("aria-expanded") !== "true");
+
+  button.setAttribute("aria-haspopup", "menu");
+
+  // Use only click/touchend-safe behavior. Some mobile browsers fire pointer/touch/click
+  // sequences that can open and close the menu in the same tap.
+  button.onclick = event => {
     event.preventDefault();
     event.stopPropagation();
     toggle();
-  });
-  menu.addEventListener("click", event => {
+  };
+  button.onpointerdown = null;
+  button.ontouchstart = null;
+
+  const menuClickHandler = event => {
     const link = event.target.closest("a");
     if (link && !link.target) close();
-  });
-  document.addEventListener("click", event => {
-    if (!wrapper.contains(event.target)) close();
-  });
-  document.addEventListener("keydown", event => {
-    if (event.key === "Escape") close();
-  });
+  };
+  menu.onclick = menuClickHandler;
+  mobileMenu.onclick = menuClickHandler;
+
+  if (!setupAppsMenu._boundDocumentClose) {
+    document.addEventListener("click", event => {
+      const currentWrapper = document.querySelector(".nav-apps-menu");
+      const currentMenu = document.getElementById("appsMenu");
+      const currentMobileMenu = document.getElementById("mobileAppsMenuPortal");
+      if (!currentWrapper || !currentMenu || !currentMobileMenu) return;
+      const clickedInside = currentWrapper.contains(event.target)
+        || currentMenu.contains(event.target)
+        || currentMobileMenu.contains(event.target);
+      if (!clickedInside) {
+        currentMenu.hidden = true;
+        currentMobileMenu.hidden = true;
+        currentWrapper.classList.remove("is-open");
+        document.getElementById("appsMenuButton")?.setAttribute("aria-expanded", "false");
+        document.body.classList.remove("apps-menu-open");
+      }
+    });
+    document.addEventListener("keydown", event => {
+      if (event.key !== "Escape") return;
+      const currentMenu = document.getElementById("appsMenu");
+      const currentMobileMenu = document.getElementById("mobileAppsMenuPortal");
+      const currentWrapper = document.querySelector(".nav-apps-menu");
+      if (currentMenu) currentMenu.hidden = true;
+      if (currentMobileMenu) currentMobileMenu.hidden = true;
+      currentWrapper?.classList.remove("is-open");
+      document.getElementById("appsMenuButton")?.setAttribute("aria-expanded", "false");
+      document.body.classList.remove("apps-menu-open");
+    });
+    window.addEventListener("resize", () => {
+      const expanded = document.getElementById("appsMenuButton")?.getAttribute("aria-expanded") === "true";
+      if (expanded) {
+        document.getElementById("appsMenu")?.setAttribute("hidden", "");
+        const currentMobileMenu = document.getElementById("mobileAppsMenuPortal");
+        if (currentMobileMenu) {
+          currentMobileMenu.hidden = !window.matchMedia("(max-width: 920px)").matches;
+          const topbar = document.querySelector(".topbar");
+          const rect = topbar?.getBoundingClientRect();
+          const top = Math.max(8, Math.round((rect?.bottom || 70) + 8));
+          const available = Math.max(220, window.innerHeight - top - 96);
+          currentMobileMenu.style.top = `${top}px`;
+          currentMobileMenu.style.bottom = "auto";
+          currentMobileMenu.style.maxHeight = `${Math.min(450, available)}px`;
+        }
+      }
+    });
+    setupAppsMenu._boundDocumentClose = true;
+  }
 }
 
 function setupNavigation() {
@@ -2762,13 +2865,44 @@ function handleSharedLink() {
   }
 }
 
+
+function skeletonCards(count = 8, label = "Carregando...") {
+  return Array.from({ length: count }, (_, index) => `
+    <article class="loading-card" aria-hidden="true">
+      <div class="loading-thumb"></div>
+      <div class="loading-line loading-line-title"></div>
+      <div class="loading-line"></div>
+      <div class="loading-line short"></div>
+      <span class="sr-only">${escapeHtml(label)} ${index + 1}</span>
+    </article>
+  `).join("");
+}
+
+function renderInitialLoadingPlaceholders() {
+  const docs = document.getElementById("documentGrid");
+  const dir = document.getElementById("directoryGrid");
+  const appsGrid = document.getElementById("appsGrid");
+  const linksGrid = document.getElementById("linksGrid");
+  if (docs && !docs.children.length) docs.innerHTML = skeletonCards(10, "Carregando documentos");
+  if (dir && !dir.children.length) dir.innerHTML = skeletonCards(4, "Carregando diretório");
+  if (appsGrid && !appsGrid.children.length) appsGrid.innerHTML = skeletonCards(4, "Carregando apps");
+  if (linksGrid && !linksGrid.children.length) linksGrid.innerHTML = skeletonCards(6, "Carregando links");
+}
+
+function refreshCurrentSearchIfNeeded() {
+  const input = document.getElementById("searchInput");
+  if (!input) return;
+  if ((input.value || "").trim() || filtersAreActive(getFilters())) {
+    runSearch(input.value);
+  }
+}
+
 async function boot() {
-  setLoadingStatus("Carregando documentos...");
-  await loadManifestDocuments();
-  setLoadingStatus("Preparando busca e filtros...");
-  populateFilters();
-  renderDirectory();
-  renderDocuments();
+  renderInitialLoadingPlaceholders();
+  setLoadingStatus("Carregando interface...");
+
+  // Render immediately available static content first. This keeps the page filled
+  // even if the user scrolls fast on mobile before the document manifest finishes.
   renderApps();
   renderLinks();
   renderGuides();
@@ -2781,12 +2915,26 @@ async function boot() {
   buildFinalExamTable();
   setupAppsMenu();
   setupNavigation();
+  setupDesktopColumnsControl();
+
+  setLoadingStatus("Carregando documentos...");
+  await loadManifestDocuments();
+
+  setLoadingStatus("Preparando busca e filtros...");
+  populateFilters();
+  renderDirectory();
+  renderDocuments();
+  refreshCurrentSearchIfNeeded();
+
   setLoadingStatus("Gerando prévias dos documentos...");
   schedulePdfThumbnailRender();
   window.setTimeout(() => setLoadingStatus(""), 1200);
+
   backgroundIndexMissingPdfText().finally(() => {
     if (!state.lastQuery) setLoadingStatus("");
+    refreshCurrentSearchIfNeeded();
   });
 }
+
 
 boot();

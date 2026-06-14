@@ -2046,3 +2046,320 @@ table.grade-group th {
 }
 
 /* v0.1.15: search/preview audit fixes */
+
+/* v0.1.16: desktop user-controlled column count */
+.desktop-columns-control { display: none; }
+.archive-actions {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: .55rem;
+  flex-wrap: wrap;
+}
+.archive-columns-control {
+  color: var(--muted);
+  font-size: .72rem;
+  font-weight: 900;
+  text-transform: uppercase;
+  letter-spacing: .04em;
+  gap: .28rem;
+  min-width: 132px;
+}
+.archive-columns-control select {
+  min-height: 38px;
+  padding: .58rem .75rem;
+  border-radius: 999px;
+}
+
+@media (min-width: 921px) {
+  .archive-actions .desktop-columns-control { display: grid; }
+  body[data-desktop-columns="2"] #documentGrid.cards-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  body[data-desktop-columns="3"] #documentGrid.cards-grid { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+  body[data-desktop-columns="4"] #documentGrid.cards-grid { grid-template-columns: repeat(4, minmax(0, 1fr)); }
+  body[data-desktop-columns="5"] #documentGrid.cards-grid { grid-template-columns: repeat(5, minmax(0, 1fr)); }
+  body[data-desktop-columns="6"] #documentGrid.cards-grid { grid-template-columns: repeat(6, minmax(0, 1fr)); }
+  body[data-desktop-columns="7"] #documentGrid.cards-grid { grid-template-columns: repeat(7, minmax(0, 1fr)); }
+  body[data-desktop-columns="8"] #documentGrid.cards-grid { grid-template-columns: repeat(8, minmax(0, 1fr)); }
+  body[data-desktop-columns="9"] #documentGrid.cards-grid { grid-template-columns: repeat(9, minmax(0, 1fr)); }
+  body[data-desktop-columns="10"] #documentGrid.cards-grid { grid-template-columns: repeat(10, minmax(0, 1fr)); }
+  body[data-desktop-columns="11"] #documentGrid.cards-grid { grid-template-columns: repeat(11, minmax(0, 1fr)); }
+  body[data-desktop-columns="12"] #documentGrid.cards-grid { grid-template-columns: repeat(12, minmax(0, 1fr)); }
+}
+
+/* v0.1.20: columns selector only controls Acervo grid; options start at 2 and go up to 12 */
+
+/* v0.1.17: fix preview match list spacing */
+.preview-page-list {
+  gap: .5rem;
+}
+.preview-page-list button {
+  display: grid;
+  grid-template-columns: 1fr;
+  align-items: start;
+  justify-items: start;
+  gap: .18rem;
+  min-height: 58px;
+  height: auto;
+  line-height: 1.25;
+  overflow: visible;
+  white-space: normal;
+}
+.preview-page-list button strong {
+  display: block;
+  margin: 0;
+  line-height: 1.2;
+  white-space: nowrap;
+}
+.preview-page-list button span {
+  display: block;
+  width: 100%;
+  line-height: 1.35;
+  white-space: normal;
+  overflow-wrap: anywhere;
+  word-break: normal;
+}
+@media (max-width: 920px) {
+  .preview-page-list button {
+    min-height: 62px;
+    padding: .58rem .62rem;
+  }
+}
+
+/* v0.1.20: mobile app menu reliability and progressive loading placeholders */
+.loading-card {
+  min-height: 220px;
+  border: 1px solid var(--line);
+  border-radius: 18px;
+  padding: .75rem;
+  background: rgba(255,255,255,.045);
+  display: grid;
+  gap: .65rem;
+  align-content: start;
+  overflow: hidden;
+}
+.loading-thumb,
+.loading-line {
+  position: relative;
+  overflow: hidden;
+  border-radius: 14px;
+  background: rgba(255,255,255,.075);
+}
+.loading-thumb { aspect-ratio: 3 / 4; min-height: 112px; }
+.loading-line { height: .78rem; }
+.loading-line-title { height: 1rem; width: 92%; }
+.loading-line.short { width: 56%; }
+.loading-thumb::after,
+.loading-line::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  transform: translateX(-100%);
+  background: linear-gradient(90deg, transparent, rgba(255,255,255,.12), transparent);
+  animation: hub-loading-shimmer 1.25s infinite;
+}
+@keyframes hub-loading-shimmer { to { transform: translateX(100%); } }
+
+.apps-dropdown:not([hidden]) { display: grid !important; }
+.nav-apps-menu.is-open .nav-apps-button { color: var(--ink); background: rgba(255,255,255,.08); }
+
+@media (max-width: 920px) {
+  body { padding-bottom: 5.8rem; }
+  .nav { overflow: visible !important; }
+  .nav-apps-menu { position: static !important; }
+  .nav-apps-button { touch-action: manipulation; min-width: 0; }
+  .apps-dropdown {
+    position: fixed !important;
+    left: .65rem !important;
+    right: .65rem !important;
+    bottom: 5.35rem !important;
+    top: auto !important;
+    width: auto !important;
+    max-height: min(58vh, 430px);
+    overflow-y: auto;
+    z-index: 999 !important;
+    -webkit-overflow-scrolling: touch;
+  }
+  .apps-dropdown a {
+    min-height: 54px;
+    padding: .72rem;
+  }
+  .loading-card { min-height: 178px; }
+  .loading-thumb { min-height: 96px; }
+  .section:last-of-type { padding-bottom: 1.2rem; }
+}
+
+
+/* v0.1.22: body-level Apps menu portal anchored below the mobile header */
+.mobile-apps-panel {
+  position: fixed;
+  left: .65rem;
+  right: .65rem;
+  top: 4.55rem;
+  bottom: auto;
+  width: auto;
+  max-height: min(58vh, calc(100dvh - 9.8rem), 450px);
+  overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
+  padding: .62rem;
+  border: 1px solid var(--line);
+  border-radius: 20px;
+  background: rgba(9, 14, 19, .98);
+  box-shadow: 0 22px 70px rgba(0,0,0,.52);
+  backdrop-filter: blur(18px);
+  display: grid;
+  gap: .45rem;
+  z-index: 2147483647;
+}
+.mobile-apps-panel[hidden] { display: none !important; }
+.mobile-apps-panel a {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr);
+  gap: .32rem .58rem;
+  align-items: center;
+  color: var(--text);
+  text-decoration: none;
+  border-radius: 15px;
+  padding: .75rem;
+  min-height: 56px;
+  background: rgba(255,255,255,.055);
+  border: 1px solid transparent;
+}
+.mobile-apps-panel a:hover,
+.mobile-apps-panel a:focus-visible {
+  color: var(--ink);
+  border-color: rgba(53,230,168,.18);
+  background: rgba(53,230,168,.08);
+}
+.mobile-apps-panel span {
+  grid-row: span 2;
+  width: 2.3rem;
+  height: 2.3rem;
+  display: grid;
+  place-items: center;
+  border-radius: .85rem;
+  background: rgba(255,255,255,.075);
+  font-size: 1.2rem;
+}
+.mobile-apps-panel strong {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  color: var(--ink);
+  font-size: .92rem;
+}
+.mobile-apps-panel small {
+  color: var(--muted);
+  font-size: .77rem;
+}
+@media (min-width: 921px) {
+  .mobile-apps-panel { display: none !important; }
+}
+
+/* v0.1.22: keep the mobile Apps menu near the top, not centered above bottom navigation */
+@media (max-width: 920px) {
+  .mobile-apps-panel {
+    top: calc(4.35rem + env(safe-area-inset-top, 0px));
+    bottom: auto !important;
+    max-height: min(58vh, calc(100dvh - 10.2rem));
+  }
+}
+
+/* v0.1.23: mobile calculator/app width fix */
+html,
+body {
+  max-width: 100%;
+  overflow-x: hidden;
+}
+
+.section,
+.content-section,
+.apps-featured-grid,
+.calculator-panel,
+.calc-grid,
+.calc-grid-single,
+.tool-card,
+.final-grade-card,
+.final-table-panel,
+.final-table-card,
+.where-panel,
+.where-tool-card {
+  min-width: 0;
+  max-width: 100%;
+}
+
+.apps-featured-grid > *,
+.calc-grid > *,
+.grade-list,
+.grade-row,
+.grade-row label,
+.pf-label,
+.result-box,
+.final-table-shell {
+  min-width: 0;
+  max-width: 100%;
+}
+
+.grade-row input,
+.pf-label input,
+.grade-actions button,
+.button-row button,
+#finalGradeButton {
+  width: 100%;
+  max-width: 100%;
+}
+
+@media (max-width: 720px) {
+  .apps-featured-grid {
+    width: 100%;
+    max-width: 100%;
+    overflow: hidden;
+  }
+
+  .calculator-panel {
+    width: 100%;
+    margin-inline: 0;
+  }
+
+  .tool-card {
+    width: 100%;
+    overflow: hidden;
+  }
+
+  .grade-row {
+    grid-template-columns: minmax(0, 1fr) auto;
+  }
+
+  .grade-row button.remove-row {
+    width: 42px;
+    min-width: 42px;
+    max-width: 42px;
+  }
+
+  .button-row,
+  .grade-actions {
+    width: 100%;
+  }
+
+  .final-table-shell {
+    width: 100%;
+    margin-inline: 0;
+    overflow-x: auto;
+  }
+
+  .final-table-wrap {
+    max-width: none;
+  }
+}
+
+@media (max-width: 420px) {
+  .grade-row {
+    gap: .38rem;
+  }
+
+  .grade-row button.remove-row {
+    width: 38px;
+    min-width: 38px;
+    max-width: 38px;
+  }
+}

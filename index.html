@@ -95,9 +95,27 @@
           <p class="eyebrow">Acervo</p>
           <h2>Documentos e diretório</h2>
         </div>
-        <div class="view-toggle" role="group" aria-label="Modo de visualização">
-          <button type="button" class="active" data-view="grid">Grade</button>
-          <button type="button" data-view="list">Diretório</button>
+        <div class="archive-actions">
+          <label class="desktop-columns-control archive-columns-control">Colunas
+            <select id="desktopColumnsSelect" aria-label="Número de colunas no acervo">
+              <option value="auto">Auto</option>
+              <option value="2">2 colunas</option>
+              <option value="3">3 colunas</option>
+              <option value="4">4 colunas</option>
+              <option value="5">5 colunas</option>
+              <option value="6">6 colunas</option>
+              <option value="7">7 colunas</option>
+              <option value="8">8 colunas</option>
+              <option value="9">9 colunas</option>
+              <option value="10">10 colunas</option>
+              <option value="11">11 colunas</option>
+              <option value="12">12 colunas</option>
+            </select>
+          </label>
+          <div class="view-toggle" role="group" aria-label="Modo de visualização">
+            <button type="button" class="active" data-view="grid">Grade</button>
+            <button type="button" data-view="list">Diretório</button>
+          </div>
         </div>
       </div>
 
@@ -216,11 +234,11 @@
   </div>
 
   <footer class="footer">
-    <span>HUB SI · v0.1.15 · protótipo livre · sempre confira a fonte oficial.</span>
+    <span>HUB SI · v0.1.23 · protótipo livre · sempre confira a fonte oficial.</span>
   </footer>
 
   <script src="data.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js" referrerpolicy="no-referrer"></script>
-  <script src="app.js?v=0.1.15"></script>
+  <script src="app.js?v=0.1.23"></script>
 </body>
 </html>
