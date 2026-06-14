@@ -1428,30 +1428,62 @@ function populateFilters() {
   populateAutocomplete();
 }
 
-function buildVocabulary() {
-  const tokenCounts = new Map();
-  const phrases = new Set();
+const CURATED_SEARCH_SUGGESTIONS = [
+  "calendário acadêmico",
+  "PPC 2024",
+  "matriz curricular",
+  "TCC",
+  "estágio",
+  "protocolo",
+  "média final",
+  "tabela da final",
+  "barema",
+  "atividades complementares",
+  "coordenador",
+  "whatsapp CAENS",
+  "fluxograma atual",
+  "fluxograma antigo",
+  "provas passadas"
+];
 
-  function addText(text) {
-    tokenize(text).forEach(token => tokenCounts.set(token, (tokenCounts.get(token) || 0) + 1));
-  }
+function isGoodSuggestion(term) {
+  if (!term) return false;
+  const clean = term.toString().replace(/\s+/g, " ").trim();
+  if (!clean) return false;
+  if (clean.length > 58) return false;
+  if (clean.split(" ").length > 7) return false;
+  if (/https?:\/\//i.test(clean)) return false;
+  if (/(janeiro|fevereiro|março|marco|abril|maio|junho|julho|agosto|setembro|outubro|novembro|dezembro).*(dias letivos|resolução|processo sei)/i.test(clean)) return false;
+  return true;
+}
+
+function addSuggestion(set, term) {
+  if (!isGoodSuggestion(term)) return;
+  set.add(term.toString().replace(/\s+/g, " ").trim());
+}
+
+function buildVocabulary() {
+  const phrases = new Set();
+  CURATED_SEARCH_SUGGESTIONS.forEach(term => addSuggestion(phrases, term));
 
   documents.forEach(doc => {
-    [doc.title, doc.documentType, doc.correspondent, doc.fileFormat, doc.summary].forEach(item => {
-      if (item) {
-        phrases.add(item.toString());
-        addText(item);
-      }
-    });
-    (doc.chunks || []).forEach(chunk => addText(`${chunk.heading || ""} ${chunk.text || ""} ${(chunk.semanticTags || []).join(" ")}`));
+    [doc.title, doc.documentType, doc.correspondent, doc.fileFormat].forEach(item => addSuggestion(phrases, item));
+    (doc.aliases || []).forEach(item => addSuggestion(phrases, item));
   });
-  usefulLinks.forEach(link => [link.title, link.category, link.description].forEach(item => item && (phrases.add(item.toString()), addText(item))));
-  apps.forEach(app => [app.title, app.category, app.description].forEach(item => item && (phrases.add(item.toString()), addText(item))));
-  answerCards.forEach(answer => [answer.title, answer.answer, answer.description, answer.category, ...(answer.tags || [])].forEach(item => item && (phrases.add(item.toString()), addText(item))));
-  const popularTokens = [...tokenCounts.entries()]
-    .sort((a, b) => b[1] - a[1])
-    .map(([token]) => token);
-  return unique([...phrases, ...popularTokens]).slice(0, 800);
+
+  usefulLinks.forEach(link => {
+    [link.title, link.category, ...(link.tags || [])].forEach(item => addSuggestion(phrases, item));
+  });
+
+  apps.forEach(app => {
+    [app.title, app.category, ...(app.keywords || [])].forEach(item => addSuggestion(phrases, item));
+  });
+
+  answerCards.forEach(answer => {
+    [answer.title, answer.category, ...(answer.tags || [])].forEach(item => addSuggestion(phrases, item));
+  });
+
+  return unique([...phrases]).slice(0, 180);
 }
 
 let vocabulary = [];
@@ -1460,20 +1492,35 @@ function populateAutocomplete() {
   vocabulary = buildVocabulary();
   const datalist = document.getElementById("autocompleteTerms");
   if (!datalist) return;
-  datalist.innerHTML = vocabulary.slice(0, 250).map(term => `<option value="${escapeHtml(term)}"></option>`).join("");
+  datalist.innerHTML = vocabulary.slice(0, 120).map(term => `<option value="${escapeHtml(term)}"></option>`).join("");
 }
 
 function updateSuggestions(query) {
   const box = document.getElementById("smartSuggestions");
-  if (!box) return;
+  const quickChips = document.querySelector(".quick-chips");
   const q = normalize(query).trim();
+
+  if (quickChips) quickChips.hidden = Boolean(q);
+  if (!box) return;
+
   if (!q) {
     box.innerHTML = "";
     return;
   }
-  const suggestions = vocabulary
-    .filter(term => normalize(term).includes(q) && normalize(term) !== q)
-    .slice(0, 7);
+
+  const scored = vocabulary
+    .filter(term => isGoodSuggestion(term))
+    .map(term => {
+      const n = normalize(term);
+      if (n === q) return null;
+      if (!n.includes(q)) return null;
+      const score = (n.startsWith(q) ? 100 : 0) - Math.min(term.length, 58);
+      return { term, score };
+    })
+    .filter(Boolean)
+    .sort((a, b) => b.score - a.score || a.term.localeCompare(b.term, "pt-BR"));
+
+  const suggestions = unique(scored.map(item => item.term)).slice(0, 4);
   box.innerHTML = suggestions.map(term => `<button type="button" data-suggest="${escapeHtml(term)}">${escapeHtml(term)}</button>`).join("");
 }
 
