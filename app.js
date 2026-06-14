@@ -342,6 +342,266 @@ function getAllFormats() {
   ]).sort((a, b) => a.localeCompare(b));
 }
 
+
+function slugify(text = "item") {
+  const slug = normalize(text)
+    .replace(/[^a-z0-9]+/g, "-")
+    .replace(/^-+|-+$/g, "")
+    .slice(0, 90);
+  return slug || "item";
+}
+
+function titleFromFilename(path = "") {
+  const file = path.split("/").pop().replace(/\.[^.]+$/, "");
+  const words = file
+    .replace(/[_-]+/g, " ")
+    .replace(/\b(ppc|nde|cne|ces|consepe|consup|concam|ifba|bsi|si|vca|ldb|sinaes|pne|tea|libras|tcc)\b/gi, match => match.toUpperCase())
+    .replace(/\s+/g, " ")
+    .trim();
+  return words.charAt(0).toUpperCase() + words.slice(1);
+}
+
+function categoryFromPath(path = "") {
+  const clean = path.replace(/^\.?\/?documents\//, "");
+  const first = clean.split("/")[0] || "documentos";
+  const map = {
+    "ppcs": "PPCs",
+    "ppc": "PPCs",
+    "matrizes-curriculares": "Matrizes curriculares",
+    "matrizes": "Matrizes curriculares",
+    "regulamentos-bsi": "Regulamentos BSI",
+    "regulamentos": "Regulamentos",
+    "portarias": "Portarias",
+    "normas-ifba": "Normas IFBA",
+    "normas": "Normas IFBA",
+    "diretrizes-cne": "Diretrizes CNE/MEC",
+    "diretrizes": "Diretrizes CNE/MEC",
+    "resolucoes": "Resoluções",
+    "resoluções": "Resoluções",
+    "documentos": "Documentos"
+  };
+  return map[normalize(first)] || first.replace(/[-_]+/g, " ").replace(/\b\w/g, char => char.toUpperCase());
+}
+
+function inferDocumentKindFromText(text = "") {
+  const haystack = normalize(text);
+  if (haystack.includes("ppc") || haystack.includes("projeto pedagogico")) return "PPC";
+  if (haystack.includes("matriz")) return "Matriz curricular";
+  if (haystack.includes("ementario") || haystack.includes("bibliografia")) return "Ementário";
+  if (haystack.includes("regulamento") || haystack.includes("regimento")) return "Regulamento";
+  if (haystack.includes("resolucao")) return "Resolução";
+  if (haystack.includes("portaria")) return "Portaria";
+  if (haystack.includes("lei")) return "Lei";
+  if (haystack.includes("diretriz")) return "Diretriz";
+  if (haystack.includes("barema")) return "Barema";
+  if (haystack.includes("formulario") || haystack.includes("formulário")) return "Formulário";
+  return "Documento";
+}
+
+function splitManifestTags(value = "") {
+  if (Array.isArray(value)) return value;
+  return value.toString().split(/[;,|]/).map(item => item.trim()).filter(Boolean);
+}
+
+function normalizeManifestPath(path = "") {
+  const raw = path.toString().trim();
+  if (!raw) return "#";
+  if (/^(https?:|mailto:|#)/i.test(raw)) return raw;
+  if (raw.startsWith("documents/")) return raw;
+  return `documents/${raw.replace(/^\.?\/?/, "")}`;
+}
+
+function normalizeManifestDocument(entry = {}, index = 0) {
+  const originalPath = entry.path || entry.file || entry.filename || entry.fileName || entry.pdfUrl || entry.url || entry.sourceUrl || "";
+  const fileUrl = normalizeManifestPath(originalPath);
+  const title = entry.title || entry.name || titleFromFilename(originalPath || `documento-${index + 1}`);
+  const category = entry.category || entry.group || entry.folder || categoryFromPath(fileUrl);
+  const kind = entry.kind || entry.documentType || entry.type || inferDocumentKindFromText(`${title} ${category} ${fileUrl}`);
+  const format = entry.fileFormat || entry.format || inferFormat({ pdfUrl: fileUrl, title, kind });
+  const tags = unique([
+    ...splitManifestTags(entry.tags),
+    category,
+    kind,
+    format,
+    ...inferTagsFromText(`${title} ${category} ${kind} ${fileUrl}`)
+  ]).slice(0, 14);
+  const id = entry.id || `doc-${slugify(`${category}-${title}-${index}`)}`;
+  const summary = entry.summary || entry.description || `${kind} em ${category}.`;
+  const text = entry.text || entry.content || summary;
+  const page = entry.page || entry.pages || "—";
+
+  return {
+    id,
+    title,
+    kind,
+    documentType: kind,
+    status: entry.status || "verified",
+    trust: entry.trust || "Documento carregado a partir do manifesto local.",
+    course: entry.course || "Sistemas de Informação",
+    year: entry.year || entry.ano || "",
+    docDate: entry.docDate || entry.date || entry.data || "",
+    collectedDate: entry.collectedDate || entry.collected || "",
+    sourceUrl: normalizeManifestPath(entry.sourceUrl || entry.officialUrl || originalPath),
+    pdfUrl: normalizeManifestPath(entry.pdfUrl || entry.path || originalPath),
+    thumbnailUrl: entry.thumbnailUrl || entry.coverUrl || "",
+    group: category,
+    category,
+    correspondent: entry.correspondent || inferCorrespondent({ title, kind, group: category, tags }),
+    fileFormat: format,
+    tags,
+    summary,
+    chunks: Array.isArray(entry.chunks) && entry.chunks.length ? entry.chunks : [
+      {
+        id: `${id}-manifesto`,
+        page,
+        heading: entry.heading || title,
+        semanticTags: tags,
+        text
+      }
+    ]
+  };
+}
+
+function csvRows(text = "") {
+  const rows = [];
+  let row = [];
+  let cell = "";
+  let quoted = false;
+
+  for (let i = 0; i < text.length; i += 1) {
+    const char = text[i];
+    const next = text[i + 1];
+    if (char === '"') {
+      if (quoted && next === '"') {
+        cell += '"';
+        i += 1;
+      } else {
+        quoted = !quoted;
+      }
+    } else if (char === "," && !quoted) {
+      row.push(cell.trim());
+      cell = "";
+    } else if ((char === "\n" || char === "\r") && !quoted) {
+      if (char === "\r" && next === "\n") i += 1;
+      row.push(cell.trim());
+      if (row.some(value => value.length)) rows.push(row);
+      row = [];
+      cell = "";
+    } else {
+      cell += char;
+    }
+  }
+  row.push(cell.trim());
+  if (row.some(value => value.length)) rows.push(row);
+  return rows;
+}
+
+function parseManifestCsv(text = "") {
+  const rows = csvRows(text);
+  if (!rows.length) return [];
+  const headers = rows[0].map(header => normalize(header).replace(/[^a-z0-9]/g, ""));
+  return rows.slice(1).map(row => {
+    const item = {};
+    headers.forEach((header, index) => {
+      item[header] = row[index] || "";
+    });
+    return {
+      id: item.id,
+      title: item.title || item.titulo || item.nome || item.name,
+      path: item.path || item.caminho || item.file || item.filename || item.arquivo || item.pdfurl || item.url,
+      sourceUrl: item.sourceurl || item.fonte || item.officialurl || item.linkoficial,
+      category: item.category || item.categoria || item.group || item.grupo || item.folder || item.pasta,
+      kind: item.kind || item.tipo || item.documenttype || item.tipodocumento,
+      correspondent: item.correspondent || item.correspondente || item.orgao || item.origem,
+      tags: item.tags || item.etiquetas,
+      summary: item.summary || item.resumo || item.description || item.descricao,
+      text: item.text || item.trecho || item.conteudo,
+      page: item.page || item.pagina,
+      year: item.year || item.ano,
+      docDate: item.docdate || item.data,
+      fileFormat: item.fileformat || item.formato,
+      thumbnailUrl: item.thumbnailurl || item.thumbnail || item.coverurl || item.capa
+    };
+  }).filter(item => item.title || item.path || item.sourceUrl);
+}
+
+async function fetchOptionalText(url) {
+  try {
+    const response = await fetch(url, { cache: "no-store" });
+    if (!response.ok) return null;
+    const text = await response.text();
+    if (/^\s*</.test(text) && text.includes("<html")) return null;
+    return text;
+  } catch (error) {
+    return null;
+  }
+}
+
+function registerManifestGroups(docs = []) {
+  const existingGroups = new Map(directoryGroups.map(group => [group.title, group]));
+  docs.forEach(doc => {
+    const title = doc.group || doc.category || categoryFromPath(doc.pdfUrl || doc.sourceUrl || "");
+    let group = existingGroups.get(title);
+    if (!group) {
+      group = {
+        id: `group-${slugify(title)}`,
+        title,
+        description: `Documentos em ${title}.`,
+        items: []
+      };
+      directoryGroups.push(group);
+      existingGroups.set(title, group);
+    }
+    if (!group.items.some(item => item.type === "document" && item.id === doc.id)) {
+      group.items.push({ type: "document", id: doc.id });
+    }
+  });
+}
+
+async function loadManifestDocuments() {
+  const loaded = [];
+
+  if (Array.isArray(window.HUB_MANIFEST?.documents)) {
+    loaded.push(...window.HUB_MANIFEST.documents);
+  }
+
+  const jsonText = await fetchOptionalText("documents/manifest.json") || await fetchOptionalText("documents/documents-manifest.json");
+  if (jsonText) {
+    try {
+      const parsed = JSON.parse(jsonText);
+      loaded.push(...(Array.isArray(parsed) ? parsed : (parsed.documents || [])));
+    } catch (error) {
+      console.warn("Manifest JSON inválido:", error);
+    }
+  }
+
+  const csvText = await fetchOptionalText("documents/manifest.csv") || await fetchOptionalText("documents/documents-manifest.csv");
+  if (csvText) {
+    loaded.push(...parseManifestCsv(csvText));
+  }
+
+  const normalizedDocs = loaded.map(normalizeManifestDocument);
+  const existingIds = new Set(rawDocuments.map(doc => doc.id));
+  normalizedDocs.forEach(doc => {
+    let id = doc.id;
+    let counter = 2;
+    while (existingIds.has(id)) {
+      id = `${doc.id}-${counter}`;
+      counter += 1;
+    }
+    doc.id = id;
+    existingIds.add(id);
+    rawDocuments.push(doc);
+  });
+
+  if (normalizedDocs.length) {
+    registerManifestGroups(normalizedDocs);
+    refreshDocuments();
+  }
+
+  return normalizedDocs.length;
+}
+
 function linkResource(link) {
   return {
     type: "link",
@@ -782,9 +1042,40 @@ function renderDirectory() {
     `;
   }).filter(Boolean).join("");
 
-  container.innerHTML = renderedGroups || emptyStateHtml(
+  if (renderedGroups) {
+    container.innerHTML = renderedGroups;
+    return;
+  }
+
+  const groupedDocs = Object.entries(documents.reduce((groups, doc) => {
+    const title = doc.group || doc.category || categoryFromPath(doc.pdfUrl || doc.sourceUrl || "");
+    groups[title] = groups[title] || [];
+    groups[title].push(doc);
+    return groups;
+  }, {})).map(([title, docs]) => `
+      <article class="directory-card" id="group-${escapeHtml(slugify(title))}">
+        <header>
+          <h3>${escapeHtml(title)}</h3>
+          <p>${docs.length} documento(s).</p>
+        </header>
+        <div class="directory-items">
+          ${docs.map(doc => `
+            <a class="directory-item" href="#${escapeHtml(doc.id)}" data-directory-doc="${escapeHtml(doc.id)}">
+              <span class="mini-icon type-document">PDF</span>
+              <span>
+                <strong>${escapeHtml(doc.title)}</strong>
+                <small>${escapeHtml(refMeta(doc, "document"))}</small>
+              </span>
+              <em>${escapeHtml(doc.fileFormat || "PDF")}</em>
+            </a>
+          `).join("")}
+        </div>
+      </article>
+    `).join("");
+
+  container.innerHTML = groupedDocs || emptyStateHtml(
     "Nenhum documento no diretório ainda",
-    "Quando você adicionar documentos reais em data.js e apontar para seus PDFs/links, eles aparecerão aqui organizados por grupo."
+    "Adicione PDFs em subpastas de documents/ e gere documents/manifest.json para o hub criar as categorias automaticamente."
   );
 }
 
@@ -1284,7 +1575,8 @@ function handleSharedLink() {
   }
 }
 
-function boot() {
+async function boot() {
+  await loadManifestDocuments();
   populateFilters();
   renderDirectory();
   renderDocuments();

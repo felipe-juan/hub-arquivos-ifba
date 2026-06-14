@@ -1,20 +1,40 @@
 # Pasta de documentos
 
-Guarde aqui os PDFs, imagens, textos ou arquivos Office que você quiser publicar junto com o hub.
+Coloque aqui os PDFs e outros arquivos do acervo.
 
-Padrão recomendado de nomes:
+O site agora usa `documents/manifest.json` para criar categorias automaticamente.
 
-```txt
-ano-tipo-tema-versao.extensao
+## Estrutura recomendada
+
+```text
+documents/
+  ppcs/
+  matrizes-curriculares/
+  regulamentos-bsi/
+  portarias/
+  normas-ifba/
+  diretrizes-cne/
 ```
 
-Exemplos:
+## Depois de adicionar arquivos
 
-```txt
-2026-calendario-academico-campus-vca.pdf
-2024-ppc-sistemas-de-informacao.pdf
-2025-regulamento-estagio-si.pdf
-2026-quadro-horarios-si.xlsx
+Rode na raiz do projeto:
+
+```bash
+python3 scripts/generate_documents_manifest.py
 ```
 
-Depois, registre o arquivo correspondente em `data.js`, usando `pdfUrl` ou `fileUrl`.
+Depois publique:
+
+```bash
+git add .
+git commit -m "Update document manifest"
+git push
+```
+
+## Arquivos gerados
+
+- `manifest.json`: usado pelo site.
+- `manifest.csv`: planilha simples para você revisar o mapeamento.
+
+Não apague o `manifest.json` se quiser que os documentos apareçam no site.
