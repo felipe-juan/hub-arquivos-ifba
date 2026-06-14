@@ -1322,7 +1322,7 @@ table.grade-group th {
 .muted-text { color: var(--muted); }
 .apps-featured-grid {
   display: grid;
-  grid-template-columns: minmax(0, 1fr) minmax(340px, .86fr);
+  grid-template-columns: minmax(280px, .74fr) minmax(520px, 1.26fr);
   gap: .9rem;
   align-items: start;
   margin-top: 1rem;
@@ -2452,7 +2452,7 @@ body {
 }
 
 
-/* v0.1.27: header is fixed and always visible on desktop and mobile */
+/* v0.1.29: header is fixed and always visible on desktop and mobile */
 .topbar,
 .topbar.is-hidden,
 body.apps-menu-open .topbar,
@@ -2507,5 +2507,126 @@ body.modal-open .topbar,
 
   #links.section {
     padding-top: .82rem;
+  }
+}
+
+/* v0.1.29: Acervo progressive loading */
+.archive-load-more {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: .7rem;
+  flex-wrap: wrap;
+  margin: 1rem 0 0;
+  color: var(--muted);
+  font-size: .9rem;
+  text-align: center;
+}
+.archive-load-more[hidden] { display: none !important; }
+.archive-load-more strong { color: var(--ink); }
+.archive-load-more .secondary-button { min-height: 40px; padding-inline: 1rem; }
+.archive-all-visible { color: var(--faint); font-size: .86rem; }
+
+@media (max-width: 720px) {
+  .archive-load-more {
+    margin-top: .75rem;
+    gap: .55rem;
+    font-size: .82rem;
+  }
+  .archive-load-more .secondary-button {
+    width: 100%;
+    min-height: 44px;
+  }
+}
+
+
+/* v0.1.29: Acervo loads two rows per chosen column count; app layout tuned */
+@media (min-width: 921px) {
+  .apps-featured-grid {
+    grid-template-columns: minmax(280px, .74fr) minmax(520px, 1.26fr);
+  }
+  .apps-featured-grid .calculator-panel:first-child .tool-card {
+    padding-inline: .82rem;
+  }
+}
+
+
+/* v0.1.30: make the final exam table itself larger on desktop, not only its card */
+@media (min-width: 921px) {
+  .final-table-shell {
+    padding: .85rem;
+  }
+
+  .final-table-wrap {
+    gap: 3px;
+    border-width: 3px;
+  }
+
+  table.grade-group {
+    font-size: clamp(1.06rem, 1.18vw, 1.32rem);
+  }
+
+  table.grade-group th,
+  table.grade-group td {
+    min-width: 76px;
+    height: 34px;
+    padding: 5px 11px;
+    border-width: 2px;
+  }
+
+  table.grade-group th {
+    height: 36px;
+  }
+}
+
+@media (min-width: 1400px) {
+  table.grade-group th,
+  table.grade-group td {
+    min-width: 82px;
+    height: 36px;
+  }
+
+  table.grade-group th {
+    height: 38px;
+  }
+}
+
+/* v0.1.31: slightly reduce desktop final exam table so it aligns better with calculator height */
+@media (min-width: 921px) {
+  .final-table-shell {
+    padding: .78rem;
+  }
+
+  .final-table-wrap {
+    gap: 2px;
+    border-width: 2px;
+  }
+
+  table.grade-group {
+    font-size: clamp(1rem, 1.08vw, 1.2rem);
+  }
+
+  table.grade-group th,
+  table.grade-group td {
+    min-width: 72px;
+    height: 32px;
+    padding: 4px 10px;
+    border-width: 1.85px;
+  }
+
+  table.grade-group th {
+    height: 34px;
+  }
+}
+
+@media (min-width: 1400px) {
+  table.grade-group th,
+  table.grade-group td {
+    min-width: 78px;
+    height: 34px;
+  }
+
+  table.grade-group th {
+    height: 36px;
   }
 }

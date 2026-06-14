@@ -366,7 +366,7 @@ window.HUB_DATA = {
       "id": "app-barema",
       "title": "Barema de Atividades Complementares",
       "description": "Explorador e simulador do Barema PPC 2024: busque atividades, veja horas aceitas, limites por categoria, regra das 200h e mínimo de 3 categorias.",
-      "url": "apps/barema-explorer-v0.1.5.html",
+      "url": "apps/barema-explorer-v0.1.6.html",
       "category": "Barema",
       "openMode": "new-tab",
       "tags": [
@@ -384,6 +384,41 @@ window.HUB_DATA = {
         "DCE",
         "colegiado",
         "simulador",
+        "app",
+        "ferramenta"
+      ]
+    },
+    {
+      "id": "app-calendario",
+      "title": "Calendário Acadêmico 2026",
+      "description": "App independente para consultar o calendário acadêmico IFBA VCA 2026 por busca, tipo de curso, cards, linha do tempo, mês, ano completo e exportação .ics.",
+      "url": "apps/calendario-academico-ifba-vca-2026-v0.1.2.html",
+      "category": "Calendário",
+      "openMode": "new-tab",
+      "tags": [
+        "calendário",
+        "calendario",
+        "acadêmico",
+        "academico",
+        "datas",
+        "2026",
+        "graduação",
+        "graduacao",
+        "subsequente",
+        "integrado",
+        "matrícula",
+        "matricula",
+        "trancamento",
+        "provas finais",
+        "feriado",
+        "feriados",
+        "SUAP",
+        "notas",
+        "colação",
+        "colacao",
+        "jornada pedagógica",
+        "são joão",
+        "sao joao",
         "app",
         "ferramenta"
       ]
@@ -411,6 +446,10 @@ window.HUB_DATA = {
         {
           "type": "app",
           "id": "app-barema"
+        },
+        {
+          "type": "app",
+          "id": "app-calendario"
         },
         {
           "type": "link",
@@ -1000,6 +1039,22 @@ window.HUB_DATA = {
       "provas passadas",
       "atividades passadas",
       "drive"
+    ],
+    "calendário": [
+      "calendario academico",
+      "datas academicas",
+      "semestre",
+      "matricula",
+      "provas finais",
+      "feriados"
+    ],
+    "calendario": [
+      "calendário acadêmico",
+      "datas acadêmicas",
+      "semestre",
+      "matrícula",
+      "provas finais",
+      "feriados"
     ]
   },
   "answers": [

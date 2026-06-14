@@ -78,6 +78,7 @@ Quando vários trechos do mesmo PDF correspondem à busca, o site mostra apenas 
 
 Isso evita resultados repetidos como:
 
+<<<<<<< HEAD
 ```text
 Calendário 2026 — trecho 1
 Calendário 2026 — trecho 2
@@ -513,3 +514,11 @@ O projeto ainda está em desenvolvimento e pode receber melhorias em:
 Projeto idealizado, testado e orientado por Felipe Juan para organização de documentos, links e ferramentas do curso de Sistemas de Informação do IFBA — Campus Vitória da Conquista.
 
 A implementação técnica foi feita principalmente por Inteligência Artificial, conforme aviso de autoria no início deste README.
+=======
+Veja o arquivo `ROADMAP.md`.
+
+
+### Calendário Acadêmico 2026
+
+App independente, aberto em nova aba, para consultar o calendário acadêmico IFBA VCA 2026 por busca, perfil de curso, cards, linha do tempo, calendário mensal e exportação `.ics`.
+>>>>>>> 1a7f6c7 (Update to v0.1.34 with calendar profile and progress options)

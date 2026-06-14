@@ -1,0 +1,670 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>🎓 Barema Explorer — HUB SI v0.1.6</title>
+  <meta name="description" content="App navegável do Barema de Atividades Complementares PPC 2024 integrado ao HUB SI." />
+  <link rel="icon" href='../favicon.ico' />
+  <style>
+
+    :root {
+      color-scheme: dark;
+      --bg:#0a0f14;
+      --surface:rgba(18,27,37,.94);
+      --surface-2:rgba(255,255,255,.055);
+      --surface-3:rgba(255,255,255,.085);
+      --line:rgba(255,255,255,.11);
+      --line-2:rgba(255,255,255,.18);
+      --ink:#f8fbff;
+      --text:#d9e5f1;
+      --muted:#91a3b6;
+      --faint:#66788c;
+      --green:#35e6a8;
+      --cyan:#59d8ff;
+      --blue:#83b9ff;
+      --amber:#f8c14a;
+      --red:#fb7185;
+      --purple:#b79dff;
+      --shadow:0 18px 44px rgba(0,0,0,.34);
+      --radius:18px;
+      --radius-sm:12px;
+      --maxw:1180px;
+    }
+    *{box-sizing:border-box}
+    html{scroll-behavior:smooth}
+    body{margin:0;min-height:100vh;color:var(--text);background:var(--bg);font-family:Inter,ui-sans-serif,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;line-height:1.45}
+    body::before{content:"";position:fixed;inset:0;z-index:-2;background:radial-gradient(circle at 14% -14%,rgba(53,230,168,.18),transparent 27rem),radial-gradient(circle at 88% 0%,rgba(89,216,255,.12),transparent 22rem),linear-gradient(180deg,#090e13 0%,#0c1118 50%,#090e13 100%)}
+    body::after{content:"";position:fixed;inset:0;z-index:-1;pointer-events:none;background-image:linear-gradient(rgba(255,255,255,.028) 1px,transparent 1px),linear-gradient(90deg,rgba(255,255,255,.028) 1px,transparent 1px);background-size:36px 36px;opacity:.7;mask-image:linear-gradient(to bottom,#000,transparent 78%)}
+    button,input,select,textarea{font:inherit}button{cursor:pointer}a{color:inherit}
+    .page{width:min(var(--maxw),calc(100% - 2rem));margin:0 auto;padding:1rem 0 3.2rem}
+    .hero,.panel,.metric,.activity-card,.note-card,.dialog-body{border:1px solid var(--line);background:linear-gradient(180deg,rgba(18,27,37,.95),rgba(12,19,28,.93));box-shadow:var(--shadow)}
+    .hero{border-radius:24px;padding:1rem;display:grid;grid-template-columns:minmax(0,1fr) auto;gap:1rem;align-items:center;position:relative;overflow:hidden;margin-bottom:1rem}
+    .hero::after{content:"";position:absolute;right:-90px;bottom:-120px;width:310px;height:310px;background:conic-gradient(from 220deg,rgba(53,230,168,.18),rgba(89,216,255,.15),rgba(53,230,168,.07));border-radius:50%;filter:blur(2px)}
+    .hero>div{position:relative;z-index:1}.hero-title{display:flex;gap:.9rem;align-items:center;margin-bottom:.7rem}.app-icon{width:58px;height:58px;display:grid;place-items:center;border-radius:20px;background:rgba(53,230,168,.12);font-size:2rem;border:1px solid rgba(53,230,168,.18);box-shadow:0 12px 26px rgba(0,0,0,.22)}
+    h1{margin:0;font-size:clamp(2rem,4.2vw,4rem);letter-spacing:-.07em;line-height:.95;color:var(--ink)}h2{margin:0;color:var(--ink);font-size:1.2rem;letter-spacing:-.04em}h3{margin:0 0 .45rem;color:var(--ink);font-size:1rem;letter-spacing:-.02em}
+    .subtitle{margin:0;color:var(--muted);font-size:.98rem;max-width:760px;line-height:1.55}.topbar{display:flex;flex-wrap:wrap;gap:.5rem;margin-top:.85rem}.pill{display:inline-flex;align-items:center;gap:.35rem;border:1px solid var(--line);background:rgba(255,255,255,.06);color:var(--muted);padding:.42rem .62rem;border-radius:999px;font-size:.82rem;line-height:1;white-space:nowrap}.pill.strong{border-color:rgba(53,230,168,.28);background:rgba(53,230,168,.12);color:var(--green);font-weight:850}
+    .hero-actions{display:flex!important;gap:.6rem!important;align-items:center!important;justify-content:flex-end!important;margin-bottom:.75rem!important}.hero-actions a,.primary-btn,.secondary-btn,.add-btn{min-height:40px;border:0;border-radius:999px;padding:.66rem .96rem;cursor:pointer;color:#061015!important;background:linear-gradient(135deg,var(--green),var(--cyan))!important;font-weight:850;text-decoration:none!important;display:inline-flex;align-items:center;justify-content:center;gap:.45rem;white-space:nowrap;box-shadow:0 10px 28px rgba(53,230,168,.16)}.secondary-btn{color:var(--ink)!important;background:rgba(255,255,255,.07)!important;border:1px solid var(--line);box-shadow:none}.primary-btn:hover,.secondary-btn:hover,.add-btn:hover,.hero-actions a:hover,.pill:hover{transform:translateY(-1px)}
+    .hero-metrics{display:grid;grid-template-columns:repeat(3,minmax(104px,1fr));gap:.6rem;min-width:min(420px,100%)}.metric{background:rgba(255,255,255,.045);border-radius:18px;padding:.85rem}.metric strong{display:block;font-size:1.45rem;letter-spacing:-.04em;color:var(--ink)}.metric span{color:var(--muted);font-size:.82rem}
+    .layout{display:grid;grid-template-columns:minmax(0,1fr) 390px;gap:1rem;align-items:start}.panel{border-radius:24px;overflow:hidden}.panel-header{padding:1rem;border-bottom:1px solid var(--line);background:rgba(255,255,255,.025)}.panel-title{display:flex;align-items:center;justify-content:space-between;gap:.8rem;margin-bottom:.75rem}.explorer,.simulator{min-width:0}.simulator{position:sticky;top:1rem}
+    .search-row{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:.6rem;align-items:center}.search{border:1px solid rgba(53,230,168,.3);border-radius:999px;background:rgba(255,255,255,.06);padding:.42rem .9rem}.search input{width:100%;border:0;outline:0;background:transparent;color:var(--ink);font-size:1rem}.search input::placeholder{color:var(--faint)}.chips,.filters{display:flex;gap:.45rem;flex-wrap:wrap;margin-top:.75rem}.cat-filter{border:1px solid var(--line);background:rgba(255,255,255,.06);color:var(--muted);border-radius:999px;padding:.5rem .7rem;font-size:.82rem;font-weight:780}.cat-filter.active{border-color:rgba(53,230,168,.35);background:rgba(53,230,168,.12);color:var(--green)}
+    .results-meta{display:flex;align-items:center;justify-content:space-between;gap:.8rem;padding:.75rem 1rem;color:var(--muted);font-size:.84rem;border-bottom:1px solid var(--line);background:rgba(255,255,255,.02)}.results-meta span:first-child{color:var(--ink);font-weight:850}.cards{display:grid;gap:.75rem;padding:1rem}.activity-card{border-radius:20px;padding:1rem;position:relative;overflow:hidden}.activity-card::before{content:"";position:absolute;left:0;top:0;bottom:0;width:5px;background:linear-gradient(180deg,var(--green),var(--cyan))}.activity-top{display:flex;justify-content:space-between;align-items:flex-start;gap:.7rem;margin-bottom:.55rem}.activity-card h3,.activity-card h4{margin:0;color:var(--ink);font-size:1.02rem;line-height:1.25;letter-spacing:-.03em}.activity-desc,.activity-card p{color:var(--muted);font-size:.88rem;line-height:1.45}.tag-row,.meta-row,.activity-meta{display:flex;flex-wrap:wrap;gap:.45rem;margin-top:.65rem}.tag,.mini,.activity-meta span{border:1px solid var(--line);border-radius:999px;padding:.3rem .5rem;color:var(--muted);font-size:.75rem;background:rgba(255,255,255,.045)}.hours-badge{display:inline-flex;align-items:center;justify-content:center;border-radius:999px;padding:.38rem .55rem;color:#061015;background:linear-gradient(135deg,var(--green),var(--cyan));font-size:.8rem;font-weight:950;white-space:nowrap}
+    .card-actions{display:flex;align-items:center;gap:.45rem;flex-wrap:wrap;margin-top:.8rem}.qty-input,input[type="number"]{width:86px;border:1px solid var(--line);border-radius:999px;background:rgba(255,255,255,.06);color:var(--ink);padding:.58rem .75rem;outline:0}.summary,.category-progress,.selected-list{padding:1rem;border-bottom:1px solid var(--line)}.summary-card{border:1px solid var(--line);border-radius:18px;background:rgba(255,255,255,.045);padding:.9rem}.summary-number{font-size:2.35rem;line-height:1;color:var(--ink);letter-spacing:-.06em;font-weight:950}.summary-label{color:var(--muted);font-size:.84rem}.progress-item{margin-bottom:.8rem}.progress-head{display:flex;justify-content:space-between;gap:.5rem;color:var(--muted);font-size:.82rem;margin-bottom:.35rem}.progress-bar{height:10px;border-radius:999px;background:rgba(255,255,255,.08);overflow:hidden}.progress-fill{height:100%;border-radius:999px;background:linear-gradient(90deg,var(--green),var(--cyan))}.selected-item{border:1px solid var(--line);background:rgba(255,255,255,.045);border-radius:16px;padding:.75rem;margin-bottom:.55rem}.selected-item strong{color:var(--ink)}.selected-item span,.selected-item small{color:var(--muted)}.remove{border:1px solid var(--line);background:rgba(255,255,255,.07);color:var(--ink);width:34px;height:34px;border-radius:999px;display:inline-grid;place-items:center}.sim-actions{display:flex;gap:.55rem;padding:1rem}
+    .about{display:grid;grid-template-columns:1fr 1fr;gap:.75rem;margin-top:1rem;padding:1rem}.note-card{border-radius:18px;padding:1rem;background:rgba(255,255,255,.045)}.note-card p,.note-card li{color:var(--muted);font-size:.9rem;line-height:1.5}.note-card ul{margin:.5rem 0 0;padding-left:1.2rem}.footer{color:var(--faint);font-size:.82rem;text-align:center;margin:1rem 0 0}
+    dialog{border:0;padding:0;background:transparent;color:var(--text);max-width:min(760px,calc(100% - 2rem));width:760px}dialog::backdrop{background:rgba(0,0,0,.65);backdrop-filter:blur(8px)}.dialog-body{border-radius:24px;padding:1rem}.dialog-head{display:flex;justify-content:space-between;align-items:center;gap:.8rem;margin-bottom:.75rem}.dialog-head h2{margin:0}textarea{width:100%;min-height:340px;border:1px solid var(--line);border-radius:16px;background:rgba(255,255,255,.06);color:var(--ink);padding:1rem;outline:0}.dialog-actions{display:flex;gap:.55rem;justify-content:flex-end;margin-top:.75rem}
+
+    .card{border:1px solid var(--line);background:linear-gradient(180deg,rgba(18,27,37,.95),rgba(12,19,28,.93));box-shadow:var(--shadow);border-radius:20px;padding:1rem;position:relative;overflow:hidden}.card::before{content:"";position:absolute;left:0;top:0;bottom:0;width:5px;background:linear-gradient(180deg,var(--green),var(--cyan))}.card-top{display:flex;justify-content:space-between;align-items:flex-start;gap:.7rem;margin-bottom:.55rem}.category-badge{display:inline-flex;align-items:center;gap:.35rem;border:1px solid rgba(53,230,168,.24);background:rgba(53,230,168,.10);color:var(--green);border-radius:999px;padding:.35rem .5rem;font-size:.74rem;font-weight:850}.source-row{color:var(--faint);font-size:.74rem;font-weight:800;white-space:nowrap}.card h3{margin:0;color:var(--ink);font-size:1.02rem;line-height:1.25;letter-spacing:-.03em}.variant{margin:.45rem 0 0;color:var(--muted);font-size:.86rem}.stat-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:.5rem;margin-top:.75rem}.stat-grid .stat{border:1px solid var(--line);border-radius:15px;background:rgba(255,255,255,.045);padding:.68rem}.stat-grid .stat span{display:block;color:var(--muted);font-size:.72rem}.stat-grid .stat strong{display:block;color:var(--ink);font-size:1rem;margin-top:.1rem}.qty{width:86px;border:1px solid var(--line);border-radius:999px;background:rgba(255,255,255,.06);color:var(--ink);padding:.58rem .75rem;outline:0}.add-btn.added{background:rgba(53,230,168,.13)!important;color:var(--green)!important;border:1px solid rgba(53,230,168,.28)}mark{border-radius:.35rem;padding:0 .12rem;background:rgba(248,193,74,.22);color:var(--amber)}.selected-empty{border:1px dashed rgba(255,255,255,.18);border-radius:18px;background:rgba(255,255,255,.045);padding:1rem;color:var(--muted)}
+
+    .chip{border:1px solid var(--line);background:rgba(255,255,255,.06);color:var(--muted);border-radius:999px;padding:.48rem .68rem;font-size:.82rem;font-weight:780}.chip:hover{color:var(--green);border-color:rgba(53,230,168,.28)}.big-progress{border:1px solid var(--line);border-radius:18px;background:rgba(255,255,255,.045);padding:.9rem}.progress-title{display:flex;align-items:flex-end;justify-content:space-between;gap:.8rem;margin-bottom:.65rem}.bar,.thinbar{height:11px;border-radius:999px;background:rgba(255,255,255,.08);overflow:hidden}.bar i,.thinbar i{display:block;height:100%;border-radius:999px;background:linear-gradient(90deg,var(--green),var(--cyan))}.summary-grid{display:grid;grid-template-columns:1fr 1fr;gap:.55rem;margin-top:.75rem}.summary-mini{border:1px solid var(--line);border-radius:14px;background:rgba(255,255,255,.04);padding:.65rem;color:var(--muted);font-size:.82rem}.warning{border:1px solid rgba(248,193,74,.22);background:rgba(248,193,74,.08);color:var(--amber);border-radius:14px;padding:.55rem .65rem;margin-top:.45rem;font-size:.82rem}.warning.ok{border-color:rgba(53,230,168,.22);background:rgba(53,230,168,.08);color:var(--green)}.ok-text{color:var(--green)}.cat-row{display:grid;gap:.35rem;margin-bottom:.75rem}.cat-row:last-child{margin-bottom:0}.cat-label,.cat-value{color:var(--muted);font-size:.82rem}.cat-value{justify-self:end;margin-top:-1.45rem}.thinbar{height:9px}.selected-head{display:flex;justify-content:space-between;gap:.65rem}.selected-title{margin:0;color:var(--ink);font-size:.9rem;font-weight:850;line-height:1.25}.selected-meta{margin-top:.25rem;color:var(--muted);font-size:.76rem}.selected-controls{display:grid;grid-template-columns:86px 1fr auto;gap:.5rem;align-items:center;margin-top:.65rem}.selected-controls input{min-width:0}.accepted{color:var(--green);font-weight:900;white-space:nowrap}.selected-item{border:1px solid var(--line);background:rgba(255,255,255,.045);border-radius:16px;padding:.75rem;margin-bottom:.55rem}.selected-empty{border:1px dashed rgba(255,255,255,.18);border-radius:18px;background:rgba(255,255,255,.045);padding:1rem;color:var(--muted);font-size:.88rem}
+    @media(max-width:980px){.hero,.layout,.about{grid-template-columns:1fr}.hero-metrics{min-width:0}.simulator{position:static}.hero-actions{justify-content:flex-start!important}.results-meta{align-items:flex-start;flex-direction:column}}
+    @media(max-width:680px){.summary-grid,.selected-controls{grid-template-columns:1fr}.cat-value{justify-self:start;margin-top:0}.page{width:min(100% - 22px,var(--maxw));padding-top:.75rem}.hero{padding:.9rem}.hero-title{align-items:flex-start}.app-icon{width:48px;height:48px;border-radius:16px;font-size:1.6rem}.hero-metrics{grid-template-columns:repeat(3,minmax(0,1fr))}.metric{padding:.7rem}.metric strong{font-size:1.2rem}.metric span{font-size:.72rem}.search-row{grid-template-columns:1fr}.secondary-btn,.primary-btn,.add-btn,.hero-actions a{width:100%}.panel-title{align-items:flex-start;flex-direction:column}.cards{padding:.75rem}.activity-top{flex-direction:column}.about{padding:.75rem}}
+
+  </style>
+</head>
+<body>
+  <main class="page">
+    <section class="hero">
+      <div>
+        <div class="hero-title">
+          <div class="app-icon" aria-hidden="true">🎓</div>
+          <div>
+            <h1>Barema Explorer</h1>
+            <p class="subtitle">
+              Protótipo navegável para ajudar estudantes a encontrar atividades complementares, entender limites e simular horas aceitas no PPC 2024.
+            </p>
+          </div>
+        </div>
+        <div class="topbar">
+          <span class="pill strong">🎓 App · v0.1.6</span>
+          <span class="pill">BSI · IFBA</span>
+          <span class="pill">Fonte: Barema PPC 2024</span>
+          <span class="pill">Atualização: 07/10/2024</span>
+        </div>
+      </div>
+      <div class="hero-actions" style="display:flex;gap:10px;align-items:center;justify-content:flex-end;margin-bottom:12px;">
+          <a href="../index.html#apps" >← Voltar ao HUB</a>
+        </div>
+        <div class="hero-metrics">
+        <div class="metric">
+          <strong>200h</strong>
+          <span>mínimo exigido</span>
+        </div>
+        <div class="metric">
+          <strong>3</strong>
+          <span>categorias mínimas</span>
+        </div>
+        <div class="metric">
+          <strong>68</strong>
+          <span>opções catalogadas</span>
+        </div>
+      </div>
+    </section>
+
+    <section class="layout">
+      <div class="panel explorer">
+        <div class="panel-header">
+          <div class="panel-title">
+            <h2>Encontrar atividade</h2>
+            <span class="pill" id="activeVersion">🎓 Barema v0.1.6</span>
+          </div>
+
+          <div class="search-row">
+            <div class="search">
+              <input id="searchInput" type="search" autocomplete="off" placeholder="Busque por estágio, artigo, sangue, monitoria, hackathon..." />
+            </div>
+            <button class="secondary-btn" id="clearSearch">Limpar</button>
+          </div>
+
+          <div class="chips" id="quickChips" aria-label="Sugestões de busca"></div>
+          <div class="filters" id="categoryFilters" aria-label="Filtros por categoria"></div>
+        </div>
+
+        <div class="results-meta">
+          <span id="resultCount">Carregando atividades...</span>
+          <span>Use a simulação ao lado para testar horas e limites.</span>
+        </div>
+
+        <div class="cards" id="cards"></div>
+      </div>
+
+      <aside class="panel simulator" aria-label="Simulador do barema">
+        <div class="panel-header">
+          <div class="panel-title">
+            <h2>Simulador</h2>
+            <span class="pill">200h + 3 categorias</span>
+          </div>
+          <p class="subtitle" style="font-size:.92rem;margin:0;">Adicione atividades, informe quantidades e veja o total aceito após os limites do barema.</p>
+        </div>
+
+        <div class="summary" id="summary"></div>
+        <div class="category-progress" id="categoryProgress"></div>
+        <div class="selected-list" id="selectedList"></div>
+        <div class="sim-actions">
+          <button class="secondary-btn" id="exportBtn">Checklist</button>
+          <button class="secondary-btn" id="clearSimBtn">Zerar</button>
+        </div>
+      </aside>
+    </section>
+
+    <section class="panel about">
+      <div class="note-card">
+        <h3>Como este conceito melhora a vida do estudante</h3>
+        <p>
+          Em vez de abrir uma planilha e procurar manualmente, o estudante pesquisa com linguagem comum:
+          “curso de inglês”, “doação de sangue”, “artigo”, “estágio”, “DCE”. O sistema mostra a regra,
+          o valor em horas, o máximo aceito e permite simular o total.
+        </p>
+      </div>
+      <div class="note-card">
+        <h3>Orientações do Barema</h3>
+        <ul>
+          <li>Anexar documentação comprobatória em um único PDF.</li>
+          <li>Organizar o PDF na ordem das atividades indicadas.</li>
+          <li>Indicar páginas do PDF no campo de observações.</li>
+          <li>E-mail da comissão: <b>caac.bsi.vdc@ifba.edu.br</b></li>
+        </ul>
+      </div>
+    </section>
+
+    <p class="footer">
+      Protótipo local/offline. Os cálculos são conceituais e devem ser conferidos com o Barema oficial antes de submissão.
+    </p>
+  </main>
+
+  <dialog id="exportDialog">
+    <div class="dialog-body">
+      <div class="dialog-head">
+        <h2>Checklist da simulação</h2>
+        <button class="remove" id="closeDialog" title="Fechar">×</button>
+      </div>
+      <textarea id="exportText" readonly></textarea>
+      <div class="dialog-actions">
+        <button class="secondary-btn" id="copyExport">Copiar</button>
+        <button class="primary-btn" onclick="window.print()">Imprimir</button>
+      </div>
+    </div>
+  </dialog>
+
+  <script id="barema-data" type="application/json">{"version": "v0.1", "course": "Bacharelado em Sistemas de Informação", "source": "Barema PPC 2024", "updated": "07/10/2024", "minimumHours": 200, "minimumCategories": 3, "maxPossibleHours": 325, "committeeEmail": "caac.bsi.vdc@ifba.edu.br", "categories": [{"name": "Atividades de ensino", "cap": 50, "icon": "📚", "count": 16}, {"name": "Atividades de pesquisa", "cap": 50, "icon": "🔬", "count": 11}, {"name": "Atividades de extensão", "cap": 100, "icon": "🤝", "count": 18}, {"name": "Atividades profissionais", "cap": 50, "icon": "💼", "count": 4}, {"name": "Atividades de empreendedorismo e inovação", "cap": 25, "icon": "💡", "count": 4}, {"name": "Atividades sociais, esportivas e culturais", "cap": 25, "icon": "🎭", "count": 10}, {"name": "Atividades políticas", "cap": 25, "icon": "🗳️", "count": 5}], "activities": [{"id": "001", "category": "Atividades de ensino", "categoryCap": 50, "itemNumber": 1, "activity": "Aproveitamento de disciplina optativa além do número mínimo exigido pelo curso, extracurricular ou eletiva (sem que tenha sido objeto de aproveitamento de estudos)", "variant": "Geral", "unit": "Disciplina", "hoursPerUnit": 30, "maxUnits": 2, "maxActivityHours": 60, "sourceRow": 17, "aliases": ["aproveitamento", "aula", "disciplina", "eletiva", "ensino", "extracurricular", "monitoria", "optativa"]}, {"id": "002", "category": "Atividades de ensino", "categoryCap": 50, "itemNumber": 2, "activity": "Atuação como ministrante de disciplina em cursos de ensino médio", "variant": "Vinculada ao curso", "unit": "Disciplina", "hoursPerUnit": 30, "maxUnits": 2, "maxActivityHours": 60, "sourceRow": 18, "aliases": ["aula", "disciplina", "ensino", "monitoria"]}, {"id": "003", "category": "Atividades de ensino", "categoryCap": 50, "itemNumber": 2, "activity": "Atuação como ministrante de disciplina em cursos de ensino médio", "variant": "Não vinculada ao curso", "unit": "Disciplina", "hoursPerUnit": 15, "maxUnits": 2, "maxActivityHours": 30, "sourceRow": 19, "aliases": ["aula", "disciplina", "ensino", "monitoria"]}, {"id": "004", "category": "Atividades de ensino", "categoryCap": 50, "itemNumber": 3, "activity": "Atuação como ministrante de palestra", "variant": "Relacionada ao curso", "unit": "Palestra", "hoursPerUnit": 30, "maxUnits": 2, "maxActivityHours": 60, "sourceRow": 20, "aliases": ["aula", "disciplina", "ensino", "ministrar palestra", "monitoria", "palestrante"]}, {"id": "005", "category": "Atividades de ensino", "categoryCap": 50, "itemNumber": 3, "activity": "Atuação como ministrante de palestra", "variant": "Não relacionada ao curso", "unit": "Palestra", "hoursPerUnit": 15, "maxUnits": 2, "maxActivityHours": 30, "sourceRow": 21, "aliases": ["aula", "disciplina", "ensino", "ministrar palestra", "monitoria", "palestrante"]}, {"id": "006", "category": "Atividades de ensino", "categoryCap": 50, "itemNumber": 4, "activity": "Atuação como ministrante em curso, minicurso ou prática de laboratório", "variant": "Relacionada ao curso", "unit": "Curso, minicurso ou prática de laboratório", "hoursPerUnit": 20, "maxUnits": 3, "maxActivityHours": 60, "sourceRow": 22, "aliases": ["aula", "disciplina", "ensino", "monitoria"]}, {"id": "007", "category": "Atividades de ensino", "categoryCap": 50, "itemNumber": 4, "activity": "Atuação como ministrante em curso, minicurso ou prática de laboratório", "variant": "Não relacionada ao curso", "unit": "Curso, minicurso ou prática de laboratório", "hoursPerUnit": 10, "maxUnits": 3, "maxActivityHours": 30, "sourceRow": 23, "aliases": ["aula", "disciplina", "ensino", "monitoria"]}, {"id": "008", "category": "Atividades de ensino", "categoryCap": 50, "itemNumber": 5, "activity": "Participação, como bolsista ou voluntário, em programa ou projeto na área de ensino", "variant": "Geral", "unit": "Programa ou projeto", "hoursPerUnit": 20, "maxUnits": 3, "maxActivityHours": 60, "sourceRow": 24, "aliases": ["aula", "ação comunitária", "disciplina", "ensino", "monitoria", "projeto social", "voluntariado"]}, {"id": "009", "category": "Atividades de ensino", "categoryCap": 50, "itemNumber": 6, "activity": "Participação em curso de idioma (a cada 40 horas)", "variant": "Ministrante", "unit": "Curso", "hoursPerUnit": 30, "maxUnits": 2, "maxActivityHours": 60, "sourceRow": 25, "aliases": ["aula", "curso de inglês", "disciplina", "ensino", "espanhol", "francês", "inglês", "monitoria", "proficiencia", "proficiência"]}, {"id": "010", "category": "Atividades de ensino", "categoryCap": 50, "itemNumber": 6, "activity": "Participação em curso de idioma (a cada 40 horas)", "variant": "Ouvinte", "unit": "Curso", "hoursPerUnit": 15, "maxUnits": 4, "maxActivityHours": 60, "sourceRow": 26, "aliases": ["aula", "curso de inglês", "disciplina", "ensino", "espanhol", "francês", "inglês", "monitoria", "proficiencia", "proficiência"]}, {"id": "011", "category": "Atividades de ensino", "categoryCap": 50, "itemNumber": 7, "activity": "Participação em exame presencial de proficiência em língua estrangeira, com aprovação, realizada em instituição credenciada", "variant": "Geral", "unit": "Exame", "hoursPerUnit": 30, "maxUnits": 1, "maxActivityHours": 30, "sourceRow": 27, "aliases": ["aula", "curso de inglês", "disciplina", "ensino", "espanhol", "francês", "inglês", "monitoria", "proficiencia", "proficiência"]}, {"id": "012", "category": "Atividades de ensino", "categoryCap": 50, "itemNumber": 8, "activity": "Participação em intercâmbio", "variant": "Universidade nacional", "unit": "Intercâmbio", "hoursPerUnit": 40, "maxUnits": 1, "maxActivityHours": 40, "sourceRow": 28, "aliases": ["aula", "disciplina", "ensino", "monitoria"]}, {"id": "013", "category": "Atividades de ensino", "categoryCap": 50, "itemNumber": 8, "activity": "Participação em intercâmbio", "variant": "Universidade internacional", "unit": "Intercâmbio", "hoursPerUnit": 80, "maxUnits": 1, "maxActivityHours": 80, "sourceRow": 29, "aliases": ["aula", "disciplina", "ensino", "monitoria"]}, {"id": "014", "category": "Atividades de ensino", "categoryCap": 50, "itemNumber": 9, "activity": "Elaboração de material didático (apostila, tutorial ou similar)", "variant": "Geral", "unit": "Material didático", "hoursPerUnit": 15, "maxUnits": 2, "maxActivityHours": 30, "sourceRow": 30, "aliases": ["ajudante de disciplina", "apostila", "aula", "auxiliar de disciplina", "disciplina", "ensino", "material de aula", "monitor", "monitoria", "slide", "tutor", "tutorial"]}, {"id": "015", "category": "Atividades de ensino", "categoryCap": 50, "itemNumber": 10, "activity": "Exercício de monitoria ou tutoria de disciplina", "variant": "Vinculada ao curso", "unit": "Monitoria ou tutoria", "hoursPerUnit": 20, "maxUnits": 3, "maxActivityHours": 60, "sourceRow": 31, "aliases": ["ajudante de disciplina", "aula", "auxiliar de disciplina", "disciplina", "ensino", "monitor", "monitoria", "tutor"]}, {"id": "016", "category": "Atividades de ensino", "categoryCap": 50, "itemNumber": 10, "activity": "Exercício de monitoria ou tutoria de disciplina", "variant": "Não vinculada ao curso", "unit": "Monitoria ou tutoria", "hoursPerUnit": 10, "maxUnits": 3, "maxActivityHours": 30, "sourceRow": 32, "aliases": ["ajudante de disciplina", "aula", "auxiliar de disciplina", "disciplina", "ensino", "monitor", "monitoria", "tutor"]}, {"id": "017", "category": "Atividades de pesquisa", "categoryCap": 50, "itemNumber": 1, "activity": "Participação em projeto de pesquisa", "variant": "Projeto financiado", "unit": "Mês completo", "hoursPerUnit": 10, "maxUnits": 10, "maxActivityHours": 100, "sourceRow": 36, "aliases": ["artigo", "científico", "ic", "iniciação científica", "pesquisa", "pibic", "pivic", "publicação"]}, {"id": "018", "category": "Atividades de pesquisa", "categoryCap": 50, "itemNumber": 1, "activity": "Participação em projeto de pesquisa", "variant": "Projeto não financiado", "unit": "Mês completo", "hoursPerUnit": 5, "maxUnits": 10, "maxActivityHours": 50, "sourceRow": 37, "aliases": ["artigo", "científico", "ic", "iniciação científica", "pesquisa", "pibic", "pivic", "publicação"]}, {"id": "019", "category": "Atividades de pesquisa", "categoryCap": 50, "itemNumber": 2, "activity": "Publicação de trabalho científico de evento de pesquisa", "variant": "Artigo completo (indexado)", "unit": "Artigo completo", "hoursPerUnit": 30, "maxUnits": 2, "maxActivityHours": 60, "sourceRow": 38, "aliases": ["artigo", "científico", "congresso", "evento científico", "paper", "periódico", "pesquisa", "publicação", "resumo", "resumo expandido", "revista"]}, {"id": "020", "category": "Atividades de pesquisa", "categoryCap": 50, "itemNumber": 2, "activity": "Publicação de trabalho científico de evento de pesquisa", "variant": "Artigo completo  (não indexado)", "unit": "Artigo completo", "hoursPerUnit": 20, "maxUnits": 3, "maxActivityHours": 60, "sourceRow": 39, "aliases": ["artigo", "científico", "congresso", "evento científico", "paper", "periódico", "pesquisa", "publicação", "resumo", "resumo expandido", "revista"]}, {"id": "021", "category": "Atividades de pesquisa", "categoryCap": 50, "itemNumber": 2, "activity": "Publicação de trabalho científico de evento de pesquisa", "variant": "Artigo curto, resumo, resumo estendido ou similar (indexado)", "unit": "Artigo curto, resumo, resumo estendido ou similar", "hoursPerUnit": 15, "maxUnits": 4, "maxActivityHours": 60, "sourceRow": 40, "aliases": ["artigo", "científico", "congresso", "evento científico", "paper", "periódico", "pesquisa", "publicação", "resumo", "resumo expandido", "revista"]}, {"id": "022", "category": "Atividades de pesquisa", "categoryCap": 50, "itemNumber": 2, "activity": "Publicação de trabalho científico de evento de pesquisa", "variant": "Artigo curto, resumo, resumo estendido ou similar (não indexado)", "unit": "Artigo curto, resumo, resumo estendido ou similar", "hoursPerUnit": 10, "maxUnits": 6, "maxActivityHours": 60, "sourceRow": 41, "aliases": ["artigo", "científico", "congresso", "evento científico", "paper", "periódico", "pesquisa", "publicação", "resumo", "resumo expandido", "revista"]}, {"id": "023", "category": "Atividades de pesquisa", "categoryCap": 50, "itemNumber": 3, "activity": "Publicação de trabalho científico em periódico/revista", "variant": "Artigo (indexado)", "unit": "Artigo", "hoursPerUnit": 50, "maxUnits": 2, "maxActivityHours": 100, "sourceRow": 42, "aliases": ["artigo", "artigo em revista", "científico", "congresso", "evento científico", "journal", "paper", "periódico", "pesquisa", "publicação", "publicação em revista", "resumo", "resumo expandido", "revista"]}, {"id": "024", "category": "Atividades de pesquisa", "categoryCap": 50, "itemNumber": 3, "activity": "Publicação de trabalho científico em periódico/revista", "variant": "Artigo (não indexado)", "unit": "Artigo", "hoursPerUnit": 25, "maxUnits": 2, "maxActivityHours": 50, "sourceRow": 43, "aliases": ["artigo", "artigo em revista", "científico", "congresso", "evento científico", "journal", "paper", "periódico", "pesquisa", "publicação", "publicação em revista", "resumo", "resumo expandido", "revista"]}, {"id": "025", "category": "Atividades de pesquisa", "categoryCap": 50, "itemNumber": 4, "activity": "Publicação de trabalho científico na área do curso", "variant": "Livro (obra completa)", "unit": "Livro", "hoursPerUnit": 50, "maxUnits": 2, "maxActivityHours": 100, "sourceRow": 44, "aliases": ["artigo", "capítulo", "científico", "congresso", "ebook", "evento científico", "obra completa", "paper", "periódico", "pesquisa", "publicação", "resumo", "resumo expandido", "revista"]}, {"id": "026", "category": "Atividades de pesquisa", "categoryCap": 50, "itemNumber": 4, "activity": "Publicação de trabalho científico na área do curso", "variant": "Capítulo de livro", "unit": "Capítulo de livro", "hoursPerUnit": 25, "maxUnits": 2, "maxActivityHours": 50, "sourceRow": 45, "aliases": ["artigo", "capítulo", "científico", "congresso", "ebook", "evento científico", "obra completa", "paper", "periódico", "pesquisa", "publicação", "resumo", "resumo expandido", "revista"]}, {"id": "027", "category": "Atividades de pesquisa", "categoryCap": 50, "itemNumber": 5, "activity": "Apresentação de trabalho científico em evento de pesquisa", "variant": "Geral", "unit": "Trabalho científico", "hoursPerUnit": 20, "maxUnits": 3, "maxActivityHours": 60, "sourceRow": 46, "aliases": ["apresentar artigo", "apresentação oral", "artigo", "banner", "científico", "congresso", "evento científico", "paper", "periódico", "pesquisa", "poster", "publicação", "pôster", "resumo", "resumo expandido", "revista"]}, {"id": "028", "category": "Atividades de extensão", "categoryCap": 100, "itemNumber": 1, "activity": "Participação em projetos de extensão", "variant": "Geral", "unit": "Mês completo", "hoursPerUnit": 10, "maxUnits": 6, "maxActivityHours": 60, "sourceRow": 50, "aliases": ["evento", "extensão", "maratona", "projeto comunitário", "projeto social", "visita"]}, {"id": "029", "category": "Atividades de extensão", "categoryCap": 100, "itemNumber": 2, "activity": "Participação em evento de extensão relacionado com o curso", "variant": "Membro de comissão organizadora", "unit": "Evento", "hoursPerUnit": 30, "maxUnits": 2, "maxActivityHours": 60, "sourceRow": 51, "aliases": ["evento", "extensão", "maratona", "mesa redonda", "monitor de evento", "ouvinte", "semana acadêmica", "seminário", "simpósio", "visita"]}, {"id": "030", "category": "Atividades de extensão", "categoryCap": 100, "itemNumber": 2, "activity": "Participação em evento de extensão relacionado com o curso", "variant": "Membro de equipe de apoio", "unit": "Evento", "hoursPerUnit": 20, "maxUnits": 2, "maxActivityHours": 40, "sourceRow": 52, "aliases": ["evento", "extensão", "maratona", "mesa redonda", "monitor de evento", "ouvinte", "semana acadêmica", "seminário", "simpósio", "visita"]}, {"id": "031", "category": "Atividades de extensão", "categoryCap": 100, "itemNumber": 2, "activity": "Participação em evento de extensão relacionado com o curso", "variant": "Participante ou mediador de mesa redonda", "unit": "Evento", "hoursPerUnit": 15, "maxUnits": 2, "maxActivityHours": 30, "sourceRow": 53, "aliases": ["evento", "extensão", "maratona", "mesa redonda", "monitor de evento", "ouvinte", "semana acadêmica", "seminário", "simpósio", "visita"]}, {"id": "032", "category": "Atividades de extensão", "categoryCap": 100, "itemNumber": 2, "activity": "Participação em evento de extensão relacionado com o curso", "variant": "Monitor", "unit": "Evento", "hoursPerUnit": 15, "maxUnits": 2, "maxActivityHours": 30, "sourceRow": 54, "aliases": ["evento", "extensão", "maratona", "mesa redonda", "monitor de evento", "ouvinte", "semana acadêmica", "seminário", "simpósio", "visita"]}, {"id": "033", "category": "Atividades de extensão", "categoryCap": 100, "itemNumber": 2, "activity": "Participação em evento de extensão relacionado com o curso", "variant": "Ouvinte (participação geral)", "unit": "Evento", "hoursPerUnit": 10, "maxUnits": 4, "maxActivityHours": 40, "sourceRow": 55, "aliases": ["evento", "extensão", "maratona", "mesa redonda", "monitor de evento", "ouvinte", "semana acadêmica", "seminário", "simpósio", "visita"]}, {"id": "034", "category": "Atividades de extensão", "categoryCap": 100, "itemNumber": 2, "activity": "Participação em evento de extensão relacionado com o curso", "variant": "Ouvinte (minicurso ou similar)", "unit": "Evento", "hoursPerUnit": 10, "maxUnits": 4, "maxActivityHours": 40, "sourceRow": 56, "aliases": ["evento", "extensão", "maratona", "mesa redonda", "monitor de evento", "ouvinte", "semana acadêmica", "seminário", "simpósio", "visita"]}, {"id": "035", "category": "Atividades de extensão", "categoryCap": 100, "itemNumber": 3, "activity": "Participação em evento de extensão não relacionado com o curso", "variant": "Membro de comissão organizadora", "unit": "Evento", "hoursPerUnit": 15, "maxUnits": 2, "maxActivityHours": 30, "sourceRow": 57, "aliases": ["evento", "extensão", "maratona", "mesa redonda", "monitor de evento", "ouvinte", "semana acadêmica", "seminário", "simpósio", "visita"]}, {"id": "036", "category": "Atividades de extensão", "categoryCap": 100, "itemNumber": 3, "activity": "Participação em evento de extensão não relacionado com o curso", "variant": "Membro de equipe de apoio", "unit": "Evento", "hoursPerUnit": 10, "maxUnits": 2, "maxActivityHours": 20, "sourceRow": 58, "aliases": ["evento", "extensão", "maratona", "mesa redonda", "monitor de evento", "ouvinte", "semana acadêmica", "seminário", "simpósio", "visita"]}, {"id": "037", "category": "Atividades de extensão", "categoryCap": 100, "itemNumber": 3, "activity": "Participação em evento de extensão não relacionado com o curso", "variant": "Participante ou mediador de mesa redonda", "unit": "Evento", "hoursPerUnit": 5, "maxUnits": 3, "maxActivityHours": 15, "sourceRow": 59, "aliases": ["evento", "extensão", "maratona", "mesa redonda", "monitor de evento", "ouvinte", "semana acadêmica", "seminário", "simpósio", "visita"]}, {"id": "038", "category": "Atividades de extensão", "categoryCap": 100, "itemNumber": 3, "activity": "Participação em evento de extensão não relacionado com o curso", "variant": "Monitor", "unit": "Evento", "hoursPerUnit": 5, "maxUnits": 3, "maxActivityHours": 15, "sourceRow": 60, "aliases": ["evento", "extensão", "maratona", "mesa redonda", "monitor de evento", "ouvinte", "semana acadêmica", "seminário", "simpósio", "visita"]}, {"id": "039", "category": "Atividades de extensão", "categoryCap": 100, "itemNumber": 3, "activity": "Participação em evento de extensão não relacionado com o curso", "variant": "Ouvinte (participação geral)", "unit": "Evento", "hoursPerUnit": 5, "maxUnits": 4, "maxActivityHours": 20, "sourceRow": 61, "aliases": ["evento", "extensão", "maratona", "mesa redonda", "monitor de evento", "ouvinte", "semana acadêmica", "seminário", "simpósio", "visita"]}, {"id": "040", "category": "Atividades de extensão", "categoryCap": 100, "itemNumber": 3, "activity": "Participação em evento de extensão não relacionado com o curso", "variant": "Ouvinte (minicurso ou similar)", "unit": "Evento", "hoursPerUnit": 5, "maxUnits": 4, "maxActivityHours": 20, "sourceRow": 62, "aliases": ["evento", "extensão", "maratona", "mesa redonda", "monitor de evento", "ouvinte", "semana acadêmica", "seminário", "simpósio", "visita"]}, {"id": "041", "category": "Atividades de extensão", "categoryCap": 100, "itemNumber": 4, "activity": "Participação de trabalho em evento de extensão", "variant": "Premiação", "unit": "Evento", "hoursPerUnit": 30, "maxUnits": 2, "maxActivityHours": 60, "sourceRow": 63, "aliases": ["evento", "extensão", "maratona", "mesa redonda", "monitor de evento", "ouvinte", "semana acadêmica", "seminário", "simpósio", "visita"]}, {"id": "042", "category": "Atividades de extensão", "categoryCap": 100, "itemNumber": 4, "activity": "Participação de trabalho em evento de extensão", "variant": "Apresentação", "unit": "Evento", "hoursPerUnit": 15, "maxUnits": 2, "maxActivityHours": 30, "sourceRow": 64, "aliases": ["evento", "extensão", "maratona", "mesa redonda", "monitor de evento", "ouvinte", "semana acadêmica", "seminário", "simpósio", "visita"]}, {"id": "043", "category": "Atividades de extensão", "categoryCap": 100, "itemNumber": 5, "activity": "Participação em competição (maratona de programação, olimpíada de informática ou similar)", "variant": "Premiação", "unit": "Competição", "hoursPerUnit": 30, "maxUnits": 2, "maxActivityHours": 60, "sourceRow": 65, "aliases": ["competição", "evento", "extensão", "hackathon", "maratona", "maratona de programação", "olimpíada", "olimpíada de informática", "visita"]}, {"id": "044", "category": "Atividades de extensão", "categoryCap": 100, "itemNumber": 5, "activity": "Participação em competição (maratona de programação, olimpíada de informática ou similar)", "variant": "Participação", "unit": "Competição", "hoursPerUnit": 20, "maxUnits": 3, "maxActivityHours": 60, "sourceRow": 66, "aliases": ["competição", "evento", "extensão", "hackathon", "maratona", "maratona de programação", "olimpíada", "olimpíada de informática", "visita"]}, {"id": "045", "category": "Atividades de extensão", "categoryCap": 100, "itemNumber": 6, "activity": "Participação em visita técnica ou viagem de estudo", "variant": "Geral", "unit": "Visita técnica ou viagem de estudo", "hoursPerUnit": 10, "maxUnits": 3, "maxActivityHours": 30, "sourceRow": 67, "aliases": ["atividade externa", "evento", "extensão", "maratona", "viagem de estudo", "visita"]}, {"id": "046", "category": "Atividades profissionais", "categoryCap": 50, "itemNumber": 1, "activity": "Participação em exame de certificação profissional", "variant": "Geral", "unit": "Exame", "hoursPerUnit": 50, "maxUnits": 2, "maxActivityHours": 100, "sourceRow": 71, "aliases": ["aws", "capacitação", "certificado profissional", "certificação", "cisco", "estágio", "microsoft", "oracle", "profissional", "trabalho"]}, {"id": "047", "category": "Atividades profissionais", "categoryCap": 50, "itemNumber": 2, "activity": "Desempenho, como empregado, funcionário público ou sócio/proprietário de instituição de natureza privada, de funções típicas da área do curso", "variant": "Geral", "unit": "Semestre completo", "hoursPerUnit": 10, "maxUnits": 5, "maxActivityHours": 50, "sourceRow": 72, "aliases": ["capacitação", "emprego", "estágio", "profissional", "proprietário", "serviço público", "sócio", "trabalho", "trabalho CLT"]}, {"id": "048", "category": "Atividades profissionais", "categoryCap": 50, "itemNumber": 3, "activity": "Realização de estágio não curricular (não obrigatório) na área do curso", "variant": "Geral", "unit": "Trimestre completo", "hoursPerUnit": 5, "maxUnits": 8, "maxActivityHours": 40, "sourceRow": 73, "aliases": ["capacitação", "empresa", "estágio", "estágio extracurricular", "experiência profissional", "não obrigatório", "profissional", "trabalho"]}, {"id": "049", "category": "Atividades profissionais", "categoryCap": 50, "itemNumber": 4, "activity": "Participação em curso de capacitação na área do curso  (a cada hora)", "variant": "Geral", "unit": "Hora", "hoursPerUnit": 1, "maxUnits": 30, "maxActivityHours": 30, "sourceRow": 74, "aliases": ["capacitação", "curso livre", "curso na área", "estágio", "profissional", "trabalho", "treinamento"]}, {"id": "050", "category": "Atividades de empreendedorismo e inovação", "categoryCap": 25, "itemNumber": 1, "activity": "Criação de projeto inovador direcionado para empresa júnior, empresa incubadora ou similar", "variant": "Geral", "unit": "Projeto", "hoursPerUnit": 25, "maxUnits": 2, "maxActivityHours": 50, "sourceRow": 78, "aliases": ["ej", "empreendedorismo", "empresa incubadora", "empresa junior", "empresa júnior", "hackathon", "incubação", "inovação", "startup"]}, {"id": "051", "category": "Atividades de empreendedorismo e inovação", "categoryCap": 25, "itemNumber": 2, "activity": "Participação em empresa júnior", "variant": "Geral", "unit": "Semestre completo", "hoursPerUnit": 25, "maxUnits": 2, "maxActivityHours": 50, "sourceRow": 79, "aliases": ["ej", "empreendedorismo", "empresa junior", "empresa júnior", "hackathon", "inovação", "startup"]}, {"id": "052", "category": "Atividades de empreendedorismo e inovação", "categoryCap": 25, "itemNumber": 3, "activity": "Participação em empresa incubadora", "variant": "Geral", "unit": "Semestre completo", "hoursPerUnit": 25, "maxUnits": 2, "maxActivityHours": 50, "sourceRow": 80, "aliases": ["empreendedorismo", "empresa incubadora", "empresa júnior", "hackathon", "incubação", "inovação", "startup"]}, {"id": "053", "category": "Atividades de empreendedorismo e inovação", "categoryCap": 25, "itemNumber": 4, "activity": "Participação em hackathon ou competição de simulação empresarial", "variant": "Geral", "unit": "Hackathon ou competição", "hoursPerUnit": 25, "maxUnits": 2, "maxActivityHours": 50, "sourceRow": 81, "aliases": ["competição", "competição empresarial", "empreendedorismo", "empresa júnior", "hackathon", "hackatona", "inovação", "maratona", "maratona de programação", "olimpíada", "olimpíada de informática", "startup", "startup weekend"]}, {"id": "054", "category": "Atividades sociais, esportivas e culturais", "categoryCap": 25, "itemNumber": 1, "activity": "Doação de medula óssea ou órgãos e tecidos", "variant": "Geral", "unit": "Doação", "hoursPerUnit": 50, "maxUnits": 1, "maxActivityHours": 50, "sourceRow": 85, "aliases": ["cadastro medula", "cinema", "coral", "cultura", "dança", "doador de medula", "doador de órgãos", "doação", "doação de órgãos", "esporte", "futebol", "meio ambiente", "redome", "social", "teatro", "voluntariado", "étnico-racial"]}, {"id": "055", "category": "Atividades sociais, esportivas e culturais", "categoryCap": 25, "itemNumber": 2, "activity": "Doação de sangue", "variant": "Geral", "unit": "Doação", "hoursPerUnit": 10, "maxUnits": 5, "maxActivityHours": 50, "sourceRow": 86, "aliases": ["cinema", "coral", "cultura", "dança", "doar sangue", "doação", "esporte", "futebol", "hemoba", "meio ambiente", "sangue", "social", "teatro", "voluntariado", "étnico-racial"]}, {"id": "056", "category": "Atividades sociais, esportivas e culturais", "categoryCap": 25, "itemNumber": 3, "activity": "Cadastro em banco de doadores de medula óssea", "variant": "Geral", "unit": "Cadastro", "hoursPerUnit": 25, "maxUnits": 1, "maxActivityHours": 25, "sourceRow": 87, "aliases": ["cadastro medula", "cinema", "coral", "cultura", "dança", "doador de medula", "doação", "esporte", "futebol", "meio ambiente", "redome", "social", "teatro", "voluntariado", "étnico-racial"]}, {"id": "057", "category": "Atividades sociais, esportivas e culturais", "categoryCap": 25, "itemNumber": 4, "activity": "Cadastro em banco de doadores de órgãos e tecidos", "variant": "Geral", "unit": "Cadastro", "hoursPerUnit": 25, "maxUnits": 1, "maxActivityHours": 25, "sourceRow": 88, "aliases": ["cinema", "coral", "cultura", "dança", "doador de órgãos", "doação", "doação de órgãos", "esporte", "futebol", "meio ambiente", "social", "teatro", "voluntariado", "étnico-racial"]}, {"id": "058", "category": "Atividades sociais, esportivas e culturais", "categoryCap": 25, "itemNumber": 5, "activity": "Organização de atividade de cunho cultural  (cinema, teatro, dança, coral ou similar)", "variant": "Geral", "unit": "Atividade", "hoursPerUnit": 10, "maxUnits": 5, "maxActivityHours": 50, "sourceRow": 89, "aliases": ["cinema", "coral", "cultura", "dança", "doação", "esporte", "futebol", "meio ambiente", "social", "teatro", "voluntariado", "étnico-racial"]}, {"id": "059", "category": "Atividades sociais, esportivas e culturais", "categoryCap": 25, "itemNumber": 6, "activity": "Participação em atividade cultural, esportiva, de entretenimento, ambiental ou étnico-racial", "variant": "Geral", "unit": "Atividade", "hoursPerUnit": 5, "maxUnits": 3, "maxActivityHours": 15, "sourceRow": 90, "aliases": ["cinema", "coral", "cultura", "dança", "doação", "esporte", "futebol", "meio ambiente", "social", "teatro", "voluntariado", "étnico-racial"]}, {"id": "060", "category": "Atividades sociais, esportivas e culturais", "categoryCap": 25, "itemNumber": 7, "activity": "Participação como voluntário em ação social ou comunitária", "variant": "Geral", "unit": "Ação", "hoursPerUnit": 10, "maxUnits": 5, "maxActivityHours": 50, "sourceRow": 91, "aliases": ["ação comunitária", "cinema", "coral", "cultura", "dança", "doação", "esporte", "futebol", "meio ambiente", "projeto social", "social", "teatro", "voluntariado", "étnico-racial"]}, {"id": "061", "category": "Atividades sociais, esportivas e culturais", "categoryCap": 25, "itemNumber": 8, "activity": "Participação como membro de comissão de formatura", "variant": "Geral", "unit": "Comissão", "hoursPerUnit": 10, "maxUnits": 1, "maxActivityHours": 10, "sourceRow": 92, "aliases": ["cinema", "comissão formatura", "coral", "cultura", "dança", "doação", "esporte", "formatura", "futebol", "meio ambiente", "social", "teatro", "voluntariado", "étnico-racial"]}, {"id": "062", "category": "Atividades sociais, esportivas e culturais", "categoryCap": 25, "itemNumber": 9, "activity": "Participação como membro da associação atlética", "variant": "Geral", "unit": "Semestre completo", "hoursPerUnit": 5, "maxUnits": 4, "maxActivityHours": 20, "sourceRow": 93, "aliases": ["associação atlética", "atletica", "atlética", "cinema", "coral", "cultura", "dança", "doação", "esporte", "futebol", "meio ambiente", "social", "teatro", "voluntariado", "étnico-racial"]}, {"id": "063", "category": "Atividades sociais, esportivas e culturais", "categoryCap": 25, "itemNumber": 10, "activity": "Participação em sessão de exibição de filme comentado", "variant": "Geral", "unit": "Sessão", "hoursPerUnit": 5, "maxUnits": 4, "maxActivityHours": 20, "sourceRow": 94, "aliases": ["cinema", "cinema comentado", "coral", "cultura", "dança", "doação", "esporte", "filme", "futebol", "meio ambiente", "sessão comentada", "social", "teatro", "voluntariado", "étnico-racial"]}, {"id": "064", "category": "Atividades políticas", "categoryCap": 25, "itemNumber": 1, "activity": "Participação como membro do Diretório Acadêmico do curso ou Diretório Central Estudantil", "variant": "Geral", "unit": "Semestre completo", "hoursPerUnit": 25, "maxUnits": 2, "maxActivityHours": 50, "sourceRow": 98, "aliases": ["colegiado", "conselho", "da", "dce", "diretório", "eleição", "política", "representação estudantil"]}, {"id": "065", "category": "Atividades políticas", "categoryCap": 25, "itemNumber": 2, "activity": "Participação como membro do Colegiado de Curso", "variant": "Geral", "unit": "Semestre completo", "hoursPerUnit": 25, "maxUnits": 2, "maxActivityHours": 50, "sourceRow": 99, "aliases": ["colegiado", "conselho", "dce", "eleição", "política", "representante discente"]}, {"id": "066", "category": "Atividades políticas", "categoryCap": 25, "itemNumber": 3, "activity": "Participação como membro do Conselho Superior, do Conselho de Campus e/ou de demais órgãos colegiados do IFBA com previsão de representação discente", "variant": "Geral", "unit": "Semestre completo", "hoursPerUnit": 25, "maxUnits": 2, "maxActivityHours": 50, "sourceRow": 100, "aliases": ["colegiado", "concampus", "conselho", "consup", "dce", "doador de órgãos", "doação de órgãos", "eleição", "política", "órgão colegiado"]}, {"id": "067", "category": "Atividades políticas", "categoryCap": 25, "itemNumber": 4, "activity": "Participação como membro de comissão temporária institucional", "variant": "Geral", "unit": "Comissão", "hoursPerUnit": 10, "maxUnits": 5, "maxActivityHours": 50, "sourceRow": 101, "aliases": ["colegiado", "comissão institucional", "comissão temporária", "conselho", "dce", "eleição", "política"]}, {"id": "068", "category": "Atividades políticas", "categoryCap": 25, "itemNumber": 5, "activity": "Prestação de serviços à Justiça Eleitoral", "variant": "Geral", "unit": "Turno de eleição", "hoursPerUnit": 25, "maxUnits": 2, "maxActivityHours": 50, "sourceRow": 102, "aliases": ["TRE", "colegiado", "conselho", "dce", "eleição", "mesário", "política", "turno de eleição"]}]}</script>
+  <script>
+    const BAREMA = JSON.parse(document.getElementById('barema-data').textContent);
+    const STORAGE_KEY = 'barema-explorer-simulation-' + BAREMA.version;
+    let selectedCategory = 'Todas';
+    let selected = loadSelected();
+
+    const $ = (id) => document.getElementById(id);
+
+    const quickTerms = [
+      'estágio', 'monitoria', 'curso de inglês', 'artigo', 'resumo',
+      'hackathon', 'doação de sangue', 'empresa júnior', 'colegiado', 'DCE',
+      'visita técnica', 'certificação'
+    ];
+
+    function normalize(value) {
+      return String(value ?? '')
+        .normalize('NFD')
+        .replace(/[\u0300-\u036f]/g, '')
+        .toLowerCase()
+        .replace(/[^a-z0-9]+/g, ' ')
+        .replace(/\s+/g, ' ')
+        .trim();
+    }
+
+    function h(value) {
+      return String(value ?? '').replace(/[&<>"']/g, (m) => ({
+        '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#039;'
+      }[m]));
+    }
+
+    function activityIndex(a) {
+      return normalize([a.category, a.activity, a.variant, a.unit, ...(a.aliases || [])].join(' '));
+    }
+
+    function categoryIcon(category) {
+      return BAREMA.categories.find(c => c.name === category)?.icon || '📌';
+    }
+
+    function formatHours(n) {
+      const value = Math.round((Number(n) || 0) * 10) / 10;
+      return value.toLocaleString('pt-BR') + 'h';
+    }
+
+    function loadSelected() {
+      try {
+        return JSON.parse(localStorage.getItem(STORAGE_KEY) || '{}');
+      } catch {
+        return {};
+      }
+    }
+
+    function saveSelected() {
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(selected));
+    }
+
+    function init() {
+      renderQuickChips();
+      renderCategoryFilters();
+      bindEvents();
+      renderAll();
+    }
+
+    function renderQuickChips() {
+      $('quickChips').innerHTML = quickTerms.map(term =>
+        `<button class="chip" type="button" data-search="${h(term)}">${h(term)}</button>`
+      ).join('');
+    }
+
+    function renderCategoryFilters() {
+      const allCount = BAREMA.activities.length;
+      const buttons = [
+        `<button class="cat-filter active" type="button" data-category="Todas">Todas · ${allCount}</button>`
+      ].concat(BAREMA.categories.map(cat => `
+        <button class="cat-filter" type="button" data-category="${h(cat.name)}">${cat.icon} ${h(shortCat(cat.name))} · ${cat.count}</button>
+      `));
+      $('categoryFilters').innerHTML = buttons.join('');
+    }
+
+    function shortCat(name) {
+      return name
+        .replace('Atividades de ', '')
+        .replace('Atividades ', '')
+        .replace('sociais, esportivas e culturais', 'sociais/culturais')
+        .replace('empreendedorismo e inovação', 'empreend./inovação');
+    }
+
+    function bindEvents() {
+      $('searchInput').addEventListener('input', renderCards);
+      $('clearSearch').addEventListener('click', () => {
+        $('searchInput').value = '';
+        renderCards();
+        $('searchInput').focus();
+      });
+
+      $('quickChips').addEventListener('click', (e) => {
+        const btn = e.target.closest('[data-search]');
+        if (!btn) return;
+        $('searchInput').value = btn.dataset.search;
+        renderCards();
+      });
+
+      $('categoryFilters').addEventListener('click', (e) => {
+        const btn = e.target.closest('[data-category]');
+        if (!btn) return;
+        selectedCategory = btn.dataset.category;
+        document.querySelectorAll('.cat-filter').forEach(b => b.classList.toggle('active', b === btn));
+        renderCards();
+      });
+
+      $('cards').addEventListener('click', (e) => {
+        const btn = e.target.closest('[data-add]');
+        if (!btn) return;
+        const id = btn.dataset.add;
+        const input = document.querySelector(`[data-card-qty="${id}"]`);
+        addActivity(id, Number(input?.value || 1));
+      });
+
+      $('cards').addEventListener('input', (e) => {
+        const input = e.target.closest('[data-card-qty]');
+        if (!input) return;
+        const a = byId(input.dataset.cardQty);
+        const value = clampUnits(Number(input.value || 0), a);
+        input.value = value;
+      });
+
+      $('selectedList').addEventListener('click', (e) => {
+        const remove = e.target.closest('[data-remove]');
+        if (!remove) return;
+        delete selected[remove.dataset.remove];
+        saveSelected();
+        renderAll();
+      });
+
+      $('selectedList').addEventListener('input', (e) => {
+        const units = e.target.closest('[data-units]');
+        const pages = e.target.closest('[data-pages]');
+        if (units) {
+          const id = units.dataset.units;
+          const a = byId(id);
+          selected[id].units = clampUnits(Number(units.value || 0), a);
+          units.value = selected[id].units;
+          saveSelected();
+          renderSimulation();
+          renderCards();
+        }
+        if (pages) {
+          const id = pages.dataset.pages;
+          selected[id].pages = pages.value;
+          saveSelected();
+          renderSimulation();
+        }
+      });
+
+      $('clearSimBtn').addEventListener('click', () => {
+        selected = {};
+        saveSelected();
+        renderAll();
+      });
+
+      $('exportBtn').addEventListener('click', () => {
+        $('exportText').value = buildChecklist();
+        $('exportDialog').showModal();
+      });
+
+      $('closeDialog').addEventListener('click', () => $('exportDialog').close());
+      $('copyExport').addEventListener('click', async () => {
+        try {
+          await navigator.clipboard.writeText($('exportText').value);
+          $('copyExport').textContent = 'Copiado!';
+          setTimeout(() => $('copyExport').textContent = 'Copiar', 1200);
+        } catch {
+          $('exportText').select();
+          document.execCommand('copy');
+        }
+      });
+    }
+
+    function renderAll() {
+      renderCards();
+      renderSimulation();
+    }
+
+    function getFilteredActivities() {
+      const q = normalize($('searchInput').value);
+      const tokens = q ? q.split(' ').filter(Boolean) : [];
+      return BAREMA.activities
+        .map(a => {
+          const index = activityIndex(a);
+          let score = 0;
+          if (q && index.includes(q)) score += 40;
+          for (const t of tokens) if (index.includes(t)) score += 8;
+          if (normalize(a.activity).includes(q)) score += 15;
+          if ((a.aliases || []).some(alias => normalize(alias).includes(q))) score += 20;
+          return {...a, _index: index, _score: score};
+        })
+        .filter(a => selectedCategory === 'Todas' || a.category === selectedCategory)
+        .filter(a => !tokens.length || tokens.every(t => a._index.includes(t)))
+        .sort((a,b) => {
+          if (b._score !== a._score) return b._score - a._score;
+          if (a.category !== b.category) return a.category.localeCompare(b.category);
+          if (a.itemNumber !== b.itemNumber) return a.itemNumber - b.itemNumber;
+          return a.sourceRow - b.sourceRow;
+        });
+    }
+
+    function renderCards() {
+      const list = getFilteredActivities();
+      const q = $('searchInput').value.trim();
+      $('resultCount').textContent = `${list.length} atividade(s) encontrada(s)` + (q ? ` para “${q}”` : '');
+
+      if (!list.length) {
+        $('cards').innerHTML = `
+          <div class="selected-empty" style="grid-column:1/-1;">
+            Nenhuma atividade encontrada. Tente outro termo, como <b>artigo</b>, <b>evento</b>, <b>curso</b>, <b>estágio</b> ou <b>doação</b>.
+          </div>
+        `;
+        return;
+      }
+
+      $('cards').innerHTML = list.map(cardTemplate).join('');
+    }
+
+    function cardTemplate(a) {
+      const already = Boolean(selected[a.id]);
+      const variant = a.variant && a.variant !== 'Geral' ? `<p class="variant"><b>Tipo:</b> ${highlight(a.variant)}</p>` : `<p class="variant"><b>Tipo:</b> Geral</p>`;
+      return `
+        <article class="card">
+          <div class="card-top">
+            <span class="category-badge">${categoryIcon(a.category)} ${h(shortCat(a.category))}</span>
+            <span class="source-row">linha ${a.sourceRow}</span>
+          </div>
+          <h3>${highlight(a.activity)}</h3>
+          ${variant}
+
+          <div class="stat-grid">
+            <div class="stat">
+              <span>Horas/unidade</span>
+              <strong>${formatHours(a.hoursPerUnit)}</strong>
+            </div>
+            <div class="stat">
+              <span>Máx. unidades</span>
+              <strong>${a.maxUnits}</strong>
+            </div>
+            <div class="stat">
+              <span>Máx. atividade</span>
+              <strong>${formatHours(a.maxActivityHours)}</strong>
+            </div>
+          </div>
+
+          <div class="card-actions">
+            <input class="qty" data-card-qty="${a.id}" type="number" min="1" max="${a.maxUnits}" step="1" value="${selected[a.id]?.units || 1}" aria-label="Quantidade de unidades">
+            <button class="add-btn ${already ? 'added' : ''}" type="button" data-add="${a.id}">
+              ${already ? 'Atualizar no simulador' : 'Adicionar ao simulador'}
+            </button>
+          </div>
+        </article>
+      `;
+    }
+
+    function highlight(text) {
+      const raw = h(text);
+      const q = normalize($('searchInput').value);
+      if (!q) return raw;
+      const tokens = q.split(' ').filter(t => t.length >= 3).slice(0, 4);
+      if (!tokens.length) return raw;
+      let out = raw;
+      for (const token of tokens) {
+        const re = new RegExp(`(${escapeRegExp(token)})`, 'ig');
+        // Accent-insensitive highlight in arbitrary HTML is complex; keep exact-token fallback only.
+        out = out.replace(re, '<mark>$1</mark>');
+      }
+      return out;
+    }
+
+    function escapeRegExp(s) {
+      return s.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+    }
+
+    function byId(id) {
+      return BAREMA.activities.find(a => a.id === id);
+    }
+
+    function clampUnits(value, a) {
+      const n = Math.floor(Number(value) || 0);
+      return Math.max(0, Math.min(Number(a.maxUnits) || 0, n));
+    }
+
+    function addActivity(id, units) {
+      const a = byId(id);
+      selected[id] = selected[id] || { id, units: 1, pages: '' };
+      selected[id].units = clampUnits(units || selected[id].units || 1, a);
+      saveSelected();
+      renderAll();
+    }
+
+    function computeSimulation() {
+      const items = Object.values(selected)
+        .map(s => {
+          const a = byId(s.id);
+          if (!a) return null;
+          const units = clampUnits(s.units, a);
+          const raw = units * Number(a.hoursPerUnit || 0);
+          const activityAccepted = Math.min(raw, Number(a.maxActivityHours || raw));
+          return {
+            ...s,
+            a,
+            units,
+            raw,
+            activityAccepted,
+            pages: s.pages || ''
+          };
+        })
+        .filter(Boolean)
+        .filter(item => item.units > 0);
+
+      const categoryRaw = Object.fromEntries(BAREMA.categories.map(c => [c.name, 0]));
+      for (const item of items) {
+        categoryRaw[item.a.category] += item.activityAccepted;
+      }
+
+      const categoryAccepted = {};
+      const categoryExcess = {};
+      for (const c of BAREMA.categories) {
+        categoryAccepted[c.name] = Math.min(categoryRaw[c.name], c.cap);
+        categoryExcess[c.name] = Math.max(0, categoryRaw[c.name] - c.cap);
+      }
+
+      const totalAccepted = Object.values(categoryAccepted).reduce((a,b) => a + b, 0);
+      const totalRaw = Object.values(categoryRaw).reduce((a,b) => a + b, 0);
+      const usedCategories = Object.values(categoryAccepted).filter(v => v > 0).length;
+
+      return {
+        items,
+        categoryRaw,
+        categoryAccepted,
+        categoryExcess,
+        totalAccepted,
+        totalRaw,
+        usedCategories,
+        missingHours: Math.max(0, BAREMA.minimumHours - totalAccepted),
+        missingCategories: Math.max(0, BAREMA.minimumCategories - usedCategories)
+      };
+    }
+
+    function renderSimulation() {
+      const sim = computeSimulation();
+      renderSummary(sim);
+      renderCategoryProgress(sim);
+      renderSelectedList(sim);
+    }
+
+    function renderSummary(sim) {
+      const pct = Math.min(100, (sim.totalAccepted / BAREMA.minimumHours) * 100);
+      const catPct = Math.min(100, (sim.usedCategories / BAREMA.minimumCategories) * 100);
+      const warnings = [];
+
+      if (sim.missingHours > 0) warnings.push(`Faltam <b>${formatHours(sim.missingHours)}</b> para atingir ${BAREMA.minimumHours}h.`);
+      else warnings.push(`<span class="ok-text">Mínimo de horas atingido.</span>`);
+
+      if (sim.missingCategories > 0) warnings.push(`Ainda falta pontuar em <b>${sim.missingCategories}</b> categoria(s) diferente(s).`);
+      else warnings.push(`<span class="ok-text">Mínimo de categorias atingido.</span>`);
+
+      const exceeded = Object.entries(sim.categoryExcess).filter(([_, v]) => v > 0);
+      for (const [cat, excess] of exceeded) {
+        warnings.push(`${categoryIcon(cat)} ${shortCat(cat)} excedeu o limite. <b>${formatHours(excess)}</b> não entram no total final.`);
+      }
+
+      $('summary').innerHTML = `
+        <div class="big-progress">
+          <div class="progress-title">
+            <div>
+              <strong>${formatHours(sim.totalAccepted)}</strong>
+              <span>aceitas de ${formatHours(BAREMA.minimumHours)}</span>
+            </div>
+            <span>${Math.round(pct)}%</span>
+          </div>
+          <div class="bar" aria-label="Progresso de horas"><i style="width:${pct}%"></i></div>
+          <div class="summary-grid">
+            <div class="summary-mini">
+              <b>${sim.usedCategories}/${BAREMA.minimumCategories}</b>
+              <span>categorias mínimas</span>
+              <div class="bar" style="height:7px;margin-bottom:0;"><i style="width:${catPct}%"></i></div>
+            </div>
+            <div class="summary-mini">
+              <b>${formatHours(sim.totalRaw)}</b>
+              <span>antes dos limites</span>
+            </div>
+          </div>
+        </div>
+        <div class="warnings">
+          ${warnings.map(w => `<div class="warning ${w.includes('atingido') ? 'ok' : ''}">${w}</div>`).join('')}
+        </div>
+      `;
+    }
+
+    function renderCategoryProgress(sim) {
+      $('categoryProgress').innerHTML = BAREMA.categories.map(cat => {
+        const raw = sim.categoryRaw[cat.name] || 0;
+        const accepted = sim.categoryAccepted[cat.name] || 0;
+        const pct = Math.min(100, (accepted / cat.cap) * 100);
+        const over = raw > cat.cap;
+        return `
+          <div class="cat-row">
+            <span class="cat-label">${cat.icon} ${h(shortCat(cat.name))}</span>
+            <span class="cat-value">${formatHours(accepted)} / ${formatHours(cat.cap)}${over ? ' · limite' : ''}</span>
+            <div class="thinbar"><i style="width:${pct}%"></i></div>
+          </div>
+        `;
+      }).join('');
+    }
+
+    function renderSelectedList(sim) {
+      if (!sim.items.length) {
+        $('selectedList').innerHTML = `
+          <div class="selected-empty">
+            Nada adicionado ainda. Pesquise uma atividade e clique em <b>Adicionar ao simulador</b>.
+          </div>
+        `;
+        return;
+      }
+
+      $('selectedList').innerHTML = sim.items.map(item => `
+        <div class="selected-item">
+          <div class="selected-head">
+            <div>
+              <p class="selected-title">${h(item.a.activity)}</p>
+              <div class="selected-meta">${categoryIcon(item.a.category)} ${h(shortCat(item.a.category))} · ${h(item.a.variant)} · ${formatHours(item.a.hoursPerUnit)} por ${h(item.a.unit.toLowerCase())}</div>
+            </div>
+            <button class="remove" data-remove="${item.a.id}" title="Remover">×</button>
+          </div>
+          <div class="selected-controls">
+            <input type="number" min="0" max="${item.a.maxUnits}" step="1" value="${item.units}" data-units="${item.a.id}" title="Quantidade">
+            <input type="text" placeholder="Páginas do PDF. Ex.: 3-4" value="${h(item.pages)}" data-pages="${item.a.id}">
+            <span class="accepted">${formatHours(item.activityAccepted)}</span>
+          </div>
+        </div>
+      `).join('');
+    }
+
+    function buildChecklist() {
+      const sim = computeSimulation();
+      const lines = [];
+      lines.push('BAREMA PPC 2024 — SIMULAÇÃO DE ATIVIDADES COMPLEMENTARES');
+      lines.push('Curso: ' + BAREMA.course);
+      lines.push('');
+      lines.push(`Total aceito: ${formatHours(sim.totalAccepted)} / ${formatHours(BAREMA.minimumHours)}`);
+      lines.push(`Categorias com horas: ${sim.usedCategories} / ${BAREMA.minimumCategories}`);
+      lines.push(`Total antes dos limites: ${formatHours(sim.totalRaw)}`);
+      lines.push('');
+
+      lines.push('RESUMO POR CATEGORIA');
+      for (const cat of BAREMA.categories) {
+        const raw = sim.categoryRaw[cat.name] || 0;
+        const accepted = sim.categoryAccepted[cat.name] || 0;
+        const excess = sim.categoryExcess[cat.name] || 0;
+        lines.push(`- ${cat.name}: ${formatHours(accepted)} / ${formatHours(cat.cap)} aceitas` + (excess ? ` (${formatHours(excess)} excedentes)` : ''));
+      }
+
+      lines.push('');
+      lines.push('ATIVIDADES ADICIONADAS');
+      if (!sim.items.length) {
+        lines.push('- Nenhuma atividade adicionada.');
+      } else {
+        sim.items.forEach((item, idx) => {
+          lines.push(`${idx + 1}. ${item.a.activity}`);
+          lines.push(`   Categoria: ${item.a.category}`);
+          lines.push(`   Tipo: ${item.a.variant}`);
+          lines.push(`   Quantidade: ${item.units} ${item.a.unit}`);
+          lines.push(`   Horas: ${formatHours(item.activityAccepted)}`);
+          lines.push(`   Observações sugeridas: ${item.pages ? 'Pág. ' + item.pages : 'informar páginas do PDF'}`);
+        });
+      }
+
+      lines.push('');
+      lines.push('Observação: esta é uma simulação conceitual. Conferir com o Barema oficial antes do envio.');
+      return lines.join('\n');
+    }
+
+    init();
+  </script>
+</body>
+</html>

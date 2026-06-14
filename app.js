@@ -16,7 +16,8 @@ const state = {
   selectedDocs: new Set(),
   temporaryEdits: new Map(),
   desktopColumns: "auto",
-  linksView: null
+  linksView: null,
+  archiveVisibleCount: null
 };
 
 function setLoadingStatus(message = "", kind = "info") {
@@ -42,8 +43,40 @@ function setupDesktopColumnsControl() {
   select.value = state.desktopColumns;
   select.addEventListener("change", () => {
     applyDesktopColumns(select.value);
+    resetArchiveLimit();
+    renderDocuments();
     try { localStorage.setItem("hubDesktopColumns", state.desktopColumns); } catch (_) {}
   });
+}
+
+function isMobileViewport() {
+  return window.matchMedia && window.matchMedia("(max-width: 720px)").matches;
+}
+
+function getArchiveColumnCount() {
+  if (isMobileViewport()) return 1;
+  const selected = Number(state.desktopColumns);
+  if (Number.isFinite(selected) && selected >= 2) return selected;
+  const grid = document.getElementById("documentGrid");
+  const width = grid?.clientWidth || window.innerWidth || 0;
+  return Math.max(2, Math.min(12, Math.floor(width / 260) || 4));
+}
+
+function getArchiveBatchSize() {
+  if (isMobileViewport()) return 8;
+  const columns = getArchiveColumnCount();
+  return Math.max(4, Math.min(24, columns * 2));
+}
+
+function resetArchiveLimit() {
+  state.archiveVisibleCount = getArchiveBatchSize();
+}
+
+function ensureArchiveLimit() {
+  if (!Number.isFinite(state.archiveVisibleCount) || state.archiveVisibleCount < 1) {
+    resetArchiveLimit();
+  }
+  return state.archiveVisibleCount;
 }
 
 const statusLabel = {
@@ -423,6 +456,7 @@ function emojiForResource(resource = {}, type = "link") {
     return "💡";
   }
   if (type === "app") {
+    if (haystack.includes("calendario") || haystack.includes("calendário") || haystack.includes("datas academicas") || haystack.includes("datas acadêmicas")) return "📅";
     if (haystack.includes("onde resolvo") || haystack.includes("setor") || haystack.includes("problema")) return "🧭";
     if (haystack.includes("barema") || haystack.includes("atividades complementares") || haystack.includes("horas complementares") || haystack.includes("certificado")) return "🎓";
     if (haystack.includes("media") || haystack.includes("nota") || haystack.includes("calculadora")) return "🧮";
@@ -1859,14 +1893,50 @@ function emptyStateHtml(title, text) {
   `;
 }
 
+function renderArchiveLoadMore(total = documents.length, visible = 0) {
+  const box = document.getElementById("archiveLoadMore");
+  if (!box) return;
+
+  if (!total || state.archiveView !== "grid") {
+    box.hidden = true;
+    box.innerHTML = "";
+    return;
+  }
+
+  const shown = Math.min(visible, total);
+  const remaining = Math.max(0, total - shown);
+  const nextBatch = Math.min(getArchiveBatchSize(), remaining);
+  const shouldShow = total > getArchiveBatchSize() || remaining > 0;
+
+  if (!shouldShow) {
+    box.hidden = true;
+    box.innerHTML = "";
+    return;
+  }
+
+  box.hidden = false;
+  box.innerHTML = `
+    <span>Mostrando <strong>${shown}</strong> de <strong>${total}</strong> documentos.</span>
+    ${remaining ? `<button type="button" class="secondary-button" data-archive-more>Ver mais ${nextBatch}</button>` : `<span class="archive-all-visible">Todos os documentos foram exibidos.</span>`}
+  `;
+}
+
 function renderDocuments() {
   const grid = document.getElementById("documentGrid");
   if (!grid) return;
   const archiveTools = document.querySelector(".archive-tools");
   if (archiveTools) archiveTools.hidden = !documents.length;
-  grid.innerHTML = documents.length
-    ? documents.map(doc => renderResourceCard(doc, "document")).join("")
-    : emptyStateHtml("Nenhum documento cadastrado ainda", "Adicione PDFs em /documents e gere o manifesto.");
+
+  if (!documents.length) {
+    grid.innerHTML = emptyStateHtml("Nenhum documento cadastrado ainda", "Adicione PDFs em /documents e gere o manifesto.");
+    renderArchiveLoadMore(0, 0);
+    return;
+  }
+
+  const limit = Math.min(ensureArchiveLimit(), documents.length);
+  const visibleDocs = documents.slice(0, limit);
+  grid.innerHTML = visibleDocs.map(doc => renderResourceCard(doc, "document")).join("");
+  renderArchiveLoadMore(documents.length, limit);
   schedulePdfThumbnailRender();
 }
 
@@ -1890,7 +1960,7 @@ function applyLinksView(value, { persist = true } = {}) {
   }
 
   if (persist) {
-    try { localStorage.setItem("hubLinksView", clean); } catch (_) {}
+    try { localStorage.setItem(linksViewStorageKey(), clean); } catch (_) {}
   }
 }
 
@@ -1917,25 +1987,32 @@ function renderLinks() {
     : emptyStateHtml("Nenhum link cadastrado ainda", "Quando você adicionar links reais em data.js, eles aparecerão aqui.");
 }
 
+function linksViewStorageKey() {
+  return isMobileViewport() ? "hubLinksViewMobile" : "hubLinksViewDesktop";
+}
+
 function setupLinksViewToggle() {
   const saved = (() => {
-    try { return localStorage.getItem("hubLinksView"); } catch (_) { return null; }
+    try { return localStorage.getItem(linksViewStorageKey()); } catch (_) { return null; }
   })();
   applyLinksView(saved === "cards" || saved === "quick" ? saved : defaultLinksView(), { persist: false });
 
   document.querySelectorAll("[data-links-view]").forEach(button => {
     button.addEventListener("click", () => {
-      applyLinksView(button.dataset.linksView || "quick");
+      applyLinksView(button.dataset.linksView || "quick", { persist: false });
+      try { localStorage.setItem(linksViewStorageKey(), state.linksView); } catch (_) {}
       renderLinks();
     });
   });
 }
 
+
 function renderApps() {
   const grid = document.getElementById("appsGrid");
   if (!grid) return;
-  grid.innerHTML = apps.length
-    ? apps.map(app => renderResourceCard(app, "app")).join("")
+  const visibleApps = apps.filter(app => !app.hideInHome);
+  grid.innerHTML = visibleApps.length
+    ? visibleApps.map(app => renderResourceCard(app, "app")).join("")
     : emptyStateHtml("Nenhum app cadastrado", "Os apps internos do hub aparecerão aqui.");
 }
 
@@ -2313,7 +2390,15 @@ function setupArchiveViews() {
       document.querySelectorAll("[data-view]").forEach(item => item.classList.toggle("active", item === button));
       document.getElementById("documentGrid").hidden = state.archiveView !== "grid";
       document.getElementById("directoryGrid").hidden = state.archiveView !== "list";
+      renderArchiveLoadMore(documents.length, Math.min(ensureArchiveLimit(), documents.length));
     });
+  });
+
+  document.getElementById("archiveLoadMore")?.addEventListener("click", event => {
+    const button = event.target.closest("[data-archive-more]");
+    if (!button) return;
+    state.archiveVisibleCount = Math.min(documents.length, ensureArchiveLimit() + getArchiveBatchSize());
+    renderDocuments();
   });
 }
 
@@ -2650,7 +2735,9 @@ function setupCalculators() {
     highlightClosestFinalRow(mp);
 
     if (pf === null) {
-      setFinalResult("warning", `<div class="official-result"><strong>⚠️ Vai para prova final</strong>${base}<span class="calc-detail">Precisa tirar <strong>${formatGrade(neededPf)}</strong> na final.</span>${rule}</div>`);
+      const resultKind = neededPf >= 7.2 ? "negative" : "warning";
+      const icon = neededPf >= 7.2 ? "⚠️" : "⚠️";
+      setFinalResult(resultKind, `<div class="official-result"><strong>${icon} Vai para prova final</strong>${base}<span class="calc-detail">Precisa tirar <strong>${formatGrade(neededPf)}</strong> na final.</span>${rule}</div>`);
       return;
     }
 
@@ -3018,6 +3105,7 @@ async function boot() {
   setLoadingStatus("Preparando busca e filtros...");
   populateFilters();
   renderDirectory();
+  resetArchiveLimit();
   renderDocuments();
   refreshCurrentSearchIfNeeded();
 
