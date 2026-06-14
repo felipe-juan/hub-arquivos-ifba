@@ -5,6 +5,8 @@
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>HUB Arquivos IFBA — SI</title>
   <meta name="description" content="Busca rápida por documentos, links, apps e informações do curso de Sistemas de Informação do IFBA Vitória da Conquista." />
+  <link rel="icon" href="favicon.ico" sizes="any" />
+  <link rel="apple-touch-icon" href="assets/apple-touch-icon.png" />
   <link rel="stylesheet" href="styles.css" />
 </head>
 <body>
@@ -12,7 +14,7 @@
 
   <header class="topbar">
     <a class="brand" href="#buscar" aria-label="Ir para busca">
-      <span class="brand-mark">SI</span>
+      <span class="brand-mark"><img src="assets/logo-pixel.png" alt="Logo HUB SI" /></span>
       <span class="brand-text">
         <strong>HUB SI</strong>
         <small>IFBA · VCA</small>
@@ -48,11 +50,13 @@
           <button data-example="PPC 2024">PPC 2024</button>
           <button data-example="quadro de horários">horários</button>
           <button data-example="fluxograma 2024">fluxograma</button>
-          <button data-example="atividades complementares">atividades compl.</button>
           <button data-example="TCC">TCC</button>
           <button data-example="estágio">estágio</button>
           <button data-example="protocolo">protocolo</button>
           <button data-example="média final">média final</button>
+          <button data-example="tabela da final">tabela da final</button>
+          <button data-example="barema">barema</button>
+          <button data-example="atividades complementares">atividades complementares</button>
         </div>
       </div>
 
@@ -70,9 +74,6 @@
         </label>
         <label>Correspondente
           <select id="correspondentFilter"><option value="all">Todos</option></select>
-        </label>
-        <label>Tag
-          <select id="tagFilter"><option value="all">Todas</option></select>
         </label>
         <label>Formato
           <select id="formatFilter"><option value="all">Todos</option></select>
@@ -113,6 +114,7 @@
 
       <div id="appsGrid" class="cards-grid"></div>
 
+      <div class="apps-featured-grid">
       <div class="calculator-panel" id="calc-media">
         <div class="section-heading inline">
           <div>
@@ -120,35 +122,56 @@
             <h2>Cálculo de média final</h2>
           </div>
         </div>
-        <div class="calc-grid">
-          <article class="tool-card">
-            <h3>Média ponderada</h3>
-            <p>Campos vazios são ignorados.</p>
-            <div id="weightedInputs" class="grade-list"></div>
-            <button class="secondary-button" id="addGradeRow" type="button">Adicionar avaliação</button>
-            <div class="result-box" id="weightedResult">Média: —</div>
-          </article>
+        <div class="calc-grid calc-grid-single">
+          <article class="tool-card final-grade-card">
+            <h3>Simulador de situação final</h3>
+            <p>Informe quantas notas parciais existirem no diário. A média parcial é a média simples dessas notas.</p>
 
-          <article class="tool-card" id="calc-preciso">
-            <h3>Quanto preciso tirar?</h3>
-            <label>Nota atual acumulada <input type="number" id="currentScore" min="0" max="100" step="0.01" placeholder="Ex.: 62" /></label>
-            <label>Peso já concluído <input type="number" id="completedWeight" min="0" max="100" step="0.01" placeholder="Ex.: 70" /></label>
-            <label>Média desejada <input type="number" id="targetScore" min="0" max="100" step="0.01" placeholder="Ex.: 60" /></label>
-            <label>Peso da próxima avaliação <input type="number" id="nextWeight" min="0" max="100" step="0.01" placeholder="Ex.: 30" /></label>
-            <button id="neededGradeButton" type="button">Calcular</button>
-            <div class="result-box" id="neededGradeResult">Resultado: —</div>
-          </article>
+            <div id="partialGrades" class="grade-list" aria-label="Notas parciais"></div>
+            <div class="button-row">
+              <button class="secondary-button" id="addGradeButton" type="button">+ Adicionar nota</button>
+              <button class="secondary-button ghost-button" id="clearGradesButton" type="button">Limpar</button>
+            </div>
 
-          <article class="tool-card" id="calc-horas">
-            <h3>Horas complementares</h3>
-            <label>Horas exigidas <input type="number" id="requiredHours" min="0" step="1" value="120" /></label>
-            <label>Horas cumpridas <input type="number" id="completedHours" min="0" step="1" placeholder="Ex.: 75" /></label>
-            <button id="hoursButton" type="button">Calcular</button>
-            <div class="progress-shell"><div id="hoursProgress" class="progress-bar"></div></div>
-            <div class="result-box" id="hoursResult">Resultado: —</div>
+            <label class="pf-label">Nota da prova final, se já tiver
+              <input type="number" id="pfFinal" min="0" max="10" step="0.01" inputmode="decimal" placeholder="Ex.: 6,0" />
+            </label>
+
+            <button id="finalGradeButton" type="button">Calcular situação</button>
+            <div class="result-box result-neutral" id="finalGradeResult">Resultado: —</div>
+            <p class="calc-note">Regra usada: MP ≥ 7 aprova por média; 2,5 ≤ MP &lt; 7 exige prova final; MP &lt; 2,5 reprova sem final. Na final: MF = (MP×2 + PF)/3 e a PF necessária é 15 − (MP×2).</p>
           </article>
         </div>
       </div>
+
+      <div class="calculator-panel final-table-panel" id="tabela-final">
+        <div class="section-heading inline">
+          <div>
+            <p class="eyebrow">App</p>
+            <h2>Tabela da prova final</h2>
+          </div>
+        </div>
+        <article class="tool-card final-table-card">
+          <h3>Consulta rápida da final</h3>
+          <p>Para quem só quer olhar a média parcial e saber direto quanto precisa tirar na prova final, sem digitar nada.</p>
+
+          <div class="final-table-legend" aria-label="Faixas da média parcial">
+            <span><i style="--dot:#10a95b"></i>6,9 a 6,0</span>
+            <span><i style="--dot:#16b8e8"></i>5,9 a 5,0</span>
+            <span><i style="--dot:#fff22d"></i>4,9 a 4,0</span>
+            <span><i style="--dot:#f39a35"></i>3,9 a 3,0</span>
+            <span><i style="--dot:#f07a22"></i>2,9 a 2,5</span>
+          </div>
+
+          <div class="final-table-shell" role="region" aria-label="Tabela rápida de nota necessária na prova final" tabindex="0">
+            <div class="final-table-wrap" id="finalExamTable"></div>
+          </div>
+
+          <p class="calc-note">A tabela considera aprovação após a final com média final mínima 5,0. Regra usada: <strong>PF mínima = 15 − 2 × MP</strong>.</p>
+        </article>
+      </div>
+      </div>
+
     </section>
 
     <section id="links" class="section content-section" data-nav-section>
@@ -172,7 +195,7 @@
   </div>
 
   <footer class="footer">
-    <span>HUB SI · protótipo livre · sempre confira a fonte oficial.</span>
+    <span>HUB SI · v0.1.6 · protótipo livre · sempre confira a fonte oficial.</span>
   </footer>
 
   <script src="data.js"></script>

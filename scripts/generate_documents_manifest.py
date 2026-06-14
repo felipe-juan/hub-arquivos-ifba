@@ -1,43 +1,53 @@
 #!/usr/bin/env python3
 """
-Gera documents/manifest.json a partir dos arquivos colocados em documents/.
+Generate documents/manifest.json for HUB Arquivos IFBA.
 
-Diferente da primeira versão, este script agora tenta INDEXAR O CONTEÚDO
-real dos documentos, não apenas nome, pasta e tags.
+This version is intentionally safe for repeated use:
+- It rewrites the manifest from scratch every run, so old entries cannot accumulate.
+- It ignores helper/mapping/readme files that should never appear in the public hub.
+- It removes duplicates from the generated manifest by file hash, so duplicated files do not
+  show twice on the website.
+- It writes a duplicate report, but it does NOT delete your files.
 
-Uso:
+Usage from the project root:
   python3 scripts/generate_documents_manifest.py
 
-Fluxo recomendado:
-  1. Coloque PDFs/arquivos em subpastas de documents/.
-  2. Rode este script.
-  3. Faça git add/commit/push.
+Recommended optional dependencies:
+  python3 -m pip install --user pymupdf pypdf openpyxl python-docx python-pptx
 
-Dependências opcionais, mas recomendadas:
-  pip install pymupdf pypdf openpyxl python-docx python-pptx
+Supported searchable extraction:
+  PDF: PyMuPDF, pypdf, pdftotext fallback
+  TXT/MD: native
+  DOCX/XLSX/PPTX: optional Python packages
 
-Observação importante:
-  PDFs escaneados como imagem não têm texto extraível. Para eles, será preciso OCR.
-  Se houver um arquivo .txt com o mesmo nome do PDF, ele será usado como texto auxiliar.
+For scanned image PDFs, add OCR first or create a same-name .txt sidecar.
+Example:
+  documents/ppcs/ppc-2024.pdf
+  documents/ppcs/ppc-2024.txt
 """
 from __future__ import annotations
 
 import csv
+import hashlib
 import json
 import re
 import shutil
 import subprocess
+import zipfile
+import xml.etree.ElementTree as ET
 import sys
 import unicodedata
 from dataclasses import dataclass
 from datetime import datetime, timezone
 from pathlib import Path
-from typing import Iterable
 
 ROOT = Path(__file__).resolve().parents[1]
 DOCS_DIR = ROOT / "documents"
 MANIFEST_JSON = DOCS_DIR / "manifest.json"
 MANIFEST_CSV = DOCS_DIR / "manifest.csv"
+REPORT_DIR = DOCS_DIR / "_manifest_reports"
+DUPLICATES_CSV = REPORT_DIR / "duplicates-ignored.csv"
+IGNORED_CSV = REPORT_DIR / "ignored-files.csv"
 
 SUPPORTED = {
     ".pdf": "PDF",
@@ -59,6 +69,8 @@ SUPPORTED = {
     ".odp": "PowerPoint/Impress",
 }
 
+PRIMARY_EXTENSIONS = set(SUPPORTED) - {".txt", ".md"}
+
 CATEGORY_LABELS = {
     "ppcs": "PPCs",
     "ppc": "PPCs",
@@ -73,12 +85,38 @@ CATEGORY_LABELS = {
     "diretrizes": "Diretrizes CNE/MEC",
     "resolucoes": "Resoluções",
     "resoluções": "Resoluções",
+    "infraestrutura": "Infraestrutura",
+    "coordenacao": "Coordenação de Curso",
+    "coordenação": "Coordenação de Curso",
+    "colegiado": "Colegiado de Curso",
+    "nde": "Núcleo Docente Estruturante",
 }
+
+KNOWN_CATEGORY_FOLDERS = set(CATEGORY_LABELS)
 
 ACRONYMS = {
     "ppc", "nde", "cne", "ces", "consepe", "consup", "concam", "ifba",
     "bsi", "si", "vca", "ldb", "sinaes", "pne", "tea", "libras", "tcc",
-    "naes", "conaes", "mec", "ace", "ead"
+    "naes", "conaes", "mec", "ace", "ead", "pdf", "dg"
+}
+
+# Files matching these patterns must never appear as public documents.
+# Matching is accent-insensitive and case-insensitive.
+IGNORE_NAME_PATTERNS = [
+    r"^leia[\s_-]*me.*",
+    r".*renomeacao.*",
+    r".*renomeacao.*",  # accent-normalized duplicate kept for clarity
+    r".*mapping.*",
+    r"^readme.*",
+    r"^manifest\.csv$",
+    r"^manifest\.json$",
+    r"^content-blueprint\.json$",
+    r"^duplicates-ignored\.csv$",
+    r"^ignored-files\.csv$",
+]
+
+IGNORE_PATH_PARTS = {
+    ".git", "__pycache__", ".trash", ".cache", "_manifest_reports",
 }
 
 MAX_CHUNK_CHARS = 1800
@@ -92,11 +130,24 @@ class PageText:
     text: str
 
 
+@dataclass
+class Candidate:
+    path: Path
+    rel_docs: Path
+    rel_project: str
+    sha256: str
+    size: int
+
+
 def strip_accents(text: str) -> str:
     return "".join(
         char for char in unicodedata.normalize("NFD", text)
         if unicodedata.category(char) != "Mn"
     )
+
+
+def normalize_for_match(text: str) -> str:
+    return strip_accents(text).lower()
 
 
 def normalize_spaces(text: str) -> str:
@@ -116,9 +167,20 @@ def slugify(text: str) -> str:
     return text or "documento"
 
 
+def sha256_file(path: Path, chunk_size: int = 1024 * 1024) -> str:
+    digest = hashlib.sha256()
+    with path.open("rb") as f:
+        while True:
+            chunk = f.read(chunk_size)
+            if not chunk:
+                break
+            digest.update(chunk)
+    return digest.hexdigest()
+
+
 def pretty_title(path: Path) -> str:
     stem = re.sub(r"[_-]+", " ", path.stem).strip()
-    words = []
+    words: list[str] = []
     for word in stem.split():
         raw = strip_accents(word).lower()
         if raw in ACRONYMS:
@@ -132,16 +194,16 @@ def pretty_title(path: Path) -> str:
     return " ".join(words) or path.stem
 
 
-def category_for(rel: Path) -> str:
-    if len(rel.parts) <= 1:
+def category_for(rel_docs: Path) -> str:
+    if len(rel_docs.parts) <= 1:
         return "Documentos"
-    first = rel.parts[0]
+    first = rel_docs.parts[0]
     return CATEGORY_LABELS.get(first.lower(), re.sub(r"[-_]+", " ", first).title())
 
 
 def infer_kind(text: str) -> str:
-    hay = strip_accents(text).lower()
-    if "ppc" in hay or "projeto pedagogico" in hay:
+    hay = normalize_for_match(text)
+    if "projeto pedagogico" in hay or re.search(r"\bppc\b", hay):
         return "PPC"
     if "matriz" in hay or "fluxograma" in hay:
         return "Matriz curricular"
@@ -165,7 +227,7 @@ def infer_kind(text: str) -> str:
 
 
 def infer_correspondent(text: str) -> str:
-    hay = strip_accents(text).lower()
+    hay = normalize_for_match(text)
     if "consepe" in hay:
         return "CONSEPE"
     if "consup" in hay:
@@ -188,7 +250,7 @@ def infer_correspondent(text: str) -> str:
 
 
 def infer_tags(title: str, category: str, kind: str, rel: str, extracted_text: str = "") -> list[str]:
-    hay = strip_accents(f"{title} {category} {kind} {rel} {extracted_text[:4000]}").lower()
+    hay = normalize_for_match(f"{title} {category} {kind} {rel} {extracted_text[:4000]}")
     tags = [category, kind]
     rules = {
         "ppc": ["PPC", "projeto pedagógico", "currículo"],
@@ -225,22 +287,60 @@ def infer_tags(title: str, category: str, kind: str, rel: str, extracted_text: s
     for key, values in rules.items():
         if key in hay:
             tags.extend(values)
-    years = re.findall(r"20\d{2}|19\d{2}", hay)
-    tags.extend(years)
-    result = []
-    seen = set()
+    tags.extend(re.findall(r"20\d{2}|19\d{2}", hay))
+
+    result: list[str] = []
+    seen: set[str] = set()
     for tag in tags:
-        key = strip_accents(tag).lower()
+        key = normalize_for_match(tag)
         if key and key not in seen:
             seen.add(key)
             result.append(tag)
     return result[:18]
 
 
+def same_name_primary_exists(path: Path) -> bool:
+    return any(path.with_suffix(ext).exists() for ext in PRIMARY_EXTENSIONS)
+
+
+def is_ignored_name(path: Path) -> tuple[bool, str]:
+    normalized = normalize_for_match(path.name)
+    for pattern in IGNORE_NAME_PATTERNS:
+        if re.fullmatch(pattern, normalized):
+            return True, f"ignored pattern: {pattern}"
+    return False, ""
+
+
+def should_ignore(path: Path) -> tuple[bool, str]:
+    if not path.is_file():
+        return True, "not a file"
+
+    rel_parts = [normalize_for_match(part) for part in path.relative_to(DOCS_DIR).parts]
+    if any(part in IGNORE_PATH_PARTS for part in rel_parts):
+        return True, "ignored folder"
+
+    ignored_name, reason = is_ignored_name(path)
+    if ignored_name:
+        return True, reason
+
+    if path.suffix.lower() not in SUPPORTED:
+        return True, "unsupported extension"
+
+    # Ignore TXT/MD sidecar files when a same-name primary document exists.
+    # Their text can still be used for that document.
+    if path.suffix.lower() in {".txt", ".md"} and same_name_primary_exists(path):
+        return True, "sidecar for same-name primary document"
+
+    return False, ""
+
+
 def read_sidecar(path: Path) -> list[PageText]:
     candidates = [path.with_suffix(".txt"), path.with_suffix(".md")]
     for candidate in candidates:
         if candidate.exists() and candidate != path:
+            ignored_name, _ = is_ignored_name(candidate)
+            if ignored_name:
+                continue
             try:
                 text = normalize_spaces(candidate.read_text(encoding="utf-8", errors="ignore"))
                 if text:
@@ -255,7 +355,7 @@ def extract_pdf_pymupdf(path: Path) -> list[PageText]:
         import fitz  # PyMuPDF
     except Exception:
         return []
-    pages = []
+    pages: list[PageText] = []
     try:
         with fitz.open(path) as doc:
             for i, page in enumerate(doc, start=1):
@@ -272,7 +372,7 @@ def extract_pdf_pypdf(path: Path) -> list[PageText]:
         from pypdf import PdfReader
     except Exception:
         return []
-    pages = []
+    pages: list[PageText] = []
     try:
         reader = PdfReader(str(path))
         for i, page in enumerate(reader.pages, start=1):
@@ -288,7 +388,11 @@ def extract_pdf_pdftotext(path: Path) -> list[PageText]:
     if not shutil.which("pdftotext"):
         return []
     try:
-        output = subprocess.check_output(["pdftotext", "-layout", str(path), "-"], stderr=subprocess.DEVNULL, timeout=60)
+        output = subprocess.check_output(
+            ["pdftotext", "-layout", str(path), "-"],
+            stderr=subprocess.DEVNULL,
+            timeout=60,
+        )
         text = output.decode("utf-8", errors="ignore")
         parts = [normalize_spaces(part) for part in text.split("\f")]
         return [PageText(str(i), part) for i, part in enumerate(parts, start=1) if part]
@@ -318,9 +422,9 @@ def extract_xlsx(path: Path) -> list[PageText]:
         return []
     try:
         wb = openpyxl.load_workbook(str(path), read_only=True, data_only=True)
-        pages = []
+        pages: list[PageText] = []
         for sheet in wb.worksheets:
-            rows = []
+            rows: list[str] = []
             for row in sheet.iter_rows(values_only=True):
                 values = [str(cell).strip() for cell in row if cell is not None and str(cell).strip()]
                 if values:
@@ -341,9 +445,9 @@ def extract_pptx(path: Path) -> list[PageText]:
         return []
     try:
         prs = Presentation(str(path))
-        pages = []
+        pages: list[PageText] = []
         for i, slide in enumerate(prs.slides, start=1):
-            parts = []
+            parts: list[str] = []
             for shape in slide.shapes:
                 if hasattr(shape, "text") and shape.text:
                     parts.append(shape.text)
@@ -363,6 +467,170 @@ def extract_plain(path: Path) -> list[PageText]:
     except Exception:
         return []
 
+
+def parse_pdf_date(value: object) -> str:
+    """Return YYYY-MM-DD from PDF/XMP/Office-style dates, or empty string."""
+    if not value:
+        return ""
+    raw = str(value).strip()
+    # Common PDF metadata: D:YYYYMMDDHHmmSS-03'00'
+    match = re.search(r"D?:?\s*(\d{4})(\d{2})(\d{2})", raw)
+    if match:
+        return f"{match.group(1)}-{match.group(2)}-{match.group(3)}"
+    # ISO-like: 2026-01-23 or 2026-01-23T10:00:00Z
+    match = re.search(r"(\d{4})-(\d{2})-(\d{2})", raw)
+    if match:
+        return f"{match.group(1)}-{match.group(2)}-{match.group(3)}"
+    # Brazilian date: 23/01/2026
+    match = re.search(r"\b(\d{1,2})[/-](\d{1,2})[/-](20\d{2}|19\d{2})\b", raw)
+    if match:
+        day, month, year = match.groups()
+        return f"{int(year):04d}-{int(month):02d}-{int(day):02d}"
+    return ""
+
+
+def date_from_filename(path: Path) -> str:
+    text = normalize_for_match(path.stem)
+    # yyyy-mm-dd / yyyy_mm_dd / yyyy mm dd
+    match = re.search(r"\b(20\d{2}|19\d{2})[-_ .](\d{1,2})[-_ .](\d{1,2})\b", text)
+    if match:
+        year, month, day = match.groups()
+        return f"{int(year):04d}-{int(month):02d}-{int(day):02d}"
+    # dd-mm-yyyy / dd_mm_yyyy
+    match = re.search(r"\b(\d{1,2})[-_ .](\d{1,2})[-_ .](20\d{2}|19\d{2})\b", text)
+    if match:
+        day, month, year = match.groups()
+        return f"{int(year):04d}-{int(month):02d}-{int(day):02d}"
+    return ""
+
+
+def date_from_text(text: str) -> str:
+    sample = text[:12000]
+    # Prefer explicit document dates near common words.
+    patterns = [
+        r"(?:de|em|data|publicad[ao]|aprovad[ao]|portaria|resolu[cç][aã]o)[^\n]{0,80}?\b(\d{1,2})\s+de\s+([a-zç]+)\s+de\s+(20\d{2}|19\d{2})\b",
+        r"\b(\d{1,2})\s+de\s+([a-zç]+)\s+de\s+(20\d{2}|19\d{2})\b",
+        r"\b(\d{1,2})[/-](\d{1,2})[/-](20\d{2}|19\d{2})\b",
+    ]
+    months = {
+        "janeiro": 1, "fevereiro": 2, "marco": 3, "março": 3, "abril": 4,
+        "maio": 5, "junho": 6, "julho": 7, "agosto": 8, "setembro": 9,
+        "outubro": 10, "novembro": 11, "dezembro": 12,
+    }
+    normalized = normalize_for_match(sample)
+    for pattern in patterns[:2]:
+        match = re.search(pattern, normalized, flags=re.I)
+        if match:
+            day, month_name, year = match.groups()[-3:]
+            month = months.get(month_name)
+            if month:
+                return f"{int(year):04d}-{month:02d}-{int(day):02d}"
+    match = re.search(patterns[2], sample)
+    if match:
+        day, month, year = match.groups()
+        return f"{int(year):04d}-{int(month):02d}-{int(day):02d}"
+    return ""
+
+
+def office_created_date(path: Path) -> str:
+    """Extract created/modified date from OOXML files without changing file timestamps."""
+    try:
+        with zipfile.ZipFile(path) as zf:
+            if "docProps/core.xml" not in zf.namelist():
+                return ""
+            root = ET.fromstring(zf.read("docProps/core.xml"))
+            ns = {
+                "dcterms": "http://purl.org/dc/terms/",
+                "dc": "http://purl.org/dc/elements/1.1/",
+            }
+            for tag in ["dcterms:created", "dcterms:modified", "dc:date"]:
+                node = root.find(tag, ns)
+                if node is not None and node.text:
+                    parsed = parse_pdf_date(node.text)
+                    if parsed:
+                        return parsed
+    except Exception:
+        return ""
+    return ""
+
+
+def xmp_created_date_from_pdf(path: Path) -> str:
+    try:
+        import fitz
+        with fitz.open(path) as doc:
+            xmp = doc.get_xml_metadata() or ""
+        if not xmp:
+            return ""
+        for tag in ["xmp:CreateDate", "xmp:ModifyDate", "pdf:ModDate", "dc:date"]:
+            match = re.search(rf"<{re.escape(tag)}[^>]*>(.*?)</{re.escape(tag)}>", xmp, flags=re.I | re.S)
+            if match:
+                parsed = parse_pdf_date(match.group(1))
+                if parsed:
+                    return parsed
+        parsed = parse_pdf_date(xmp)
+        return parsed
+    except Exception:
+        return ""
+
+
+def document_metadata(path: Path, extracted_pages: list[PageText] | None = None) -> dict:
+    suffix = path.suffix.lower()
+    full_text = " ".join(page.text for page in (extracted_pages or []))
+    meta = {
+        "pageCount": len(extracted_pages or []) or "",
+        # Do not use the filesystem modified time here: it becomes the day you copied/downloaded
+        # the file, which made every document appear as the current date on the website.
+        "createdDate": "",
+    }
+
+    if suffix == ".pdf":
+        try:
+            import fitz  # PyMuPDF
+            with fitz.open(path) as doc:
+                meta["pageCount"] = len(doc)
+                metadata = doc.metadata or {}
+                created = metadata.get("creationDate") or metadata.get("modDate")
+                meta["createdDate"] = parse_pdf_date(created) or xmp_created_date_from_pdf(path) or date_from_filename(path) or date_from_text(full_text)
+                return meta
+        except Exception:
+            pass
+        try:
+            from pypdf import PdfReader
+            reader = PdfReader(str(path))
+            meta["pageCount"] = len(reader.pages)
+            metadata = reader.metadata or {}
+            created = metadata.get("/CreationDate") or metadata.get("/ModDate")
+            meta["createdDate"] = parse_pdf_date(created) or date_from_filename(path) or date_from_text(full_text)
+            return meta
+        except Exception:
+            meta["createdDate"] = date_from_filename(path) or date_from_text(full_text)
+            return meta
+
+    if suffix in {".png", ".jpg", ".jpeg", ".webp", ".gif"}:
+        meta["pageCount"] = 1
+        meta["createdDate"] = date_from_filename(path)
+    elif suffix in {".docx", ".xlsx", ".pptx"}:
+        meta["createdDate"] = office_created_date(path) or date_from_filename(path) or date_from_text(full_text)
+        if suffix == ".xlsx":
+            try:
+                import openpyxl
+                wb = openpyxl.load_workbook(str(path), read_only=True, data_only=True)
+                meta["pageCount"] = len(wb.worksheets)
+            except Exception:
+                pass
+        elif suffix == ".pptx":
+            try:
+                from pptx import Presentation
+                meta["pageCount"] = len(Presentation(str(path)).slides)
+            except Exception:
+                pass
+        elif suffix == ".docx" and not meta["pageCount"]:
+            meta["pageCount"] = 1
+    elif suffix in {".txt", ".md"}:
+        meta["pageCount"] = 1
+        meta["createdDate"] = date_from_filename(path) or date_from_text(full_text)
+
+    return meta
 
 def extract_pages(path: Path) -> tuple[list[PageText], str]:
     suffix = path.suffix.lower()
@@ -402,7 +670,7 @@ def split_text_into_chunks(text: str, max_chars: int = MAX_CHUNK_CHARS) -> list[
     if len(paragraphs) <= 1:
         paragraphs = [p.strip() for p in re.split(r"(?<=[.!?;:])\s+(?=[A-ZÁÉÍÓÚÃÕÂÊÔÇ0-9])", text) if p.strip()]
 
-    chunks = []
+    chunks: list[str] = []
     current = ""
     for paragraph in paragraphs:
         paragraph = compact(paragraph)
@@ -426,7 +694,7 @@ def split_text_into_chunks(text: str, max_chars: int = MAX_CHUNK_CHARS) -> list[
 
 
 def make_chunks(doc_id: str, title: str, pages: list[PageText], tags: list[str]) -> list[dict]:
-    chunks = []
+    chunks: list[dict] = []
     for page in pages:
         for idx, chunk_text in enumerate(split_text_into_chunks(page.text), start=1):
             chunks.append({
@@ -446,18 +714,109 @@ def first_summary(text: str, fallback: str) -> str:
     return clean[:MAX_PREVIEW_SUMMARY] + ("…" if len(clean) > MAX_PREVIEW_SUMMARY else "")
 
 
-def build_document(path: Path, index: int) -> dict:
-    rel = path.relative_to(ROOT).as_posix()
-    rel_docs = path.relative_to(DOCS_DIR)
+def preferred_candidate(candidates: list[Candidate]) -> Candidate:
+    """Choose which duplicate file should represent one hash in the manifest."""
+    def score(c: Candidate) -> tuple[int, int, int, str]:
+        parts = [part.lower() for part in c.rel_docs.parts]
+        first = parts[0] if parts else ""
+        in_known_category = 1 if first in KNOWN_CATEGORY_FOLDERS else 0
+        in_subfolder = 1 if len(parts) > 1 else 0
+        bad_copy_name = 1 if re.search(r"\b(copy|copia|cópia|duplicate|duplicado)\b", normalize_for_match(c.path.name)) else 0
+        # Higher is better, except bad_copy_name and path string.
+        return (in_known_category, in_subfolder, -bad_copy_name, c.rel_project)
+
+    return sorted(candidates, key=score, reverse=True)[0]
+
+
+def collect_candidates() -> tuple[list[Candidate], list[dict]]:
+    candidates: list[Candidate] = []
+    ignored: list[dict] = []
+
+    if not DOCS_DIR.exists():
+        DOCS_DIR.mkdir(parents=True, exist_ok=True)
+
+    for path in sorted(DOCS_DIR.rglob("*")):
+        ignore, reason = should_ignore(path)
+        if ignore:
+            if path.is_file() and reason not in {"unsupported extension", "not a file"}:
+                ignored.append({
+                    "path": path.relative_to(ROOT).as_posix(),
+                    "reason": reason,
+                })
+            continue
+        try:
+            candidates.append(Candidate(
+                path=path,
+                rel_docs=path.relative_to(DOCS_DIR),
+                rel_project=path.relative_to(ROOT).as_posix(),
+                sha256=sha256_file(path),
+                size=path.stat().st_size,
+            ))
+        except Exception as exc:
+            ignored.append({
+                "path": path.relative_to(ROOT).as_posix(),
+                "reason": f"could not hash file: {exc}",
+            })
+
+    return candidates, ignored
+
+
+def deduplicate_candidates(candidates: list[Candidate]) -> tuple[list[Candidate], list[dict]]:
+    by_hash: dict[str, list[Candidate]] = {}
+    for candidate in candidates:
+        by_hash.setdefault(candidate.sha256, []).append(candidate)
+
+    unique: list[Candidate] = []
+    duplicates: list[dict] = []
+
+    for sha, group in by_hash.items():
+        if len(group) == 1:
+            unique.append(group[0])
+            continue
+        kept = preferred_candidate(group)
+        unique.append(kept)
+        for duplicate in group:
+            if duplicate.path == kept.path:
+                continue
+            duplicates.append({
+                "duplicatePath": duplicate.rel_project,
+                "keptPath": kept.rel_project,
+                "sha256": sha,
+                "size": duplicate.size,
+            })
+
+    unique.sort(key=lambda c: c.rel_project)
+    duplicates.sort(key=lambda row: row["duplicatePath"])
+    return unique, duplicates
+
+
+def unique_doc_id(base: str, used_ids: set[str]) -> str:
+    if base not in used_ids:
+        used_ids.add(base)
+        return base
+    i = 2
+    while f"{base}-{i}" in used_ids:
+        i += 1
+    final = f"{base}-{i}"
+    used_ids.add(final)
+    return final
+
+
+def build_document(candidate: Candidate, used_ids: set[str]) -> dict:
+    path = candidate.path
+    rel = candidate.rel_project
+    rel_docs = candidate.rel_docs
     category = category_for(rel_docs)
     title = pretty_title(path)
     pages, extraction_method = extract_pages(path)
+    file_meta = document_metadata(path, pages)
     full_text = compact(" ".join(page.text for page in pages))
     kind = infer_kind(f"{title} {category} {rel} {full_text[:4000]}")
     correspondent = infer_correspondent(f"{title} {category} {rel} {full_text[:5000]}")
     fmt = SUPPORTED.get(path.suffix.lower(), path.suffix.upper().replace(".", ""))
     tags = infer_tags(title, category, kind, rel, full_text)
-    doc_id = f"doc-{slugify(str(rel_docs.with_suffix('')))}"
+    base_id = f"doc-{slugify(str(rel_docs.with_suffix('')))}"
+    doc_id = unique_doc_id(base_id, used_ids)
 
     if pages:
         chunks = make_chunks(doc_id, title, pages, tags)
@@ -468,7 +827,7 @@ def build_document(path: Path, index: int) -> dict:
             "page": "—",
             "heading": title,
             "semanticTags": tags,
-            "text": f"{title}. {kind} em {category}. Arquivo disponível em {rel}. Atenção: não foi possível extrair texto automaticamente deste arquivo; se for PDF escaneado, gere OCR ou adicione um .txt com o mesmo nome."
+            "text": f"{title}. {kind} em {category}. Arquivo disponível em {rel}. Atenção: não foi possível extrair texto automaticamente deste arquivo; se for PDF escaneado, gere OCR ou adicione um .txt com o mesmo nome.",
         }]
 
     summary = first_summary(full_text, f"{kind} em {category}.")
@@ -485,70 +844,84 @@ def build_document(path: Path, index: int) -> dict:
         "sourceUrl": rel,
         "tags": tags,
         "summary": summary,
+        "pageCount": file_meta.get("pageCount") or "",
+        "createdDate": file_meta.get("createdDate") or "",
         "contentLength": len(full_text),
         "indexed": bool(full_text),
         "extractionMethod": extraction_method,
+        "sha256": candidate.sha256,
+        "size": candidate.size,
         "chunks": chunks,
     }
 
 
-def should_ignore(path: Path) -> bool:
-    if not path.is_file():
-        return True
-    if path.name.lower() in {"manifest.json", "manifest.csv", "readme.md"}:
-        return True
-    if path.suffix.lower() not in SUPPORTED:
-        return True
-    # Ignore sidecar TXT/MD when a same-name document exists.
-    if path.suffix.lower() in {".txt", ".md"}:
-        has_primary = any(path.with_suffix(ext).exists() for ext in SUPPORTED if ext not in {".txt", ".md"})
-        if has_primary:
-            return True
-    return False
+def write_csv(path: Path, rows: list[dict], fieldnames: list[str]) -> None:
+    path.parent.mkdir(parents=True, exist_ok=True)
+    with path.open("w", encoding="utf-8", newline="") as f:
+        writer = csv.DictWriter(f, fieldnames=fieldnames)
+        writer.writeheader()
+        for row in rows:
+            writer.writerow(row)
 
 
 def main() -> None:
-    docs = []
-    for path in sorted(DOCS_DIR.rglob("*")):
-        if should_ignore(path):
-            continue
-        docs.append(build_document(path, len(docs)))
+    DOCS_DIR.mkdir(parents=True, exist_ok=True)
+    REPORT_DIR.mkdir(parents=True, exist_ok=True)
 
+    candidates, ignored = collect_candidates()
+    unique_candidates, duplicates = deduplicate_candidates(candidates)
+
+    used_ids: set[str] = set()
+    docs = [build_document(candidate, used_ids) for candidate in unique_candidates]
     indexed = sum(1 for doc in docs if doc.get("indexed"))
+
     manifest = {
         "generatedAt": datetime.now(timezone.utc).isoformat(),
         "count": len(docs),
         "indexedCount": indexed,
         "unindexedCount": len(docs) - indexed,
+        "duplicateFilesIgnored": len(duplicates),
+        "ignoredHelperFiles": len(ignored),
         "documents": docs,
     }
     MANIFEST_JSON.write_text(json.dumps(manifest, ensure_ascii=False, indent=2), encoding="utf-8")
 
-    with MANIFEST_CSV.open("w", encoding="utf-8", newline="") as f:
-        writer = csv.DictWriter(f, fieldnames=[
-            "id", "title", "category", "kind", "correspondent", "fileFormat", "path",
-            "indexed", "contentLength", "extractionMethod", "chunks", "tags", "summary"
-        ])
-        writer.writeheader()
-        for doc in docs:
-            writer.writerow({
-                "id": doc["id"],
-                "title": doc["title"],
-                "category": doc["category"],
-                "kind": doc["kind"],
-                "correspondent": doc["correspondent"],
-                "fileFormat": doc["fileFormat"],
-                "path": doc["pdfUrl"],
-                "indexed": doc.get("indexed", False),
-                "contentLength": doc.get("contentLength", 0),
-                "extractionMethod": doc.get("extractionMethod", ""),
-                "chunks": len(doc.get("chunks", [])),
-                "tags": "; ".join(doc["tags"]),
-                "summary": doc["summary"],
-            })
+    write_csv(MANIFEST_CSV, [
+        {
+            "id": doc["id"],
+            "title": doc["title"],
+            "category": doc["category"],
+            "kind": doc["kind"],
+            "correspondent": doc["correspondent"],
+            "fileFormat": doc["fileFormat"],
+            "path": doc["pdfUrl"],
+            "pageCount": doc.get("pageCount", ""),
+            "createdDate": doc.get("createdDate", ""),
+            "indexed": doc.get("indexed", False),
+            "contentLength": doc.get("contentLength", 0),
+            "extractionMethod": doc.get("extractionMethod", ""),
+            "chunks": len(doc.get("chunks", [])),
+            "sha256": doc.get("sha256", ""),
+            "tags": "; ".join(doc["tags"]),
+            "summary": doc["summary"],
+        }
+        for doc in docs
+    ], [
+        "id", "title", "category", "kind", "correspondent", "fileFormat", "path",
+        "pageCount", "createdDate", "indexed", "contentLength", "extractionMethod", "chunks", "sha256", "tags", "summary",
+    ])
+
+    write_csv(DUPLICATES_CSV, duplicates, ["duplicatePath", "keptPath", "sha256", "size"])
+    write_csv(IGNORED_CSV, ignored, ["path", "reason"])
 
     print(f"Generated {MANIFEST_JSON.relative_to(ROOT)} with {len(docs)} document(s).")
     print(f"Indexed content in {indexed}/{len(docs)} document(s).")
+    print(f"Ignored helper files: {len(ignored)}")
+    print(f"Duplicate files ignored: {len(duplicates)}")
+    if duplicates:
+        print(f"Duplicate report: {DUPLICATES_CSV.relative_to(ROOT)}")
+    if ignored:
+        print(f"Ignored-file report: {IGNORED_CSV.relative_to(ROOT)}")
     if indexed < len(docs):
         print("Some files have no extractable text. If they are scanned PDFs, add OCR or a same-name .txt sidecar.")
     print(f"Generated {MANIFEST_CSV.relative_to(ROOT)} for review.")

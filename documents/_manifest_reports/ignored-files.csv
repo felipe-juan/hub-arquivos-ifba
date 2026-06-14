@@ -2,3 +2,5 @@ path,reason
 documents/README.md,ignored pattern: ^readme.*
 documents/_manifest_reports/duplicates-ignored.csv,ignored folder
 documents/_manifest_reports/ignored-files.csv,ignored folder
+documents/manifest.csv,ignored pattern: ^manifest\.csv$
+documents/manifest.json,ignored pattern: ^manifest\.json$

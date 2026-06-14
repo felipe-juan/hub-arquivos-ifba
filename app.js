@@ -2,6 +2,8 @@ const hubData = window.HUB_DATA || {};
 const rawDocuments = hubData.documents || [];
 const usefulLinks = hubData.usefulLinks || [];
 const apps = hubData.apps || [];
+const answerCards = hubData.answers || [];
+const workflows = []; // Guias rápidos removidos da interface e da busca
 const guides = []; // seção de informações removida da interface
 const directoryGroups = hubData.directoryGroups || [];
 const conceptMap = hubData.conceptMap || {};
@@ -25,12 +27,16 @@ const typeLabel = {
   document: "Documento",
   link: "Link",
   app: "App",
+  answer: "Resposta",
+  workflow: "Guia",
 };
 
 const typeIcon = {
   document: "PDF",
-  link: "↗",
-  app: "⚙",
+  link: "🔗",
+  app: "🧮",
+  answer: "💡",
+  workflow: "🧭",
 };
 
 const stopWords = new Set([
@@ -219,7 +225,7 @@ function detectSearchIntent(query = "") {
   if (!normalized.trim()) return intent;
 
   // App/tool intent: the user wants to calculate, simulate, or use an internal tool.
-  if (has("calcular", "calcule", "calculo", "cálculo", "calculadora", "simular", "simule", "quanto preciso", "preciso tirar", "nota necessária", "nota necessaria", "média final", "media final", "média", "media", "nota", "prova final")) {
+  if (has("calcular", "calcule", "calculo", "cálculo", "calculadora", "simular", "simule", "quanto preciso", "preciso tirar", "nota necessária", "nota necessaria", "média final", "media final", "média", "media", "nota", "prova final", "tabela da final", "tabela final", "tabela", "consulta rápida", "consulta rapida", "barema", "atividades complementares", "atividade complementar", "horas complementares", "certificados", "certificado", "doação de sangue", "doacao de sangue", "monitoria", "curso de idioma")) {
     intent.app += 18;
   }
 
@@ -290,11 +296,22 @@ function plainSnippet(text = "", exactTerms = [], semanticTerms = [], limit = 22
 }
 
 function resultSnippet(result) {
+  const exactTerms = result.exactTerms || [];
+  const semanticTerms = result.semanticTerms || [];
   const source = result.type === "document"
     ? `${result.chunk?.heading || ""}. ${result.text || ""}`
     : `${result.title}. ${result.text || ""}`;
-  const snippet = plainSnippet(source, result.exactTerms || [], result.semanticTerms || [], 210);
-  return highlight(snippet, result.exactTerms || [], result.semanticTerms || []);
+  let snippet = plainSnippet(source, exactTerms, semanticTerms, 230);
+
+  // If the match came from title/metadata rather than from the selected chunk, show
+  // something still useful and highlightable instead of a random non-highlighted passage.
+  const highlighted = highlight(snippet, exactTerms, semanticTerms);
+  if (!/<mark/i.test(highlighted)) {
+    const fallback = `${result.title || ""}. ${result.subtitle || ""}. ${result.text || ""}`;
+    snippet = plainSnippet(fallback, exactTerms, semanticTerms, 230);
+    return highlight(snippet, exactTerms, semanticTerms);
+  }
+  return highlighted;
 }
 
 function statusBadge(status) {
@@ -310,6 +327,13 @@ function metaBadge(text, cls = "") {
   return `<span class="badge ${cls}">${escapeHtml(text || "—")}</span>`;
 }
 
+function itemInfoBadges(type, secondary = "") {
+  const primary = typeLabel[type] || type || "Item";
+  const cleanSecondary = (secondary || "").toString().trim();
+  if (!cleanSecondary || normalize(cleanSecondary) === normalize(primary)) return typeBadge(type);
+  return `${typeBadge(type)} ${metaBadge(cleanSecondary)}`;
+}
+
 function compactText(text = "", limit = 110) {
   const clean = text.toString().replace(/\s+/g, " ").trim();
   return clean.length > limit ? `${clean.slice(0, limit - 1)}…` : clean;
@@ -319,7 +343,103 @@ function resourceFormat(resource, type = "document") {
   if (type === "document") return resource.fileFormat || inferFormat(resource) || "PDF";
   if (type === "app") return "APP";
   if (type === "link") return inferFormat({ ...resource, type: "link" }) || "LINK";
+  if (type === "answer") return "INFO";
+  if (type === "workflow") return "GUIA";
   return "ITEM";
+}
+
+
+
+function emojiForResource(resource = {}, type = "link") {
+  const haystack = normalize(`${resource.title || ""} ${resource.description || ""} ${resource.category || ""} ${(resource.tags || []).join(" ")} ${resource.url || ""}`);
+  const url = (resource.url || "").toLowerCase();
+
+  if (type === "workflow") return resource.emoji || "🧭";
+  if (type === "answer") {
+    if (haystack.includes("coordenador") || haystack.includes("coordenacao")) return "👤";
+    if (haystack.includes("caens") || haystack.includes("estagio")) return "🧭";
+    if (haystack.includes("media") || haystack.includes("nota")) return "🧮";
+    return "💡";
+  }
+  if (type === "app") {
+    if (haystack.includes("barema") || haystack.includes("atividades complementares") || haystack.includes("horas complementares") || haystack.includes("certificado")) return "🎓";
+    if (haystack.includes("media") || haystack.includes("nota") || haystack.includes("calculadora")) return "🧮";
+    if (haystack.includes("tabela") || haystack.includes("consulta rapida") || haystack.includes("prova final")) return "📊";
+    return "⚙️";
+  }
+  if (url.includes("linktr.ee") || url.includes("linkme.bio") || haystack.includes("linktree")) return "🌳";
+  if (url.startsWith("mailto:") || haystack.includes("email") || haystack.includes("e-mail")) return "✉️";
+  if (url.includes("wa.me") || haystack.includes("whatsapp")) return "💬";
+  if (url.includes("instagram.com") || haystack.includes("instagram")) return "📸";
+  if (url.includes("forms.gle") || url.includes("docs.google.com/forms") || haystack.includes("protocolo") || haystack.includes("formulario")) return "📝";
+  if (haystack.includes("estagio") || haystack.includes("caens")) return "🧭";
+  if (haystack.includes("assistencia") || haystack.includes("servicos sociais")) return "🤝";
+  if (haystack.includes("capne") || haystack.includes("acessibilidade")) return "♿";
+  return "🔗";
+}
+
+const PT_BR_DATE = new Intl.DateTimeFormat("pt-BR", {
+  day: "numeric",
+  month: "long",
+  year: "numeric",
+  timeZone: "UTC"
+});
+
+function formatDateDisplay(value = "") {
+  if (!value) return "Data não disponível";
+  const raw = value.toString().trim();
+  if (!raw || raw === "—") return "Data não disponível";
+
+  let year, month, day;
+  const iso = raw.match(/^(\d{4})-(\d{2})-(\d{2})/);
+  if (iso) {
+    [, year, month, day] = iso;
+  } else {
+    const compactPdf = raw.match(/^D?[:]?\s*(\d{4})(\d{2})(\d{2})/i);
+    if (compactPdf) [, year, month, day] = compactPdf;
+  }
+
+  if (year && month && day) {
+    const date = new Date(Date.UTC(Number(year), Number(month) - 1, Number(day)));
+    if (!Number.isNaN(date.getTime())) return PT_BR_DATE.format(date);
+  }
+
+  const parsed = new Date(raw);
+  if (!Number.isNaN(parsed.getTime())) return PT_BR_DATE.format(parsed);
+  return raw;
+}
+
+function pageCountText(resource = {}) {
+  const value = resource.pageCount ?? resource.pagesCount ?? resource.pages ?? resource.page_count ?? "";
+  if (value === null || value === undefined || value === "") return "Páginas não disponíveis";
+  if (typeof value === "number") return `${value} ${value === 1 ? "página" : "páginas"}`;
+  const clean = value.toString().trim();
+  if (!clean || clean === "—") return "Páginas não disponíveis";
+  if (/^\d+$/.test(clean)) {
+    const count = Number(clean);
+    return `${count} ${count === 1 ? "página" : "páginas"}`;
+  }
+  return `${clean} páginas`;
+}
+
+function createdDateText(resource = {}) {
+  return formatDateDisplay(resource.createdDate || resource.creationDate || resource.createdAt || resource.docDate || resource.date || "");
+}
+
+function documentInfoBadges(resource = {}) {
+  return `${metaBadge(createdDateText(resource), "doc-info")} ${metaBadge(pageCountText(resource), "doc-info")}`;
+}
+
+function documentInfoInline(resource = {}) {
+  return `${createdDateText(resource)} · ${pageCountText(resource)}`;
+}
+
+function linkTargetAttrs(resource = {}) {
+  const url = resource.url || resource.sourceUrl || resource.pdfUrl || resource.fileUrl || "";
+  const external = /^https?:\/\//i.test(url) || /^mailto:/i.test(url) || /^tel:/i.test(url) || /^https?:/i.test(url);
+  const newTab = resource.openMode === "new-tab" || resource.target === "_blank" || resource.newTab === true;
+  if (newTab || external) return ' target="_blank" rel="noopener"';
+  return "";
 }
 
 
@@ -331,6 +451,16 @@ function thumbnailHtml(resource, type = "document", options = {}) {
   const href = resource?.pdfUrl || resource?.fileUrl || resource?.sourceUrl || resource?.url || "#";
   const kindClass = `thumb-${type}`;
   const isPdf = type === "document" && /\.pdf($|[?#])/i.test(href || "");
+
+  if (type !== "document") {
+    const emoji = emojiForResource(resource, type);
+    return `
+      <div class="doc-thumb ${kindClass} thumb-emoji" aria-label="Miniatura de ${escapeHtml(title)}">
+        <span class="emoji-thumb" aria-hidden="true">${emoji}</span>
+        <span class="doc-format">${escapeHtml(format)}</span>
+      </div>
+    `;
+  }
 
   if (image) {
     return `
@@ -695,6 +825,8 @@ function normalizeManifestDocument(entry = {}, index = 0) {
     course: entry.course || "Sistemas de Informação",
     year: entry.year || entry.ano || "",
     docDate: entry.docDate || entry.date || entry.data || "",
+    createdDate: entry.createdDate || entry.creationDate || entry.createdAt || entry.created || entry.docDate || entry.date || entry.data || "",
+    pageCount: entry.pageCount || entry.pagesCount || entry.page_count || entry.pages || "",
     collectedDate: entry.collectedDate || entry.collected || "",
     sourceUrl: normalizeManifestPath(entry.sourceUrl || entry.officialUrl || originalPath),
     pdfUrl: normalizeManifestPath(entry.pdfUrl || entry.path || originalPath),
@@ -774,6 +906,8 @@ function parseManifestCsv(text = "") {
       page: item.page || item.pagina,
       year: item.year || item.ano,
       docDate: item.docdate || item.data,
+      createdDate: item.createddate || item.creationdate || item.created || item.docdate || item.data,
+      pageCount: item.pagecount || item.pagescount || item.page_count || item.pages,
       fileFormat: item.fileformat || item.formato,
       thumbnailUrl: item.thumbnailurl || item.thumbnail || item.coverurl || item.capa
     };
@@ -898,6 +1032,41 @@ function appResource(app) {
   };
 }
 
+function answerResource(answer) {
+  return {
+    type: "answer",
+    id: answer.id,
+    title: answer.title,
+    subtitle: answer.category || "Resposta direta",
+    text: `${answer.answer || ""}. ${answer.description || ""}`,
+    tags: answer.tags || [],
+    status: "verified",
+    url: answer.url || "#",
+    scoreBase: 7,
+    fileFormat: "Info",
+    correspondent: answer.sourceLabel || "HUB SI",
+    answer
+  };
+}
+
+function workflowResource(flow) {
+  return {
+    type: "workflow",
+    id: flow.id,
+    title: flow.title,
+    subtitle: "Guia rápido · passo a passo",
+    text: `${flow.summary || ""} ${(flow.steps || []).join(" ")} ${(flow.documents || []).join(" ")} ${(flow.checklist || []).join(" ")}`,
+    tags: unique([...(flow.documents || []), ...(flow.links || []), ...(flow.checklist || [])]),
+    status: "verified",
+    url: `#${flow.id}`,
+    scoreBase: 6,
+    fileFormat: "Guia",
+    correspondent: "HUB SI",
+    workflow: flow,
+    emoji: flow.emoji || "🧭"
+  };
+}
+
 function guideResource(guide) {
   return {
     type: "guide",
@@ -936,7 +1105,8 @@ function buildResources() {
   return [
     ...docResources,
     ...usefulLinks.map(linkResource),
-    ...apps.map(appResource)
+    ...apps.map(appResource),
+    ...answerCards.map(answerResource)
   ];
 }
 
@@ -944,7 +1114,7 @@ function getFilters() {
   const valueOf = (id, fallback = "all") => document.getElementById(id)?.value || fallback;
   return {
     type: valueOf("typeFilter"),
-    tag: valueOf("tagFilter"),
+    tag: "all",
     status: "all",
     docType: valueOf("docTypeFilter"),
     correspondent: valueOf("correspondentFilter"),
@@ -955,7 +1125,6 @@ function getFilters() {
 function scoreResource(resource, query, filters, intent = detectSearchIntent(query)) {
   if (filters.type !== "all" && resource.type !== filters.type) return null;
   if (filters.status !== "all" && resource.status !== filters.status) return null;
-  if (filters.tag !== "all" && !(resource.tags || []).includes(filters.tag)) return null;
   if (filters.docType !== "all" && resource.documentType !== filters.docType) return null;
   if (filters.correspondent !== "all" && resource.correspondent !== filters.correspondent) return null;
   if (filters.format !== "all" && resource.fileFormat !== filters.format) return null;
@@ -979,14 +1148,19 @@ function scoreResource(resource, query, filters, intent = detectSearchIntent(que
   let matched = false;
   const phrase = normalize(query.trim());
 
+  if (phrase.length > 2 && titleNorm.includes(phrase)) {
+    score += 70;
+    matched = true;
+  }
+
   if (phrase.length > 2 && haystackNorm.includes(phrase)) {
     score += 18;
     matched = true;
   }
 
   for (const term of terms.exact) {
+    if (titleNorm.includes(term)) { score += 28; matched = true; }
     if (haystackNorm.includes(term)) { score += 8; matched = true; }
-    if (titleNorm.includes(term)) { score += 10; matched = true; }
     if (tagNorm.includes(term)) { score += 6; matched = true; }
     if (normalize(resource.correspondent || "").includes(term)) { score += 4; matched = true; }
     if (normalize(resource.documentType || "").includes(term)) { score += 5; matched = true; }
@@ -1012,6 +1186,7 @@ function scoreResource(resource, query, filters, intent = detectSearchIntent(que
     const title = normalize(resource.title);
     if (terms.exact.some(term => ["calcular", "calculo", "cálculo", "calculadora", "simular"].includes(term))) score += 10;
     if ((title.includes("media") || title.includes("média")) && terms.exact.some(term => ["media", "média", "nota", "final"].includes(term))) score += 14;
+    if (title.includes("barema") && terms.exact.some(term => ["barema", "horas", "complementares", "certificado", "certificados", "monitoria", "estagio", "estágio"].includes(term))) score += 18;
     if (title.includes("preciso") && phrase.includes("preciso")) score += 18;
   }
 
@@ -1036,10 +1211,16 @@ function scoreResource(resource, query, filters, intent = detectSearchIntent(que
 
 function searchResources(query, filters) {
   const intent = detectSearchIntent(query);
+  const titleNeedle = normalize(query || "").trim();
   return buildResources()
     .map(resource => scoreResource(resource, query, filters, intent))
     .filter(Boolean)
-    .sort((a, b) => b.score - a.score)
+    .sort((a, b) => {
+      const aTitle = titleNeedle && normalize(a.title || "").includes(titleNeedle) ? 1 : 0;
+      const bTitle = titleNeedle && normalize(b.title || "").includes(titleNeedle) ? 1 : 0;
+      if (aTitle !== bTitle) return bTitle - aTitle;
+      return b.score - a.score;
+    })
     .slice(0, 24);
 }
 
@@ -1076,32 +1257,48 @@ function renderResults(results, query) {
 }
 
 
+function openPdfAtPage(doc = {}, page = "") {
+  const base = doc.pdfUrl || doc.sourceUrl || "#";
+  const cleanPage = String(page || "").match(/\d+/)?.[0];
+  if (cleanPage && /\.pdf($|[?#])/i.test(base)) return `${base}#page=${cleanPage}`;
+  return base;
+}
+
 function renderResultCard(result, index) {
-  const openLabel = result.type === "document" ? "Prévia" : "Abrir";
-  const subtitle = escapeHtml(result.subtitle);
-  const tags = (result.tags || []).slice(0, 5).map(tag => `<span class="badge">${escapeHtml(tag)}</span>`).join("");
+  const openLabel = result.type === "document" ? "Prévia" : result.type === "workflow" ? "Ver passos" : "Abrir";
+  const subtitle = highlight(result.subtitle || "", result.exactTerms || [], result.semanticTerms || []);
   const thumbResource = result.type === "document" ? result.doc : result;
   const thumb = thumbnailHtml(thumbResource, result.type, result.type === "document" ? { page: result.chunk.page } : {});
-  const primaryAction = result.type === "document"
-    ? `<button type="button" data-preview-index="${index}">${openLabel}</button>`
-    : `<a class="small-action" href="${escapeHtml(result.url)}">${openLabel}</a>`;
+  const infoRow = result.type === "document"
+    ? documentInfoBadges(result.doc)
+    : itemInfoBadges(result.type, result.fileFormat);
+
+  let primaryAction = "";
+  if (result.type === "document") {
+    primaryAction = `<button type="button" data-preview-index="${index}">${openLabel}</button>`;
+  } else if (result.type === "workflow") {
+    primaryAction = `<button type="button" data-workflow-open="${escapeHtml(result.id)}">${openLabel}</button>`;
+  } else {
+    primaryAction = `<a class="small-action" href="${escapeHtml(result.url)}"${linkTargetAttrs(result.app || result.link || result.answer || result)}>${openLabel}</a>`;
+  }
+
   const secondaryAction = result.type === "document"
-    ? `<a class="secondary-button" href="${escapeHtml(result.doc.pdfUrl || result.doc.sourceUrl || '#')}" target="_blank" rel="noopener">Arquivo</a>`
+    ? `<a class="secondary-button" href="${escapeHtml(openPdfAtPage(result.doc, result.chunk?.page))}" target="_blank" rel="noopener">Arquivo</a>`
     : `<button type="button" class="secondary-button" data-copy-resource="${index}">Copiar</button>`;
+
+  const titleHtml = highlight(result.title, result.exactTerms || [], result.semanticTerms || []);
+  const snippetHtml = result.type === "answer"
+    ? `<strong>${highlight(result.answer?.answer || result.title, result.exactTerms || [], result.semanticTerms || [])}</strong><br>${resultSnippet(result)}`
+    : resultSnippet(result);
 
   return `
     <article class="result-card result-${escapeHtml(result.type)}">
       <div class="result-thumb">${thumb}</div>
       <div class="result-body">
-        <div class="result-head">
-          ${typeBadge(result.type)}
-          ${metaBadge(result.fileFormat)}
-          ${result.type === "document" ? `<span class="badge">p. ${escapeHtml(result.chunk.page)}</span>` : ""}
-        </div>
-        <h3>${escapeHtml(result.title)}</h3>
+        <div class="result-head">${infoRow}</div>
+        <h3>${titleHtml}</h3>
         <p class="result-subtitle">${subtitle}</p>
-        <p class="snippet result-snippet">${resultSnippet(result)}</p>
-        <div class="badge-row">${tags}</div>
+        <p class="snippet result-snippet">${snippetHtml}</p>
       </div>
       <div class="result-actions">
         ${primaryAction}
@@ -1128,7 +1325,6 @@ function populateSelect(id, values) {
 }
 
 function populateFilters() {
-  populateSelect("tagFilter", getAllTags());
   populateSelect("docTypeFilter", getAllDocumentTypes());
   populateSelect("correspondentFilter", getAllCorrespondents());
   populateSelect("formatFilter", getAllFormats());
@@ -1144,7 +1340,7 @@ function buildVocabulary() {
   }
 
   documents.forEach(doc => {
-    [doc.title, doc.documentType, doc.correspondent, doc.fileFormat, doc.summary, ...(doc.tags || [])].forEach(item => {
+    [doc.title, doc.documentType, doc.correspondent, doc.fileFormat, doc.summary].forEach(item => {
       if (item) {
         phrases.add(item.toString());
         addText(item);
@@ -1152,9 +1348,9 @@ function buildVocabulary() {
     });
     (doc.chunks || []).forEach(chunk => addText(`${chunk.heading || ""} ${chunk.text || ""} ${(chunk.semanticTags || []).join(" ")}`));
   });
-  usefulLinks.forEach(link => [link.title, link.category, link.description, ...(link.tags || [])].forEach(item => item && (phrases.add(item.toString()), addText(item))));
-  apps.forEach(app => [app.title, app.category, app.description, ...(app.tags || [])].forEach(item => item && (phrases.add(item.toString()), addText(item))));
-
+  usefulLinks.forEach(link => [link.title, link.category, link.description].forEach(item => item && (phrases.add(item.toString()), addText(item))));
+  apps.forEach(app => [app.title, app.category, app.description].forEach(item => item && (phrases.add(item.toString()), addText(item))));
+  answerCards.forEach(answer => [answer.title, answer.answer, answer.description, answer.category, ...(answer.tags || [])].forEach(item => item && (phrases.add(item.toString()), addText(item))));
   const popularTokens = [...tokenCounts.entries()]
     .sort((a, b) => b[1] - a[1])
     .map(([token]) => token);
@@ -1212,13 +1408,13 @@ function setupSearch() {
     input.focus();
   });
 
-  ["typeFilter", "tagFilter", "docTypeFilter", "correspondentFilter", "formatFilter"].forEach(id => {
+  ["typeFilter", "docTypeFilter", "correspondentFilter", "formatFilter"].forEach(id => {
     document.getElementById(id)?.addEventListener("change", () => runSearch(input.value));
   });
 
   document.getElementById("clearSearch").addEventListener("click", () => {
     input.value = "";
-    ["typeFilter", "tagFilter", "docTypeFilter", "correspondentFilter", "formatFilter"].forEach(id => {
+    ["typeFilter", "docTypeFilter", "correspondentFilter", "formatFilter"].forEach(id => {
       const el = document.getElementById(id);
       if (el) el.value = "all";
     });
@@ -1231,22 +1427,21 @@ function setupSearch() {
 
 
 function renderResourceCard(resource, kind) {
-  const tags = (resource.tags || []).slice(0, 5).map(tag => `<span class="badge">${escapeHtml(tag)}</span>`).join("");
-  const formatText = kind === "document" ? resource.fileFormat : inferFormat({ ...resource, type: kind });
-  const format = metaBadge(formatText);
   const action = kind === "document"
     ? `<button type="button" data-doc-preview="${escapeHtml(resource.id)}">Prévia</button><a class="secondary-button" href="${escapeHtml(resource.pdfUrl || resource.sourceUrl || '#')}" target="_blank" rel="noopener">Arquivo</a>`
-    : `<a class="small-action" href="${escapeHtml(resource.url)}">Abrir</a>`;
-  const subtitle = kind === "document" ? resource.correspondent : (resource.category || "Atalho");
+    : `<a class="small-action" href="${escapeHtml(resource.url)}"${linkTargetAttrs(resource)}>Abrir</a>`;
+  const subtitle = kind === "document" ? documentInfoInline(resource) : (resource.category || "Atalho");
+  const infoRow = kind === "document"
+    ? documentInfoBadges(resource)
+    : itemInfoBadges(kind, resource.category || inferFormat({ ...resource, type: kind }));
 
   return `
     <article class="resource-card resource-${escapeHtml(kind)}" id="${escapeHtml(resource.id)}">
       ${thumbnailHtml(resource, kind)}
-      <div class="badge-row">${typeBadge(kind)}${format}<span class="badge">${escapeHtml(resource.documentType || resource.kind || resource.category || "")}</span></div>
+      <div class="badge-row">${infoRow}</div>
       <h3>${escapeHtml(resource.title)}</h3>
       <p class="result-subtitle">${escapeHtml(subtitle || "")}</p>
       <p>${escapeHtml(compactText(resource.summary || resource.description || resource.body || "", 132))}</p>
-      <div class="tag-list">${tags}</div>
       <footer class="card-footer">${action}</footer>
     </article>
   `;
@@ -1267,7 +1462,7 @@ function refTitle(resource) {
 
 function refMeta(resource, type) {
   if (!resource) return "";
-  if (type === "document") return `${resource.documentType || resource.kind} · ${resource.correspondent || ""}`;
+  if (type === "document") return documentInfoInline(resource);
   return resource.category || (type === "guide" ? "Informação" : "Item");
 }
 
@@ -1281,16 +1476,18 @@ function renderDirectory() {
       .filter(item => item.resource)
       .map(({ ref, resource }) => {
         const href = ref.type === "document" ? `#${resource.id}` : (resource.url || `#${resource.id}`);
+        const targetAttrs = ref.type === "document" ? "" : linkTargetAttrs(resource);
         const extraAttrs = ref.type === "document" ? `data-directory-doc="${escapeHtml(resource.id)}"` : "";
-        const format = ref.type === "document" ? resource.fileFormat : inferFormat({ ...resource, type: ref.type });
+        const format = ref.type === "document" ? "" : inferFormat({ ...resource, type: ref.type });
+        const miniIcon = ref.type === "document" ? (typeIcon[ref.type] || "PDF") : emojiForResource(resource, ref.type);
         return `
-          <a class="directory-item" href="${escapeHtml(href)}" ${extraAttrs}>
-            <span class="mini-icon type-${escapeHtml(ref.type)}">${escapeHtml(typeIcon[ref.type] || "•")}</span>
+          <a class="directory-item" href="${escapeHtml(href)}" ${extraAttrs}${targetAttrs}>
+            <span class="mini-icon type-${escapeHtml(ref.type)}">${escapeHtml(miniIcon || "•")}</span>
             <span>
               <strong>${escapeHtml(refTitle(resource))}</strong>
               <small>${escapeHtml(refMeta(resource, ref.type))}</small>
             </span>
-            <em>${escapeHtml(format)}</em>
+            ${format ? `<em>${escapeHtml(format)}</em>` : ""}
           </a>
         `;
       }).join("");
@@ -1332,7 +1529,6 @@ function renderDirectory() {
                 <strong>${escapeHtml(doc.title)}</strong>
                 <small>${escapeHtml(refMeta(doc, "document"))}</small>
               </span>
-              <em>${escapeHtml(doc.fileFormat || "PDF")}</em>
             </a>
           `).join("")}
         </div>
@@ -1377,6 +1573,102 @@ function renderApps() {
     ? apps.map(app => renderResourceCard(app, "app")).join("")
     : emptyStateHtml("Nenhum app cadastrado", "Os apps internos do hub aparecerão aqui.");
 }
+
+function resourceById(id) {
+  return usefulLinks.find(item => item.id === id)
+    || apps.find(item => item.id === id)
+    || answerCards.find(item => item.id === id)
+    || documents.find(item => item.id === id)
+    || null;
+}
+
+function docsMatchingWorkflow(flow = {}, limit = 4) {
+  const needles = [...(flow.documents || []), flow.title || "", flow.summary || ""].flatMap(item => tokenize(item));
+  if (!needles.length) return [];
+  return documents
+    .map(doc => {
+      const haystack = normalize(`${doc.title} ${doc.documentType} ${doc.correspondent} ${doc.summary} ${(doc.chunks || []).map(chunk => `${chunk.heading} ${chunk.text}`).join(" ")}`);
+      let score = 0;
+      needles.forEach(token => { if (haystack.includes(token)) score += 1; });
+      return { doc, score };
+    })
+    .filter(item => item.score > 0)
+    .sort((a, b) => b.score - a.score)
+    .slice(0, limit)
+    .map(item => item.doc);
+}
+
+function renderWorkflows() {
+  const grid = document.getElementById("workflowGrid");
+  if (!grid) return;
+  grid.innerHTML = workflows.length ? workflows.map(flow => `
+    <button class="workflow-card" type="button" data-workflow-open="${escapeHtml(flow.id)}">
+      <span class="workflow-emoji" aria-hidden="true">${escapeHtml(flow.emoji || "🧭")}</span>
+      <strong>${escapeHtml(flow.title)}</strong>
+      <small>${escapeHtml(flow.summary || "")}</small>
+    </button>
+  `).join("") : emptyStateHtml("Nenhum guia cadastrado", "Os fluxos guiados aparecerão aqui.");
+
+  if (workflows[0]) renderWorkflowDetail(workflows[0].id, false);
+}
+
+function renderWorkflowDetail(id, shouldScroll = true) {
+  const flow = workflows.find(item => item.id === id);
+  const box = document.getElementById("workflowDetail");
+  if (!flow || !box) return;
+  const relatedDocs = docsMatchingWorkflow(flow);
+  const linkedResources = (flow.links || []).map(resourceById).filter(Boolean);
+
+  document.querySelectorAll(".workflow-card").forEach(card => {
+    card.classList.toggle("active", card.dataset.workflowOpen === id);
+  });
+
+  box.hidden = false;
+  box.innerHTML = `
+    <div class="workflow-detail-head">
+      <span class="workflow-emoji big" aria-hidden="true">${escapeHtml(flow.emoji || "🧭")}</span>
+      <div>
+        <p class="eyebrow">Passo a passo</p>
+        <h3>${escapeHtml(flow.title)}</h3>
+        <p>${escapeHtml(flow.summary || "")}</p>
+      </div>
+    </div>
+
+    <div class="workflow-columns">
+      <section>
+        <h4>Como resolver</h4>
+        <ol>${(flow.steps || []).map(step => `<li>${escapeHtml(step)}</li>`).join("")}</ol>
+      </section>
+      <section>
+        <h4>Checklist</h4>
+        <ul>${(flow.checklist || []).map(item => `<li>${escapeHtml(item)}</li>`).join("")}</ul>
+      </section>
+    </div>
+
+    <div class="workflow-resources">
+      <section>
+        <h4>Links e apps úteis</h4>
+        ${linkedResources.length ? linkedResources.map(item => {
+          const kind = item.url ? (apps.includes(item) ? "app" : "link") : "answer";
+          return `<a class="workflow-resource" href="${escapeHtml(item.url || '#')}"${linkTargetAttrs(item)}><span>${emojiForResource(item, kind)}</span><strong>${escapeHtml(item.title)}</strong></a>`;
+        }).join("") : `<p class="muted-text">Nenhum link específico cadastrado ainda.</p>`}
+      </section>
+      <section>
+        <h4>Documentos sugeridos</h4>
+        ${relatedDocs.length ? relatedDocs.map(doc => `
+          <button class="workflow-resource" type="button" data-open-doc="${escapeHtml(doc.id)}"><span>📄</span><strong>${escapeHtml(doc.title)}</strong><small>${escapeHtml(documentInfoInline(doc))}</small></button>
+        `).join("") : `<p class="muted-text">Quando documentos relacionados estiverem no acervo, eles aparecerão aqui.</p>`}
+      </section>
+    </div>
+  `;
+  if (shouldScroll) box.scrollIntoView({ behavior: "smooth", block: "start" });
+}
+
+function openWorkflow(id) {
+  location.hash = "resolver";
+  renderWorkflowDetail(id, true);
+}
+
 
 function renderGuides() {
   // Seção de informações rápidas removida da interface.
@@ -1479,6 +1771,9 @@ function openPreview(result) {
   const semanticTerms = result.semanticTerms || [];
   const chunks = bestChunksForDoc(doc, exactTerms, semanticTerms);
   const shownChunks = chunks.length ? chunks : [{ page: "—", heading: "Prévia", text: doc.summary || doc.title || "" }];
+  const firstPage = shownChunks.find(chunk => String(chunk.page || "").match(/\d+/))?.page || result.chunk?.page || "";
+  const related = similarDocuments(doc, 4);
+  const citationText = buildCitation({ type: "document", doc, chunk: shownChunks[0] || result.chunk || {} });
 
   modalContent.innerHTML = `
     <div class="full-preview compact-preview">
@@ -1488,25 +1783,51 @@ function openPreview(result) {
         </div>
         <div>
           <div class="badge-row">
-            ${typeBadge(result.type)}${metaBadge(doc.fileFormat)}${metaBadge(doc.documentType || doc.kind)}
+            ${documentInfoBadges(doc)}
           </div>
           <h2 id="previewTitle">${highlight(doc.title, exactTerms, semanticTerms)}</h2>
           <p class="result-subtitle">${highlight(doc.summary || doc.correspondent || "", exactTerms, semanticTerms)}</p>
-          <p class="preview-actions-line"><a class="small-action" href="${escapeHtml(doc.pdfUrl || doc.sourceUrl || '#')}" target="_blank" rel="noopener">Abrir arquivo</a></p>
+          <div class="preview-actions-line action-row">
+            <a class="small-action" href="${escapeHtml(openPdfAtPage(doc, firstPage))}" target="_blank" rel="noopener">Abrir PDF nesta página</a>
+            <button class="secondary-button" type="button" data-copy-reference="${escapeHtml(citationText)}">Copiar referência</button>
+          </div>
         </div>
       </header>
 
-      <section class="preview-main">
-        <h3>Trechos encontrados</h3>
-        ${shownChunks.map(chunk => `
-          <article class="preview-paper">
-            <div class="result-head">
-              <span class="badge">p. ${escapeHtml(chunk.page || "—")}</span>
-              <span class="badge">${highlight(chunk.heading || "Trecho", exactTerms, semanticTerms)}</span>
-            </div>
-            <p>${highlight(chunk.text || doc.summary || doc.title || "", exactTerms, semanticTerms)}</p>
-          </article>
-        `).join("")}
+      <section class="preview-layout-v2">
+        <aside class="preview-pages">
+          <h3>Páginas</h3>
+          ${shownChunks.map((chunk, i) => `
+            <button type="button" data-preview-scroll="preview-chunk-${i}">
+              <span>p. ${escapeHtml(chunk.page || "—")}</span>
+              <small>${escapeHtml(compactText(chunk.heading || "Trecho", 42))}</small>
+            </button>
+          `).join("")}
+        </aside>
+
+        <section class="preview-main">
+          <h3>Trechos encontrados</h3>
+          ${shownChunks.map((chunk, i) => `
+            <article class="preview-paper" id="preview-chunk-${i}">
+              <div class="result-head">
+                <span class="badge">p. ${escapeHtml(chunk.page || "—")}</span>
+                <span class="badge">${highlight(chunk.heading || "Trecho", exactTerms, semanticTerms)}</span>
+              </div>
+              <p>${highlight(chunk.text || doc.summary || doc.title || "", exactTerms, semanticTerms)}</p>
+              <p class="preview-actions-line"><a class="small-action" href="${escapeHtml(openPdfAtPage(doc, chunk.page))}" target="_blank" rel="noopener">Abrir PDF na página ${escapeHtml(chunk.page || "")}</a></p>
+            </article>
+          `).join("")}
+
+          <section class="related-docs">
+            <h3>Documentos relacionados</h3>
+            ${related.length ? related.map(item => `
+              <button type="button" data-open-doc="${escapeHtml(item.id)}">
+                <strong>${escapeHtml(item.title)}</strong>
+                <span>${escapeHtml(documentInfoInline(item))}</span>
+              </button>
+            `).join("") : `<p class="muted-text">Nenhum documento relacionado encontrado no acervo atual.</p>`}
+          </section>
+        </section>
       </section>
     </div>
   `;
@@ -1547,6 +1868,25 @@ function setupModal() {
       const previous = copyButton.textContent;
       copyButton.textContent = "Copiado";
       setTimeout(() => copyButton.textContent = previous, 1400);
+    }
+
+    const copyRef = event.target.closest("[data-copy-reference]");
+    if (copyRef) {
+      navigator.clipboard?.writeText(copyRef.dataset.copyReference || "");
+      const previous = copyRef.textContent;
+      copyRef.textContent = "Referência copiada";
+      setTimeout(() => copyRef.textContent = previous, 1400);
+    }
+
+    const scrollPreview = event.target.closest("[data-preview-scroll]");
+    if (scrollPreview) {
+      const target = document.getElementById(scrollPreview.dataset.previewScroll);
+      target?.scrollIntoView({ behavior: "smooth", block: "start" });
+    }
+
+    const workflowButton = event.target.closest("[data-workflow-open]");
+    if (workflowButton) {
+      openWorkflow(workflowButton.dataset.workflowOpen);
     }
 
     if (event.target.matches("[data-close-modal]")) modal.setAttribute("aria-hidden", "true");
@@ -1636,6 +1976,7 @@ function setupBulkEditing() {
   });
 }
 
+
 function formatGrade(value) {
   return value.toLocaleString("pt-BR", { minimumFractionDigits: 2, maximumFractionDigits: 2 });
 }
@@ -1647,11 +1988,19 @@ function setupCalculators() {
   const addGradeButton = document.getElementById("addGradeButton");
   const clearGradesButton = document.getElementById("clearGradesButton");
 
+  if (!finalOutput || !gradeList) return;
+
   function parseNumber(raw) {
     const normalized = (raw ?? "").toString().replace(",", ".").trim();
     if (!normalized) return null;
     const value = Number(normalized);
     return Number.isFinite(value) ? value : null;
+  }
+
+  function setFinalResult(kind, html) {
+    finalOutput.classList.remove("result-positive", "result-negative", "result-warning", "result-neutral");
+    finalOutput.classList.add(`result-${kind}`);
+    finalOutput.innerHTML = html;
   }
 
   function readGradeInput(input) {
@@ -1663,7 +2012,7 @@ function setupCalculators() {
   }
 
   function renumberGrades() {
-    [...gradeList?.querySelectorAll(".grade-row") || []].forEach((row, index) => {
+    [...gradeList.querySelectorAll(".grade-row")].forEach((row, index) => {
       const label = row.querySelector("label span");
       if (label) label.textContent = `Nota ${index + 1}`;
       const input = row.querySelector("input");
@@ -1674,35 +2023,35 @@ function setupCalculators() {
   }
 
   function createGradeRow(value = "") {
-    if (!gradeList) return;
     const row = document.createElement("div");
     row.className = "grade-row";
     row.innerHTML = `
       <label><span>Nota</span><input type="number" class="partial-grade" min="0" max="10" step="0.01" inputmode="decimal" value="${escapeHtml(value)}" /></label>
       <button class="remove-row" type="button" aria-label="Remover nota">×</button>
     `;
-    row.querySelector("input")?.addEventListener("input", calculateFinalSituation);
+    row.querySelector("input")?.addEventListener("input", () => {
+      finalOutput.classList.add("result-neutral");
+    });
     row.querySelector("button")?.addEventListener("click", () => {
       row.remove();
       if (!gradeList.querySelector(".grade-row")) createGradeRow();
       renumberGrades();
-      calculateFinalSituation();
     });
     gradeList.appendChild(row);
     renumberGrades();
   }
 
   function resetGrades() {
-    if (!gradeList) return;
     gradeList.innerHTML = "";
     createGradeRow();
     createGradeRow();
-    document.getElementById("pfFinal").value = "";
-    finalOutput.textContent = "Resultado: —";
+    const pfInput = document.getElementById("pfFinal");
+    if (pfInput) pfInput.value = "";
+    setFinalResult("neutral", "Resultado: —");
   }
 
   function getPartialGrades() {
-    return [...gradeList?.querySelectorAll(".partial-grade") || []]
+    return [...gradeList.querySelectorAll(".partial-grade")]
       .map(input => readGradeInput(input))
       .filter(value => value !== null);
   }
@@ -1712,50 +2061,55 @@ function setupCalculators() {
     const pf = readGrade("pfFinal");
 
     if (!grades.length) {
-      finalOutput.textContent = "Resultado: informe pelo menos uma nota parcial.";
+      setFinalResult("warning", "Informe pelo menos uma nota parcial.");
       return;
     }
 
     if (grades.some(value => value < 0 || value > 10) || (pf !== null && (pf < 0 || pf > 10))) {
-      finalOutput.textContent = "Resultado: as notas devem estar entre 0 e 10.";
+      setFinalResult("negative", "As notas devem estar entre 0 e 10.");
       return;
     }
 
     const mp = grades.reduce((sum, value) => sum + value, 0) / grades.length;
     const gradesText = grades.map(formatGrade).join(" · ");
+    const base = `<span class="calc-detail">Notas usadas: ${gradesText}</span><span class="calc-detail">MP = ${formatGrade(mp)}</span>`;
 
     if (mp >= 7) {
-      finalOutput.innerHTML = `<strong>Aprovado por média.</strong><br>Notas: ${gradesText}<br>MP = ${formatGrade(mp)}. Não precisa de prova final.`;
+      setFinalResult("positive", `<strong>✅ Aprovado por média.</strong>${base}<span class="calc-detail">Não precisa fazer prova final.</span>`);
       return;
     }
 
     if (mp < 2.5) {
-      finalOutput.innerHTML = `<strong>Reprovado sem direito à prova final.</strong><br>Notas: ${gradesText}<br>MP = ${formatGrade(mp)}. Abaixo de 2,5 não dá direito à final.`;
+      setFinalResult("negative", `<strong>❌ Reprovado sem direito à prova final.</strong>${base}<span class="calc-detail">MP abaixo de 2,5.</span>`);
       return;
     }
 
-    const neededPf = 15 - (mp * 2);
+    const neededPf = Math.max(0, 15 - (mp * 2));
 
     if (pf === null) {
-      finalOutput.innerHTML = `<strong>Precisa fazer prova final.</strong><br>Notas: ${gradesText}<br>MP = ${formatGrade(mp)}. Para atingir média final 5,0, precisa tirar <strong>${formatGrade(neededPf)}</strong> na PF.`;
+      setFinalResult("warning", `<strong>⚠️ Precisa fazer prova final.</strong>${base}<span class="calc-detail">Para ser aprovado após a final, precisa tirar <strong>${formatGrade(neededPf)}</strong> na PF.</span>`);
       return;
     }
 
     const mf = ((mp * 2) + pf) / 3;
-    const finalStatus = mf >= 5 ? "Aprovado após a final." : "Reprovado após a final.";
-    finalOutput.innerHTML = `<strong>${finalStatus}</strong><br>Notas: ${gradesText}<br>MP = ${formatGrade(mp)} · PF = ${formatGrade(pf)} · MF = ${formatGrade(mf)}.`;
+    if (mf >= 5) {
+      setFinalResult("positive", `<strong>✅ Aprovado após a final.</strong>${base}<span class="calc-detail">PF = ${formatGrade(pf)} · MF = ${formatGrade(mf)}</span>`);
+    } else {
+      setFinalResult("negative", `<strong>❌ Reprovado após a final.</strong>${base}<span class="calc-detail">PF = ${formatGrade(pf)} · MF = ${formatGrade(mf)}</span><span class="calc-detail">Precisava tirar ${formatGrade(neededPf)} na PF.</span>`);
+    }
   }
 
   addGradeButton?.addEventListener("click", () => {
     createGradeRow();
-    const lastInput = gradeList?.querySelector(".grade-row:last-child input");
-    lastInput?.focus();
+    gradeList.querySelector(".grade-row:last-child input")?.focus();
   });
   clearGradesButton?.addEventListener("click", resetGrades);
   finalButton?.addEventListener("click", calculateFinalSituation);
-  document.getElementById("pfFinal")?.addEventListener("input", calculateFinalSituation);
+  document.getElementById("pfFinal")?.addEventListener("keydown", event => {
+    if (event.key === "Enter") calculateFinalSituation();
+  });
 
-  if (gradeList && !gradeList.querySelector(".grade-row")) {
+  if (!gradeList.querySelector(".grade-row")) {
     createGradeRow();
     createGradeRow();
   }
@@ -1809,6 +2163,42 @@ function setupNavigation() {
   requestUpdate();
 }
 
+
+const finalExamGroups = [
+  { cls: "g1", rows: [[6.9,1.2],[6.8,1.4],[6.7,1.6],[6.6,1.8],[6.5,2.0],[6.4,2.2],[6.3,2.4],[6.2,2.6],[6.1,2.8],[6.0,3.0]] },
+  { cls: "g2", rows: [[5.9,3.2],[5.8,3.4],[5.7,3.6],[5.6,3.8],[5.5,4.0],[5.4,4.2],[5.3,4.4],[5.2,4.6],[5.1,4.8],[5.0,5.0]] },
+  { cls: "g3", rows: [[4.9,5.2],[4.8,5.4],[4.7,5.6],[4.6,5.8],[4.5,6.0],[4.4,6.2],[4.3,6.4],[4.2,6.6],[4.1,6.8],[4.0,7.0]] },
+  { cls: "g4", rows: [[3.9,7.2],[3.8,7.4],[3.7,7.6],[3.6,7.8],[3.5,8.0],[3.4,8.2],[3.3,8.4],[3.2,8.6],[3.1,8.8],[3.0,9.0]] },
+  { cls: "g5", rows: [[2.9,9.2],[2.8,9.4],[2.7,9.6],[2.6,9.8],[2.5,10.0]] }
+];
+
+function formatOneDecimal(value) {
+  const rounded = Math.round(Number(value) * 10) / 10;
+  return rounded.toLocaleString("pt-BR", { minimumFractionDigits: Number.isInteger(rounded) ? 0 : 1, maximumFractionDigits: 1 });
+}
+
+function buildFinalExamTable() {
+  const container = document.getElementById("finalExamTable");
+  if (!container) return;
+  container.innerHTML = "";
+
+  finalExamGroups.forEach(group => {
+    const table = document.createElement("table");
+    table.className = `grade-group ${group.cls}`;
+    table.innerHTML = `<thead><tr><th>média</th><th>final</th></tr></thead>`;
+    const tbody = document.createElement("tbody");
+
+    group.rows.forEach(([media, final]) => {
+      const tr = document.createElement("tr");
+      tr.innerHTML = `<td>${formatOneDecimal(media)}</td><td>${formatOneDecimal(final)}</td>`;
+      tbody.appendChild(tr);
+    });
+
+    table.appendChild(tbody);
+    container.appendChild(table);
+  });
+}
+
 function handleSharedLink() {
   const params = new URLSearchParams(window.location.search);
   const docId = params.get("share") || params.get("doc");
@@ -1843,6 +2233,7 @@ async function boot() {
   setupModal();
   setupArchiveViews();
   setupCalculators();
+  buildFinalExamTable();
   setupNavigation();
   backgroundIndexMissingPdfText();
   schedulePdfThumbnailRender();

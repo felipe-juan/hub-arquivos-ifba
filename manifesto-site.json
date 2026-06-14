@@ -1,0 +1,552 @@
+{
+  "schema_version": 1,
+  "base_path": "/documents",
+  "documents_count": 55,
+  "categories": [
+    {
+      "id": "01_ppc",
+      "label": "Projetos Pedagógicos"
+    },
+    {
+      "id": "02_matrizes_curriculares",
+      "label": "Matrizes curriculares"
+    },
+    {
+      "id": "03_regulamentos_do_curso",
+      "label": "Regulamentos do curso"
+    },
+    {
+      "id": "04_portarias",
+      "label": "Portarias"
+    },
+    {
+      "id": "05_normas_ifba",
+      "label": "Normas IFBA"
+    },
+    {
+      "id": "06_diretrizes_cne",
+      "label": "Diretrizes CNE/CONAES"
+    },
+    {
+      "id": "07_atos_institucionais_do_curso",
+      "label": "Atos institucionais do curso"
+    },
+    {
+      "id": "08_comunicados_e_resultados",
+      "label": "Comunicados e resultados"
+    },
+    {
+      "id": "09_calendarios_e_horarios",
+      "label": "Calendários e horários"
+    },
+    {
+      "id": "10_dasi_representacao_discente",
+      "label": "DASI e representação discente"
+    },
+    {
+      "id": "11_documentos_academicos_operacionais",
+      "label": "Documentos acadêmicos operacionais"
+    }
+  ],
+  "documents": [
+    {
+      "title": "Ppc 2024",
+      "category": "Projetos Pedagógicos",
+      "type": "Documento",
+      "year": "",
+      "path": "/documents/01_ppc/ifba-vca_bsi_ppc_2024.pdf",
+      "source_original": "ppc.pdf",
+      "notes": "PPC do Bacharelado em Sistemas de Informação, versão/capa Outubro de 2024."
+    },
+    {
+      "title": "Ppc 2017",
+      "category": "Projetos Pedagógicos",
+      "type": "Documento",
+      "year": "",
+      "path": "/documents/01_ppc/ifba-vca_bsi_ppc_2017.pdf",
+      "source_original": "ppc (1).pdf",
+      "notes": "PPC do Bacharelado em Sistemas de Informação, capa Vitória da Conquista 2017."
+    },
+    {
+      "title": "Projeto Curso Ppc 2013",
+      "category": "Projetos Pedagógicos",
+      "type": "Documento",
+      "year": "",
+      "path": "/documents/01_ppc/ifba-vca_bsi_projeto-curso_ppc_2013.pdf",
+      "source_original": "ppc (2).pdf",
+      "notes": "Projeto/PPC do curso, capa Agosto de 2013."
+    },
+    {
+      "title": "Matriz Curricular Obrigatoria 2024",
+      "category": "Matrizes curriculares",
+      "type": "Documento",
+      "year": "",
+      "path": "/documents/02_matrizes_curriculares/ifba-vca_bsi_matriz-curricular_obrigatoria_2024.pdf",
+      "source_original": "matriz-curricular.pdf",
+      "notes": "Matriz curricular vigente do PPC 2024, com ACEX e total de 3.200 horas."
+    },
+    {
+      "title": "Matriz Curricular Obrigatoria 2017",
+      "category": "Matrizes curriculares",
+      "type": "Documento",
+      "year": "",
+      "path": "/documents/02_matrizes_curriculares/ifba-vca_bsi_matriz-curricular_obrigatoria_2017.pdf",
+      "source_original": "matriz-curricular (1).pdf",
+      "notes": "Matriz curricular em vigor a partir de 2017."
+    },
+    {
+      "title": "Fluxograma Curricular Ppc 2013",
+      "category": "Matrizes curriculares",
+      "type": "Documento",
+      "year": "",
+      "path": "/documents/02_matrizes_curriculares/ifba-vca_bsi_fluxograma-curricular_ppc-2013.pdf",
+      "source_original": "matriz-curricular (2).pdf",
+      "notes": "Fluxograma/grade curricular extraída do PPC antigo, associado ao PPC de 2013."
+    },
+    {
+      "title": "Matriz Curricular Optativas 2024",
+      "category": "Matrizes curriculares",
+      "type": "Documento",
+      "year": "",
+      "path": "/documents/02_matrizes_curriculares/ifba-vca_bsi_matriz-curricular_optativas_2024.pdf",
+      "source_original": "matriz-curricular-optativa.pdf",
+      "notes": "Matriz curricular de componentes optativos do PPC 2024."
+    },
+    {
+      "title": "Quadro Equivalencia Matrizes 2010 2017 2024",
+      "category": "Matrizes curriculares",
+      "type": "Documento",
+      "year": "",
+      "path": "/documents/02_matrizes_curriculares/ifba-vca_bsi_quadro-equivalencia_matrizes-2010-2017_2024.pdf",
+      "source_original": "quadro-equivalencia.pdf",
+      "notes": "Quadro de equivalência entre matrizes de 2010 e 2017, atualização aprovada em 04/03/2024."
+    },
+    {
+      "title": "Regimento Colegiado Curso 2024",
+      "category": "Regulamentos do curso",
+      "type": "Documento",
+      "year": "",
+      "path": "/documents/03_regulamentos_do_curso/ifba-vca_bsi_regimento-colegiado-curso_2024.pdf",
+      "source_original": "regimento.pdf",
+      "notes": "Regimento do Colegiado de Curso, aprovado em setembro de 2024."
+    },
+    {
+      "title": "Regulamento Atividades Complementares Ppc 2010 2017 2024",
+      "category": "Regulamentos do curso",
+      "type": "Documento",
+      "year": "",
+      "path": "/documents/03_regulamentos_do_curso/ifba-vca_bsi_regulamento-atividades-complementares_ppc-2010-2017_2024.pdf",
+      "source_original": "regulamento-atividades-complementares-ppc-2010-2017.pdf",
+      "notes": "Regulamento de atividades complementares aplicável aos PPCs 2010 e 2017."
+    },
+    {
+      "title": "Regulamento Atividades Complementares Ppc 2024 2024",
+      "category": "Regulamentos do curso",
+      "type": "Documento",
+      "year": "",
+      "path": "/documents/03_regulamentos_do_curso/ifba-vca_bsi_regulamento-atividades-complementares_ppc-2024_2024.pdf",
+      "source_original": "regulamento-atividades-complementares-ppc-2024.pdf",
+      "notes": "Regulamento de atividades complementares aplicável ao PPC 2024."
+    },
+    {
+      "title": "Portaria Colegiado Curso 184 2025 Dg",
+      "category": "Portarias",
+      "type": "Documento",
+      "year": "",
+      "path": "/documents/04_portarias/ifba-vca_bsi_portaria-colegiado-curso_184-2025-dg.pdf",
+      "source_original": "Portaria1842025DG.pdf",
+      "notes": "Portaria DG nº 184/2025, composição do Colegiado do Curso de BSI."
+    },
+    {
+      "title": "Portaria Nde 083 2025 Dg",
+      "category": "Portarias",
+      "type": "Documento",
+      "year": "",
+      "path": "/documents/04_portarias/ifba-vca_bsi_portaria-nde_083-2025-dg.pdf",
+      "source_original": "Portaria-083-2025-DG.pdf",
+      "notes": "Portaria DG nº 083/2025, composição do Núcleo Docente Estruturante (NDE) do BSI."
+    },
+    {
+      "title": "Consepe Resolucao 023 2019 Normas Academicas Ensino Superior",
+      "category": "Normas IFBA",
+      "type": "Documento",
+      "year": "",
+      "path": "/documents/05_normas_ifba/ifba_consepe_resolucao-023-2019_normas-academicas-ensino-superior.pdf",
+      "source_original": "normas-academicas-ensino-superior-resolucaoo-23-2019-consepe.pdf",
+      "notes": "Resolução CONSEPE nº 23/2019, Normas Acadêmicas do Ensino Superior."
+    },
+    {
+      "title": "Consepe Resolucao 024 2021 Curricularizacao Extensao",
+      "category": "Normas IFBA",
+      "type": "Documento",
+      "year": "",
+      "path": "/documents/05_normas_ifba/ifba_consepe_resolucao-024-2021_curricularizacao-extensao.pdf",
+      "source_original": "curricularizacao-extensao-resolucao-24-2021-consepe.pdf",
+      "notes": "Resolução CONSEPE nº 24/2021, curricularização da extensão nos cursos de graduação."
+    },
+    {
+      "title": "Proen Instrucao Normativa 003 2025 Guarda Religiosa Prestacao Alternativa",
+      "category": "Normas IFBA",
+      "type": "Documento",
+      "year": "",
+      "path": "/documents/05_normas_ifba/ifba_proen_instrucao-normativa-003-2025_guarda-religiosa-prestacao-alternativa.pdf",
+      "source_original": "fluxo-prestacoes-alternativas-aplicacao-provas-frequencia-aulas-guarda-religiosa-instrucao-normativa-03-2025-proen.pdf",
+      "notes": "Instrução Normativa PROEN nº 03/2025, prestação alternativa por guarda religiosa."
+    },
+    {
+      "title": "Consup Resolucao 090 2023 Politica Assistencia Estudantil",
+      "category": "Normas IFBA",
+      "type": "Documento",
+      "year": "",
+      "path": "/documents/05_normas_ifba/ifba_consup_resolucao-090-2023_politica-assistencia-estudantil.pdf",
+      "source_original": "politica-assistencia-estudantil-resolucao-090-2023-consup.pdf",
+      "notes": "Resolução CONSUP nº 90/2023, Política de Assistência Estudantil do IFBA."
+    },
+    {
+      "title": "Consup Resolucao 030 2017 Politica Inclusao Pessoas Deficiencia Necessidades Especificas",
+      "category": "Normas IFBA",
+      "type": "Documento",
+      "year": "",
+      "path": "/documents/05_normas_ifba/ifba_consup_resolucao-030-2017_politica-inclusao-pessoas-deficiencia-necessidades-especificas.pdf",
+      "source_original": "politica-inclusao-pessoas-deficiencia-necessidades-especificas-resolucao-30-2017-consup.pdf",
+      "notes": "Resolução CONSUP nº 30/2017, Política de Inclusão da Pessoa com Deficiência e/ou Necessidades Específicas."
+    },
+    {
+      "title": "Resolucao 005 2016 Diretrizes Computacao",
+      "category": "Diretrizes CNE/CONAES",
+      "type": "Documento",
+      "year": "",
+      "path": "/documents/06_diretrizes_cne/cne-ces_resolucao-005-2016_diretrizes-computacao.pdf",
+      "source_original": "rces005_16.pdf",
+      "notes": "Resolução CNE/CES nº 5/2016, Diretrizes Curriculares Nacionais para cursos de Computação."
+    },
+    {
+      "title": "Resolucao 007 2018 Diretrizes Extensao Educacao Superior",
+      "category": "Diretrizes CNE/CONAES",
+      "type": "Documento",
+      "year": "",
+      "path": "/documents/06_diretrizes_cne/cne-ces_resolucao-007-2018_diretrizes-extensao-educacao-superior.pdf",
+      "source_original": "rces007_18.pdf",
+      "notes": "Resolução CNE/CES nº 7/2018, Diretrizes para Extensão na Educação Superior."
+    },
+    {
+      "title": "Regulamento Atividades Curriculares Extensao 2023",
+      "category": "Regulamentos do curso",
+      "type": "Documento",
+      "year": "",
+      "path": "/documents/03_regulamentos_do_curso/ifba-vca_bsi_regulamento-atividades-curriculares-extensao_2023.pdf",
+      "source_original": "regulamento-atividades-curriculares-extensao.pdf",
+      "notes": "Regulamento de Atividades Curriculares de Extensão (ACEX) do BSI, aprovado pelo Colegiado em 13/12/2023."
+    },
+    {
+      "title": "Regulamento Estagio Curricular Supervisionado 2023",
+      "category": "Regulamentos do curso",
+      "type": "Documento",
+      "year": "",
+      "path": "/documents/03_regulamentos_do_curso/ifba-vca_bsi_regulamento-estagio-curricular-supervisionado_2023.pdf",
+      "source_original": "regulamento-estagio-curricular-supervisionado.pdf",
+      "notes": "Regulamento de Estágio Curricular Supervisionado do BSI, aprovado pelo Colegiado em 04/12/2023."
+    },
+    {
+      "title": "Regulamento Migracao Curricular Matriz 2024 2023",
+      "category": "Regulamentos do curso",
+      "type": "Documento",
+      "year": "",
+      "path": "/documents/03_regulamentos_do_curso/ifba-vca_bsi_regulamento-migracao-curricular_matriz-2024_2023.pdf",
+      "source_original": "regulamento-migracao-curricular.pdf",
+      "notes": "Regulamento de migração para a matriz curricular do novo PPC, em vigor a partir do 1º semestre letivo de 2024, aprovado em 04/12/2023."
+    },
+    {
+      "title": "Regulamento Trabalho Conclusao Curso 2024",
+      "category": "Regulamentos do curso",
+      "type": "Documento",
+      "year": "",
+      "path": "/documents/03_regulamentos_do_curso/ifba-vca_bsi_regulamento-trabalho-conclusao-curso_2024.pdf",
+      "source_original": "regulamento-trabalho-conclusao-curso.pdf",
+      "notes": "Regulamento de Trabalho de Conclusão de Curso (TCC) do BSI, homologado pelo Colegiado em 05/08/2024."
+    },
+    {
+      "title": "Resolucao 002 2007 Carga Horaria Integralizacao Bacharelados",
+      "category": "Diretrizes CNE/CONAES",
+      "type": "Documento",
+      "year": "",
+      "path": "/documents/06_diretrizes_cne/cne-ces_resolucao-002-2007_carga-horaria-integralizacao-bacharelados.pdf",
+      "source_original": "res_cne_ces_002_18062007.pdf",
+      "notes": "Resolução CNE/CES nº 2/2007, sobre carga horária mínima, integralização e duração dos bacharelados presenciais."
+    },
+    {
+      "title": "Resolucao 001 2010 Nucleo Docente Estruturante",
+      "category": "Diretrizes CNE/CONAES",
+      "type": "Documento",
+      "year": "",
+      "path": "/documents/06_diretrizes_cne/conaes_resolucao-001-2010_nucleo-docente-estruturante.pdf",
+      "source_original": "resolucao1_2010_conae.pdf",
+      "notes": "Resolução CONAES nº 1/2010, que normatiza o Núcleo Docente Estruturante (NDE)."
+    },
+    {
+      "title": "Consup Resolucao 022 2017 Uso Nome Social",
+      "category": "Normas IFBA",
+      "type": "Documento",
+      "year": "",
+      "path": "/documents/05_normas_ifba/ifba_consup_resolucao-022-2017_uso-nome-social.pdf",
+      "source_original": "uso-nome-social-resolucao-22-2017-consup.pdf",
+      "notes": "Resolução CONSUP nº 22/2017, normatização para uso do nome social no âmbito do IFBA."
+    },
+    {
+      "title": "Consup Resolucao 008 2010 Aprovacao Implantacao Bsi Vca",
+      "category": "Atos institucionais do curso",
+      "type": "Documento",
+      "year": "",
+      "path": "/documents/07_atos_institucionais_do_curso/ifba_consup_resolucao-008-2010_aprovacao-implantacao-bsi-vca.pdf",
+      "source_original": "resolucao-08-2010-consup.pdf",
+      "notes": "Resolução CONSUP nº 08/2010, aprovação da proposta de implantação do Curso de Bacharelado em Sistemas de Informação no Campus Vitória da Conquista."
+    },
+    {
+      "title": "Consepe Resolucao 005 2017 Aprovacao Ppc Bsi Vca",
+      "category": "Atos institucionais do curso",
+      "type": "Documento",
+      "year": "",
+      "path": "/documents/07_atos_institucionais_do_curso/ifba_consepe_resolucao-005-2017_aprovacao-ppc-bsi-vca.pdf",
+      "source_original": "resolucao-005-2017-consepe.pdf",
+      "notes": "Resolução CONSEPE nº 05/2017, aprovação ad referendum da alteração do PPC do BSI do Campus Vitória da Conquista."
+    },
+    {
+      "title": "Consepe Resolucao 124 2023 Aprovacao Ppc Bsi Vca",
+      "category": "Atos institucionais do curso",
+      "type": "Documento",
+      "year": "",
+      "path": "/documents/07_atos_institucionais_do_curso/ifba_consepe_resolucao-124-2023_aprovacao-ppc-bsi-vca.pdf",
+      "source_original": "resolucao-124-2023-consepe.pdf",
+      "notes": "Resolução CONSEPE nº 124/2023, aprovação do PPC do BSI do Campus Vitória da Conquista."
+    },
+    {
+      "title": "Concam Resolucao 012 2024 Aprovacao Regimento Colegiado Bsi",
+      "category": "Atos institucionais do curso",
+      "type": "Documento",
+      "year": "",
+      "path": "/documents/07_atos_institucionais_do_curso/ifba-vca_concam_resolucao-012-2024_aprovacao-regimento-colegiado-bsi.pdf",
+      "source_original": "resolucao-012-2024-concam.pdf",
+      "notes": "Resolução Conselho de Campus/IFBA-VDC nº 012/2024, aprovação do Regimento Interno do Colegiado do BSI."
+    },
+    {
+      "title": "Colegiado Resultado Eleicao Representantes 2024 2026",
+      "category": "Atos institucionais do curso",
+      "type": "Documento",
+      "year": "",
+      "path": "/documents/07_atos_institucionais_do_curso/ifba-vca_bsi_colegiado_resultado-eleicao-representantes_2024-2026.pdf",
+      "source_original": "resultado-definitivo-votacao.pdf",
+      "notes": "Resultado definitivo da eleição de representantes discentes e docentes do Colegiado de Curso para o biênio 2024/2026."
+    },
+    {
+      "title": "Despacho 18/2026 - Lista de aptos à colação de grau 2025.2",
+      "category": "Atos institucionais do curso",
+      "type": "Despacho",
+      "year": "2026",
+      "path": "/documents/07_atos_institucionais_do_curso/ifba-vca_bsi_despacho-018-2026_lista-aptos-colacao-grau_2025-2.pdf",
+      "source_original": "SEI_4762840_Despacho_18.pdf",
+      "notes": "Despacho 18/2026/CSI.VDC com lista de discentes de BSI aptos à colação de grau no período letivo 2025.2."
+    },
+    {
+      "title": "Comunicado - Reforma da cantina do campus",
+      "category": "Comunicados e resultados",
+      "type": "Comunicado",
+      "year": "2026",
+      "path": "/documents/08_comunicados_e_resultados/ifba-vca_comunicado-reforma-cantina_2026.pdf",
+      "source_original": "SEI_4731514_Comunicado.pdf",
+      "notes": "Comunicado da Direção-Geral/DAP/DEPAD sobre revitalização/reforma da cantina do Campus Vitória da Conquista em março de 2026."
+    },
+    {
+      "title": "Convocação - Reunião ordinária do Colegiado de BSI (25/02/2026)",
+      "category": "Atos institucionais do curso",
+      "type": "Convocação",
+      "year": "2026",
+      "path": "/documents/07_atos_institucionais_do_curso/ifba-vca_bsi_convocacao-reuniao-colegiado_2026-02-25.pdf",
+      "source_original": "SEI_4707896_Convocacao (1).pdf",
+      "notes": "Convocação de reunião ordinária do Colegiado de BSI para 25/02/2026, com pauta de TCC, aproveitamento por conhecimento prévio, reintegração e quebra de pré-requisitos."
+    },
+    {
+      "title": "Resultado definitivo - Eleição do Colegiado de BSI 2025/2027",
+      "category": "Atos institucionais do curso",
+      "type": "Resultado de eleição",
+      "year": "2025",
+      "path": "/documents/07_atos_institucionais_do_curso/ifba-vca_bsi_colegiado_resultado-definitivo-eleicao-representantes_2025-2027.pdf",
+      "source_original": "SEI_4543338_Despacho_8.pdf",
+      "notes": "Resultado definitivo da eleição de representantes discentes e docentes do Colegiado de BSI para o biênio 2025/2027."
+    },
+    {
+      "title": "Resultado preliminar - Eleição do Colegiado de BSI 2025/2027",
+      "category": "Atos institucionais do curso",
+      "type": "Resultado de eleição",
+      "year": "2025",
+      "path": "/documents/07_atos_institucionais_do_curso/ifba-vca_bsi_colegiado_resultado-preliminar-eleicao-representantes_2025-2027.pdf",
+      "source_original": "SEI_4532658_Despacho_7.pdf",
+      "notes": "Resultado preliminar da eleição de representantes discentes e docentes do Colegiado de BSI para o biênio 2025/2027."
+    },
+    {
+      "title": "Homologação de candidaturas - Eleição do Colegiado de BSI 2025/2027",
+      "category": "Atos institucionais do curso",
+      "type": "Homologação",
+      "year": "2025",
+      "path": "/documents/07_atos_institucionais_do_curso/ifba-vca_bsi_colegiado_homologacao-candidaturas-eleicao_2025-2027.pdf",
+      "source_original": "SEI_4526442_Despacho_6.pdf",
+      "notes": "Homologação de inscrições de candidaturas para eleição de representantes discentes e docentes do Colegiado de BSI, biênio 2025/2027."
+    },
+    {
+      "title": "Convocatória - Eleição do Colegiado de BSI 2025/2027",
+      "category": "Atos institucionais do curso",
+      "type": "Convocatória",
+      "year": "2025",
+      "path": "/documents/07_atos_institucionais_do_curso/ifba-vca_bsi_colegiado_convocatoria-eleicao-representantes_2025-2027.pdf",
+      "source_original": "SEI_4507603_Despacho_1.pdf",
+      "notes": "Convocatória de eleição de representantes docentes e discentes do Colegiado de BSI para o biênio 2025/2027."
+    },
+    {
+      "title": "Portaria 171/2025-DG - Luto oficial",
+      "category": "Portarias",
+      "type": "Portaria",
+      "year": "2025",
+      "path": "/documents/04_portarias/ifba-vca_portaria-171-2025_luto-oficial.pdf",
+      "source_original": "SEI_4497439_Portaria___Numeracao_Manual_171.pdf",
+      "notes": "Portaria nº 171/2025-DG que decreta luto oficial por 2 dias no IFBA Campus Vitória da Conquista."
+    },
+    {
+      "title": "Lista de componentes aptos/inaptos - Avaliação de conhecimentos prévios",
+      "category": "Atos institucionais do curso",
+      "type": "Despacho",
+      "year": "2025",
+      "path": "/documents/07_atos_institucionais_do_curso/ifba-vca_bsi_lista-componentes-avaliacao-conhecimentos-previos_2025.pdf",
+      "source_original": "SEI_23281.006478_2025_04.pdf",
+      "notes": "Lista de componentes curriculares de BSI aptos e inaptos ao exame de aproveitamento por conhecimento prévio, com encaminhamento para divulgação."
+    },
+    {
+      "title": "Demandas discentes - Sugestões de ajustes de horários 2026.2",
+      "category": "Atos institucionais do curso",
+      "type": "Despacho",
+      "year": "2026",
+      "path": "/documents/07_atos_institucionais_do_curso/ifba-vca_bsi_demandas-discentes-ajustes-horarios_2026-2.pdf",
+      "source_original": "SEI_23281.003691_2026_37.pdf",
+      "notes": "Documentação e Despacho 82/2026/CSI.VDC com sugestões de ajustes de horários para o semestre letivo 2026.2."
+    },
+    {
+      "title": "Resultado da consulta de oferta de optativas 2025.1",
+      "category": "Atos institucionais do curso",
+      "type": "Resultado de consulta",
+      "year": "2025",
+      "path": "/documents/07_atos_institucionais_do_curso/ifba-vca_bsi_resultado-consulta-oferta-optativas_2025-1.pdf",
+      "source_original": "Resultato Consulta Oferta Componentes Curriculares Optativos.pdf",
+      "notes": "Resultado da consulta de oferta de componentes curriculares optativos para o 1º semestre letivo de 2025."
+    },
+    {
+      "title": "Resultado - Seleção PET-Saúde GT 3 Big Data",
+      "category": "Comunicados e resultados",
+      "type": "Resultado de seleção",
+      "year": "2025",
+      "path": "/documents/08_comunicados_e_resultados/ufba-ifba_petsaude_resultado-selecao-monitores_gt3-big-data_2025.pdf",
+      "source_original": "Resultadofinalpetsaude.pdf",
+      "notes": "Resultado da seleção de monitores bolsistas PET-Saúde/Inovação e Saúde Digital no SUS, GT 3 - Big Data, envolvendo IFBA Sistemas de Informação."
+    },
+    {
+      "title": "Resultado final - Edital 020/2025-DG-VDC/IFBA",
+      "category": "Comunicados e resultados",
+      "type": "Resultado final",
+      "year": "2025",
+      "path": "/documents/08_comunicados_e_resultados/ifba-vca_edital-020-2025_resultado-final_bolsistas-acoes-direcao-geral.pdf",
+      "source_original": "RESULTADO_FINAL_07_11_25_ass.pdf",
+      "notes": "Resultado final do Edital Chamada Pública nº 020/2025-DG-VDC/IFBA para cadastro reserva de colaboradores bolsistas em ações vinculadas à Direção Geral."
+    },
+    {
+      "title": "Resolução CONCAM 004/2025 - Avaliação de conhecimentos prévios",
+      "category": "Normas IFBA",
+      "type": "Resolução",
+      "year": "2025",
+      "path": "/documents/05_normas_ifba/ifba-vca_concam_resolucao-004-2025_avaliacao-conhecimentos-previos.pdf",
+      "source_original": "Resolucao_CC_VDC___04_2025___Avaliacao_de_Conhecimentos_Previos.pdf",
+      "notes": "Resolução Conselho de Campus/IFBA-VDC nº 004/2025, com normas específicas para avaliação de conhecimentos prévios nos cursos de graduação."
+    },
+    {
+      "title": "Resolução CONSUP 178/2025 - Ausência docente e reposição de aulas",
+      "category": "Normas IFBA",
+      "type": "Resolução",
+      "year": "2025",
+      "path": "/documents/05_normas_ifba/ifba_consup_resolucao-178-2025_alteracao-norma-ausencia-docente-reposicao-aulas.pdf",
+      "source_original": "Res_178_2025_Alt_Norma_reg_ausência_docente_e_reposições_aulas-788175b5874b4a2f8d6d570d2caa9579.pdf",
+      "notes": "Resolução CONSUP/IFBA nº 178/2025, que altera norma para registro de ausência docente e reposições de aulas."
+    },
+    {
+      "title": "Regulamento Discente do IFBA",
+      "category": "Normas IFBA",
+      "type": "Resolução / Regulamento",
+      "year": "2022",
+      "path": "/documents/05_normas_ifba/ifba_consup_resolucao-086-2022_regulamento-discente.pdf",
+      "source_original": "Res._CONSUP_IFBA_n_86__de_22.12.2022_Aprova_o_Regulamento_Discente_do_IFBA.pdf",
+      "notes": "Resolução CONSUP/IFBA nº 86/2022, que aprova o Regulamento Discente do IFBA."
+    },
+    {
+      "title": "Lista de Alunos Regulares 2026.1",
+      "category": "Documentos acadêmicos operacionais",
+      "type": "Lista acadêmica",
+      "year": "2026",
+      "path": "/documents/11_documentos_academicos_operacionais/ifba-vca_graduacao_lista-alunos-regulares_2026-1.pdf",
+      "source_original": "Lista_de_Alunos_Regulares_2026.1.pdf",
+      "notes": "Lista de estudantes regulares por curso no semestre 2026.1. Contém nomes e matrículas.",
+      "sensitive": true
+    },
+    {
+      "title": "Estatuto do DASI - versão 2026-02-24",
+      "category": "DASI e representação discente",
+      "type": "Estatuto",
+      "year": "2026",
+      "path": "/documents/10_dasi_representacao_discente/ifba-vca_bsi_dasi_estatuto_2026-02-24.pdf",
+      "source_original": "Estatuto.pdf",
+      "notes": "Estatuto do Diretório Acadêmico de Sistemas de Informação (DASI), PDF criado em 24/02/2026."
+    },
+    {
+      "title": "Estatuto do DASI - versão 2026-02-27",
+      "category": "DASI e representação discente",
+      "type": "Estatuto",
+      "year": "2026",
+      "path": "/documents/10_dasi_representacao_discente/ifba-vca_bsi_dasi_estatuto_2026-02-27_canva.pdf",
+      "source_original": "Estatuto.docx_20260227_195122_0000.pdf",
+      "notes": "Estatuto do DASI exportado pelo Canva em 27/02/2026; mantido como versão distinta por apresentar diferenças de redação/formatação."
+    },
+    {
+      "title": "Adiamento da 12ª Week-IT",
+      "category": "Comunicados e resultados",
+      "type": "Comunicado",
+      "year": "2026",
+      "path": "/documents/08_comunicados_e_resultados/ifba-vca_bsi_week-it_comunicado-adiamento_2026.pdf",
+      "source_original": "E-mail de Instituto Federal de Educação, Ciência e Tecnologia da Bahia - Adiamento da 12ª Week-IT.pdf",
+      "notes": "E-mail da Coordenação de BSI comunicando adiamento da 12ª Week-IT para 13/10 a 17/10/2026. Contém endereços de e-mail.",
+      "sensitive": true
+    },
+    {
+      "title": "Atas de Reuniões do NDE 2025",
+      "category": "Atos institucionais do curso",
+      "type": "Ata",
+      "year": "2025",
+      "path": "/documents/07_atos_institucionais_do_curso/ifba-vca_bsi_nde_atas-reunioes_2025.pdf",
+      "source_original": "Atas das reuniões de NDE do ano letivo de 2025.pdf",
+      "notes": "Conjunto de atas das reuniões do Núcleo Docente Estruturante do curso de BSI no ano letivo de 2025."
+    },
+    {
+      "title": "Alocação de Salas 2025",
+      "category": "Calendários e horários",
+      "type": "Horário / Alocação",
+      "year": "2025",
+      "path": "/documents/09_calendarios_e_horarios/ifba-vca_alocacao-salas_2025.pdf",
+      "source_original": " ALOCAÇÃO DE SALAS 2025.pdf",
+      "notes": "Documento com alocação de salas e horários de turmas em 2025.1."
+    },
+    {
+      "title": "Calendário Acadêmico da Graduação 2026",
+      "category": "Calendários e horários",
+      "type": "Calendário acadêmico",
+      "year": "2026",
+      "path": "/documents/09_calendarios_e_horarios/ifba-vca_calendario-academico-graduacao_2026.pdf",
+      "source_original": "2026-02-13-Calenda-rioAcade-mico_IFBA-VCA_2026.pdf",
+      "notes": "Calendário acadêmico 2026 da graduação do IFBA Campus Vitória da Conquista."
+    }
+  ],
+  "generated_at": "2026-06-14T15:48:00Z",
+  "notes": "Arquivos auxiliares ficam fora de /documents. O site deve ler /manifesto-site.json ou escanear apenas /documents."
+}
