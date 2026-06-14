@@ -556,7 +556,7 @@ async function backgroundIndexMissingPdfText() {
     renderDocuments();
     renderDirectory();
     if (state.lastQuery) runSearch(state.lastQuery);
-    else renderResults(searchResources("", getFilters()), "");
+    else renderResults([], "");
   } else if (summary && !state.lastQuery) {
     summary.textContent = "Documentos carregados. Alguns PDFs parecem escaneados ou sem texto extraível.";
   }
@@ -1035,8 +1035,15 @@ function searchResources(query, filters) {
 function renderResults(results, query) {
   const container = document.getElementById("searchResults");
   const summary = document.getElementById("resultsSummary");
-  state.lastResults = results;
+  const cleanQuery = (query || "").trim();
+  state.lastResults = cleanQuery ? results : [];
   state.lastQuery = query;
+
+  if (!cleanQuery) {
+    summary.textContent = "Pesquise documentos, regulamentos, contatos, links ou ferramentas.";
+    container.innerHTML = "";
+    return;
+  }
 
   if (!results.length) {
     summary.textContent = "Nada encontrado. Tente outro termo ou remova filtros.";
@@ -1051,9 +1058,7 @@ function renderResults(results, query) {
   const countText = Object.entries(counts)
     .map(([type, count]) => `${count} ${typeLabel[type].toLowerCase()}${count > 1 ? "s" : ""}`)
     .join(" · ");
-  summary.textContent = query.trim()
-    ? `${results.length} resultado(s): ${countText}. Ordenado por relevância.`
-    : `Principais itens do hub: ${countText}.`;
+  summary.textContent = `${results.length} resultado(s): ${countText}. Ordenado por relevância.`;
 
   container.innerHTML = results.map((result, index) => renderResultCard(result, index)).join("");
   requestAnimationFrame(renderPdfThumbnails);

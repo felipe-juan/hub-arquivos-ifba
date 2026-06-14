@@ -1,122 +1,83 @@
 # HUB Arquivos IFBA — Sistemas de Informação
 
-Hub acadêmico estático para o curso de Sistemas de Informação do IFBA Vitória da Conquista.
+Primeiro MVP estático do projeto.
 
-## Como testar localmente
+Ele já possui:
 
-```bash
-cd ~/Documents/hub-arquivos-ifba
-python3 -m http.server 8000
-```
+- página inicial;
+- busca híbrida local por documentos e trechos;
+- filtros por tipo, tema e status;
+- prévia de trecho com destaque;
+- cartões de documento com fonte, data e status;
+- calculadora de média ponderada;
+- calculadora de nota necessária;
+- calculadora de horas complementares;
+- seção de links úteis;
+- guias rápidos;
+- tela `admin.html` para gerar blocos JSON de novos documentos.
 
-Abra:
+## Importante
 
-```text
-http://localhost:8000
-```
+Os documentos incluídos são **exemplos demonstrativos**. Eles não devem ser usados como regras oficiais. A próxima etapa é substituir os exemplos por documentos reais do curso, sempre com:
 
-## Como adicionar documentos do jeito fácil
+- fonte oficial;
+- data do documento;
+- data de coleta;
+- status de verificação;
+- tags acadêmicas;
+- trechos por página.
 
-Agora o site lê `documents/manifest.json` automaticamente.
+## Como abrir no computador
 
-Fluxo recomendado:
+1. Extraia o arquivo ZIP.
+2. Abra a pasta `hub-arquivos-ifba`.
+3. Clique duas vezes em `index.html`.
 
-1. Coloque os PDFs/arquivos em subpastas dentro de `documents/`.
-2. Rode o gerador de manifesto.
-3. Teste localmente.
-4. Faça `git add`, `commit` e `push`.
+Não precisa instalar nada para testar.
 
-Exemplo de estrutura:
+## Como editar documentos agora
 
-```text
-documents/
-  ppcs/
-    ppc-2024.pdf
-  matrizes-curriculares/
-    matriz-curricular-2024.pdf
-  regulamentos-bsi/
-    regulamento-tcc.pdf
-  portarias/
-    portaria-colegiado-2025.pdf
-  normas-ifba/
-    naes.pdf
-  diretrizes-cne/
-    diretrizes-computacao.pdf
-```
+Abra o arquivo `data.js` e edite a lista `documents`.
 
-Depois rode:
+Cada documento possui esta estrutura básica:
 
-```bash
-python3 scripts/generate_documents_manifest.py
-```
-
-Isso cria/atualiza:
-
-```text
-documents/manifest.json
-documents/manifest.csv
-```
-
-O site usa o `manifest.json` para criar automaticamente os cards, categorias, filtros e diretório.
-
-## Publicar atualização
-
-```bash
-git add .
-git commit -m "Add documents and update manifest"
-git push
-```
-
-## Manifesto manual
-
-Você também pode editar `documents/manifest.json` manualmente. Exemplo mínimo:
-
-```json
+```js
 {
-  "documents": [
+  id: "doc-exemplo",
+  title: "Título do documento",
+  kind: "Regulamento",
+  status: "review",
+  trust: "Conferir fonte e versão",
+  course: "Sistemas de Informação",
+  year: "2026",
+  docDate: "2026-01-01",
+  collectedDate: "2026-06-13",
+  sourceUrl: "https://...",
+  pdfUrl: "https://...",
+  tags: ["matrícula", "prazo"],
+  summary: "Resumo curto.",
+  chunks: [
     {
-      "id": "doc-ppc-2024",
-      "title": "PPC 2024",
-      "category": "PPCs",
-      "kind": "PPC",
-      "correspondent": "Coordenação de Sistemas de Informação",
-      "fileFormat": "PDF",
-      "pdfUrl": "documents/ppcs/ppc-2024.pdf",
-      "sourceUrl": "documents/ppcs/ppc-2024.pdf",
-      "tags": ["PPC", "currículo", "matriz"],
-      "summary": "Projeto Pedagógico do Curso de Sistemas de Informação."
+      id: "trecho-1",
+      page: 1,
+      heading: "Seção do documento",
+      semanticTags: ["matrícula", "prazo"],
+      text: "Texto oficial extraído da página."
     }
   ]
 }
 ```
 
-## Observação importante
+## Como usar o admin local
 
-Um site estático publicado no GitHub Pages não consegue “ver” sozinho todos os arquivos de uma pasta. Por isso o manifesto é necessário. A pasta organiza os arquivos; o manifesto diz ao site o que existe, qual categoria usar e como pesquisar.
+Abra `admin.html`.
 
-## Busca dentro do conteúdo dos documentos
+Essa tela gera um bloco JSON. Ela não salva automaticamente porque este MVP não tem servidor. Depois de gerar o JSON, copie o resultado e cole dentro da lista `documents` em `data.js`.
 
-A busca só encontra nomes dentro do documento se o texto do PDF/arquivo tiver sido indexado no `documents/manifest.json`.
+## Como publicar de forma simples
 
-Depois de colocar PDFs em `documents/`, rode:
+Veja o arquivo `HOSTING_BEGINNER.md`.
 
-```bash
-python3 scripts/generate_documents_manifest.py
-python3 scripts/check_index_status.py
-```
+## Próximas etapas técnicas
 
-O script agora tenta extrair texto de:
-
-- PDF com texto selecionável;
-- TXT/Markdown;
-- DOCX;
-- XLSX;
-- PPTX.
-
-Instale as dependências recomendadas uma vez:
-
-```bash
-python3 -m pip install --user pymupdf pypdf openpyxl python-docx python-pptx
-```
-
-Se `check_index_status.py` mostrar `SEM TEXTO`, o arquivo provavelmente é escaneado como imagem ou precisa de OCR. Nesse caso, crie um `.txt` com o mesmo nome do PDF ou rode OCR antes.
+Veja o arquivo `ROADMAP.md`.

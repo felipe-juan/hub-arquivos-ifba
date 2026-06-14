@@ -77,6 +77,14 @@
         <label>Formato
           <select id="formatFilter"><option value="all">Todos</option></select>
         </label>
+        <label>Status
+          <select id="statusFilter">
+            <option value="all">Todos</option>
+            <option value="verified">Verificado</option>
+            <option value="review">Revisar link</option>
+            <option value="archived">Histórico</option>
+          </select>
+        </label>
       </div>
 
       <div class="result-toolbar">
@@ -97,6 +105,19 @@
           <button type="button" class="active" data-view="grid">Grade</button>
           <button type="button" data-view="list">Diretório</button>
         </div>
+      </div>
+
+      <div class="archive-tools">
+        <button id="selectModeButton" class="secondary-button" type="button">Selecionar para edição em lote</button>
+        <div id="bulkPanel" class="bulk-panel" hidden>
+          <strong><span id="selectedCount">0</span> selecionado(s)</strong>
+          <label>Adicionar tag <input id="bulkTagInput" placeholder="ex.: matrícula" /></label>
+          <label>Tipo doc. <input id="bulkTypeInput" placeholder="ex.: Regulamento" /></label>
+          <label>Correspondente <input id="bulkCorrespondentInput" placeholder="ex.: Coordenação SI" /></label>
+          <button id="bulkApplyButton" type="button">Aplicar nesta sessão</button>
+          <button id="bulkExportButton" class="secondary-button" type="button">Gerar JSON</button>
+        </div>
+        <textarea id="bulkOutput" class="copy-box bulk-output" readonly hidden></textarea>
       </div>
 
       <div id="documentGrid" class="cards-grid archive-view"></div>
@@ -120,24 +141,32 @@
             <h2>Cálculo de média final</h2>
           </div>
         </div>
-        <div class="calc-grid single-tool">
-          <article class="tool-card main-grade-card" id="calc-preciso">
-            <h3>Média parcial, final e situação</h3>
-            <p class="helper-text">Informe todas as notas parciais lançadas no diário. A MP é a média aritmética das notas informadas. Se houver prova final, a MF é calculada por: (MP×2 + PF)/3.</p>
+        <div class="calc-grid">
+          <article class="tool-card">
+            <h3>Média ponderada</h3>
+            <p>Campos vazios são ignorados.</p>
+            <div id="weightedInputs" class="grade-list"></div>
+            <button class="secondary-button" id="addGradeRow" type="button">Adicionar avaliação</button>
+            <div class="result-box" id="weightedResult">Média: —</div>
+          </article>
 
-            <div class="grade-list" id="partialGrades" aria-label="Notas parciais"></div>
+          <article class="tool-card" id="calc-preciso">
+            <h3>Quanto preciso tirar?</h3>
+            <label>Nota atual acumulada <input type="number" id="currentScore" min="0" max="100" step="0.01" placeholder="Ex.: 62" /></label>
+            <label>Peso já concluído <input type="number" id="completedWeight" min="0" max="100" step="0.01" placeholder="Ex.: 70" /></label>
+            <label>Média desejada <input type="number" id="targetScore" min="0" max="100" step="0.01" placeholder="Ex.: 60" /></label>
+            <label>Peso da próxima avaliação <input type="number" id="nextWeight" min="0" max="100" step="0.01" placeholder="Ex.: 30" /></label>
+            <button id="neededGradeButton" type="button">Calcular</button>
+            <div class="result-box" id="neededGradeResult">Resultado: —</div>
+          </article>
 
-            <div class="grade-actions">
-              <button id="addGradeButton" class="secondary-button" type="button">+ Adicionar nota</button>
-              <button id="clearGradesButton" class="text-button" type="button">limpar notas</button>
-            </div>
-
-            <div class="grade-form-grid final-grade-grid">
-              <label>PF opcional <input type="number" id="pfFinal" min="0" max="10" step="0.01" inputmode="decimal" placeholder="Depois da prova final" /></label>
-            </div>
-
-            <button id="finalGradeButton" type="button">Calcular situação</button>
-            <div class="result-box" id="finalGradeResult">Resultado: —</div>
+          <article class="tool-card" id="calc-horas">
+            <h3>Horas complementares</h3>
+            <label>Horas exigidas <input type="number" id="requiredHours" min="0" step="1" value="120" /></label>
+            <label>Horas cumpridas <input type="number" id="completedHours" min="0" step="1" placeholder="Ex.: 75" /></label>
+            <button id="hoursButton" type="button">Calcular</button>
+            <div class="progress-shell"><div id="hoursProgress" class="progress-bar"></div></div>
+            <div class="result-box" id="hoursResult">Resultado: —</div>
           </article>
         </div>
       </div>
@@ -168,7 +197,6 @@
   </footer>
 
   <script src="data.js"></script>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
   <script src="app.js"></script>
 </body>
 </html>

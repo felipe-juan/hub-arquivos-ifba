@@ -1,8 +1,10 @@
 {
-  "generatedAt": "2026-06-14T05:15:52.227914+00:00",
+  "generatedAt": "2026-06-14T05:22:31.127745+00:00",
   "count": 32,
   "indexedCount": 28,
   "unindexedCount": 4,
+  "duplicateFilesIgnored": 0,
+  "ignoredHelperFiles": 3,
   "documents": [
     {
       "id": "doc-cne-ces-resolucao-002-2007-carga-horaria-integralizacao-bacharelados",
@@ -37,6 +39,8 @@
       "contentLength": 5332,
       "indexed": true,
       "extractionMethod": "pdftotext",
+      "sha256": "015a6d88be108bbfb04ffff3f1351e504cc9a536443b76b5834f861675279b24",
+      "size": 104074,
       "chunks": [
         {
           "id": "doc-cne-ces-resolucao-002-2007-carga-horaria-integralizacao-bacharelados-p1-1",
@@ -243,6 +247,8 @@
       "contentLength": 27123,
       "indexed": true,
       "extractionMethod": "pdftotext",
+      "sha256": "22bb89aa1ad52df0b06f505d6fca47a93aef6cfbc456b2074bf3b541136aa788",
+      "size": 128905,
       "chunks": [
         {
           "id": "doc-cne-ces-resolucao-005-2016-diretrizes-computacao-p1-1",
@@ -875,14 +881,15 @@
       "title": "CNE CES Resolucao 007 2018 Diretrizes Extensao Educacao Superior",
       "category": "Documentos",
       "group": "Documentos",
-      "kind": "PPC",
-      "documentType": "PPC",
+      "kind": "Matriz curricular",
+      "documentType": "Matriz curricular",
       "correspondent": "MEC/CNE",
       "fileFormat": "PDF",
       "pdfUrl": "documents/cne-ces_resolucao-007-2018_diretrizes-extensao-educacao-superior.pdf",
       "sourceUrl": "documents/cne-ces_resolucao-007-2018_diretrizes-extensao-educacao-superior.pdf",
       "tags": [
         "Documentos",
+        "Matriz curricular",
         "PPC",
         "projeto pedagógico",
         "currículo",
@@ -903,6 +910,8 @@
       "contentLength": 11494,
       "indexed": true,
       "extractionMethod": "pdftotext",
+      "sha256": "51df352176d91b6427a8bf4f418824684ca9777c6911e1722416fac8032e5dac",
+      "size": 152521,
       "chunks": [
         {
           "id": "doc-cne-ces-resolucao-007-2018-diretrizes-extensao-educacao-superior-p1-1",
@@ -910,6 +919,7 @@
           "heading": "CNE CES Resolucao 007 2018 Diretrizes Extensao Educacao Superior",
           "semanticTags": [
             "Documentos",
+            "Matriz curricular",
             "PPC",
             "projeto pedagógico",
             "currículo",
@@ -934,6 +944,7 @@
           "heading": "CNE CES Resolucao 007 2018 Diretrizes Extensao Educacao Superior — trecho 2",
           "semanticTags": [
             "Documentos",
+            "Matriz curricular",
             "PPC",
             "projeto pedagógico",
             "currículo",
@@ -958,6 +969,7 @@
           "heading": "CNE CES Resolucao 007 2018 Diretrizes Extensao Educacao Superior — trecho 3",
           "semanticTags": [
             "Documentos",
+            "Matriz curricular",
             "PPC",
             "projeto pedagógico",
             "currículo",
@@ -982,6 +994,7 @@
           "heading": "CNE CES Resolucao 007 2018 Diretrizes Extensao Educacao Superior",
           "semanticTags": [
             "Documentos",
+            "Matriz curricular",
             "PPC",
             "projeto pedagógico",
             "currículo",
@@ -1006,6 +1019,7 @@
           "heading": "CNE CES Resolucao 007 2018 Diretrizes Extensao Educacao Superior — trecho 2",
           "semanticTags": [
             "Documentos",
+            "Matriz curricular",
             "PPC",
             "projeto pedagógico",
             "currículo",
@@ -1030,6 +1044,7 @@
           "heading": "CNE CES Resolucao 007 2018 Diretrizes Extensao Educacao Superior — trecho 3",
           "semanticTags": [
             "Documentos",
+            "Matriz curricular",
             "PPC",
             "projeto pedagógico",
             "currículo",
@@ -1054,6 +1069,7 @@
           "heading": "CNE CES Resolucao 007 2018 Diretrizes Extensao Educacao Superior",
           "semanticTags": [
             "Documentos",
+            "Matriz curricular",
             "PPC",
             "projeto pedagógico",
             "currículo",
@@ -1078,6 +1094,7 @@
           "heading": "CNE CES Resolucao 007 2018 Diretrizes Extensao Educacao Superior — trecho 2",
           "semanticTags": [
             "Documentos",
+            "Matriz curricular",
             "PPC",
             "projeto pedagógico",
             "currículo",
@@ -1102,6 +1119,7 @@
           "heading": "CNE CES Resolucao 007 2018 Diretrizes Extensao Educacao Superior — trecho 3",
           "semanticTags": [
             "Documentos",
+            "Matriz curricular",
             "PPC",
             "projeto pedagógico",
             "currículo",
@@ -1126,6 +1144,7 @@
           "heading": "CNE CES Resolucao 007 2018 Diretrizes Extensao Educacao Superior — trecho 4",
           "semanticTags": [
             "Documentos",
+            "Matriz curricular",
             "PPC",
             "projeto pedagógico",
             "currículo",
@@ -1150,6 +1169,7 @@
           "heading": "CNE CES Resolucao 007 2018 Diretrizes Extensao Educacao Superior",
           "semanticTags": [
             "Documentos",
+            "Matriz curricular",
             "PPC",
             "projeto pedagógico",
             "currículo",
@@ -1174,6 +1194,7 @@
           "heading": "CNE CES Resolucao 007 2018 Diretrizes Extensao Educacao Superior — trecho 2",
           "semanticTags": [
             "Documentos",
+            "Matriz curricular",
             "PPC",
             "projeto pedagógico",
             "currículo",
@@ -1218,6 +1239,8 @@
       "contentLength": 0,
       "indexed": false,
       "extractionMethod": "no_text",
+      "sha256": "32760274d49c1e20c836ca71c22e67805b7b77bcf32dff9ba1513784ea1b0984",
+      "size": 58905,
       "chunks": [
         {
           "id": "doc-conaes-resolucao-001-2010-nucleo-docente-estruturante-arquivo",
@@ -1263,6 +1286,8 @@
       "contentLength": 1874,
       "indexed": true,
       "extractionMethod": "pdftotext",
+      "sha256": "a54529aaf943be54076a979a5839d32b5ad30adb4be51f69b518626a547e1b02",
+      "size": 113908,
       "chunks": [
         {
           "id": "doc-ifba-vca-bsi-colegiado-resultado-eleicao-representantes-2024-2026-p1-1",
@@ -1326,6 +1351,8 @@
       "contentLength": 130,
       "indexed": true,
       "extractionMethod": "pdftotext",
+      "sha256": "290de1cd0ea73e38279e5bbec890231f6c33e04e69bd63ad23a9de519d0cc0ae",
+      "size": 437897,
       "chunks": [
         {
           "id": "doc-ifba-vca-bsi-fluxograma-curricular-ppc-2013-p1-1",
@@ -1367,6 +1394,8 @@
       "contentLength": 273,
       "indexed": true,
       "extractionMethod": "pdftotext",
+      "sha256": "bdf96e15343f4c150fe9e5f1b05942e1cad09c27ce77a73ce928a1599a3172a3",
+      "size": 286690,
       "chunks": [
         {
           "id": "doc-ifba-vca-bsi-matriz-curricular-obrigatoria-2017-p1-1",
@@ -1408,6 +1437,8 @@
       "contentLength": 175,
       "indexed": true,
       "extractionMethod": "pdftotext",
+      "sha256": "375be71a5d4f7532a504933822d8dce86b3d7ab2938ac020f79f0591be4808da",
+      "size": 593976,
       "chunks": [
         {
           "id": "doc-ifba-vca-bsi-matriz-curricular-obrigatoria-2024-p1-1",
@@ -1451,6 +1482,8 @@
       "contentLength": 200,
       "indexed": true,
       "extractionMethod": "pdftotext",
+      "sha256": "eaf2de72592abf1252f989f514be504aa0a58d7083c9b18848c6bf71cf15bbb0",
+      "size": 373690,
       "chunks": [
         {
           "id": "doc-ifba-vca-bsi-matriz-curricular-optativas-2024-p1-1",
@@ -1472,7 +1505,7 @@
     },
     {
       "id": "doc-ifba-vca-bsi-portaria-colegiado-curso-184-2025-dg",
-      "title": "IFBA VCA BSI Portaria Colegiado Curso 184 2025 Dg",
+      "title": "IFBA VCA BSI Portaria Colegiado Curso 184 2025 DG",
       "category": "Documentos",
       "group": "Documentos",
       "kind": "Portaria",
@@ -1499,11 +1532,13 @@
       "contentLength": 2633,
       "indexed": true,
       "extractionMethod": "pdftotext",
+      "sha256": "2bdbb74e48f3efca7377313223e19256ab657c1e6ddde30fe62a9121583e0f4a",
+      "size": 48750,
       "chunks": [
         {
           "id": "doc-ifba-vca-bsi-portaria-colegiado-curso-184-2025-dg-p1-1",
           "page": "1",
-          "heading": "IFBA VCA BSI Portaria Colegiado Curso 184 2025 Dg",
+          "heading": "IFBA VCA BSI Portaria Colegiado Curso 184 2025 DG",
           "semanticTags": [
             "Documentos",
             "Portaria",
@@ -1523,7 +1558,7 @@
         {
           "id": "doc-ifba-vca-bsi-portaria-colegiado-curso-184-2025-dg-p1-2",
           "page": "1",
-          "heading": "IFBA VCA BSI Portaria Colegiado Curso 184 2025 Dg — trecho 2",
+          "heading": "IFBA VCA BSI Portaria Colegiado Curso 184 2025 DG — trecho 2",
           "semanticTags": [
             "Documentos",
             "Portaria",
@@ -1543,7 +1578,7 @@
         {
           "id": "doc-ifba-vca-bsi-portaria-colegiado-curso-184-2025-dg-p2-1",
           "page": "2",
-          "heading": "IFBA VCA BSI Portaria Colegiado Curso 184 2025 Dg",
+          "heading": "IFBA VCA BSI Portaria Colegiado Curso 184 2025 DG",
           "semanticTags": [
             "Documentos",
             "Portaria",
@@ -1564,7 +1599,7 @@
     },
     {
       "id": "doc-ifba-vca-bsi-portaria-nde-083-2025-dg",
-      "title": "IFBA VCA BSI Portaria NDE 083 2025 Dg",
+      "title": "IFBA VCA BSI Portaria NDE 083 2025 DG",
       "category": "Documentos",
       "group": "Documentos",
       "kind": "Portaria",
@@ -1588,11 +1623,13 @@
       "contentLength": 2568,
       "indexed": true,
       "extractionMethod": "pdftotext",
+      "sha256": "fb24adb5757dc1654bde23e73880cb8050f30c92a95f8bd080c758493369f6a6",
+      "size": 47619,
       "chunks": [
         {
           "id": "doc-ifba-vca-bsi-portaria-nde-083-2025-dg-p1-1",
           "page": "1",
-          "heading": "IFBA VCA BSI Portaria NDE 083 2025 Dg",
+          "heading": "IFBA VCA BSI Portaria NDE 083 2025 DG",
           "semanticTags": [
             "Documentos",
             "Portaria",
@@ -1609,7 +1646,7 @@
         {
           "id": "doc-ifba-vca-bsi-portaria-nde-083-2025-dg-p1-2",
           "page": "1",
-          "heading": "IFBA VCA BSI Portaria NDE 083 2025 Dg — trecho 2",
+          "heading": "IFBA VCA BSI Portaria NDE 083 2025 DG — trecho 2",
           "semanticTags": [
             "Documentos",
             "Portaria",
@@ -1626,7 +1663,7 @@
         {
           "id": "doc-ifba-vca-bsi-portaria-nde-083-2025-dg-p2-1",
           "page": "2",
-          "heading": "IFBA VCA BSI Portaria NDE 083 2025 Dg",
+          "heading": "IFBA VCA BSI Portaria NDE 083 2025 DG",
           "semanticTags": [
             "Documentos",
             "Portaria",
@@ -1672,6 +1709,8 @@
       "contentLength": 235808,
       "indexed": true,
       "extractionMethod": "pdftotext",
+      "sha256": "532581dc52ccac0d9ad5daba50d10c37720c467c3d9d7d8fcb89fe6832dc1308",
+      "size": 3569051,
       "chunks": [
         {
           "id": "doc-ifba-vca-bsi-ppc-2017-p1-1",
@@ -6246,6 +6285,8 @@
       "contentLength": 216897,
       "indexed": true,
       "extractionMethod": "pdftotext",
+      "sha256": "4ced560ca276a316222143bb4cce8c64de1764b2dfc93548fac2b776ec084b41",
+      "size": 1586202,
       "chunks": [
         {
           "id": "doc-ifba-vca-bsi-ppc-2024-p1-1",
@@ -11294,6 +11335,8 @@
       "contentLength": 307404,
       "indexed": true,
       "extractionMethod": "pdftotext",
+      "sha256": "43e9792aaa0eb024e539067e4b5c6f09491d462eb1650a213d1756c8bff0962b",
+      "size": 3783851,
       "chunks": [
         {
           "id": "doc-ifba-vca-bsi-projeto-curso-ppc-2013-p1-1",
@@ -16297,6 +16340,8 @@
       "contentLength": 2944,
       "indexed": true,
       "extractionMethod": "pdftotext",
+      "sha256": "e9a20670bb59b400c0eadb43d0a659e1029746756b2d4efd1b4242c2ee3593b4",
+      "size": 74856,
       "chunks": [
         {
           "id": "doc-ifba-vca-bsi-quadro-equivalencia-matrizes-2010-2017-2024-p1-1",
@@ -16422,6 +16467,8 @@
       "contentLength": 15240,
       "indexed": true,
       "extractionMethod": "pdftotext",
+      "sha256": "cafe14ae8b34f8d002c24e7e739bb98e09f022817894e6383767514107e5ec83",
+      "size": 179691,
       "chunks": [
         {
           "id": "doc-ifba-vca-bsi-regimento-colegiado-curso-2024-p1-1",
@@ -16878,6 +16925,8 @@
       "contentLength": 19434,
       "indexed": true,
       "extractionMethod": "pdftotext",
+      "sha256": "8ee827cf02cac8e48fcec3c208facc03b7561ccce0a6541119fe7d16c9f051db",
+      "size": 555703,
       "chunks": [
         {
           "id": "doc-ifba-vca-bsi-regulamento-atividades-complementares-ppc-2010-2017-2024-p1-1",
@@ -17465,6 +17514,8 @@
       "contentLength": 18250,
       "indexed": true,
       "extractionMethod": "pdftotext",
+      "sha256": "8cfe4408a617206ee2793fe5cd3b93395997f553bdc6f8704b58e81a68af4ff4",
+      "size": 553171,
       "chunks": [
         {
           "id": "doc-ifba-vca-bsi-regulamento-atividades-complementares-ppc-2024-2024-p1-1",
@@ -18007,6 +18058,8 @@
       "contentLength": 14242,
       "indexed": true,
       "extractionMethod": "pdftotext",
+      "sha256": "0208048fa7c3a17a8fc3cf0b3d5f14cd9dd36378ae50432820f08e1b1dfed217",
+      "size": 182227,
       "chunks": [
         {
           "id": "doc-ifba-vca-bsi-regulamento-atividades-curriculares-extensao-2023-p1-1",
@@ -18568,6 +18621,8 @@
       "contentLength": 25433,
       "indexed": true,
       "extractionMethod": "pdftotext",
+      "sha256": "a8e8d14b3131483fdf8136e378a4c3d9b4f5443c6c43e493b484d7e4ee1d8a47",
+      "size": 201823,
       "chunks": [
         {
           "id": "doc-ifba-vca-bsi-regulamento-estagio-curricular-supervisionado-2023-p1-1",
@@ -19169,6 +19224,8 @@
       "contentLength": 7791,
       "indexed": true,
       "extractionMethod": "pdftotext",
+      "sha256": "6f825dcae7e4500119d34003c2b211e5294153a14d8e9292fe800f81b42d3f92",
+      "size": 114853,
       "chunks": [
         {
           "id": "doc-ifba-vca-bsi-regulamento-migracao-curricular-matriz-2024-2023-p1-1",
@@ -19398,6 +19455,8 @@
       "contentLength": 38093,
       "indexed": true,
       "extractionMethod": "pdftotext",
+      "sha256": "a44310cd586dc3a7e438fe490dd9a2c865ed9de9f1edba59514d5d09cd0b3c9b",
+      "size": 272078,
       "chunks": [
         {
           "id": "doc-ifba-vca-bsi-regulamento-trabalho-conclusao-curso-2024-p1-1",
@@ -20263,6 +20322,8 @@
       "contentLength": 1454,
       "indexed": true,
       "extractionMethod": "pdftotext",
+      "sha256": "2e776d1769f82ce9aefecc91384b0c7d53710feae95a4af149a1d5b47d042707",
+      "size": 96155,
       "chunks": [
         {
           "id": "doc-ifba-vca-concam-resolucao-012-2024-aprovacao-regimento-colegiado-bsi-p1-1",
@@ -20307,6 +20368,8 @@
       "contentLength": 0,
       "indexed": false,
       "extractionMethod": "no_text",
+      "sha256": "6395e7cd8bd94cbee2ceb77a4b6953d6d76a2861e6d7115bd8796dba2f907f7f",
+      "size": 169721,
       "chunks": [
         {
           "id": "doc-ifba-consepe-resolucao-005-2017-aprovacao-ppc-bsi-vca-arquivo",
@@ -20351,6 +20414,8 @@
       "contentLength": 67133,
       "indexed": true,
       "extractionMethod": "pdftotext",
+      "sha256": "98026ebee7d8c9f6d52f62d0582c3e28cf18a1deb451d1f8c06b0a65ad1c162e",
+      "size": 434387,
       "chunks": [
         {
           "id": "doc-ifba-consepe-resolucao-023-2019-normas-academicas-ensino-superior-p1-1",
@@ -21222,6 +21287,8 @@
       "contentLength": 15055,
       "indexed": true,
       "extractionMethod": "pdftotext",
+      "sha256": "1c27ddabb632c2c2631e14eb15c7e7e1b1388488606564665183c93f6295c0d0",
+      "size": 226753,
       "chunks": [
         {
           "id": "doc-ifba-consepe-resolucao-024-2021-curricularizacao-extensao-p1-1",
@@ -21566,6 +21633,8 @@
       "contentLength": 1584,
       "indexed": true,
       "extractionMethod": "pdftotext",
+      "sha256": "27eebcc489c015149677fa5066786d334c363bca5a5c463653606191aeaee9d6",
+      "size": 88100,
       "chunks": [
         {
           "id": "doc-ifba-consepe-resolucao-124-2023-aprovacao-ppc-bsi-vca-p1-1",
@@ -21610,6 +21679,8 @@
       "contentLength": 0,
       "indexed": false,
       "extractionMethod": "no_text",
+      "sha256": "733a10daabae39b319ccd179ec73e6b20455eb72da19306832ec1c03eef7c683",
+      "size": 524035,
       "chunks": [
         {
           "id": "doc-ifba-consup-resolucao-008-2010-aprovacao-implantacao-bsi-vca-arquivo",
@@ -21655,6 +21726,8 @@
       "contentLength": 8777,
       "indexed": true,
       "extractionMethod": "pdftotext",
+      "sha256": "2531a320d0b87c5b66a893b9897e580b4338a2ceb5cf080ec349bd703d12583d",
+      "size": 189257,
       "chunks": [
         {
           "id": "doc-ifba-consup-resolucao-022-2017-uso-nome-social-p1-1",
@@ -21849,6 +21922,8 @@
       "contentLength": 0,
       "indexed": false,
       "extractionMethod": "no_text",
+      "sha256": "e2d6fb9795ab1921794c1af1ef3db00fb6ac3753f96cf6b7e063e897283e12f3",
+      "size": 2394163,
       "chunks": [
         {
           "id": "doc-ifba-consup-resolucao-030-2017-politica-inclusao-pessoas-deficiencia-necessidades-especificas-arquivo",
@@ -21895,6 +21970,8 @@
       "contentLength": 111964,
       "indexed": true,
       "extractionMethod": "pdftotext",
+      "sha256": "e774c2906e7587a722605d5b545193274d282a9b0770b0c9ea01cd9b47a16684",
+      "size": 544858,
       "chunks": [
         {
           "id": "doc-ifba-consup-resolucao-090-2023-politica-assistencia-estudantil-p1-1",
@@ -24105,6 +24182,8 @@
       "contentLength": 14523,
       "indexed": true,
       "extractionMethod": "pdftotext",
+      "sha256": "fcc893657b43e4da02fc450aa7b59d9949817720395d5fc32886b52892d30569",
+      "size": 139075,
       "chunks": [
         {
           "id": "doc-ifba-proen-instrucao-normativa-003-2025-guarda-religiosa-prestacao-alternativa-p1-1",
