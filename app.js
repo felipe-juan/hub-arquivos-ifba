@@ -327,11 +327,17 @@ function resultSnippet(result) {
 
   const chunkSnippet = plainSnippet(chunkText, exactTerms, semanticTerms, 230);
   const highlightedChunk = highlight(chunkSnippet, exactTerms, semanticTerms);
-  if (/<mark\b/i.test(highlightedChunk)) return highlightedChunk;
+  if (/<mark\b/i.test(highlightedChunk)) {
+    const matchPrefix = result.type === "document" && result.matchCount > 1
+      ? `<span class="match-reason">Encontrado em ${result.matchCount} trechos. Melhor trecho:</span> `
+      : "";
+    return `${matchPrefix}${highlightedChunk}`;
+  }
 
   const titleMatches = terms.some(term => normalize(titleText).includes(term));
   if (result.type === "document" && titleMatches) {
-    return `<span class="match-reason">Encontrado pelo título do documento.</span> ${highlight(compactText(titleText, 150), exactTerms, semanticTerms)}`;
+    const countText = result.matchCount > 1 ? ` Também há ${result.matchCount} trechos relacionados.` : "";
+    return `<span class="match-reason">Encontrado pelo título do documento.${countText}</span> ${highlight(compactText(titleText, 150), exactTerms, semanticTerms)}`;
   }
 
   const fallback = plainSnippet(`${titleText}. ${metaText}. ${result.text || ""}`, exactTerms, semanticTerms, 230);
@@ -1143,7 +1149,7 @@ function buildResources() {
       ? doc.chunks
       : [{ id: "main", page: 1, heading: doc.documentType || doc.kind || "Documento", text: doc.summary || doc.title || "" }];
 
-    return chunks.map(chunk => ({
+    return chunks.map((chunk, chunkIndex) => ({
       type: "document",
       id: `${doc.id}:${chunk.id}`,
       title: doc.title,
@@ -1157,7 +1163,8 @@ function buildResources() {
       correspondent: doc.correspondent,
       documentType: doc.documentType || doc.kind,
       doc,
-      chunk
+      chunk,
+      chunkIndex
     }));
   });
 
@@ -1186,7 +1193,8 @@ function buildBrowseResources() {
       correspondent: doc.correspondent,
       documentType: doc.documentType || doc.kind,
       doc,
-      chunk: firstChunk
+      chunk: firstChunk,
+      chunkIndex: 0
     };
   });
 
@@ -1215,52 +1223,75 @@ function filtersAreActive(filters = getFilters()) {
     .some(value => value && value !== "all");
 }
 
-function scoreResource(resource, query, filters, intent = detectSearchIntent(query)) {
+function scoreResource(resource, query = "", filters = getFilters(), intent = detectSearchIntent(query)) {
+  filters = filters || getFilters();
   if (filters.type !== "all" && resource.type !== filters.type) return null;
   if (filters.status !== "all" && resource.status !== filters.status) return null;
   if (filters.docType !== "all" && resource.documentType !== filters.docType) return null;
   if (filters.correspondent !== "all" && resource.correspondent !== filters.correspondent) return null;
   if (filters.format !== "all" && resource.fileFormat !== filters.format) return null;
 
-  const trimmed = query.trim();
+  const rawQuery = (query || "").toString();
+  const trimmed = rawQuery.trim();
   if (!trimmed) {
     return {
       ...resource,
       score: resource.scoreBase,
       exactTerms: [],
-      semanticTerms: []
+      semanticTerms: [],
+      matchSources: { browse: true }
     };
   }
 
-  const terms = expandedTerms(query);
-  const haystack = `${resource.title} ${resource.subtitle} ${resource.text} ${(resource.tags || []).join(" ")} ${resource.correspondent || ""} ${resource.documentType || ""} ${resource.fileFormat || ""}`;
-  const haystackNorm = normalize(haystack);
-  const titleNorm = normalize(resource.title);
+  const terms = expandedTerms(rawQuery);
+  const phrase = normalize(trimmed);
+  const titleNorm = normalize(resource.title || "");
+  const textNorm = normalize(`${resource.chunk?.heading || ""} ${resource.text || ""}`);
   const tagNorm = normalize((resource.tags || []).join(" "));
+  const metaNorm = normalize(`${resource.subtitle || ""} ${resource.correspondent || ""} ${resource.documentType || ""} ${resource.fileFormat || ""} ${resource.status || ""}`);
+  const haystackNorm = `${titleNorm} ${textNorm} ${tagNorm} ${metaNorm}`;
+
   let score = resource.scoreBase;
   let matched = false;
-  const phrase = normalize(query.trim());
+  const matchSources = {
+    title: false,
+    text: false,
+    tag: false,
+    meta: false,
+    semantic: false,
+    browse: false
+  };
 
-  if (phrase.length > 2 && titleNorm.includes(phrase)) {
-    score += 70;
+  const mark = (source, points) => {
+    matchSources[source] = true;
     matched = true;
-  }
+    score += points;
+  };
 
-  if (phrase.length > 2 && haystackNorm.includes(phrase)) {
-    score += 18;
-    matched = true;
-  }
+  if (phrase.length > 2 && titleNorm.includes(phrase)) mark("title", 70);
+  if (phrase.length > 2 && textNorm.includes(phrase)) mark("text", 24);
+  if (phrase.length > 2 && (tagNorm.includes(phrase) || metaNorm.includes(phrase))) mark("meta", 12);
 
   for (const term of terms.exact) {
-    if (titleNorm.includes(term)) { score += 28; matched = true; }
-    if (haystackNorm.includes(term)) { score += 8; matched = true; }
-    if (tagNorm.includes(term)) { score += 6; matched = true; }
-    if (normalize(resource.correspondent || "").includes(term)) { score += 4; matched = true; }
-    if (normalize(resource.documentType || "").includes(term)) { score += 5; matched = true; }
+    if (titleNorm.includes(term)) mark("title", 28);
+    if (textNorm.includes(term)) mark("text", 10);
+    if (tagNorm.includes(term)) mark("tag", 6);
+    if (normalize(resource.correspondent || "").includes(term)) mark("meta", 4);
+    if (normalize(resource.documentType || "").includes(term)) mark("meta", 5);
+    if (normalize(resource.fileFormat || "").includes(term)) mark("meta", 4);
   }
 
   for (const term of terms.semantic) {
-    if (haystackNorm.includes(term)) { score += 3; matched = true; }
+    if (textNorm.includes(term)) mark("semantic", 4);
+    else if (haystackNorm.includes(term)) mark("semantic", 2);
+  }
+
+  // When a document title/metadata matches, every chunk of that same PDF would
+  // technically match because each chunk carries the document title. Keep only
+  // the first title-only/metadata-only chunk; internal text matches still stay
+  // available as real evidence for the preview modal.
+  if (resource.type === "document" && !matchSources.text && !matchSources.semantic && Number(resource.chunkIndex || 0) > 0) {
+    return null;
   }
 
   // Intent-aware ranking. This keeps the search general, but pushes tools and links up
@@ -1298,17 +1329,109 @@ function scoreResource(resource, query, filters, intent = detectSearchIntent(que
     ...resource,
     score,
     exactTerms: terms.exact,
-    semanticTerms: terms.semantic
+    semanticTerms: terms.semantic,
+    matchSources
   };
+}
+
+function documentGroupKey(result) {
+  const doc = result?.doc || result;
+  return doc?.id || doc?.pdfUrl || doc?.sourceUrl || result?.title || result?.id;
+}
+
+function summarizePages(pages = []) {
+  const nums = unique(pages.map(page => String(page || "").match(/\d+/)?.[0]).filter(Boolean))
+    .map(Number)
+    .filter(Number.isFinite)
+    .sort((a, b) => a - b);
+
+  if (!nums.length) return "";
+  if (nums.length <= 4) return nums.join(", ");
+  return `${nums.slice(0, 3).join(", ")} e mais ${nums.length - 3}`;
+}
+
+function groupedDocumentSubtitle(doc, best, matches, evidenceMatches = []) {
+  const kind = doc?.documentType || doc?.kind || best?.documentType || "Documento";
+  if (best?.matchSources?.browse) {
+    return [kind, doc?.correspondent || best?.correspondent].filter(Boolean).join(" · ");
+  }
+
+  const internalCount = evidenceMatches.length;
+  if (internalCount > 0) {
+    const pages = summarizePages(evidenceMatches.map(item => item.chunk?.page));
+    const matchText = internalCount > 1 ? `${internalCount} trechos encontrados` : "trecho encontrado";
+    const pageText = pages ? `páginas ${pages}` : (best?.chunk?.page ? `página ${best.chunk.page}` : "");
+    return [kind, matchText, pageText].filter(Boolean).join(" · ");
+  }
+
+  const reason = best?.matchSources?.title ? "encontrado pelo título" : "encontrado por metadados";
+  const pageText = best?.chunk?.page ? `página ${best.chunk.page}` : "";
+  return [kind, reason, pageText].filter(Boolean).join(" · ");
+}
+
+function chunkEvidenceKey(chunk = {}) {
+  return [chunk.id || "", chunk.page || "", compactText(chunk.text || "", 80)].join("::");
+}
+
+function groupDocumentResults(results = []) {
+  const grouped = new Map();
+  const others = [];
+
+  results.forEach(result => {
+    if (result.type !== "document") {
+      others.push(result);
+      return;
+    }
+
+    const key = documentGroupKey(result);
+    if (!grouped.has(key)) grouped.set(key, []);
+    grouped.get(key).push(result);
+  });
+
+  const docs = [...grouped.values()].map(matches => {
+    const sorted = [...matches].sort((a, b) => b.score - a.score);
+    const best = sorted[0];
+    const doc = best.doc || best;
+    const internalMatches = sorted.filter(item => item.matchSources?.text || item.matchSources?.semantic);
+    const evidenceMatches = internalMatches.length ? internalMatches : sorted.slice(0, 1);
+    const matchBoost = Math.min(18, Math.max(0, internalMatches.length - 1) * 2);
+    const seenChunks = new Set();
+    const matchedChunks = evidenceMatches
+      .map(item => item.chunk)
+      .filter(Boolean)
+      .filter(chunk => {
+        const key = chunkEvidenceKey(chunk);
+        if (seenChunks.has(key)) return false;
+        seenChunks.add(key);
+        return true;
+      });
+    const bestEvidence = evidenceMatches[0] || best;
+
+    return {
+      ...bestEvidence,
+      id: documentGroupKey(best),
+      score: best.score + matchBoost,
+      subtitle: groupedDocumentSubtitle(doc, bestEvidence, sorted, internalMatches),
+      matchCount: internalMatches.length,
+      matchedPages: unique(evidenceMatches.map(item => item.chunk?.page).filter(Boolean)),
+      matchedChunks,
+      groupedMatches: sorted,
+      text: bestEvidence.text || bestEvidence.chunk?.text || doc.summary || doc.title
+    };
+  });
+
+  return [...docs, ...others];
 }
 
 function searchResources(query, filters) {
   const intent = detectSearchIntent(query);
   const titleNeedle = normalize(query || "").trim();
   const sourceResources = (query || "").trim() ? buildResources() : buildBrowseResources();
-  return sourceResources
+  const scored = sourceResources
     .map(resource => scoreResource(resource, query, filters, intent))
-    .filter(Boolean)
+    .filter(Boolean);
+
+  return groupDocumentResults(scored)
     .sort((a, b) => {
       const aTitle = titleNeedle && normalize(a.title || "").includes(titleNeedle) ? 1 : 0;
       const bTitle = titleNeedle && normalize(b.title || "").includes(titleNeedle) ? 1 : 0;
@@ -1343,7 +1466,10 @@ function renderResults(results, query) {
     return acc;
   }, {});
   const countText = Object.entries(counts)
-    .map(([type, count]) => `${count} ${typeLabel[type].toLowerCase()}${count > 1 ? "s" : ""}`)
+    .map(([type, count]) => {
+      const label = (typeLabel[type] || type || "item").toLowerCase();
+      return `${count} ${label}${count > 1 ? "s" : ""}`;
+    })
     .join(" · ");
   summary.textContent = cleanQuery
     ? `${results.length} resultado(s): ${countText}. Ordenado por relevância.`
@@ -1365,7 +1491,7 @@ function renderResultCard(result, index) {
   const openLabel = result.type === "document" ? "Prévia" : result.type === "workflow" ? "Ver passos" : "Abrir";
   const subtitle = highlight(result.subtitle || "", result.exactTerms || [], result.semanticTerms || []);
   const thumbResource = result.type === "document" ? result.doc : result;
-  const thumb = thumbnailHtml(thumbResource, result.type, result.type === "document" ? { page: result.chunk.page } : {});
+  const thumb = thumbnailHtml(thumbResource, result.type, result.type === "document" ? { page: result.chunk?.page } : {});
   const infoRow = result.type === "document"
     ? documentInfoBadges(result.doc)
     : itemInfoBadges(result.type, result.fileFormat);
@@ -1835,18 +1961,25 @@ function buildCitation(result) {
   return `${result.title}. ${typeLabel[result.type] || "Item"}. ${result.text || ""} URL: ${result.url || ""}`;
 }
 
-function copyText(text = "") {
-  if (navigator.clipboard?.writeText) return navigator.clipboard.writeText(text);
+function fallbackCopyText(text = "") {
   const textarea = document.createElement("textarea");
   textarea.value = text;
   textarea.setAttribute("readonly", "");
   textarea.style.position = "fixed";
   textarea.style.opacity = "0";
+  textarea.style.pointerEvents = "none";
   document.body.appendChild(textarea);
   textarea.select();
   try { document.execCommand("copy"); } catch (error) {}
   textarea.remove();
   return Promise.resolve();
+}
+
+function copyText(text = "") {
+  if (navigator.clipboard?.writeText) {
+    return navigator.clipboard.writeText(text).catch(() => fallbackCopyText(text));
+  }
+  return fallbackCopyText(text);
 }
 
 function documentTokens(doc) {
@@ -1875,22 +2008,30 @@ function similarDocuments(doc, limit = 6) {
 
 function bestChunksForDoc(doc, exactTerms = [], semanticTerms = []) {
   const terms = [...exactTerms, ...semanticTerms].map(normalize).filter(Boolean);
+  const exactSet = new Set(exactTerms.map(normalize));
   const chunks = (doc.chunks || []).length ? doc.chunks : [
     { id: `${doc.id}-summary`, page: "—", heading: doc.title, text: doc.summary || doc.title || "" }
   ];
 
+  if (!terms.length) return chunks.slice(0, 3);
+
+  const metaHaystack = normalize(`${doc.title || ""} ${doc.summary || ""} ${doc.documentType || ""} ${doc.correspondent || ""} ${(doc.tags || []).join(" ")}`);
   const scored = chunks.map(chunk => {
-    const haystack = normalize(`${doc.title || ""} ${doc.summary || ""} ${doc.documentType || ""} ${doc.correspondent || ""} ${(doc.tags || []).join(" ")} ${chunk.heading || ""} ${chunk.text || ""} ${(chunk.semanticTags || []).join(" ")}`);
+    const chunkHaystack = normalize(`${chunk.heading || ""} ${chunk.text || ""} ${(chunk.semanticTags || []).join(" ")}`);
     let score = 0;
     terms.forEach(term => {
-      if (haystack.includes(term)) score += exactTerms.map(normalize).includes(term) ? 3 : 1;
+      if (chunkHaystack.includes(term)) score += exactSet.has(term) ? 4 : 2;
     });
     return { chunk, score };
   }).sort((a, b) => b.score - a.score);
 
-  if (!terms.length) return chunks.slice(0, 3);
   const matched = scored.filter(item => item.score > 0).slice(0, 4).map(item => item.chunk);
-  return matched.length ? matched : chunks.slice(0, 1);
+  if (matched.length) return matched;
+
+  // Title/metadata matches should still open a useful preview, but should not
+  // pretend every page/chunk matched internally.
+  if (terms.some(term => metaHaystack.includes(term))) return chunks.slice(0, 1);
+  return chunks.slice(0, 1);
 }
 
 function createShareUrl(docId, expires = "") {
@@ -1929,16 +2070,19 @@ function openPreviewFromDoc(doc, options = {}) {
 function openPreview(result) {
   const modal = document.getElementById("previewModal");
   const modalContent = document.getElementById("modalContent");
-  if (!result || result.type !== "document") return;
+  if (!modal || !modalContent || !result || result.type !== "document") return;
   const doc = result.doc;
   const exactTerms = result.exactTerms || [];
   const semanticTerms = result.semanticTerms || [];
-  const chunks = bestChunksForDoc(doc, exactTerms, semanticTerms);
+  const chunks = (result.matchedChunks || []).length
+    ? result.matchedChunks
+    : bestChunksForDoc(doc, exactTerms, semanticTerms);
   const shownChunks = chunks.length ? chunks : [{ page: "—", heading: "Prévia", text: doc.summary || doc.title || "Texto não indexado para este documento." }];
   const firstPage = shownChunks.find(chunk => String(chunk.page || "").match(/\d+/))?.page || result.chunk?.page || "";
   const citationText = buildCitation({ type: "document", doc, chunk: shownChunks[0] || result.chunk || {} });
   const titleHtml = highlight(doc.title, exactTerms, semanticTerms);
   const infoHtml = `${escapeHtml(documentInfoInline(doc))}`;
+  const hasSearchTerms = [...exactTerms, ...semanticTerms].filter(Boolean).length > 0;
 
   modalContent.innerHTML = `
     <div class="verified-preview">
@@ -1967,9 +2111,11 @@ function openPreview(result) {
           ${shownChunks.map((chunk, i) => {
             const text = chunk.text || doc.summary || doc.title || "Texto não indexado para este documento.";
             const highlighted = highlight(text, exactTerms, semanticTerms);
-            const finalText = /<mark\b/i.test(highlighted)
-              ? highlighted
-              : `<span class="match-reason">Nenhum trecho interno destacou os termos. Este resultado pode ter vindo do título ou metadados.</span> ${escapeHtml(compactText(text, 520))}`;
+            const finalText = !hasSearchTerms
+              ? escapeHtml(text)
+              : /<mark\b/i.test(highlighted)
+                ? highlighted
+                : `<span class="match-reason">Nenhum trecho interno destacou os termos. Este resultado pode ter vindo do título ou metadados.</span> ${escapeHtml(compactText(text, 520))}`;
             return `
               <article class="preview-paper" id="preview-chunk-${i}">
                 <div class="result-head">
@@ -1996,6 +2142,7 @@ function openPreview(result) {
 
 function setupModal() {
   const modal = document.getElementById("previewModal");
+  if (!modal) return;
 
   document.body.addEventListener("click", event => {
     const previewButton = event.target.closest("[data-preview-index]");
