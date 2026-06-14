@@ -5,8 +5,6 @@ const apps = hubData.apps || [];
 const guides = []; // seção de informações removida da interface
 const directoryGroups = hubData.directoryGroups || [];
 const conceptMap = hubData.conceptMap || {};
-const complementaryConfig = hubData.complementaryActivities || {};
-const complementaryRules = complementaryConfig.rules || [];
 
 const state = {
   lastQuery: "",
@@ -1116,8 +1114,6 @@ function setupCalculators() {
   }
 
   function calculateFinalSituation() {
-    if (!finalOutput) return;
-
     const n1 = readGrade("n1Final");
     const n2 = readGrade("n2Final");
     const totalClasses = readNumber("totalClasses");
@@ -1175,335 +1171,25 @@ function setupCalculators() {
     document.getElementById(id)?.addEventListener("input", calculateFinalSituation);
   });
 
-  setupComplementaryHoursApp();
-}
+  document.getElementById("hoursButton")?.addEventListener("click", () => {
+    const required = Number(document.getElementById("requiredHours").value);
+    const completed = Number(document.getElementById("completedHours").value);
+    const output = document.getElementById("hoursResult");
+    const bar = document.getElementById("hoursProgress");
 
-function setupComplementaryHoursApp() {
-  const categoryEl = document.getElementById("acCategory");
-  const searchEl = document.getElementById("acSearch");
-  const activityEl = document.getElementById("acActivity");
-  const quantityEl = document.getElementById("acQuantity");
-  const observationEl = document.getElementById("acObservation");
-  const addButton = document.getElementById("acAddButton");
-  const messageEl = document.getElementById("acFormMessage");
-
-  if (!categoryEl || !activityEl || !addButton || !complementaryRules.length) return;
-
-  const storageKey = "hub-si-complementary-entries-v1";
-  let entries = [];
-
-  try {
-    entries = JSON.parse(localStorage.getItem(storageKey) || "[]");
-  } catch {
-    entries = [];
-  }
-
-  const requiredHours = Number(complementaryConfig.requiredHours || 200);
-  const minCategories = Number(complementaryConfig.minCategories || 3);
-  const categoryNames = unique(complementaryRules.map(rule => rule.category));
-
-  function saveEntries() {
-    localStorage.setItem(storageKey, JSON.stringify(entries));
-  }
-
-  function formatHours(value) {
-    const number = Number(value || 0);
-    return `${number.toLocaleString("pt-BR", { maximumFractionDigits: 1 })}h`;
-  }
-
-  function ruleLabel(rule) {
-    const variant = rule.variant ? ` — ${rule.variant}` : "";
-    return `${rule.activity}${variant}`;
-  }
-
-  function getRule(id) {
-    return complementaryRules.find(rule => rule.id === id);
-  }
-
-  function filteredRules() {
-    const category = categoryEl.value;
-    const search = normalize(searchEl.value || "");
-    return complementaryRules.filter(rule => {
-      const matchesCategory = category === "all" || rule.category === category;
-      const haystack = normalize(`${rule.category} ${rule.activity} ${rule.variant} ${rule.unit}`);
-      const matchesSearch = !search || search.split(/\s+/).every(term => haystack.includes(term));
-      return matchesCategory && matchesSearch;
-    });
-  }
-
-  function populateCategories() {
-    categoryEl.innerHTML = `<option value="all">Todas as categorias</option>` + categoryNames
-      .map(category => `<option value="${escapeHtml(category)}">${escapeHtml(category.replace("Atividades ", ""))}</option>`)
-      .join("");
-  }
-
-  function populateActivities(keepSelection = true) {
-    const current = keepSelection ? activityEl.value : "";
-    const rules = filteredRules();
-    activityEl.innerHTML = rules.map(rule => {
-      const text = `${ruleLabel(rule)} · ${rule.hoursPerUnit}h/${rule.unit} · máx. ${rule.maxUnits}`;
-      return `<option value="${escapeHtml(rule.id)}">${escapeHtml(text)}</option>`;
-    }).join("");
-
-    if (current && rules.some(rule => rule.id === current)) {
-      activityEl.value = current;
-    }
-
-    if (!activityEl.value && rules[0]) {
-      activityEl.value = rules[0].id;
-    }
-
-    updateRulePreview();
-  }
-
-  function updateRulePreview() {
-    const rule = getRule(activityEl.value);
-    const box = document.getElementById("acRulePreview");
-    if (!box) return;
-
-    if (!rule) {
-      box.textContent = "Nenhuma atividade encontrada para esse filtro.";
+    if (Number.isNaN(required) || Number.isNaN(completed) || required <= 0 || completed < 0) {
+      output.textContent = "Resultado: preencha horas válidas.";
+      bar.style.width = "0%";
       return;
     }
 
-    const maxActivityHours = Number(rule.hoursPerUnit) * Number(rule.maxUnits);
-    box.innerHTML = `
-      <strong>${escapeHtml(rule.category)}</strong>
-      <span>${escapeHtml(rule.variant || "Sem subtipo")} · unidade: ${escapeHtml(rule.unit)}</span>
-      <span>${formatHours(rule.hoursPerUnit)} por unidade · máximo ${rule.maxUnits} unidade(s) nesta atividade · teto bruto ${formatHours(maxActivityHours)}</span>
-      <span>Teto da categoria: ${formatHours(rule.categoryMax)}</span>
-    `;
-  }
-
-  function calculateSummary() {
-    const enriched = entries.map(entry => {
-      const rule = getRule(entry.ruleId);
-      if (!rule) return null;
-      const quantity = Number(entry.quantity || 0);
-      const acceptedUnits = Math.min(quantity, Number(rule.maxUnits || 0));
-      const activityHours = acceptedUnits * Number(rule.hoursPerUnit || 0);
-      const exceededUnits = Math.max(0, quantity - Number(rule.maxUnits || 0));
-      return { ...entry, rule, quantity, acceptedUnits, activityHours, exceededUnits };
-    }).filter(Boolean);
-
-    const categoryMap = new Map();
-    categoryNames.forEach(category => {
-      const capRule = complementaryRules.find(rule => rule.category === category);
-      categoryMap.set(category, {
-        category,
-        cap: Number(capRule?.categoryMax || 0),
-        raw: 0,
-        accepted: 0,
-        entries: []
-      });
-    });
-
-    enriched.forEach(entry => {
-      const group = categoryMap.get(entry.rule.category);
-      if (!group) return;
-      group.raw += entry.activityHours;
-      group.entries.push(entry);
-    });
-
-    categoryMap.forEach(group => {
-      group.accepted = Math.min(group.raw, group.cap);
-      group.excess = Math.max(0, group.raw - group.cap);
-    });
-
-    const categories = [...categoryMap.values()];
-    const total = categories.reduce((sum, category) => sum + category.accepted, 0);
-    const categoriesUsed = categories.filter(category => category.accepted > 0).length;
-    const complete = total >= requiredHours && categoriesUsed >= minCategories;
-    const remainingHours = Math.max(0, requiredHours - total);
-    const remainingCategories = Math.max(0, minCategories - categoriesUsed);
-
-    return {
-      entries: enriched,
-      categories,
-      total,
-      categoriesUsed,
-      complete,
-      remainingHours,
-      remainingCategories
-    };
-  }
-
-  function renderDashboard(summary = calculateSummary()) {
-    const totalEl = document.getElementById("acTotalHours");
-    const remainingEl = document.getElementById("acRemainingHours");
-    const categoriesEl = document.getElementById("acCategoriesUsed");
-    const statusEl = document.getElementById("acStatusText");
-    const hintEl = document.getElementById("acStatusHint");
-    const progressEl = document.getElementById("acMainProgress");
-
-    if (totalEl) totalEl.textContent = formatHours(summary.total);
-    if (remainingEl) remainingEl.textContent = formatHours(summary.remainingHours);
-    if (categoriesEl) categoriesEl.textContent = `${summary.categoriesUsed}/${minCategories}`;
-
-    if (statusEl) statusEl.textContent = summary.complete ? "OK" : "Incompleto";
-    if (hintEl) {
-      if (summary.complete) hintEl.textContent = "mínimo atingido";
-      else if (summary.remainingCategories > 0) hintEl.textContent = `faltam ${summary.remainingCategories} categoria(s)`;
-      else hintEl.textContent = "faltam horas";
-    }
-
-    if (progressEl) {
-      const percent = Math.min(100, (summary.total / requiredHours) * 100);
-      progressEl.style.width = `${percent}%`;
-    }
-
-    const categoryBox = document.getElementById("acCategoryProgress");
-    if (categoryBox) {
-      categoryBox.innerHTML = summary.categories.map(category => {
-        const percent = category.cap ? Math.min(100, (category.accepted / category.cap) * 100) : 0;
-        const excess = category.excess > 0 ? `<small class="warning">+${formatHours(category.excess)} não aproveitadas pelo teto da categoria</small>` : "";
-        return `
-          <article class="ac-cat">
-            <div>
-              <strong>${escapeHtml(category.category.replace("Atividades ", ""))}</strong>
-              <span>${formatHours(category.accepted)} / ${formatHours(category.cap)}</span>
-            </div>
-            <div class="progress-shell mini"><div class="progress-bar" style="width:${percent}%"></div></div>
-            ${excess}
-          </article>
-        `;
-      }).join("");
-    }
-  }
-
-  function renderEntries(summary = calculateSummary()) {
-    const box = document.getElementById("acEntries");
-    if (!box) return;
-
-    if (!summary.entries.length) {
-      box.classList.add("empty-state");
-      box.innerHTML = "Nenhuma atividade adicionada ainda.";
-      return;
-    }
-
-    box.classList.remove("empty-state");
-    box.innerHTML = summary.entries.map(entry => {
-      const overActivity = entry.exceededUnits > 0
-        ? `<span class="warning">Quantidade acima do máximo: ${entry.exceededUnits.toLocaleString("pt-BR", { maximumFractionDigits: 2 })} unidade(s) não entram no cálculo.</span>`
-        : "";
-      return `
-        <article class="ac-entry">
-          <div>
-            <strong>${escapeHtml(ruleLabel(entry.rule))}</strong>
-            <small>${escapeHtml(entry.rule.category)} · ${escapeHtml(entry.rule.unit)}</small>
-            ${entry.observation ? `<small>Obs.: ${escapeHtml(entry.observation)}</small>` : ""}
-            ${overActivity}
-          </div>
-          <div class="entry-hours">
-            <strong>${formatHours(entry.activityHours)}</strong>
-            <small>${entry.acceptedUnits.toLocaleString("pt-BR", { maximumFractionDigits: 2 })}/${entry.rule.maxUnits} un.</small>
-          </div>
-          <button class="icon-button" type="button" data-remove-ac="${escapeHtml(entry.id)}" aria-label="Remover atividade">×</button>
-        </article>
-      `;
-    }).join("");
-  }
-
-  function renderAll() {
-    const summary = calculateSummary();
-    renderDashboard(summary);
-    renderEntries(summary);
-  }
-
-  function addEntry() {
-    const rule = getRule(activityEl.value);
-    const quantity = Number((quantityEl.value || "").replace?.(",", ".") || quantityEl.value);
-
-    if (!rule) {
-      messageEl.textContent = "Escolha uma atividade do barema.";
-      return;
-    }
-
-    if (!Number.isFinite(quantity) || quantity <= 0) {
-      messageEl.textContent = "Informe a quantidade de unidades.";
-      quantityEl.focus();
-      return;
-    }
-
-    entries.push({
-      id: `ac-entry-${Date.now()}-${Math.random().toString(16).slice(2)}`,
-      ruleId: rule.id,
-      quantity,
-      observation: observationEl.value.trim(),
-      createdAt: new Date().toISOString()
-    });
-
-    saveEntries();
-    quantityEl.value = "";
-    observationEl.value = "";
-    messageEl.textContent = "Atividade adicionada.";
-    renderAll();
-  }
-
-  function summaryText(summary = calculateSummary()) {
-    const lines = [
-      "Resumo de Atividades Complementares — PPC 2024",
-      `Total aceito: ${formatHours(summary.total)} de ${formatHours(requiredHours)}`,
-      `Categorias com horas: ${summary.categoriesUsed} de ${minCategories}`,
-      summary.complete ? "Situação: mínimo atingido." : `Situação: faltam ${formatHours(summary.remainingHours)} e ${summary.remainingCategories} categoria(s).`,
-      "",
-      "Categorias:"
-    ];
-
-    summary.categories.forEach(category => {
-      lines.push(`- ${category.category}: ${formatHours(category.accepted)} / ${formatHours(category.cap)}${category.excess > 0 ? ` (${formatHours(category.excess)} excedente)` : ""}`);
-    });
-
-    lines.push("", "Atividades lançadas:");
-    if (!summary.entries.length) lines.push("- nenhuma");
-    summary.entries.forEach(entry => {
-      lines.push(`- ${ruleLabel(entry.rule)} | ${entry.quantity} ${entry.rule.unit} | ${formatHours(entry.activityHours)} | ${entry.observation || "sem observação"}`);
-    });
-
-    return lines.join("\n");
-  }
-
-  addButton.addEventListener("click", addEntry);
-  categoryEl.addEventListener("change", () => populateActivities(false));
-  searchEl.addEventListener("input", () => populateActivities(true));
-  activityEl.addEventListener("change", updateRulePreview);
-
-  document.getElementById("acEntries")?.addEventListener("click", event => {
-    const button = event.target.closest("[data-remove-ac]");
-    if (!button) return;
-    entries = entries.filter(entry => entry.id !== button.dataset.removeAc);
-    saveEntries();
-    renderAll();
+    const remaining = Math.max(0, required - completed);
+    const percent = Math.min(100, (completed / required) * 100);
+    bar.style.width = `${percent}%`;
+    output.textContent = remaining === 0
+      ? `Resultado: carga atingida (${completed}/${required} h).`
+      : `Resultado: faltam ${remaining} h (${completed}/${required} h).`;
   });
-
-  document.getElementById("acClearButton")?.addEventListener("click", () => {
-    if (!entries.length) return;
-    if (!confirm("Limpar todas as atividades salvas neste navegador?")) return;
-    entries = [];
-    saveEntries();
-    renderAll();
-  });
-
-  document.getElementById("acCopyButton")?.addEventListener("click", async () => {
-    const text = summaryText();
-    const output = document.getElementById("acCopyOutput");
-    if (output) {
-      output.hidden = false;
-      output.value = text;
-      output.focus();
-      output.select();
-    }
-    try {
-      await navigator.clipboard.writeText(text);
-      messageEl.textContent = "Resumo copiado.";
-    } catch {
-      messageEl.textContent = "Resumo gerado abaixo para copiar manualmente.";
-    }
-  });
-
-  populateCategories();
-  populateActivities(false);
-  renderAll();
 }
 
 function setupNavigation() {

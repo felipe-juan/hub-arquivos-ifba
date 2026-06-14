@@ -2,21 +2,26 @@
 
 ## Versão 0.1 — MVP estático atual
 
-- [x] Página inicial
-- [x] Busca local por documentos
-- [x] Filtros por tipo, tema e status
+- [x] Busca como primeira tela
+- [x] Busca geral por documentos, links, apps e informações
+- [x] Acervo com duas visões: Grade e Diretório
+- [x] Filtros por tipo de item, tipo documental, correspondente, tag, formato e status
+- [x] Resultados ordenados por relevância
+- [x] Autocomplete/sugestões com termos do acervo
 - [x] Trechos destacados
+- [x] Prévia com metadados e destaque
+- [x] Busca inteligente com prioridade automática para apps e links
+- [x] Links públicos com expiração opcional
+- [x] Edição em lote com exportação JSON
+- [x] Classificação automática leve de tags/tipos/correspondentes no navegador
 - [x] Calculadora de média ponderada
 - [x] Calculadora de nota necessária
 - [x] Calculadora de horas complementares
-- [x] Links úteis
-- [x] Guias rápidos
-- [x] Admin local gerador de JSON
 
 ## Versão 0.2 — Acervo real
 
 - [ ] Baixar documentos oficiais do curso
-- [ ] Criar taxonomia de tags
+- [ ] Criar taxonomia definitiva de tags
 - [ ] Separar documentos por: PPC, regulamento, edital, calendário, formulário, ata, orientação
 - [ ] Marcar documentos antigos, substituídos ou incertos
 - [ ] Revisar manualmente os trechos mais importantes
@@ -24,33 +29,23 @@
 
 ## Versão 0.3 — Prévia real de PDF
 
-- [ ] Guardar PDFs em uma pasta pública ou storage gratuito
+- [ ] Guardar PDFs em `documents/` ou storage gratuito
 - [ ] Usar PDF.js para abrir PDF dentro do site
 - [ ] Levar o usuário diretamente para a página encontrada
-- [ ] Destacar palavras pesquisadas dentro da página
+- [ ] Destacar palavras pesquisadas dentro da página real
 
-## Versão 0.4 — OCR e extração
+## Versão 0.4 — Extração/OCR automático com backend
 
-- [ ] Usar OCRmyPDF + Tesseract em documentos escaneados
-- [ ] Extrair texto por página
-- [ ] Gerar chunks por página/seção
-- [ ] Revisar OCR antes de publicar
+- [ ] Backend gratuito/barato para upload administrativo
+- [ ] Extração de texto por página
+- [ ] OCR automático para documentos escaneados
+- [ ] Geração automática de chunks por página/seção
+- [ ] Painel de revisão antes de publicar
 
 ## Versão 0.5 — Busca semântica real
 
-- [ ] Gerar embeddings com Sentence Transformers localmente
-- [ ] Guardar vetores em Postgres + pgvector ou SQLite + extensão vetorial
+- [ ] Gerar embeddings
+- [ ] Guardar vetores em banco ou índice vetorial
 - [ ] Combinar busca textual + busca vetorial
 - [ ] Exibir score e motivo do resultado
 - [ ] Não gerar resposta sem citação de trecho oficial
-
-## Versão 1.0 — Sistema completo
-
-- [ ] Backend com login de admin
-- [ ] Upload de documento
-- [ ] OCR automático
-- [ ] Painel de revisão
-- [ ] Controle de versão de documentos
-- [ ] Feedback dos usuários
-- [ ] Relatório de documentos mais buscados
-- [ ] Páginas por curso/campus

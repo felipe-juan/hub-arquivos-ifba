@@ -16,7 +16,7 @@ Esta versão remove o fluxo de importação/OCR pelo navegador e assume que os a
 - Prévia rápida com o trecho destacado.
 - Modal de prévia com metadados, trecho destacado, referência rápida e documentos parecidos.
 - Sugestões/autocomplete baseadas nos termos do acervo.
-- Ação **Mais como este** para buscar itens similares.
+- Busca inteligente identifica quando a consulta pede app, link ou documento e ajusta a ordenação.
 
 ## Metadados
 
