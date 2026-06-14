@@ -1387,3 +1387,583 @@ table.grade-group th {
   .workflow-card small { grid-column: 1 / -1; margin-top: -.15rem; }
   .workflow-detail { padding: .8rem; }
 }
+
+/* v0.1.7 Onde resolvo isso + filter-empty-search behavior */
+.where-panel {
+  margin-top: 1rem;
+}
+.where-tool-card {
+  display: grid;
+  gap: .9rem;
+}
+.where-head {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 1rem;
+}
+.where-head h3 {
+  margin: 0 0 .35rem;
+  color: var(--ink);
+  font-size: clamp(1.05rem, 2vw, 1.35rem);
+}
+.where-head p {
+  margin: 0;
+  color: var(--muted);
+  line-height: 1.5;
+  max-width: 68ch;
+}
+.where-big {
+  width: 3.25rem;
+  height: 3.25rem;
+  font-size: 1.8rem;
+  flex: 0 0 auto;
+}
+.where-options {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+  gap: .65rem;
+}
+.where-option {
+  border: 1px solid var(--line);
+  background: rgba(255,255,255,.055);
+  color: var(--text);
+  border-radius: var(--radius);
+  padding: .72rem;
+  text-align: left;
+  display: flex;
+  align-items: center;
+  gap: .65rem;
+  cursor: pointer;
+  transition: .16s ease;
+}
+.where-option span {
+  width: 2rem;
+  height: 2rem;
+  display: grid;
+  place-items: center;
+  border-radius: .75rem;
+  background: rgba(255,255,255,.08);
+}
+.where-option strong {
+  line-height: 1.15;
+}
+.where-option:hover,
+.where-option.active {
+  transform: translateY(-1px);
+  border-color: rgba(53,230,168,.38);
+  background: rgba(53,230,168,.08);
+}
+.where-result {
+  border: 1px solid var(--line);
+  background: rgba(0,0,0,.14);
+  border-radius: var(--radius-lg);
+  padding: clamp(.9rem, 2vw, 1.1rem);
+}
+.where-result-head {
+  display: flex;
+  gap: .8rem;
+  align-items: flex-start;
+  margin-bottom: .9rem;
+}
+.where-result h3 {
+  margin: .15rem 0 .25rem;
+  color: var(--ink);
+}
+.where-result p {
+  margin: 0;
+  color: var(--muted);
+  line-height: 1.5;
+}
+.where-columns {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: .75rem;
+}
+.where-columns section {
+  border: 1px solid rgba(255,255,255,.09);
+  background: rgba(255,255,255,.045);
+  border-radius: var(--radius);
+  padding: .8rem;
+}
+.where-columns h4 {
+  margin: 0 0 .5rem;
+  color: var(--ink);
+}
+.where-columns ul {
+  margin: 0;
+  padding-left: 1.15rem;
+  line-height: 1.55;
+}
+.where-links {
+  display: grid;
+  gap: .45rem;
+}
+.where-link {
+  display: grid;
+  grid-template-columns: auto 1fr auto;
+  align-items: center;
+  gap: .55rem;
+  border: 1px solid rgba(255,255,255,.1);
+  background: rgba(255,255,255,.055);
+  color: var(--text);
+  text-decoration: none;
+  border-radius: 13px;
+  padding: .58rem;
+}
+.where-link span { font-size: 1.15rem; }
+.where-link strong { font-size: .9rem; line-height: 1.15; }
+.where-link small { color: var(--muted); font-size: .76rem; }
+.result-answer .result-head:empty { display: none; }
+
+@media (max-width: 900px) {
+  .where-columns { grid-template-columns: 1fr; }
+  .where-head { align-items: center; }
+}
+@media (max-width: 620px) {
+  .where-options { grid-template-columns: 1fr; }
+  .where-head { display: block; }
+  .where-big { margin-top: .75rem; }
+  .where-result-head { display: block; }
+  .where-result-head .workflow-emoji { margin-bottom: .6rem; }
+  .where-link { grid-template-columns: auto 1fr; }
+  .where-link small { grid-column: 2; }
+}
+
+/* v0.1.8 polish: help desk cards, reliable previews, mobile spacing/loading */
+.loading-status {
+  margin-top: .55rem;
+  padding: .55rem .72rem;
+  border-radius: 14px;
+  color: var(--muted);
+  background: rgba(255,255,255,.045);
+  border: 1px solid rgba(255,255,255,.08);
+  font-size: .84rem;
+}
+.loading-status[hidden] { display: none !important; }
+.filter-toggle {
+  display: none;
+  width: 100%;
+  margin-top: .75rem;
+  color: var(--ink);
+  background: rgba(255,255,255,.07);
+  border: 1px solid var(--line);
+  box-shadow: none;
+}
+.match-reason {
+  display: inline-block;
+  margin-right: .35rem;
+  color: var(--green);
+  font-weight: 900;
+}
+
+/* Onde resolvo isso: student help desk layout */
+.where-tool-card { gap: 1rem; }
+.where-head { align-items: center; }
+.where-options {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 300px), 1fr));
+  gap: .85rem;
+}
+.where-result { display: none; }
+.where-help-card {
+  border: 1px solid rgba(255,255,255,.1);
+  background: rgba(255,255,255,.045);
+  border-radius: 20px;
+  padding: .9rem;
+  min-width: 0;
+}
+.where-help-card header {
+  display: grid;
+  grid-template-columns: auto 1fr;
+  gap: .72rem;
+  align-items: start;
+  margin-bottom: .8rem;
+}
+.where-help-card h3 {
+  margin: 0 0 .24rem;
+  color: var(--ink);
+  font-size: 1rem;
+  line-height: 1.18;
+}
+.where-help-card p {
+  margin: 0;
+  color: var(--muted);
+  line-height: 1.42;
+  font-size: .9rem;
+}
+.where-help-emoji {
+  width: 2.55rem;
+  height: 2.55rem;
+  display: grid;
+  place-items: center;
+  border-radius: .95rem;
+  background: rgba(53,230,168,.12);
+  border: 1px solid rgba(53,230,168,.18);
+  font-size: 1.35rem;
+}
+.where-help-grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: .52rem;
+}
+.where-help-grid > div {
+  border: 1px solid rgba(255,255,255,.08);
+  border-radius: 14px;
+  padding: .62rem;
+  background: rgba(0,0,0,.13);
+  min-width: 0;
+}
+.where-help-grid small {
+  display: block;
+  margin-bottom: .2rem;
+  color: var(--green);
+  font-size: .68rem;
+  font-weight: 950;
+  letter-spacing: .08em;
+  text-transform: uppercase;
+}
+.where-help-grid strong {
+  display: block;
+  color: var(--text);
+  font-size: .88rem;
+  line-height: 1.28;
+  overflow-wrap: anywhere;
+}
+.where-card-action {
+  display: inline-flex;
+  align-items: center;
+  justify-content: flex-start;
+  gap: .42rem;
+  max-width: 100%;
+  min-height: 36px;
+  padding: .45rem .6rem;
+  border-radius: 12px;
+  color: #061015;
+  background: linear-gradient(135deg, var(--green), var(--cyan));
+  text-decoration: none;
+  font-weight: 900;
+  font-size: .84rem;
+  line-height: 1.18;
+  white-space: normal;
+  overflow-wrap: anywhere;
+}
+.where-card-action.muted-action {
+  color: var(--muted);
+  background: rgba(255,255,255,.06);
+  border: 1px solid var(--line);
+}
+.where-checklist {
+  margin-top: .7rem;
+  border-top: 1px solid rgba(255,255,255,.08);
+  padding-top: .6rem;
+}
+.where-checklist summary {
+  cursor: pointer;
+  color: var(--green);
+  font-weight: 900;
+}
+.where-checklist ul {
+  margin: .55rem 0 0;
+  padding-left: 1.05rem;
+  color: var(--muted);
+  line-height: 1.48;
+}
+
+/* Clean source preview */
+.paperless-modal { width: min(1040px, calc(100% - 1rem)); }
+.verified-preview { display: grid; gap: .9rem; }
+.verified-preview-head {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 1rem;
+  padding-right: 2.65rem;
+}
+.verified-preview-head h2 {
+  margin: 0;
+  color: var(--ink);
+  line-height: 1.1;
+  font-size: clamp(1.15rem, 2.4vw, 1.75rem);
+}
+.verified-preview-head p {
+  margin: .35rem 0 0;
+  color: var(--muted);
+}
+.verified-preview-layout {
+  display: grid;
+  grid-template-columns: minmax(180px, 260px) minmax(0, 1fr);
+  gap: .9rem;
+  align-items: start;
+}
+.verified-preview-left {
+  display: grid;
+  gap: .65rem;
+  position: sticky;
+  top: .5rem;
+}
+.verified-preview-left .doc-thumb { min-height: 250px; }
+.preview-page-list {
+  display: grid;
+  gap: .42rem;
+  max-height: 230px;
+  overflow: auto;
+}
+.preview-page-list button {
+  width: 100%;
+  min-height: 0;
+  justify-content: flex-start;
+  text-align: left;
+  white-space: normal;
+  color: var(--text);
+  background: rgba(255,255,255,.055);
+  border: 1px solid rgba(255,255,255,.09);
+  box-shadow: none;
+  border-radius: 13px;
+  padding: .52rem .6rem;
+}
+.preview-page-list button strong { color: var(--green); margin-right: .35rem; }
+.preview-page-list button span { color: var(--muted); font-size: .82rem; line-height: 1.25; }
+.verified-preview-text { min-width: 0; }
+.verified-preview-text h3 {
+  margin: 0 0 .45rem;
+  color: var(--ink);
+}
+.verified-preview .preview-paper { margin: 0 0 .65rem; }
+.verified-preview-actions {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+  gap: .55rem;
+  padding-top: .7rem;
+  border-top: 1px solid rgba(255,255,255,.08);
+}
+
+@media (max-width: 920px) {
+  body { padding-bottom: 4.2rem; }
+  .search-shell {
+    position: sticky;
+    top: 58px;
+    z-index: 18;
+    padding: .7rem;
+  }
+  .filter-toggle { display: inline-flex; }
+  .filters-card {
+    display: none;
+    margin-top: .55rem;
+  }
+  .filters-card.open { display: grid; }
+  .quick-chips { padding-top: .5rem; }
+  .section { padding: .62rem 0; }
+  .cards-grid { grid-template-columns: repeat(auto-fit, minmax(min(100%, 170px), 1fr)); }
+  .resource-card .doc-thumb { min-height: 118px; }
+  .result-card { grid-template-columns: 70px minmax(0, 1fr); }
+  .result-actions button, .result-actions a { min-height: 42px; }
+  .modal-card.paperless-modal {
+    width: 100%;
+    height: 100dvh;
+    max-height: 100dvh;
+    margin: 0;
+    border-radius: 0;
+    padding: .82rem;
+  }
+  .modal-close { top: .25rem; }
+  .verified-preview-layout { grid-template-columns: 1fr; }
+  .verified-preview-left { position: static; }
+  .verified-preview-left .doc-thumb { min-height: 180px; max-height: 260px; }
+  .preview-page-list {
+    grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+    max-height: none;
+  }
+  .verified-preview-actions {
+    position: sticky;
+    bottom: 0;
+    z-index: 3;
+    background: rgba(12,19,28,.96);
+    backdrop-filter: blur(12px);
+    margin-inline: -.82rem;
+    padding: .65rem .82rem;
+  }
+  .verified-preview-actions > * { flex: 1 1 150px; }
+}
+@media (max-width: 520px) {
+  .where-head { display: block; }
+  .where-big { display: none; }
+  .where-options { grid-template-columns: 1fr; }
+  .where-help-card { padding: .78rem; border-radius: 18px; }
+  .where-help-card header { grid-template-columns: auto 1fr; gap: .6rem; }
+  .where-help-emoji { width: 2.25rem; height: 2.25rem; font-size: 1.15rem; }
+  .where-help-card h3 { font-size: .95rem; }
+  .where-help-card p { font-size: .84rem; }
+  .where-help-grid > div { padding: .55rem; }
+  .cards-grid { grid-template-columns: 1fr; }
+  .main-search button { min-height: 42px; }
+  .preview-paper { padding: .75rem; }
+}
+
+/* v0.1.9 polish: app dropdown, official calculator result, multi-link help desk */
+.nav-apps-menu {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+}
+.nav-apps-button {
+  min-height: auto;
+  padding: .5rem .7rem;
+  border-radius: 999px;
+  color: var(--muted);
+  background: transparent;
+  border: 0;
+  box-shadow: none;
+  font-size: .9rem;
+  font-weight: 760;
+}
+.nav-apps-button:hover,
+.nav-apps-button.active,
+.nav-apps-button[aria-expanded="true"] {
+  color: var(--ink);
+  background: rgba(255,255,255,.07);
+  transform: none;
+}
+.apps-dropdown {
+  position: absolute;
+  top: calc(100% + .55rem);
+  right: 0;
+  width: min(330px, calc(100vw - 1.5rem));
+  padding: .55rem;
+  border: 1px solid var(--line);
+  border-radius: 18px;
+  background: rgba(9, 14, 19, .96);
+  box-shadow: 0 22px 58px rgba(0,0,0,.42);
+  backdrop-filter: blur(18px);
+  display: grid;
+  gap: .4rem;
+  z-index: 60;
+}
+.apps-dropdown[hidden] { display: none; }
+.apps-dropdown a {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr);
+  gap: .32rem .55rem;
+  align-items: center;
+  color: var(--text);
+  text-decoration: none;
+  border-radius: 14px;
+  padding: .62rem;
+  background: rgba(255,255,255,.045);
+  border: 1px solid transparent;
+}
+.apps-dropdown a:hover {
+  color: var(--ink);
+  border-color: rgba(53,230,168,.18);
+  background: rgba(53,230,168,.08);
+}
+.apps-dropdown span {
+  grid-row: span 2;
+  width: 2.2rem;
+  height: 2.2rem;
+  display: grid;
+  place-items: center;
+  border-radius: .8rem;
+  background: rgba(255,255,255,.07);
+  font-size: 1.18rem;
+}
+.apps-dropdown strong {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  color: var(--ink);
+  font-size: .9rem;
+}
+.apps-dropdown small {
+  color: var(--muted);
+  font-size: .76rem;
+}
+
+.official-result > strong {
+  display: block;
+  font-size: 1.05rem;
+  line-height: 1.2;
+  margin-bottom: .38rem;
+}
+.calc-rule {
+  display: inline-flex;
+  flex-wrap: wrap;
+  gap: .25rem;
+  margin-top: .55rem;
+  padding: .42rem .55rem;
+  border-radius: 12px;
+  color: var(--text);
+  background: rgba(255,255,255,.055);
+  border: 1px solid rgba(255,255,255,.1);
+  font-size: .82rem;
+  font-weight: 760;
+}
+.final-row-active td {
+  position: relative;
+  outline: 3px solid rgba(255,255,255,.9);
+  outline-offset: -3px;
+  box-shadow: inset 0 0 0 2px #050505, 0 0 0 3px rgba(53,230,168,.55);
+}
+.final-row-active td:first-child::before {
+  content: "→";
+  position: absolute;
+  left: -1.2rem;
+  color: var(--green);
+  font-family: Inter, system-ui, sans-serif;
+  font-weight: 950;
+  text-shadow: 0 2px 8px rgba(0,0,0,.45);
+}
+
+.where-links-cell { display: grid; gap: .42rem; }
+.where-link-list {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 170px), 1fr));
+  gap: .42rem;
+}
+.where-link-list .where-card-action {
+  width: 100%;
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr);
+  justify-content: start;
+  text-align: left;
+  min-height: 42px;
+}
+.where-link-list .where-card-action strong {
+  min-width: 0;
+  overflow-wrap: anywhere;
+  color: inherit;
+  font-size: .82rem;
+  line-height: 1.16;
+}
+
+@media (max-width: 920px) {
+  .nav-apps-menu { position: static; min-width: 0; }
+  .nav-apps-button {
+    width: 100%;
+    min-height: 0;
+    padding: .45rem .25rem;
+    font-size: .72rem;
+    justify-content: center;
+  }
+  .apps-dropdown {
+    position: fixed;
+    left: .65rem;
+    right: .65rem;
+    bottom: 4.6rem;
+    top: auto;
+    width: auto;
+    max-height: min(58vh, 430px);
+    overflow: auto;
+  }
+  .apps-dropdown a { padding: .58rem; }
+}
+
+@media (max-width: 560px) {
+  .where-link-list { grid-template-columns: 1fr; }
+  .where-link-list .where-card-action { min-height: 46px; }
+  .final-row-active td:first-child::before { display: none; }
+}
+@media (max-width: 920px) {
+  .nav { grid-template-columns: repeat(4, 1fr) !important; }
+}

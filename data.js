@@ -232,6 +232,34 @@ window.HUB_DATA = {
         "MP"
       ]
     },
+
+    {
+      "id": "app-onde-resolvo",
+      "title": "Onde resolvo isso?",
+      "description": "Ajuda o estudante a descobrir qual setor, link, contato ou documento usar para problemas comuns: protocolo, estágio, segunda chamada, TCC, matriz, atendimento e documentos comprobatórios.",
+      "url": "#onde-resolvo",
+      "category": "Assistente",
+      "tags": [
+        "onde resolvo",
+        "resolver",
+        "setor",
+        "problema",
+        "protocolo",
+        "segunda chamada",
+        "perdi prova",
+        "estágio",
+        "tcc",
+        "matriz",
+        "coordenação",
+        "caens",
+        "capne",
+        "cores",
+        "serviços sociais",
+        "documento comprova",
+        "whatsapp",
+        "contato"
+      ]
+    },
     {
       "id": "app-barema",
       "title": "Barema de Atividades Complementares",
@@ -273,6 +301,10 @@ window.HUB_DATA = {
         {
           "type": "app",
           "id": "app-tabela-final"
+        },
+        {
+          "type": "app",
+          "id": "app-onde-resolvo"
         },
         {
           "type": "app",
@@ -745,9 +777,10 @@ window.HUB_DATA = {
       "PPC"
     ],
     "resolver": [
-      "workflow",
-      "guia rápido",
-      "passo a passo"
+      "onde resolvo",
+      "setor",
+      "contato",
+      "protocolo"
     ],
     "fazer estágio": [
       "estágio curricular supervisionado",

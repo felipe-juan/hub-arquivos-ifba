@@ -17,6 +17,14 @@ const state = {
   temporaryEdits: new Map()
 };
 
+function setLoadingStatus(message = "", kind = "info") {
+  const box = document.getElementById("loadingStatus");
+  if (!box) return;
+  box.textContent = message;
+  box.dataset.kind = kind;
+  box.hidden = !message;
+}
+
 const statusLabel = {
   verified: "",
   review: "",
@@ -225,7 +233,7 @@ function detectSearchIntent(query = "") {
   if (!normalized.trim()) return intent;
 
   // App/tool intent: the user wants to calculate, simulate, or use an internal tool.
-  if (has("calcular", "calcule", "calculo", "cálculo", "calculadora", "simular", "simule", "quanto preciso", "preciso tirar", "nota necessária", "nota necessaria", "média final", "media final", "média", "media", "nota", "prova final", "tabela da final", "tabela final", "tabela", "consulta rápida", "consulta rapida", "barema", "atividades complementares", "atividade complementar", "horas complementares", "certificados", "certificado", "doação de sangue", "doacao de sangue", "monitoria", "curso de idioma")) {
+  if (has("calcular", "calcule", "calculo", "cálculo", "calculadora", "simular", "simule", "quanto preciso", "preciso tirar", "nota necessária", "nota necessaria", "média final", "media final", "média", "media", "nota", "prova final", "tabela da final", "tabela final", "tabela", "consulta rápida", "consulta rapida", "barema", "atividades complementares", "atividade complementar", "horas complementares", "certificados", "certificado", "doação de sangue", "doacao de sangue", "monitoria", "curso de idioma", "onde resolvo", "resolver", "setor", "problema", "dúvida", "duvida")) {
     intent.app += 18;
   }
 
@@ -265,17 +273,28 @@ function regexAccentPattern(term = "") {
 
 function highlight(text, exactTerms = [], semanticTerms = []) {
   let safe = escapeHtml(text || "");
+  const seen = new Set();
   const allTerms = [
     ...exactTerms.map(term => ({ term, cls: "" })),
     ...semanticTerms.map(term => ({ term, cls: "semantic" }))
   ]
-    .filter(item => item.term && item.term.length > 2)
+    .map(item => ({ ...item, key: normalize(item.term) }))
+    .filter(item => item.term && item.term.length > 2 && item.key && !seen.has(item.key) && (seen.add(item.key) || true))
     .sort((a, b) => b.term.length - a.term.length);
 
+  const placeholders = [];
   for (const { term, cls } of allTerms) {
     const regex = new RegExp(`(${regexAccentPattern(term)})`, "gi");
-    safe = safe.replace(regex, `<mark class="${cls}">$1</mark>`);
+    safe = safe.replace(regex, match => {
+      const token = `${placeholders.length}`;
+      placeholders.push(`<mark${cls ? ` class="${cls}"` : ""}>${match}</mark>`);
+      return token;
+    });
   }
+
+  placeholders.forEach((html, index) => {
+    safe = safe.replaceAll(`${index}`, html);
+  });
   return safe;
 }
 
@@ -298,20 +317,28 @@ function plainSnippet(text = "", exactTerms = [], semanticTerms = [], limit = 22
 function resultSnippet(result) {
   const exactTerms = result.exactTerms || [];
   const semanticTerms = result.semanticTerms || [];
-  const source = result.type === "document"
-    ? `${result.chunk?.heading || ""}. ${result.text || ""}`
-    : `${result.title}. ${result.text || ""}`;
-  let snippet = plainSnippet(source, exactTerms, semanticTerms, 230);
+  const terms = [...exactTerms, ...semanticTerms].map(normalize).filter(Boolean);
+  const titleText = result.title || "";
+  const chunkText = result.type === "document" ? `${result.chunk?.heading || ""}. ${result.text || ""}` : `${result.title}. ${result.text || ""}`;
+  const metaText = `${result.subtitle || ""} ${(result.tags || []).join(" ")} ${result.correspondent || ""} ${result.documentType || ""} ${result.fileFormat || ""}`;
 
-  // If the match came from title/metadata rather than from the selected chunk, show
-  // something still useful and highlightable instead of a random non-highlighted passage.
-  const highlighted = highlight(snippet, exactTerms, semanticTerms);
-  if (!/<mark/i.test(highlighted)) {
-    const fallback = `${result.title || ""}. ${result.subtitle || ""}. ${result.text || ""}`;
-    snippet = plainSnippet(fallback, exactTerms, semanticTerms, 230);
-    return highlight(snippet, exactTerms, semanticTerms);
+  const chunkSnippet = plainSnippet(chunkText, exactTerms, semanticTerms, 230);
+  const highlightedChunk = highlight(chunkSnippet, exactTerms, semanticTerms);
+  if (/<mark\b/i.test(highlightedChunk)) return highlightedChunk;
+
+  const titleMatches = terms.some(term => normalize(titleText).includes(term));
+  if (result.type === "document" && titleMatches) {
+    return `<span class="match-reason">Encontrado pelo título do documento.</span> ${highlight(compactText(titleText, 150), exactTerms, semanticTerms)}`;
   }
-  return highlighted;
+
+  const fallback = plainSnippet(`${titleText}. ${metaText}. ${result.text || ""}`, exactTerms, semanticTerms, 230);
+  const highlightedFallback = highlight(fallback, exactTerms, semanticTerms);
+  if (/<mark\b/i.test(highlightedFallback)) return highlightedFallback;
+
+  if (result.type === "document") {
+    return `<span class="match-reason">Resultado encontrado pelos metadados do documento.</span> ${escapeHtml(compactText(result.doc?.summary || result.text || result.title || "Prévia indisponível.", 170))}`;
+  }
+  return escapeHtml(compactText(result.text || result.subtitle || result.title || "Resultado encontrado.", 210));
 }
 
 function statusBadge(status) {
@@ -320,6 +347,7 @@ function statusBadge(status) {
 }
 
 function typeBadge(type) {
+  if (type === "answer") return "";
   return `<span class="badge type-${escapeHtml(type)}">${escapeHtml(typeLabel[type] || type)}</span>`;
 }
 
@@ -328,9 +356,12 @@ function metaBadge(text, cls = "") {
 }
 
 function itemInfoBadges(type, secondary = "") {
+  if (type === "answer") return "";
   const primary = typeLabel[type] || type || "Item";
   const cleanSecondary = (secondary || "").toString().trim();
   if (!cleanSecondary || normalize(cleanSecondary) === normalize(primary)) return typeBadge(type);
+  // For links/apps, show one useful badge instead of duplicated labels like "Link Link".
+  if (type === "link" || type === "app") return metaBadge(cleanSecondary);
   return `${typeBadge(type)} ${metaBadge(cleanSecondary)}`;
 }
 
@@ -362,6 +393,7 @@ function emojiForResource(resource = {}, type = "link") {
     return "💡";
   }
   if (type === "app") {
+    if (haystack.includes("onde resolvo") || haystack.includes("setor") || haystack.includes("problema")) return "🧭";
     if (haystack.includes("barema") || haystack.includes("atividades complementares") || haystack.includes("horas complementares") || haystack.includes("certificado")) return "🎓";
     if (haystack.includes("media") || haystack.includes("nota") || haystack.includes("calculadora")) return "🧮";
     if (haystack.includes("tabela") || haystack.includes("consulta rapida") || haystack.includes("prova final")) return "📊";
@@ -947,6 +979,13 @@ function registerManifestGroups(docs = []) {
   });
 }
 
+function canonicalDocumentKey(doc = {}) {
+  const hash = (doc.sha256 || doc.hash || "").toString().trim();
+  if (hash) return `sha:${hash}`;
+  const path = normalizeManifestPath(doc.pdfUrl || doc.fileUrl || doc.path || doc.sourceUrl || doc.url || "");
+  return `path:${normalize(path)}`;
+}
+
 async function loadManifestDocuments() {
   const loaded = [];
   let loadedFromJson = false;
@@ -976,9 +1015,15 @@ async function loadManifestDocuments() {
     }
   }
 
-  const normalizedDocs = loaded.map(normalizeManifestDocument);
   const existingIds = new Set(rawDocuments.map(doc => doc.id));
-  normalizedDocs.forEach(doc => {
+  const existingKeys = new Set(rawDocuments.map(canonicalDocumentKey));
+  const normalizedDocs = [];
+
+  loaded.map(normalizeManifestDocument).forEach(doc => {
+    const key = canonicalDocumentKey(doc);
+    if (existingKeys.has(key)) return;
+    existingKeys.add(key);
+
     let id = doc.id;
     let counter = 2;
     while (existingIds.has(id)) {
@@ -987,6 +1032,7 @@ async function loadManifestDocuments() {
     }
     doc.id = id;
     existingIds.add(id);
+    normalizedDocs.push(doc);
     rawDocuments.push(doc);
   });
 
@@ -1085,22 +1131,57 @@ function guideResource(guide) {
 }
 
 function buildResources() {
-  const docResources = documents.flatMap(doc => (doc.chunks || []).map(chunk => ({
-    type: "document",
-    id: `${doc.id}:${chunk.id}`,
-    title: doc.title,
-    subtitle: `${doc.documentType || doc.kind} · ${doc.correspondent} · página ${chunk.page} · ${chunk.heading}`,
-    text: chunk.text,
-    tags: unique([...(doc.tags || []), ...(chunk.semanticTags || [])]),
-    status: doc.status,
-    url: doc.sourceUrl,
-    scoreBase: doc.status === "verified" ? 6 : 3,
-    fileFormat: doc.fileFormat,
-    correspondent: doc.correspondent,
-    documentType: doc.documentType || doc.kind,
-    doc,
-    chunk
-  })));
+  const docResources = documents.flatMap(doc => {
+    const chunks = (doc.chunks || []).length
+      ? doc.chunks
+      : [{ id: "main", page: 1, heading: doc.documentType || doc.kind || "Documento", text: doc.summary || doc.title || "" }];
+
+    return chunks.map(chunk => ({
+      type: "document",
+      id: `${doc.id}:${chunk.id}`,
+      title: doc.title,
+      subtitle: `${doc.documentType || doc.kind} · ${doc.correspondent} · página ${chunk.page} · ${chunk.heading}`,
+      text: chunk.text,
+      tags: unique([...(doc.tags || []), ...(chunk.semanticTags || [])]),
+      status: doc.status,
+      url: doc.sourceUrl,
+      scoreBase: doc.status === "verified" ? 6 : 3,
+      fileFormat: doc.fileFormat,
+      correspondent: doc.correspondent,
+      documentType: doc.documentType || doc.kind,
+      doc,
+      chunk
+    }));
+  });
+
+  return [
+    ...docResources,
+    ...usefulLinks.map(linkResource),
+    ...apps.map(appResource),
+    ...answerCards.map(answerResource)
+  ];
+}
+
+function buildBrowseResources() {
+  const docResources = documents.map(doc => {
+    const firstChunk = (doc.chunks || [])[0] || { id: "main", page: 1, heading: doc.documentType || doc.kind || "Documento", text: doc.summary || "" };
+    return {
+      type: "document",
+      id: doc.id,
+      title: doc.title,
+      subtitle: `${doc.documentType || doc.kind || "Documento"} · ${doc.correspondent || ""}`.replace(/ · $/, ""),
+      text: doc.summary || firstChunk.text || doc.title,
+      tags: unique([...(doc.tags || []), ...(firstChunk.semanticTags || [])]),
+      status: doc.status,
+      url: doc.sourceUrl || doc.pdfUrl,
+      scoreBase: doc.status === "verified" ? 6 : 3,
+      fileFormat: doc.fileFormat,
+      correspondent: doc.correspondent,
+      documentType: doc.documentType || doc.kind,
+      doc,
+      chunk: firstChunk
+    };
+  });
 
   return [
     ...docResources,
@@ -1120,6 +1201,11 @@ function getFilters() {
     correspondent: valueOf("correspondentFilter"),
     format: valueOf("formatFilter")
   };
+}
+
+function filtersAreActive(filters = getFilters()) {
+  return [filters.type, filters.tag, filters.status, filters.docType, filters.correspondent, filters.format]
+    .some(value => value && value !== "all");
 }
 
 function scoreResource(resource, query, filters, intent = detectSearchIntent(query)) {
@@ -1212,7 +1298,8 @@ function scoreResource(resource, query, filters, intent = detectSearchIntent(que
 function searchResources(query, filters) {
   const intent = detectSearchIntent(query);
   const titleNeedle = normalize(query || "").trim();
-  return buildResources()
+  const sourceResources = (query || "").trim() ? buildResources() : buildBrowseResources();
+  return sourceResources
     .map(resource => scoreResource(resource, query, filters, intent))
     .filter(Boolean)
     .sort((a, b) => {
@@ -1228,18 +1315,19 @@ function renderResults(results, query) {
   const container = document.getElementById("searchResults");
   const summary = document.getElementById("resultsSummary");
   const cleanQuery = (query || "").trim();
-  state.lastResults = cleanQuery ? results : [];
+  const activeFilter = filtersAreActive(getFilters());
+  state.lastResults = (cleanQuery || activeFilter) ? results : [];
   state.lastQuery = query;
 
-  if (!cleanQuery) {
+  if (!cleanQuery && !activeFilter) {
     summary.textContent = "Pesquise documentos, regulamentos, contatos, links ou ferramentas.";
     container.innerHTML = "";
     return;
   }
 
   if (!results.length) {
-    summary.textContent = "Nada encontrado. Tente outro termo ou remova filtros.";
-    container.innerHTML = "";
+    summary.textContent = "Não encontrei isso no acervo.";
+    container.innerHTML = emptyStateHtml("Não encontrei isso no acervo", "Tente procurar por: estágio, TCC, protocolo, matriz, final ou coordenador.");
     return;
   }
 
@@ -1250,7 +1338,9 @@ function renderResults(results, query) {
   const countText = Object.entries(counts)
     .map(([type, count]) => `${count} ${typeLabel[type].toLowerCase()}${count > 1 ? "s" : ""}`)
     .join(" · ");
-  summary.textContent = `${results.length} resultado(s): ${countText}. Ordenado por relevância.`;
+  summary.textContent = cleanQuery
+    ? `${results.length} resultado(s): ${countText}. Ordenado por relevância.`
+    : `${results.length} item(ns) encontrado(s) com os filtros selecionados: ${countText}.`;
 
   container.innerHTML = results.map((result, index) => renderResultCard(result, index)).join("");
   schedulePdfThumbnailRender();
@@ -1295,7 +1385,7 @@ function renderResultCard(result, index) {
     <article class="result-card result-${escapeHtml(result.type)}">
       <div class="result-thumb">${thumb}</div>
       <div class="result-body">
-        <div class="result-head">${infoRow}</div>
+        ${infoRow ? `<div class="result-head">${infoRow}</div>` : ""}
         <h3>${titleHtml}</h3>
         <p class="result-subtitle">${subtitle}</p>
         <p class="snippet result-snippet">${snippetHtml}</p>
@@ -1362,11 +1452,13 @@ let vocabulary = [];
 function populateAutocomplete() {
   vocabulary = buildVocabulary();
   const datalist = document.getElementById("autocompleteTerms");
+  if (!datalist) return;
   datalist.innerHTML = vocabulary.slice(0, 250).map(term => `<option value="${escapeHtml(term)}"></option>`).join("");
 }
 
 function updateSuggestions(query) {
   const box = document.getElementById("smartSuggestions");
+  if (!box) return;
   const q = normalize(query).trim();
   if (!q) {
     box.innerHTML = "";
@@ -1381,6 +1473,7 @@ function updateSuggestions(query) {
 function setupSearch() {
   const form = document.getElementById("searchForm");
   const input = document.getElementById("searchInput");
+  if (!form || !input) return;
 
   form.addEventListener("submit", event => {
     event.preventDefault();
@@ -1400,7 +1493,7 @@ function setupSearch() {
     });
   });
 
-  document.getElementById("smartSuggestions").addEventListener("click", event => {
+  document.getElementById("smartSuggestions")?.addEventListener("click", event => {
     const button = event.target.closest("[data-suggest]");
     if (!button) return;
     input.value = button.dataset.suggest;
@@ -1412,7 +1505,7 @@ function setupSearch() {
     document.getElementById(id)?.addEventListener("change", () => runSearch(input.value));
   });
 
-  document.getElementById("clearSearch").addEventListener("click", () => {
+  document.getElementById("clearSearch")?.addEventListener("click", () => {
     input.value = "";
     ["typeFilter", "docTypeFilter", "correspondentFilter", "formatFilter"].forEach(id => {
       const el = document.getElementById(id);
@@ -1556,7 +1649,7 @@ function renderDocuments() {
   if (archiveTools) archiveTools.hidden = !documents.length;
   grid.innerHTML = documents.length
     ? documents.map(doc => renderResourceCard(doc, "document")).join("")
-    : emptyStateHtml("Nenhum documento cadastrado ainda", "A base pública está limpa. Adicione seus documentos reais em data.js e coloque os PDFs na pasta documents/.");
+    : emptyStateHtml("Nenhum documento cadastrado ainda", "Adicione PDFs em /documents e gere o manifesto.");
   schedulePdfThumbnailRender();
 }
 
@@ -1679,10 +1772,27 @@ function renderMetrics() {
 }
 
 function buildCitation(result) {
+  if (!result) return "";
   if (result.type === "document") {
-    return `${result.doc.title}. ${result.doc.documentType || result.doc.kind}. Página ${result.chunk.page}, seção "${result.chunk.heading}". Correspondente: ${result.doc.correspondent}. Data do documento: ${result.doc.docDate}. Fonte: ${result.doc.sourceUrl}.`;
+    const date = createdDateText(result.doc);
+    const pages = pageCountText(result.doc);
+    return `${result.doc.title}. ${result.doc.documentType || result.doc.kind}. Página ${result.chunk?.page || "—"}, seção "${result.chunk?.heading || "—"}". ${date}. ${pages}. Fonte: ${result.doc.sourceUrl || result.doc.pdfUrl}.`;
   }
-  return `${result.title}. ${typeLabel[result.type]}. ${result.text} URL: ${result.url}`;
+  return `${result.title}. ${typeLabel[result.type] || "Item"}. ${result.text || ""} URL: ${result.url || ""}`;
+}
+
+function copyText(text = "") {
+  if (navigator.clipboard?.writeText) return navigator.clipboard.writeText(text);
+  const textarea = document.createElement("textarea");
+  textarea.value = text;
+  textarea.setAttribute("readonly", "");
+  textarea.style.position = "fixed";
+  textarea.style.opacity = "0";
+  document.body.appendChild(textarea);
+  textarea.select();
+  try { document.execCommand("copy"); } catch (error) {}
+  textarea.remove();
+  return Promise.resolve();
 }
 
 function documentTokens(doc) {
@@ -1770,65 +1880,60 @@ function openPreview(result) {
   const exactTerms = result.exactTerms || [];
   const semanticTerms = result.semanticTerms || [];
   const chunks = bestChunksForDoc(doc, exactTerms, semanticTerms);
-  const shownChunks = chunks.length ? chunks : [{ page: "—", heading: "Prévia", text: doc.summary || doc.title || "" }];
+  const shownChunks = chunks.length ? chunks : [{ page: "—", heading: "Prévia", text: doc.summary || doc.title || "Texto não indexado para este documento." }];
   const firstPage = shownChunks.find(chunk => String(chunk.page || "").match(/\d+/))?.page || result.chunk?.page || "";
-  const related = similarDocuments(doc, 4);
   const citationText = buildCitation({ type: "document", doc, chunk: shownChunks[0] || result.chunk || {} });
+  const titleHtml = highlight(doc.title, exactTerms, semanticTerms);
+  const infoHtml = `${escapeHtml(documentInfoInline(doc))}`;
 
   modalContent.innerHTML = `
-    <div class="full-preview compact-preview">
-      <header class="preview-header compact-preview-header">
-        <div class="preview-cover">
-          ${thumbnailHtml(doc, "document")}
-        </div>
+    <div class="verified-preview">
+      <header class="verified-preview-head">
         <div>
-          <div class="badge-row">
-            ${documentInfoBadges(doc)}
-          </div>
-          <h2 id="previewTitle">${highlight(doc.title, exactTerms, semanticTerms)}</h2>
-          <p class="result-subtitle">${highlight(doc.summary || doc.correspondent || "", exactTerms, semanticTerms)}</p>
-          <div class="preview-actions-line action-row">
-            <a class="small-action" href="${escapeHtml(openPdfAtPage(doc, firstPage))}" target="_blank" rel="noopener">Abrir PDF nesta página</a>
-            <button class="secondary-button" type="button" data-copy-reference="${escapeHtml(citationText)}">Copiar referência</button>
-          </div>
+          <h2 id="previewTitle">${titleHtml}</h2>
+          <p>${infoHtml}</p>
         </div>
       </header>
 
-      <section class="preview-layout-v2">
-        <aside class="preview-pages">
-          <h3>Páginas</h3>
-          ${shownChunks.map((chunk, i) => `
-            <button type="button" data-preview-scroll="preview-chunk-${i}">
-              <span>p. ${escapeHtml(chunk.page || "—")}</span>
-              <small>${escapeHtml(compactText(chunk.heading || "Trecho", 42))}</small>
-            </button>
-          `).join("")}
+      <section class="verified-preview-layout">
+        <aside class="verified-preview-left">
+          ${thumbnailHtml(doc, "document")}
+          <div class="preview-page-list" aria-label="Páginas encontradas">
+            ${shownChunks.map((chunk, i) => `
+              <button type="button" data-preview-scroll="preview-chunk-${i}">
+                <strong>p. ${escapeHtml(chunk.page || "—")}</strong>
+                <span>${escapeHtml(compactText(chunk.heading || "Trecho encontrado", 46))}</span>
+              </button>
+            `).join("")}
+          </div>
         </aside>
 
-        <section class="preview-main">
-          <h3>Trechos encontrados</h3>
-          ${shownChunks.map((chunk, i) => `
-            <article class="preview-paper" id="preview-chunk-${i}">
-              <div class="result-head">
-                <span class="badge">p. ${escapeHtml(chunk.page || "—")}</span>
-                <span class="badge">${highlight(chunk.heading || "Trecho", exactTerms, semanticTerms)}</span>
-              </div>
-              <p>${highlight(chunk.text || doc.summary || doc.title || "", exactTerms, semanticTerms)}</p>
-              <p class="preview-actions-line"><a class="small-action" href="${escapeHtml(openPdfAtPage(doc, chunk.page))}" target="_blank" rel="noopener">Abrir PDF na página ${escapeHtml(chunk.page || "")}</a></p>
-            </article>
-          `).join("")}
-
-          <section class="related-docs">
-            <h3>Documentos relacionados</h3>
-            ${related.length ? related.map(item => `
-              <button type="button" data-open-doc="${escapeHtml(item.id)}">
-                <strong>${escapeHtml(item.title)}</strong>
-                <span>${escapeHtml(documentInfoInline(item))}</span>
-              </button>
-            `).join("") : `<p class="muted-text">Nenhum documento relacionado encontrado no acervo atual.</p>`}
-          </section>
+        <section class="verified-preview-text">
+          <h3>Texto encontrado</h3>
+          ${shownChunks.map((chunk, i) => {
+            const text = chunk.text || doc.summary || doc.title || "Texto não indexado para este documento.";
+            const highlighted = highlight(text, exactTerms, semanticTerms);
+            const finalText = /<mark\b/i.test(highlighted)
+              ? highlighted
+              : `<span class="match-reason">Nenhum trecho interno destacou os termos. Este resultado pode ter vindo do título ou metadados.</span> ${escapeHtml(compactText(text, 520))}`;
+            return `
+              <article class="preview-paper" id="preview-chunk-${i}">
+                <div class="result-head">
+                  <span class="badge">p. ${escapeHtml(chunk.page || "—")}</span>
+                  <span class="badge">${highlight(chunk.heading || "Trecho", exactTerms, semanticTerms)}</span>
+                </div>
+                <p>${finalText}</p>
+              </article>
+            `;
+          }).join("")}
         </section>
       </section>
+
+      <footer class="verified-preview-actions">
+        <a class="small-action" href="${escapeHtml(openPdfAtPage(doc, firstPage))}" target="_blank" rel="noopener">Abrir PDF</a>
+        <button class="secondary-button" type="button" data-copy-reference="${escapeHtml(citationText)}">Copiar referência</button>
+        <button class="secondary-button" type="button" data-close-modal>Fechar</button>
+      </footer>
     </div>
   `;
   modal.setAttribute("aria-hidden", "false");
@@ -1864,7 +1969,7 @@ function setupModal() {
     const copyButton = event.target.closest("[data-copy-resource]");
     if (copyButton) {
       const result = state.lastResults[Number(copyButton.dataset.copyResource)];
-      navigator.clipboard?.writeText(buildCitation(result));
+      copyText(buildCitation(result));
       const previous = copyButton.textContent;
       copyButton.textContent = "Copiado";
       setTimeout(() => copyButton.textContent = previous, 1400);
@@ -1872,7 +1977,7 @@ function setupModal() {
 
     const copyRef = event.target.closest("[data-copy-reference]");
     if (copyRef) {
-      navigator.clipboard?.writeText(copyRef.dataset.copyReference || "");
+      copyText(copyRef.dataset.copyReference || "");
       const previous = copyRef.textContent;
       copyRef.textContent = "Referência copiada";
       setTimeout(() => copyRef.textContent = previous, 1400);
@@ -1977,6 +2082,155 @@ function setupBulkEditing() {
 }
 
 
+
+const whereResolveItems = [
+  {
+    id: "segunda-chamada",
+    emoji: "📝",
+    title: "Perdi uma prova / preciso de segunda chamada",
+    summary: "O caminho mais provável é abrir protocolo e anexar a justificativa/documento comprobatório, quando houver.",
+    action: "Abra protocolo e anexe a justificativa, se houver.",
+    sector: "Protocolo + Coordenação do curso",
+    links: ["link-protocolo", "link-email-coordenacao"],
+    docs: ["Normas Acadêmicas", "segunda chamada", "avaliação em segunda chamada"],
+    checklist: ["Separe atestado ou justificativa, se existir.", "Confira o prazo com a regra oficial aplicável.", "Guarde o comprovante do protocolo."]
+  },
+  {
+    id: "estagio",
+    emoji: "🧭",
+    title: "Quero fazer estágio",
+    summary: "Comece pelo CAENS e confira o regulamento/documentos de estágio do curso.",
+    action: "Fale com o CAENS antes de iniciar ou enviar documentos.",
+    sector: "CAENS",
+    links: ["link-caens-estagios", "link-whatsapp-caens"],
+    docs: ["Estágio Curricular Supervisionado", "Regulamento de Estágio", "PPC"],
+    checklist: ["Converse com o CAENS antes de iniciar.", "Confira termo/plano/relatório exigidos.", "Procure a coordenação se a dúvida for curricular."]
+  },
+  {
+    id: "tcc",
+    emoji: "🎓",
+    title: "Quero entender TCC",
+    summary: "Procure o regulamento de TCC aplicável ao seu PPC e confirme etapas com a coordenação/orientador.",
+    action: "Confira o regulamento e alinhe as etapas com orientador/coordenação.",
+    sector: "Coordenação + orientador",
+    links: ["link-email-coordenacao"],
+    docs: ["Trabalho de Conclusão de Curso", "Regulamento de TCC", "PPC"],
+    checklist: ["Identifique seu PPC/matriz.", "Verifique regras de orientação e banca.", "Procure modelos/atas se existirem no acervo."]
+  },
+  {
+    id: "migracao",
+    emoji: "🔁",
+    title: "Quero migrar de matriz",
+    summary: "Você precisa conferir o regulamento de migração e o quadro de equivalência antes de protocolar.",
+    action: "Compare sua matriz com o quadro de equivalência antes de protocolar.",
+    sector: "Coordenação do curso",
+    links: ["link-email-coordenacao", "link-protocolo"],
+    docs: ["Regulamento de Migração Curricular", "Quadro de Equivalência", "Matriz Curricular", "PPC 2024"],
+    checklist: ["Saiba qual é sua matriz atual.", "Confira equivalências disciplina por disciplina.", "Tire dúvidas antes de protocolar."]
+  },
+  {
+    id: "complementares",
+    emoji: "🎓",
+    title: "Atividades complementares / certificados",
+    summary: "Use o Barema para conferir se a atividade conta, qual categoria usa e quais limites se aplicam.",
+    action: "Confira o Barema e organize seus certificados por categoria.",
+    sector: "Coordenação / Colegiado, conforme regra do curso",
+    links: ["app-barema"],
+    docs: ["Barema das Atividades Complementares", "Regulamento das Atividades Complementares"],
+    checklist: ["Confira se o certificado tem carga horária.", "Veja limite por categoria/atividade.", "Organize os comprovantes antes de enviar."]
+  },
+  {
+    id: "contato-setor",
+    emoji: "💬",
+    title: "Quero falar com um setor",
+    summary: "Use este atalho quando a dúvida for de estágio, acessibilidade, assistência, registro ou atendimento estudantil.",
+    action: "Escolha o setor mais próximo do problema e envie mensagem objetiva.",
+    sector: "CAENS, CAPNE, CORES ou Serviços Sociais",
+    links: ["link-whatsapp-caens", "link-whatsapp-capne", "link-whatsapp-cores", "link-whatsapp-servicos-sociais"],
+    docs: ["Política de Assistência Estudantil", "Inclusão e acessibilidade", "Normas acadêmicas"],
+    checklist: ["Identifique se o assunto é estágio, acessibilidade, registro ou assistência.", "Envie mensagem objetiva com nome, matrícula e contexto.", "Se for solicitação formal, use protocolo."]
+  },
+  {
+    id: "documento-comprova",
+    emoji: "🔎",
+    title: "Quero saber qual documento comprova isso",
+    summary: "Pesquise pelo assunto e abra a prévia do documento para copiar a referência e conferir a página certa.",
+    action: "Pesquise pelo termo comum e abra a prévia do documento.",
+    sector: "Acervo do HUB + fonte oficial",
+    links: ["link-protocolo"],
+    docs: ["PPC", "Regulamentos", "Resoluções", "Portarias"],
+    checklist: ["Pesquise pelo termo comum e pelo termo oficial.", "Confira data e total de páginas do documento.", "Use a prévia para achar página/trecho antes de enviar."]
+  }
+];
+
+function resolveLinkedResource(id) {
+  return resourceById(id) || usefulLinks.find(item => item.id === id) || apps.find(item => item.id === id);
+}
+
+function primaryLinkForWhere(item = {}) {
+  const resource = (item.links || []).map(resolveLinkedResource).find(Boolean);
+  if (!resource) return null;
+  const type = apps.includes(resource) ? "app" : "link";
+  return { resource, type };
+}
+
+function linksForWhere(item = {}) {
+  return (item.links || [])
+    .map(id => {
+      const resource = resolveLinkedResource(id);
+      if (!resource) return null;
+      const type = apps.includes(resource) ? "app" : "link";
+      return { resource, type };
+    })
+    .filter(Boolean);
+}
+
+function renderWhereResolve() {
+  const options = document.getElementById("whereOptions");
+  const result = document.getElementById("whereResult");
+  if (!options) return;
+
+  options.innerHTML = whereResolveItems.map(item => {
+    const linked = linksForWhere(item);
+    const actionLabel = item.action || item.checklist?.[0] || "Confira o caminho indicado.";
+    const contactLabel = item.sector || "Setor a confirmar";
+    const docLabel = item.docs?.[0] || "Documento a confirmar";
+    const linksHtml = linked.length
+      ? `<div class="where-link-list">${linked.map(({ resource, type }) => `
+          <a class="where-card-action" href="${escapeHtml(resource.url || "#")}"${linkTargetAttrs(resource)}>
+            <span>${emojiForResource(resource, type)}</span>
+            <strong>${escapeHtml(resource.title)}</strong>
+          </a>
+        `).join("")}</div>`
+      : `<span class="where-card-action muted-action">Sem link direto</span>`;
+
+    return `
+      <article class="where-help-card" id="where-${escapeHtml(item.id)}">
+        <header>
+          <span class="where-help-emoji" aria-hidden="true">${escapeHtml(item.emoji)}</span>
+          <div>
+            <h3>${escapeHtml(item.title)}</h3>
+            <p>${escapeHtml(item.summary)}</p>
+          </div>
+        </header>
+        <div class="where-help-grid">
+          <div><small>O que fazer?</small><strong>${escapeHtml(actionLabel)}</strong></div>
+          <div><small>Com quem falar?</small><strong>${escapeHtml(contactLabel)}</strong></div>
+          <div><small>Qual documento consultar?</small><strong>${escapeHtml(docLabel)}</strong></div>
+          <div class="where-links-cell"><small>Qual link usar?</small>${linksHtml}</div>
+        </div>
+        ${item.checklist?.length ? `<details class="where-checklist"><summary>Checklist rápido</summary><ul>${item.checklist.map(check => `<li>${escapeHtml(check)}</li>`).join("")}</ul></details>` : ""}
+      </article>
+    `;
+  }).join("");
+
+  if (result) result.innerHTML = "";
+}
+
+function setupWhereResolve() {
+  renderWhereResolve();
+}
+
 function formatGrade(value) {
   return value.toLocaleString("pt-BR", { minimumFractionDigits: 2, maximumFractionDigits: 2 });
 }
@@ -2047,6 +2301,7 @@ function setupCalculators() {
     createGradeRow();
     const pfInput = document.getElementById("pfFinal");
     if (pfInput) pfInput.value = "";
+    clearFinalExamHighlight();
     setFinalResult("neutral", "Resultado: —");
   }
 
@@ -2072,30 +2327,34 @@ function setupCalculators() {
 
     const mp = grades.reduce((sum, value) => sum + value, 0) / grades.length;
     const gradesText = grades.map(formatGrade).join(" · ");
-    const base = `<span class="calc-detail">Notas usadas: ${gradesText}</span><span class="calc-detail">MP = ${formatGrade(mp)}</span>`;
+    const base = `<span class="calc-detail">Notas usadas: ${gradesText}</span><span class="calc-detail">MP: <strong>${formatGrade(mp)}</strong></span>`;
+    const rule = `<span class="calc-rule"><strong>Regra usada:</strong> MF = (MP × 2 + PF) / 3</span>`;
 
     if (mp >= 7) {
-      setFinalResult("positive", `<strong>✅ Aprovado por média.</strong>${base}<span class="calc-detail">Não precisa fazer prova final.</span>`);
+      clearFinalExamHighlight();
+      setFinalResult("positive", `<div class="official-result"><strong>✅ Aprovado por média</strong>${base}<span class="calc-detail">Não precisa fazer prova final.</span>${rule}</div>`);
       return;
     }
 
     if (mp < 2.5) {
-      setFinalResult("negative", `<strong>❌ Reprovado sem direito à prova final.</strong>${base}<span class="calc-detail">MP abaixo de 2,5.</span>`);
+      clearFinalExamHighlight();
+      setFinalResult("negative", `<div class="official-result"><strong>❌ Reprovado sem direito à final</strong>${base}<span class="calc-detail">A média parcial mínima para fazer final é 2,5.</span>${rule}</div>`);
       return;
     }
 
     const neededPf = Math.max(0, 15 - (mp * 2));
+    highlightClosestFinalRow(mp);
 
     if (pf === null) {
-      setFinalResult("warning", `<strong>⚠️ Precisa fazer prova final.</strong>${base}<span class="calc-detail">Para ser aprovado após a final, precisa tirar <strong>${formatGrade(neededPf)}</strong> na PF.</span>`);
+      setFinalResult("warning", `<div class="official-result"><strong>⚠️ Vai para prova final</strong>${base}<span class="calc-detail">Precisa tirar <strong>${formatGrade(neededPf)}</strong> na final.</span>${rule}</div>`);
       return;
     }
 
     const mf = ((mp * 2) + pf) / 3;
     if (mf >= 5) {
-      setFinalResult("positive", `<strong>✅ Aprovado após a final.</strong>${base}<span class="calc-detail">PF = ${formatGrade(pf)} · MF = ${formatGrade(mf)}</span>`);
+      setFinalResult("positive", `<div class="official-result"><strong>✅ Aprovado após a final</strong>${base}<span class="calc-detail">PF: <strong>${formatGrade(pf)}</strong> · MF: <strong>${formatGrade(mf)}</strong></span>${rule}</div>`);
     } else {
-      setFinalResult("negative", `<strong>❌ Reprovado após a final.</strong>${base}<span class="calc-detail">PF = ${formatGrade(pf)} · MF = ${formatGrade(mf)}</span><span class="calc-detail">Precisava tirar ${formatGrade(neededPf)} na PF.</span>`);
+      setFinalResult("negative", `<div class="official-result"><strong>❌ Reprovado após a final</strong>${base}<span class="calc-detail">PF: <strong>${formatGrade(pf)}</strong> · MF: <strong>${formatGrade(mf)}</strong></span><span class="calc-detail">Precisava tirar ${formatGrade(neededPf)} na PF.</span>${rule}</div>`);
     }
   }
 
@@ -2116,12 +2375,57 @@ function setupCalculators() {
 }
 
 
+function setupAppsMenu() {
+  const wrapper = document.querySelector(".nav-apps-menu");
+  const button = document.getElementById("appsMenuButton");
+  const menu = document.getElementById("appsMenu");
+  if (!wrapper || !button || !menu) return;
+
+  const currentApps = apps.length ? apps : [];
+  menu.innerHTML = [
+    `<a href="#apps" data-app-menu-main><span>🧰</span><strong>Todos os apps</strong><small>Ver seção completa</small></a>`,
+    ...currentApps.map(app => {
+      const isExternal = app.openMode === "new-tab" || /^(https?:)?\/\//.test(app.url || "") || (app.url || "").endsWith(".html");
+      const attrs = isExternal ? ` target="_blank" rel="noopener"` : "";
+      return `<a href="${escapeHtml(app.url || "#apps")}"${attrs}><span>${emojiForResource(app, "app")}</span><strong>${escapeHtml(app.title)}</strong><small>${escapeHtml(app.category || "App")}</small></a>`;
+    })
+  ].join("");
+
+  const close = () => {
+    menu.hidden = true;
+    button.setAttribute("aria-expanded", "false");
+  };
+  const toggle = () => {
+    const open = menu.hidden;
+    menu.hidden = !open;
+    button.setAttribute("aria-expanded", open ? "true" : "false");
+  };
+
+  button.addEventListener("click", event => {
+    event.preventDefault();
+    event.stopPropagation();
+    toggle();
+  });
+  menu.addEventListener("click", event => {
+    const link = event.target.closest("a");
+    if (link && !link.target) close();
+  });
+  document.addEventListener("click", event => {
+    if (!wrapper.contains(event.target)) close();
+  });
+  document.addEventListener("keydown", event => {
+    if (event.key === "Escape") close();
+  });
+}
+
 function setupNavigation() {
   const navLinks = [...document.querySelectorAll(".nav a[href^='#']")];
+  const appMenuButton = document.getElementById("appsMenuButton");
   const sections = [...document.querySelectorAll("[data-nav-section]")];
 
   const mark = id => {
     navLinks.forEach(link => link.classList.toggle("active", link.getAttribute("href") === `#${id}`));
+    appMenuButton?.classList.toggle("active", id === "apps");
   };
 
   const currentSection = () => {
@@ -2177,6 +2481,26 @@ function formatOneDecimal(value) {
   return rounded.toLocaleString("pt-BR", { minimumFractionDigits: Number.isInteger(rounded) ? 0 : 1, maximumFractionDigits: 1 });
 }
 
+function clearFinalExamHighlight() {
+  document.querySelectorAll(".final-row-active").forEach(row => row.classList.remove("final-row-active"));
+}
+
+function highlightClosestFinalRow(mp) {
+  clearFinalExamHighlight();
+  if (!Number.isFinite(mp) || mp < 2.5 || mp >= 7) return;
+  const rows = [...document.querySelectorAll("#finalExamTable tr[data-media]")];
+  if (!rows.length) return;
+  const closest = rows.reduce((best, row) => {
+    const media = Number(row.dataset.media);
+    const distance = Math.abs(media - mp);
+    return !best || distance < best.distance ? { row, distance } : best;
+  }, null);
+  if (closest?.row) {
+    closest.row.classList.add("final-row-active");
+    closest.row.scrollIntoView({ block: "nearest", inline: "center", behavior: "smooth" });
+  }
+}
+
 function buildFinalExamTable() {
   const container = document.getElementById("finalExamTable");
   if (!container) return;
@@ -2190,6 +2514,8 @@ function buildFinalExamTable() {
 
     group.rows.forEach(([media, final]) => {
       const tr = document.createElement("tr");
+      tr.dataset.media = String(media);
+      tr.dataset.final = String(final);
       tr.innerHTML = `<td>${formatOneDecimal(media)}</td><td>${formatOneDecimal(final)}</td>`;
       tbody.appendChild(tr);
     });
@@ -2197,6 +2523,20 @@ function buildFinalExamTable() {
     table.appendChild(tbody);
     container.appendChild(table);
   });
+}
+
+
+function setupFilterToggle() {
+  const toggle = document.getElementById("filterToggle");
+  const card = document.getElementById("filtersCard");
+  if (!toggle || !card) return;
+  const setOpen = open => {
+    card.classList.toggle("open", open);
+    toggle.setAttribute("aria-expanded", open ? "true" : "false");
+    toggle.textContent = open ? "Ocultar filtros" : "Filtros";
+  };
+  setOpen(false);
+  toggle.addEventListener("click", () => setOpen(!card.classList.contains("open")));
 }
 
 function handleSharedLink() {
@@ -2222,7 +2562,9 @@ function handleSharedLink() {
 }
 
 async function boot() {
+  setLoadingStatus("Carregando documentos...");
   await loadManifestDocuments();
+  setLoadingStatus("Preparando busca e filtros...");
   populateFilters();
   renderDirectory();
   renderDocuments();
@@ -2233,10 +2575,17 @@ async function boot() {
   setupModal();
   setupArchiveViews();
   setupCalculators();
+  setupWhereResolve();
+  setupFilterToggle();
   buildFinalExamTable();
+  setupAppsMenu();
   setupNavigation();
-  backgroundIndexMissingPdfText();
+  setLoadingStatus("Gerando prévias dos documentos...");
   schedulePdfThumbnailRender();
+  window.setTimeout(() => setLoadingStatus(""), 1200);
+  backgroundIndexMissingPdfText().finally(() => {
+    if (!state.lastQuery) setLoadingStatus("");
+  });
 }
 
 boot();

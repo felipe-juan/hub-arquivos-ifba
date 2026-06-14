@@ -24,7 +24,10 @@
     <nav class="nav" aria-label="Navegação principal">
       <a href="#buscar" class="active">Buscar</a>
       <a href="#acervo">Acervo</a>
-      <a href="#apps">Apps</a>
+      <div class="nav-apps-menu">
+        <button id="appsMenuButton" class="nav-apps-button" type="button" aria-expanded="false" aria-controls="appsMenu">Apps <span aria-hidden="true">⌄</span></button>
+        <div id="appsMenu" class="apps-dropdown" hidden></div>
+      </div>
       <a href="#links">Links</a>
     </nav>
   </header>
@@ -45,6 +48,7 @@
           <button type="submit">Buscar</button>
         </form>
         <div id="smartSuggestions" class="smart-suggestions" aria-label="Sugestões de busca"></div>
+        <div id="loadingStatus" class="loading-status" role="status" aria-live="polite">Carregando documentos...</div>
 
         <div class="quick-chips" aria-label="Buscas rápidas">
           <button data-example="PPC 2024">PPC 2024</button>
@@ -60,7 +64,8 @@
         </div>
       </div>
 
-      <div class="filters-card expanded-filters">
+      <button id="filterToggle" class="filter-toggle" type="button" aria-expanded="false">Filtros</button>
+      <div class="filters-card expanded-filters" id="filtersCard">
         <label>Item
           <select id="typeFilter">
             <option value="all">Tudo</option>
@@ -81,7 +86,7 @@
       </div>
 
       <div class="result-toolbar">
-        <p id="resultsSummary" aria-live="polite">Itens mais usados aparecem abaixo. Digite para filtrar.</p>
+        <p id="resultsSummary" aria-live="polite">Pesquise documentos, regulamentos, contatos, links ou ferramentas.</p>
         <button id="clearSearch" class="text-button" type="button">limpar</button>
       </div>
 
@@ -172,6 +177,26 @@
       </div>
       </div>
 
+      <div class="where-panel" id="onde-resolvo">
+        <div class="section-heading inline">
+          <div>
+            <p class="eyebrow">App</p>
+            <h2>Onde resolvo isso?</h2>
+          </div>
+        </div>
+        <article class="tool-card where-tool-card">
+          <div class="where-head">
+            <div>
+              <h3>Escolha o problema e vá direto ao lugar certo</h3>
+              <p>Para dúvidas comuns, o hub indica setor, link, contato, documento provável e um checklist rápido.</p>
+            </div>
+            <span class="emoji-thumb where-big" aria-hidden="true">🧭</span>
+          </div>
+          <div id="whereOptions" class="where-options" aria-label="Problemas comuns"></div>
+          <div id="whereResult" class="where-result" aria-live="polite"></div>
+        </article>
+      </div>
+
     </section>
 
     <section id="links" class="section content-section" data-nav-section>
@@ -195,11 +220,11 @@
   </div>
 
   <footer class="footer">
-    <span>HUB SI · v0.1.6 · protótipo livre · sempre confira a fonte oficial.</span>
+    <span>HUB SI · v0.1.10 · protótipo livre · sempre confira a fonte oficial.</span>
   </footer>
 
   <script src="data.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js" referrerpolicy="no-referrer"></script>
-  <script src="app.js"></script>
+  <script src="app.js?v=0.1.10"></script>
 </body>
 </html>
