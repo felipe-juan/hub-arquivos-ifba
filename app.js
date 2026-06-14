@@ -414,6 +414,154 @@ function renderPdfThumbnails() {
   thumbs.slice(0, 40).forEach(renderSinglePdfThumbnail);
 }
 
+
+function hasRealIndexedText(doc = {}) {
+  if (doc.indexed && Number(doc.contentLength || 0) > 80) return true;
+  const text = (doc.chunks || []).map(chunk => chunk.text || "").join(" ").trim();
+  if (text.length < 100) return false;
+  const normalized = normalize(text);
+  if (normalized.includes("arquivo disponivel em") && normalized.includes("nao foi possivel extrair texto")) return false;
+  return true;
+}
+
+function splitClientText(text = "", maxChars = 1600) {
+  const clean = text.toString().replace(/\s+/g, " ").trim();
+  if (!clean) return [];
+  const chunks = [];
+  for (let start = 0; start < clean.length; start += maxChars) {
+    chunks.push(clean.slice(start, start + maxChars).trim());
+  }
+  return chunks;
+}
+
+function pdfTextCacheKey(doc = {}) {
+  return `hub-pdf-text-v2:${doc.id}:${doc.pdfUrl || doc.sourceUrl || ""}`;
+}
+
+function readCachedPdfText(doc) {
+  try {
+    const raw = localStorage.getItem(pdfTextCacheKey(doc));
+    if (!raw) return null;
+    const parsed = JSON.parse(raw);
+    if (!Array.isArray(parsed?.chunks) || !parsed.chunks.length) return null;
+    return parsed;
+  } catch (error) {
+    return null;
+  }
+}
+
+function writeCachedPdfText(doc, payload) {
+  try {
+    const raw = JSON.stringify(payload);
+    // Avoid filling the browser cache with huge PDFs.
+    if (raw.length < 650000) localStorage.setItem(pdfTextCacheKey(doc), raw);
+  } catch (error) {
+    // localStorage may be full or unavailable. Search still works in memory.
+  }
+}
+
+async function extractPdfTextInBrowser(doc) {
+  if (!setupPdfJs()) return null;
+  const url = doc.pdfUrl || doc.sourceUrl;
+  if (!url || !/\.pdf($|[?#])/i.test(url)) return null;
+
+  const cached = readCachedPdfText(doc);
+  if (cached) return cached;
+
+  try {
+    const pdf = await window.pdfjsLib.getDocument(url).promise;
+    const chunks = [];
+    let allText = "";
+
+    for (let pageNumber = 1; pageNumber <= pdf.numPages; pageNumber += 1) {
+      const page = await pdf.getPage(pageNumber);
+      const content = await page.getTextContent();
+      const pageText = content.items
+        .map(item => item.str || "")
+        .join(" ")
+        .replace(/\s+/g, " ")
+        .trim();
+
+      if (!pageText) continue;
+      allText += ` ${pageText}`;
+      splitClientText(pageText).forEach((text, index) => {
+        chunks.push({
+          id: `${doc.id}-browser-p${pageNumber}-${index + 1}`,
+          page: String(pageNumber),
+          heading: index === 0 ? doc.title : `${doc.title} — trecho ${index + 1}`,
+          semanticTags: doc.tags || [],
+          text
+        });
+      });
+    }
+
+    const cleanText = allText.replace(/\s+/g, " ").trim();
+    if (!chunks.length || cleanText.length < 30) return null;
+
+    const payload = {
+      chunks,
+      summary: cleanText.slice(0, 360) + (cleanText.length > 360 ? "…" : ""),
+      contentLength: cleanText.length,
+      indexed: true,
+      extractionMethod: "browser-pdfjs"
+    };
+    writeCachedPdfText(doc, payload);
+    return payload;
+  } catch (error) {
+    console.warn("Não foi possível indexar o PDF no navegador:", url, error);
+    return null;
+  }
+}
+
+function applyExtractedPayload(docId, payload) {
+  const update = doc => {
+    if (!doc || doc.id !== docId) return doc;
+    doc.chunks = payload.chunks;
+    doc.summary = payload.summary || doc.summary;
+    doc.contentLength = payload.contentLength || doc.contentLength;
+    doc.indexed = true;
+    doc.extractionMethod = payload.extractionMethod || doc.extractionMethod;
+    return doc;
+  };
+
+  rawDocuments.forEach(update);
+  documents.forEach(update);
+}
+
+async function backgroundIndexMissingPdfText() {
+  const candidates = documents.filter(doc => {
+    const url = doc.pdfUrl || doc.sourceUrl || "";
+    return /\.pdf($|[?#])/i.test(url) && !hasRealIndexedText(doc);
+  });
+
+  if (!candidates.length) return;
+
+  const summary = document.getElementById("resultsSummary");
+  if (summary && !state.lastQuery) {
+    summary.textContent = `Indexando conteúdo de ${candidates.length} PDF(s) em segundo plano...`;
+  }
+
+  let changed = false;
+  for (const doc of candidates) {
+    const payload = await extractPdfTextInBrowser(doc);
+    if (payload) {
+      applyExtractedPayload(doc.id, payload);
+      changed = true;
+    }
+  }
+
+  if (changed) {
+    refreshDocuments();
+    populateFilters();
+    renderDocuments();
+    renderDirectory();
+    if (state.lastQuery) runSearch(state.lastQuery);
+    else renderResults(searchResources("", getFilters()), "");
+  } else if (summary && !state.lastQuery) {
+    summary.textContent = "Documentos carregados. Alguns PDFs parecem escaneados ou sem texto extraível.";
+  }
+}
+
 function getAllTags() {
   return unique([
     ...documents.flatMap(doc => doc.tags || []),
@@ -656,9 +804,11 @@ function registerManifestGroups(docs = []) {
 
 async function loadManifestDocuments() {
   const loaded = [];
+  let loadedFromJson = false;
 
   if (Array.isArray(window.HUB_MANIFEST?.documents)) {
     loaded.push(...window.HUB_MANIFEST.documents);
+    loadedFromJson = true;
   }
 
   const jsonText = await fetchOptionalText("documents/manifest.json") || await fetchOptionalText("documents/documents-manifest.json");
@@ -666,14 +816,19 @@ async function loadManifestDocuments() {
     try {
       const parsed = JSON.parse(jsonText);
       loaded.push(...(Array.isArray(parsed) ? parsed : (parsed.documents || [])));
+      loadedFromJson = true;
     } catch (error) {
       console.warn("Manifest JSON inválido:", error);
     }
   }
 
-  const csvText = await fetchOptionalText("documents/manifest.csv") || await fetchOptionalText("documents/documents-manifest.csv");
-  if (csvText) {
-    loaded.push(...parseManifestCsv(csvText));
+  // CSV is only a fallback. If JSON exists, do not load CSV too, otherwise
+  // every document appears duplicated.
+  if (!loadedFromJson) {
+    const csvText = await fetchOptionalText("documents/manifest.csv") || await fetchOptionalText("documents/documents-manifest.csv");
+    if (csvText) {
+      loaded.push(...parseManifestCsv(csvText));
+    }
   }
 
   const normalizedDocs = loaded.map(normalizeManifestDocument);
@@ -1698,6 +1853,7 @@ async function boot() {
   setupArchiveViews();
   setupCalculators();
   setupNavigation();
+  backgroundIndexMissingPdfText();
 }
 
 boot();
