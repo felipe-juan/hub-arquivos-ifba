@@ -25,8 +25,10 @@
 
 * { box-sizing: border-box; }
 html { scroll-behavior: smooth; }
+:root { --topbar-h: 68px; }
 body {
   margin: 0;
+  padding-top: var(--topbar-h);
   min-height: 100vh;
   color: var(--text);
   background: var(--bg);
@@ -93,9 +95,11 @@ button:hover, .small-action:hover, .secondary-button:hover { transform: translat
 }
 
 .topbar {
-  position: sticky;
+  position: fixed;
   top: 0;
-  z-index: 20;
+  left: 0;
+  right: 0;
+  z-index: 60;
   display: flex;
   align-items: center;
   justify-content: space-between;
@@ -104,6 +108,8 @@ button:hover, .small-action:hover, .secondary-button:hover { transform: translat
   background: rgba(9, 14, 19, .78);
   backdrop-filter: blur(18px);
   border-bottom: 1px solid var(--line);
+  transition: transform .22s ease, opacity .22s ease, background .18s ease;
+  will-change: transform;
 }
 .brand {
   display: inline-flex;
@@ -494,6 +500,7 @@ h2 { font-size: clamp(1.35rem, 4vw, 2rem); }
 }
 
 @media (max-width: 920px) {
+  :root { --topbar-h: 58px; }
   main, .footer { width: min(100% - 1rem, var(--max)); }
   .nav {
     position: fixed;
@@ -2265,7 +2272,7 @@ table.grade-group th {
   }
 }
 
-/* v0.1.23: mobile calculator/app width fix */
+/* v0.1.24: mobile calculator/app width fix */
 html,
 body {
   max-width: 100%;
@@ -2361,5 +2368,144 @@ body {
     width: 38px;
     min-width: 38px;
     max-width: 38px;
+  }
+}
+
+
+/* v0.1.24: mobile-first Linktree-style links view */
+.links-heading {
+  gap: .9rem;
+}
+
+.links-view-toggle {
+  flex-shrink: 0;
+}
+
+.linktree-list {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  gap: .62rem;
+  max-width: 760px;
+  width: 100%;
+}
+
+.linktree-item {
+  display: grid;
+  grid-template-columns: 2.65rem minmax(0, 1fr);
+  align-items: center;
+  gap: .78rem;
+  min-height: 58px;
+  padding: .72rem .88rem;
+  border-radius: 18px;
+  text-decoration: none;
+  color: var(--ink);
+  background: linear-gradient(180deg, rgba(255,255,255,.075), rgba(255,255,255,.04));
+  border: 1px solid rgba(255,255,255,.11);
+  box-shadow: 0 12px 30px rgba(0,0,0,.16);
+  transition: transform .16s ease, border-color .16s ease, background .16s ease;
+}
+
+.linktree-item:hover,
+.linktree-item:focus-visible {
+  transform: translateY(-1px);
+  border-color: rgba(53,230,168,.34);
+  background: linear-gradient(180deg, rgba(53,230,168,.12), rgba(255,255,255,.05));
+  outline: none;
+}
+
+.linktree-emoji {
+  width: 2.65rem;
+  height: 2.65rem;
+  display: grid;
+  place-items: center;
+  border-radius: 15px;
+  font-size: 1.45rem;
+  background: rgba(255,255,255,.08);
+  border: 1px solid rgba(255,255,255,.12);
+}
+
+.linktree-item strong {
+  min-width: 0;
+  font-size: .98rem;
+  line-height: 1.18;
+  overflow-wrap: anywhere;
+}
+
+@media (max-width: 720px) {
+  .links-heading {
+    align-items: stretch;
+  }
+  .links-view-toggle {
+    width: 100%;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+  }
+  .linktree-list {
+    max-width: none;
+    gap: .58rem;
+  }
+  .linktree-item {
+    min-height: 56px;
+    padding: .68rem .76rem;
+    border-radius: 17px;
+  }
+}
+
+
+/* v0.1.27: header is fixed and always visible on desktop and mobile */
+.topbar,
+.topbar.is-hidden,
+body.apps-menu-open .topbar,
+body.modal-open .topbar,
+.topbar:focus-within {
+  transform: translateY(0) !important;
+  opacity: 1 !important;
+}
+
+@media (max-width: 720px) {
+  #links .links-heading {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr);
+    align-items: stretch;
+    gap: .55rem;
+    margin-bottom: .62rem;
+  }
+
+  #links .links-heading > div:first-child {
+    min-width: 0;
+  }
+
+  #links .links-heading .eyebrow {
+    margin-bottom: .08rem;
+    font-size: .66rem;
+    letter-spacing: .1em;
+  }
+
+  #links .links-heading h2 {
+    font-size: clamp(1.08rem, 6vw, 1.28rem);
+    line-height: 1.08;
+    letter-spacing: -.025em;
+    max-width: 100%;
+  }
+
+  #links .links-view-toggle {
+    width: 100%;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: .28rem;
+    padding: .24rem;
+    border-radius: 16px;
+  }
+
+  #links .links-view-toggle button {
+    min-height: 38px;
+    padding: .46rem .55rem;
+    border-radius: 13px;
+    font-size: .84rem;
+    line-height: 1;
+  }
+
+  #links.section {
+    padding-top: .82rem;
   }
 }

@@ -15,7 +15,8 @@ const state = {
   selectMode: false,
   selectedDocs: new Set(),
   temporaryEdits: new Map(),
-  desktopColumns: "auto"
+  desktopColumns: "auto",
+  linksView: null
 };
 
 function setLoadingStatus(message = "", kind = "info") {
@@ -501,9 +502,12 @@ function documentInfoInline(resource = {}) {
 
 function linkTargetAttrs(resource = {}) {
   const url = resource.url || resource.sourceUrl || resource.pdfUrl || resource.fileUrl || "";
-  const external = /^https?:\/\//i.test(url) || /^mailto:/i.test(url) || /^tel:/i.test(url) || /^https?:/i.test(url);
+  const webUrl = /^https?:\/\//i.test(url);
+  const mailOrPhone = /^(mailto:|tel:)/i.test(url);
   const newTab = resource.openMode === "new-tab" || resource.target === "_blank" || resource.newTab === true;
-  if (newTab || external) return ' target="_blank" rel="noopener"';
+
+  if (mailOrPhone && !newTab) return "";
+  if (newTab || webUrl) return ' target="_blank" rel="noopener"';
   return "";
 }
 
@@ -856,9 +860,17 @@ function splitManifestTags(value = "") {
 function normalizeManifestPath(path = "") {
   const raw = path.toString().trim();
   if (!raw) return "#";
-  if (/^(https?:|mailto:|#)/i.test(raw)) return raw;
-  if (raw.startsWith("documents/")) return raw;
-  return `documents/${raw.replace(/^\.?\/?/, "")}`;
+  if (/^(https?:|mailto:|tel:|#)/i.test(raw)) return raw;
+
+  // Accept the common forms produced by manual manifests/scripts without
+  // accidentally turning "./documents/a.pdf" into "documents/documents/a.pdf".
+  const clean = raw
+    .replace(/\\/g, "/")
+    .replace(/^\.\//, "")
+    .replace(/^\//, "");
+
+  if (clean.startsWith("documents/")) return clean;
+  return `documents/${clean.replace(/^\.?\/?/, "")}`;
 }
 
 function normalizeManifestDocument(entry = {}, index = 0) {
@@ -878,10 +890,12 @@ function normalizeManifestDocument(entry = {}, index = 0) {
   const id = entry.id || `doc-${slugify(`${category}-${title}-${index}`)}`;
   const summary = entry.summary || entry.description || `${kind} em ${category}.`;
   const text = entry.text || entry.content || summary;
-  const page = entry.page || entry.pages || "—";
+  const page = entry.page || entry.pageNumber || entry.pagina || "—";
 
   return {
     id,
+    sha256: entry.sha256 || entry.hash || "",
+    hash: entry.hash || entry.sha256 || "",
     title,
     kind,
     documentType: kind,
@@ -1013,10 +1027,12 @@ function registerManifestGroups(docs = []) {
 }
 
 function canonicalDocumentKey(doc = {}) {
-  const hash = (doc.sha256 || doc.hash || "").toString().trim();
+  const hash = (doc.sha256 || doc.hash || "").toString().trim().toLowerCase();
   if (hash) return `sha:${hash}`;
   const path = normalizeManifestPath(doc.pdfUrl || doc.fileUrl || doc.path || doc.sourceUrl || doc.url || "");
-  return `path:${normalize(path)}`;
+  const cleanPath = normalize(path || "");
+  if (cleanPath && cleanPath !== "#") return `path:${cleanPath}`;
+  return `title:${normalize(doc.title || doc.id || "documento")}`;
 }
 
 async function loadManifestDocuments() {
@@ -1845,6 +1861,7 @@ function emptyStateHtml(title, text) {
 
 function renderDocuments() {
   const grid = document.getElementById("documentGrid");
+  if (!grid) return;
   const archiveTools = document.querySelector(".archive-tools");
   if (archiveTools) archiveTools.hidden = !documents.length;
   grid.innerHTML = documents.length
@@ -1853,15 +1870,70 @@ function renderDocuments() {
   schedulePdfThumbnailRender();
 }
 
+function defaultLinksView() {
+  return window.matchMedia && window.matchMedia("(max-width: 720px)").matches ? "quick" : "cards";
+}
+
+function applyLinksView(value, { persist = true } = {}) {
+  const clean = value === "cards" ? "cards" : "quick";
+  state.linksView = clean;
+
+  document.querySelectorAll("[data-links-view]").forEach(button => {
+    button.classList.toggle("active", button.dataset.linksView === clean);
+  });
+
+  const grid = document.getElementById("linksGrid");
+  if (grid) {
+    grid.classList.toggle("linktree-list", clean === "quick");
+    grid.classList.toggle("cards-grid", clean === "cards");
+    grid.dataset.view = clean;
+  }
+
+  if (persist) {
+    try { localStorage.setItem("hubLinksView", clean); } catch (_) {}
+  }
+}
+
+function renderLinktreeItem(link) {
+  return `
+    <a class="linktree-item" href="${escapeHtml(link.url || "#")}"${linkTargetAttrs({ ...link, newTab: true })}>
+      <span class="linktree-emoji" aria-hidden="true">${emojiForResource(link, "link")}</span>
+      <strong>${escapeHtml(link.title)}</strong>
+    </a>
+  `;
+}
+
 function renderLinks() {
   const grid = document.getElementById("linksGrid");
+  if (!grid) return;
+
+  const view = state.linksView || defaultLinksView();
+  applyLinksView(view, { persist: false });
+
   grid.innerHTML = usefulLinks.length
-    ? usefulLinks.map(link => renderResourceCard(link, "link")).join("")
+    ? (state.linksView === "quick"
+      ? usefulLinks.map(renderLinktreeItem).join("")
+      : usefulLinks.map(link => renderResourceCard(link, "link")).join(""))
     : emptyStateHtml("Nenhum link cadastrado ainda", "Quando você adicionar links reais em data.js, eles aparecerão aqui.");
+}
+
+function setupLinksViewToggle() {
+  const saved = (() => {
+    try { return localStorage.getItem("hubLinksView"); } catch (_) { return null; }
+  })();
+  applyLinksView(saved === "cards" || saved === "quick" ? saved : defaultLinksView(), { persist: false });
+
+  document.querySelectorAll("[data-links-view]").forEach(button => {
+    button.addEventListener("click", () => {
+      applyLinksView(button.dataset.linksView || "quick");
+      renderLinks();
+    });
+  });
 }
 
 function renderApps() {
   const grid = document.getElementById("appsGrid");
+  if (!grid) return;
   grid.innerHTML = apps.length
     ? apps.map(app => renderResourceCard(app, "app")).join("")
     : emptyStateHtml("Nenhum app cadastrado", "Os apps internos do hub aparecerão aqui.");
@@ -2078,6 +2150,17 @@ function renderShareBox(doc) {
 }
 
 
+function setPreviewModalOpen(open) {
+  const modal = document.getElementById("previewModal");
+  if (!modal) return;
+  modal.setAttribute("aria-hidden", open ? "false" : "true");
+  document.body.classList.toggle("modal-open", Boolean(open));
+}
+
+function closePreviewModal() {
+  setPreviewModalOpen(false);
+}
+
 function openPreviewFromDoc(doc, options = {}) {
   if (!doc) return;
   const queryTerms = expandedTerms(state.lastQuery || "");
@@ -2156,7 +2239,7 @@ function openPreview(result) {
       </footer>
     </div>
   `;
-  modal.setAttribute("aria-hidden", "false");
+  setPreviewModalOpen(true);
   schedulePdfThumbnailRender();
 }
 
@@ -2215,11 +2298,11 @@ function setupModal() {
       openWorkflow(workflowButton.dataset.workflowOpen);
     }
 
-    if (event.target.matches("[data-close-modal]")) modal.setAttribute("aria-hidden", "true");
+    if (event.target.closest("[data-close-modal]")) closePreviewModal();
   });
 
   document.addEventListener("keydown", event => {
-    if (event.key === "Escape") modal.setAttribute("aria-hidden", "true");
+    if (event.key === "Escape") closePreviewModal();
   });
 }
 
@@ -2668,7 +2751,10 @@ function setupAppsMenu() {
 
   const menuClickHandler = event => {
     const link = event.target.closest("a");
-    if (link && !link.target) close();
+    if (!link) return;
+    // Close even for target=_blank links so the overlay is not left open when
+    // the user returns to the tab.
+    window.setTimeout(close, 0);
   };
   menu.onclick = menuClickHandler;
   mobileMenu.onclick = menuClickHandler;
@@ -2720,6 +2806,13 @@ function setupAppsMenu() {
     });
     setupAppsMenu._boundDocumentClose = true;
   }
+}
+
+
+function setupFixedHeader() {
+  const header = document.querySelector(".topbar");
+  if (!header) return;
+  header.classList.remove("is-hidden");
 }
 
 function setupNavigation() {
@@ -2904,6 +2997,7 @@ async function boot() {
   // Render immediately available static content first. This keeps the page filled
   // even if the user scrolls fast on mobile before the document manifest finishes.
   renderApps();
+  setupLinksViewToggle();
   renderLinks();
   renderGuides();
   setupSearch();
@@ -2915,6 +3009,7 @@ async function boot() {
   buildFinalExamTable();
   setupAppsMenu();
   setupNavigation();
+  setupFixedHeader();
   setupDesktopColumnsControl();
 
   setLoadingStatus("Carregando documentos...");

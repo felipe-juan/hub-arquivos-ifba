@@ -214,13 +214,17 @@
     </section>
 
     <section id="links" class="section content-section" data-nav-section>
-      <div class="section-heading">
+      <div class="section-heading links-heading">
         <div>
           <p class="eyebrow">Atalhos</p>
           <h2>Links, sistemas e páginas externas</h2>
         </div>
+        <div class="view-toggle links-view-toggle" role="group" aria-label="Modo de visualização dos links">
+          <button type="button" class="active" data-links-view="quick">Rápido</button>
+          <button type="button" data-links-view="cards">Detalhado</button>
+        </div>
       </div>
-      <div id="linksGrid" class="cards-grid"></div>
+      <div id="linksGrid" class="linktree-list"></div>
     </section>
 
   </main>
@@ -234,11 +238,11 @@
   </div>
 
   <footer class="footer">
-    <span>HUB SI · v0.1.23 · protótipo livre · sempre confira a fonte oficial.</span>
+    <span>HUB SI · v0.1.27 · protótipo livre · sempre confira a fonte oficial.</span>
   </footer>
 
   <script src="data.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js" referrerpolicy="no-referrer"></script>
-  <script src="app.js?v=0.1.23"></script>
+  <script src="app.js?v=0.1.27"></script>
 </body>
 </html>
