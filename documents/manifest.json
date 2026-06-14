@@ -1,5 +1,1044 @@
 {
-  "generatedAt": "2026-06-14T04:19:08.623329+00:00",
-  "count": 0,
-  "documents": []
+  "generatedAt": "2026-06-14T05:00:27.755251+00:00",
+  "count": 32,
+  "documents": [
+    {
+      "id": "doc-portaria-083-2025-dg",
+      "title": "Portaria 083 2025 DG",
+      "category": "Documentos",
+      "group": "Documentos",
+      "kind": "Portaria",
+      "documentType": "Portaria",
+      "correspondent": "A definir",
+      "fileFormat": "PDF",
+      "pdfUrl": "documents/Portaria-083-2025-DG.pdf",
+      "sourceUrl": "documents/Portaria-083-2025-DG.pdf",
+      "tags": [
+        "Documentos",
+        "Portaria",
+        "2025"
+      ],
+      "summary": "Portaria em Documentos.",
+      "chunks": [
+        {
+          "id": "doc-portaria-083-2025-dg-arquivo",
+          "page": "—",
+          "heading": "Portaria 083 2025 DG",
+          "semanticTags": [
+            "Documentos",
+            "Portaria",
+            "2025"
+          ],
+          "text": "Portaria 083 2025 DG. Portaria em Documentos. Arquivo disponível em documents/Portaria-083-2025-DG.pdf."
+        }
+      ]
+    },
+    {
+      "id": "doc-portaria1842025dg",
+      "title": "Portaria1842025DG",
+      "category": "Documentos",
+      "group": "Documentos",
+      "kind": "Portaria",
+      "documentType": "Portaria",
+      "correspondent": "A definir",
+      "fileFormat": "PDF",
+      "pdfUrl": "documents/Portaria1842025DG.pdf",
+      "sourceUrl": "documents/Portaria1842025DG.pdf",
+      "tags": [
+        "Documentos",
+        "Portaria",
+        "2025"
+      ],
+      "summary": "Portaria em Documentos.",
+      "chunks": [
+        {
+          "id": "doc-portaria1842025dg-arquivo",
+          "page": "—",
+          "heading": "Portaria1842025DG",
+          "semanticTags": [
+            "Documentos",
+            "Portaria",
+            "2025"
+          ],
+          "text": "Portaria1842025DG. Portaria em Documentos. Arquivo disponível em documents/Portaria1842025DG.pdf."
+        }
+      ]
+    },
+    {
+      "id": "doc-curricularizacao-extensao-resolucao-24-2021-consepe",
+      "title": "Curricularizacao Extensao Resolucao 24 2021 CONSEPE",
+      "category": "Documentos",
+      "group": "Documentos",
+      "kind": "Resolução",
+      "documentType": "Resolução",
+      "correspondent": "CONSEPE",
+      "fileFormat": "PDF",
+      "pdfUrl": "documents/curricularizacao-extensao-resolucao-24-2021-consepe.pdf",
+      "sourceUrl": "documents/curricularizacao-extensao-resolucao-24-2021-consepe.pdf",
+      "tags": [
+        "Documentos",
+        "Resolução",
+        "extensão",
+        "2021"
+      ],
+      "summary": "Resolução em Documentos.",
+      "chunks": [
+        {
+          "id": "doc-curricularizacao-extensao-resolucao-24-2021-consepe-arquivo",
+          "page": "—",
+          "heading": "Curricularizacao Extensao Resolucao 24 2021 CONSEPE",
+          "semanticTags": [
+            "Documentos",
+            "Resolução",
+            "extensão",
+            "2021"
+          ],
+          "text": "Curricularizacao Extensao Resolucao 24 2021 CONSEPE. Resolução em Documentos. Arquivo disponível em documents/curricularizacao-extensao-resolucao-24-2021-consepe.pdf."
+        }
+      ]
+    },
+    {
+      "id": "doc-fluxo-prestacoes-alternativas-aplicacao-provas-frequencia-aulas-guarda-religiosa-instrucao-normativa-03-2025-proen",
+      "title": "Fluxo Prestacoes Alternativas Aplicacao Provas Frequencia Aulas Guarda Religiosa Instrucao Normativa 03 2025 Proen",
+      "category": "Documentos",
+      "group": "Documentos",
+      "kind": "Documento",
+      "documentType": "Documento",
+      "correspondent": "A definir",
+      "fileFormat": "PDF",
+      "pdfUrl": "documents/fluxo-prestacoes-alternativas-aplicacao-provas-frequencia-aulas-guarda-religiosa-instrucao-normativa-03-2025-proen.pdf",
+      "sourceUrl": "documents/fluxo-prestacoes-alternativas-aplicacao-provas-frequencia-aulas-guarda-religiosa-instrucao-normativa-03-2025-proen.pdf",
+      "tags": [
+        "Documentos",
+        "Documento",
+        "2025"
+      ],
+      "summary": "Documento em Documentos.",
+      "chunks": [
+        {
+          "id": "doc-fluxo-prestacoes-alternativas-aplicacao-provas-frequencia-aulas-guarda-religiosa-instrucao-normativa-03-2025-proen-arquivo",
+          "page": "—",
+          "heading": "Fluxo Prestacoes Alternativas Aplicacao Provas Frequencia Aulas Guarda Religiosa Instrucao Normativa 03 2025 Proen",
+          "semanticTags": [
+            "Documentos",
+            "Documento",
+            "2025"
+          ],
+          "text": "Fluxo Prestacoes Alternativas Aplicacao Provas Frequencia Aulas Guarda Religiosa Instrucao Normativa 03 2025 Proen. Documento em Documentos. Arquivo disponível em documents/fluxo-prestacoes-alternativas-aplicacao-provas-frequencia-aulas-guarda-religiosa-instrucao-normativa-03-2025-proen.pdf."
+        }
+      ]
+    },
+    {
+      "id": "doc-matriz-curricular-1",
+      "title": "Matriz Curricular (1)",
+      "category": "Documentos",
+      "group": "Documentos",
+      "kind": "Matriz curricular",
+      "documentType": "Matriz curricular",
+      "correspondent": "Coordenação de Sistemas de Informação",
+      "fileFormat": "PDF",
+      "pdfUrl": "documents/matriz-curricular (1).pdf",
+      "sourceUrl": "documents/matriz-curricular (1).pdf",
+      "tags": [
+        "Documentos",
+        "Matriz curricular",
+        "matriz",
+        "currículo",
+        "disciplinas"
+      ],
+      "summary": "Matriz curricular em Documentos.",
+      "chunks": [
+        {
+          "id": "doc-matriz-curricular-1-arquivo",
+          "page": "—",
+          "heading": "Matriz Curricular (1)",
+          "semanticTags": [
+            "Documentos",
+            "Matriz curricular",
+            "matriz",
+            "currículo",
+            "disciplinas"
+          ],
+          "text": "Matriz Curricular (1). Matriz curricular em Documentos. Arquivo disponível em documents/matriz-curricular (1).pdf."
+        }
+      ]
+    },
+    {
+      "id": "doc-matriz-curricular-2",
+      "title": "Matriz Curricular (2)",
+      "category": "Documentos",
+      "group": "Documentos",
+      "kind": "Matriz curricular",
+      "documentType": "Matriz curricular",
+      "correspondent": "Coordenação de Sistemas de Informação",
+      "fileFormat": "PDF",
+      "pdfUrl": "documents/matriz-curricular (2).pdf",
+      "sourceUrl": "documents/matriz-curricular (2).pdf",
+      "tags": [
+        "Documentos",
+        "Matriz curricular",
+        "matriz",
+        "currículo",
+        "disciplinas"
+      ],
+      "summary": "Matriz curricular em Documentos.",
+      "chunks": [
+        {
+          "id": "doc-matriz-curricular-2-arquivo",
+          "page": "—",
+          "heading": "Matriz Curricular (2)",
+          "semanticTags": [
+            "Documentos",
+            "Matriz curricular",
+            "matriz",
+            "currículo",
+            "disciplinas"
+          ],
+          "text": "Matriz Curricular (2). Matriz curricular em Documentos. Arquivo disponível em documents/matriz-curricular (2).pdf."
+        }
+      ]
+    },
+    {
+      "id": "doc-matriz-curricular-optativa",
+      "title": "Matriz Curricular Optativa",
+      "category": "Documentos",
+      "group": "Documentos",
+      "kind": "Matriz curricular",
+      "documentType": "Matriz curricular",
+      "correspondent": "Coordenação de Sistemas de Informação",
+      "fileFormat": "PDF",
+      "pdfUrl": "documents/matriz-curricular-optativa.pdf",
+      "sourceUrl": "documents/matriz-curricular-optativa.pdf",
+      "tags": [
+        "Documentos",
+        "Matriz curricular",
+        "matriz",
+        "currículo",
+        "disciplinas",
+        "optativas"
+      ],
+      "summary": "Matriz curricular em Documentos.",
+      "chunks": [
+        {
+          "id": "doc-matriz-curricular-optativa-arquivo",
+          "page": "—",
+          "heading": "Matriz Curricular Optativa",
+          "semanticTags": [
+            "Documentos",
+            "Matriz curricular",
+            "matriz",
+            "currículo",
+            "disciplinas",
+            "optativas"
+          ],
+          "text": "Matriz Curricular Optativa. Matriz curricular em Documentos. Arquivo disponível em documents/matriz-curricular-optativa.pdf."
+        }
+      ]
+    },
+    {
+      "id": "doc-matriz-curricular",
+      "title": "Matriz Curricular",
+      "category": "Documentos",
+      "group": "Documentos",
+      "kind": "Matriz curricular",
+      "documentType": "Matriz curricular",
+      "correspondent": "Coordenação de Sistemas de Informação",
+      "fileFormat": "PDF",
+      "pdfUrl": "documents/matriz-curricular.pdf",
+      "sourceUrl": "documents/matriz-curricular.pdf",
+      "tags": [
+        "Documentos",
+        "Matriz curricular",
+        "matriz",
+        "currículo",
+        "disciplinas"
+      ],
+      "summary": "Matriz curricular em Documentos.",
+      "chunks": [
+        {
+          "id": "doc-matriz-curricular-arquivo",
+          "page": "—",
+          "heading": "Matriz Curricular",
+          "semanticTags": [
+            "Documentos",
+            "Matriz curricular",
+            "matriz",
+            "currículo",
+            "disciplinas"
+          ],
+          "text": "Matriz Curricular. Matriz curricular em Documentos. Arquivo disponível em documents/matriz-curricular.pdf."
+        }
+      ]
+    },
+    {
+      "id": "doc-normas-academicas-ensino-superior-resolucaoo-23-2019-consepe",
+      "title": "Normas Academicas Ensino Superior Resolucaoo 23 2019 CONSEPE",
+      "category": "Documentos",
+      "group": "Documentos",
+      "kind": "Resolução",
+      "documentType": "Resolução",
+      "correspondent": "CONSEPE",
+      "fileFormat": "PDF",
+      "pdfUrl": "documents/normas-academicas-ensino-superior-resolucaoo-23-2019-consepe.pdf",
+      "sourceUrl": "documents/normas-academicas-ensino-superior-resolucaoo-23-2019-consepe.pdf",
+      "tags": [
+        "Documentos",
+        "Resolução",
+        "2019"
+      ],
+      "summary": "Resolução em Documentos.",
+      "chunks": [
+        {
+          "id": "doc-normas-academicas-ensino-superior-resolucaoo-23-2019-consepe-arquivo",
+          "page": "—",
+          "heading": "Normas Academicas Ensino Superior Resolucaoo 23 2019 CONSEPE",
+          "semanticTags": [
+            "Documentos",
+            "Resolução",
+            "2019"
+          ],
+          "text": "Normas Academicas Ensino Superior Resolucaoo 23 2019 CONSEPE. Resolução em Documentos. Arquivo disponível em documents/normas-academicas-ensino-superior-resolucaoo-23-2019-consepe.pdf."
+        }
+      ]
+    },
+    {
+      "id": "doc-politica-assistencia-estudantil-resolucao-090-2023-consup",
+      "title": "Politica Assistencia Estudantil Resolucao 090 2023 CONSUP",
+      "category": "Documentos",
+      "group": "Documentos",
+      "kind": "Resolução",
+      "documentType": "Resolução",
+      "correspondent": "CONSUP",
+      "fileFormat": "PDF",
+      "pdfUrl": "documents/politica-assistencia-estudantil-resolucao-090-2023-consup.pdf",
+      "sourceUrl": "documents/politica-assistencia-estudantil-resolucao-090-2023-consup.pdf",
+      "tags": [
+        "Documentos",
+        "Resolução",
+        "2023"
+      ],
+      "summary": "Resolução em Documentos.",
+      "chunks": [
+        {
+          "id": "doc-politica-assistencia-estudantil-resolucao-090-2023-consup-arquivo",
+          "page": "—",
+          "heading": "Politica Assistencia Estudantil Resolucao 090 2023 CONSUP",
+          "semanticTags": [
+            "Documentos",
+            "Resolução",
+            "2023"
+          ],
+          "text": "Politica Assistencia Estudantil Resolucao 090 2023 CONSUP. Resolução em Documentos. Arquivo disponível em documents/politica-assistencia-estudantil-resolucao-090-2023-consup.pdf."
+        }
+      ]
+    },
+    {
+      "id": "doc-politica-inclusao-pessoas-deficiencia-necessidades-especificas-resolucao-30-2017-consup",
+      "title": "Politica Inclusao Pessoas Deficiencia Necessidades Especificas Resolucao 30 2017 CONSUP",
+      "category": "Documentos",
+      "group": "Documentos",
+      "kind": "Resolução",
+      "documentType": "Resolução",
+      "correspondent": "CONSUP",
+      "fileFormat": "PDF",
+      "pdfUrl": "documents/politica-inclusao-pessoas-deficiencia-necessidades-especificas-resolucao-30-2017-consup.pdf",
+      "sourceUrl": "documents/politica-inclusao-pessoas-deficiencia-necessidades-especificas-resolucao-30-2017-consup.pdf",
+      "tags": [
+        "Documentos",
+        "Resolução",
+        "2017"
+      ],
+      "summary": "Resolução em Documentos.",
+      "chunks": [
+        {
+          "id": "doc-politica-inclusao-pessoas-deficiencia-necessidades-especificas-resolucao-30-2017-consup-arquivo",
+          "page": "—",
+          "heading": "Politica Inclusao Pessoas Deficiencia Necessidades Especificas Resolucao 30 2017 CONSUP",
+          "semanticTags": [
+            "Documentos",
+            "Resolução",
+            "2017"
+          ],
+          "text": "Politica Inclusao Pessoas Deficiencia Necessidades Especificas Resolucao 30 2017 CONSUP. Resolução em Documentos. Arquivo disponível em documents/politica-inclusao-pessoas-deficiencia-necessidades-especificas-resolucao-30-2017-consup.pdf."
+        }
+      ]
+    },
+    {
+      "id": "doc-ppc-1",
+      "title": "PPC (1)",
+      "category": "Documentos",
+      "group": "Documentos",
+      "kind": "PPC",
+      "documentType": "PPC",
+      "correspondent": "Coordenação de Sistemas de Informação",
+      "fileFormat": "PDF",
+      "pdfUrl": "documents/ppc (1).pdf",
+      "sourceUrl": "documents/ppc (1).pdf",
+      "tags": [
+        "Documentos",
+        "PPC",
+        "projeto pedagógico",
+        "currículo"
+      ],
+      "summary": "PPC em Documentos.",
+      "chunks": [
+        {
+          "id": "doc-ppc-1-arquivo",
+          "page": "—",
+          "heading": "PPC (1)",
+          "semanticTags": [
+            "Documentos",
+            "PPC",
+            "projeto pedagógico",
+            "currículo"
+          ],
+          "text": "PPC (1). PPC em Documentos. Arquivo disponível em documents/ppc (1).pdf."
+        }
+      ]
+    },
+    {
+      "id": "doc-ppc-2",
+      "title": "PPC (2)",
+      "category": "Documentos",
+      "group": "Documentos",
+      "kind": "PPC",
+      "documentType": "PPC",
+      "correspondent": "Coordenação de Sistemas de Informação",
+      "fileFormat": "PDF",
+      "pdfUrl": "documents/ppc (2).pdf",
+      "sourceUrl": "documents/ppc (2).pdf",
+      "tags": [
+        "Documentos",
+        "PPC",
+        "projeto pedagógico",
+        "currículo"
+      ],
+      "summary": "PPC em Documentos.",
+      "chunks": [
+        {
+          "id": "doc-ppc-2-arquivo",
+          "page": "—",
+          "heading": "PPC (2)",
+          "semanticTags": [
+            "Documentos",
+            "PPC",
+            "projeto pedagógico",
+            "currículo"
+          ],
+          "text": "PPC (2). PPC em Documentos. Arquivo disponível em documents/ppc (2).pdf."
+        }
+      ]
+    },
+    {
+      "id": "doc-ppc",
+      "title": "PPC",
+      "category": "Documentos",
+      "group": "Documentos",
+      "kind": "PPC",
+      "documentType": "PPC",
+      "correspondent": "Coordenação de Sistemas de Informação",
+      "fileFormat": "PDF",
+      "pdfUrl": "documents/ppc.pdf",
+      "sourceUrl": "documents/ppc.pdf",
+      "tags": [
+        "Documentos",
+        "PPC",
+        "projeto pedagógico",
+        "currículo"
+      ],
+      "summary": "PPC em Documentos.",
+      "chunks": [
+        {
+          "id": "doc-ppc-arquivo",
+          "page": "—",
+          "heading": "PPC",
+          "semanticTags": [
+            "Documentos",
+            "PPC",
+            "projeto pedagógico",
+            "currículo"
+          ],
+          "text": "PPC. PPC em Documentos. Arquivo disponível em documents/ppc.pdf."
+        }
+      ]
+    },
+    {
+      "id": "doc-quadro-equivalencia",
+      "title": "Quadro Equivalencia",
+      "category": "Documentos",
+      "group": "Documentos",
+      "kind": "Documento",
+      "documentType": "Documento",
+      "correspondent": "A definir",
+      "fileFormat": "PDF",
+      "pdfUrl": "documents/quadro-equivalencia.pdf",
+      "sourceUrl": "documents/quadro-equivalencia.pdf",
+      "tags": [
+        "Documentos",
+        "Documento",
+        "equivalência",
+        "aproveitamento"
+      ],
+      "summary": "Documento em Documentos.",
+      "chunks": [
+        {
+          "id": "doc-quadro-equivalencia-arquivo",
+          "page": "—",
+          "heading": "Quadro Equivalencia",
+          "semanticTags": [
+            "Documentos",
+            "Documento",
+            "equivalência",
+            "aproveitamento"
+          ],
+          "text": "Quadro Equivalencia. Documento em Documentos. Arquivo disponível em documents/quadro-equivalencia.pdf."
+        }
+      ]
+    },
+    {
+      "id": "doc-rces005-16",
+      "title": "Rces005 16",
+      "category": "Documentos",
+      "group": "Documentos",
+      "kind": "Documento",
+      "documentType": "Documento",
+      "correspondent": "A definir",
+      "fileFormat": "PDF",
+      "pdfUrl": "documents/rces005_16.pdf",
+      "sourceUrl": "documents/rces005_16.pdf",
+      "tags": [
+        "Documentos",
+        "Documento"
+      ],
+      "summary": "Documento em Documentos.",
+      "chunks": [
+        {
+          "id": "doc-rces005-16-arquivo",
+          "page": "—",
+          "heading": "Rces005 16",
+          "semanticTags": [
+            "Documentos",
+            "Documento"
+          ],
+          "text": "Rces005 16. Documento em Documentos. Arquivo disponível em documents/rces005_16.pdf."
+        }
+      ]
+    },
+    {
+      "id": "doc-rces007-18",
+      "title": "Rces007 18",
+      "category": "Documentos",
+      "group": "Documentos",
+      "kind": "Documento",
+      "documentType": "Documento",
+      "correspondent": "A definir",
+      "fileFormat": "PDF",
+      "pdfUrl": "documents/rces007_18.pdf",
+      "sourceUrl": "documents/rces007_18.pdf",
+      "tags": [
+        "Documentos",
+        "Documento"
+      ],
+      "summary": "Documento em Documentos.",
+      "chunks": [
+        {
+          "id": "doc-rces007-18-arquivo",
+          "page": "—",
+          "heading": "Rces007 18",
+          "semanticTags": [
+            "Documentos",
+            "Documento"
+          ],
+          "text": "Rces007 18. Documento em Documentos. Arquivo disponível em documents/rces007_18.pdf."
+        }
+      ]
+    },
+    {
+      "id": "doc-regimento",
+      "title": "Regimento",
+      "category": "Documentos",
+      "group": "Documentos",
+      "kind": "Regulamento",
+      "documentType": "Regulamento",
+      "correspondent": "A definir",
+      "fileFormat": "PDF",
+      "pdfUrl": "documents/regimento.pdf",
+      "sourceUrl": "documents/regimento.pdf",
+      "tags": [
+        "Documentos",
+        "Regulamento",
+        "regimento"
+      ],
+      "summary": "Regulamento em Documentos.",
+      "chunks": [
+        {
+          "id": "doc-regimento-arquivo",
+          "page": "—",
+          "heading": "Regimento",
+          "semanticTags": [
+            "Documentos",
+            "Regulamento",
+            "regimento"
+          ],
+          "text": "Regimento. Regulamento em Documentos. Arquivo disponível em documents/regimento.pdf."
+        }
+      ]
+    },
+    {
+      "id": "doc-regulamento-atividades-complementares-ppc-2010-2017",
+      "title": "Regulamento Atividades Complementares PPC 2010 2017",
+      "category": "Documentos",
+      "group": "Documentos",
+      "kind": "PPC",
+      "documentType": "PPC",
+      "correspondent": "Coordenação de Sistemas de Informação",
+      "fileFormat": "PDF",
+      "pdfUrl": "documents/regulamento-atividades-complementares-ppc-2010-2017.pdf",
+      "sourceUrl": "documents/regulamento-atividades-complementares-ppc-2010-2017.pdf",
+      "tags": [
+        "Documentos",
+        "PPC",
+        "projeto pedagógico",
+        "currículo",
+        "atividades complementares",
+        "horas",
+        "regulamento",
+        "2010",
+        "2017"
+      ],
+      "summary": "PPC em Documentos.",
+      "chunks": [
+        {
+          "id": "doc-regulamento-atividades-complementares-ppc-2010-2017-arquivo",
+          "page": "—",
+          "heading": "Regulamento Atividades Complementares PPC 2010 2017",
+          "semanticTags": [
+            "Documentos",
+            "PPC",
+            "projeto pedagógico",
+            "currículo",
+            "atividades complementares",
+            "horas",
+            "regulamento",
+            "2010",
+            "2017"
+          ],
+          "text": "Regulamento Atividades Complementares PPC 2010 2017. PPC em Documentos. Arquivo disponível em documents/regulamento-atividades-complementares-ppc-2010-2017.pdf."
+        }
+      ]
+    },
+    {
+      "id": "doc-regulamento-atividades-complementares-ppc-2024",
+      "title": "Regulamento Atividades Complementares PPC 2024",
+      "category": "Documentos",
+      "group": "Documentos",
+      "kind": "PPC",
+      "documentType": "PPC",
+      "correspondent": "Coordenação de Sistemas de Informação",
+      "fileFormat": "PDF",
+      "pdfUrl": "documents/regulamento-atividades-complementares-ppc-2024.pdf",
+      "sourceUrl": "documents/regulamento-atividades-complementares-ppc-2024.pdf",
+      "tags": [
+        "Documentos",
+        "PPC",
+        "projeto pedagógico",
+        "currículo",
+        "atividades complementares",
+        "horas",
+        "regulamento",
+        "2024"
+      ],
+      "summary": "PPC em Documentos.",
+      "chunks": [
+        {
+          "id": "doc-regulamento-atividades-complementares-ppc-2024-arquivo",
+          "page": "—",
+          "heading": "Regulamento Atividades Complementares PPC 2024",
+          "semanticTags": [
+            "Documentos",
+            "PPC",
+            "projeto pedagógico",
+            "currículo",
+            "atividades complementares",
+            "horas",
+            "regulamento",
+            "2024"
+          ],
+          "text": "Regulamento Atividades Complementares PPC 2024. PPC em Documentos. Arquivo disponível em documents/regulamento-atividades-complementares-ppc-2024.pdf."
+        }
+      ]
+    },
+    {
+      "id": "doc-regulamento-atividades-curriculares-extensao",
+      "title": "Regulamento Atividades Curriculares Extensao",
+      "category": "Documentos",
+      "group": "Documentos",
+      "kind": "Regulamento",
+      "documentType": "Regulamento",
+      "correspondent": "A definir",
+      "fileFormat": "PDF",
+      "pdfUrl": "documents/regulamento-atividades-curriculares-extensao.pdf",
+      "sourceUrl": "documents/regulamento-atividades-curriculares-extensao.pdf",
+      "tags": [
+        "Documentos",
+        "Regulamento",
+        "extensão"
+      ],
+      "summary": "Regulamento em Documentos.",
+      "chunks": [
+        {
+          "id": "doc-regulamento-atividades-curriculares-extensao-arquivo",
+          "page": "—",
+          "heading": "Regulamento Atividades Curriculares Extensao",
+          "semanticTags": [
+            "Documentos",
+            "Regulamento",
+            "extensão"
+          ],
+          "text": "Regulamento Atividades Curriculares Extensao. Regulamento em Documentos. Arquivo disponível em documents/regulamento-atividades-curriculares-extensao.pdf."
+        }
+      ]
+    },
+    {
+      "id": "doc-regulamento-estagio-curricular-supervisionado",
+      "title": "Regulamento Estagio Curricular Supervisionado",
+      "category": "Documentos",
+      "group": "Documentos",
+      "kind": "Regulamento",
+      "documentType": "Regulamento",
+      "correspondent": "Coordenação de Sistemas de Informação",
+      "fileFormat": "PDF",
+      "pdfUrl": "documents/regulamento-estagio-curricular-supervisionado.pdf",
+      "sourceUrl": "documents/regulamento-estagio-curricular-supervisionado.pdf",
+      "tags": [
+        "Documentos",
+        "Regulamento",
+        "estágio"
+      ],
+      "summary": "Regulamento em Documentos.",
+      "chunks": [
+        {
+          "id": "doc-regulamento-estagio-curricular-supervisionado-arquivo",
+          "page": "—",
+          "heading": "Regulamento Estagio Curricular Supervisionado",
+          "semanticTags": [
+            "Documentos",
+            "Regulamento",
+            "estágio"
+          ],
+          "text": "Regulamento Estagio Curricular Supervisionado. Regulamento em Documentos. Arquivo disponível em documents/regulamento-estagio-curricular-supervisionado.pdf."
+        }
+      ]
+    },
+    {
+      "id": "doc-regulamento-migracao-curricular",
+      "title": "Regulamento Migracao Curricular",
+      "category": "Documentos",
+      "group": "Documentos",
+      "kind": "Regulamento",
+      "documentType": "Regulamento",
+      "correspondent": "A definir",
+      "fileFormat": "PDF",
+      "pdfUrl": "documents/regulamento-migracao-curricular.pdf",
+      "sourceUrl": "documents/regulamento-migracao-curricular.pdf",
+      "tags": [
+        "Documentos",
+        "Regulamento",
+        "migração",
+        "equivalência",
+        "currículo"
+      ],
+      "summary": "Regulamento em Documentos.",
+      "chunks": [
+        {
+          "id": "doc-regulamento-migracao-curricular-arquivo",
+          "page": "—",
+          "heading": "Regulamento Migracao Curricular",
+          "semanticTags": [
+            "Documentos",
+            "Regulamento",
+            "migração",
+            "equivalência",
+            "currículo"
+          ],
+          "text": "Regulamento Migracao Curricular. Regulamento em Documentos. Arquivo disponível em documents/regulamento-migracao-curricular.pdf."
+        }
+      ]
+    },
+    {
+      "id": "doc-regulamento-trabalho-conclusao-curso",
+      "title": "Regulamento Trabalho Conclusao Curso",
+      "category": "Documentos",
+      "group": "Documentos",
+      "kind": "Regulamento",
+      "documentType": "Regulamento",
+      "correspondent": "A definir",
+      "fileFormat": "PDF",
+      "pdfUrl": "documents/regulamento-trabalho-conclusao-curso.pdf",
+      "sourceUrl": "documents/regulamento-trabalho-conclusao-curso.pdf",
+      "tags": [
+        "Documentos",
+        "Regulamento"
+      ],
+      "summary": "Regulamento em Documentos.",
+      "chunks": [
+        {
+          "id": "doc-regulamento-trabalho-conclusao-curso-arquivo",
+          "page": "—",
+          "heading": "Regulamento Trabalho Conclusao Curso",
+          "semanticTags": [
+            "Documentos",
+            "Regulamento"
+          ],
+          "text": "Regulamento Trabalho Conclusao Curso. Regulamento em Documentos. Arquivo disponível em documents/regulamento-trabalho-conclusao-curso.pdf."
+        }
+      ]
+    },
+    {
+      "id": "doc-res-cne-ces-002-18062007",
+      "title": "Res CNE CES 002 18062007",
+      "category": "Documentos",
+      "group": "Documentos",
+      "kind": "Documento",
+      "documentType": "Documento",
+      "correspondent": "MEC/CNE",
+      "fileFormat": "PDF",
+      "pdfUrl": "documents/res_cne_ces_002_18062007.pdf",
+      "sourceUrl": "documents/res_cne_ces_002_18062007.pdf",
+      "tags": [
+        "Documentos",
+        "Documento",
+        "2007"
+      ],
+      "summary": "Documento em Documentos.",
+      "chunks": [
+        {
+          "id": "doc-res-cne-ces-002-18062007-arquivo",
+          "page": "—",
+          "heading": "Res CNE CES 002 18062007",
+          "semanticTags": [
+            "Documentos",
+            "Documento",
+            "2007"
+          ],
+          "text": "Res CNE CES 002 18062007. Documento em Documentos. Arquivo disponível em documents/res_cne_ces_002_18062007.pdf."
+        }
+      ]
+    },
+    {
+      "id": "doc-resolucao-005-2017-consepe",
+      "title": "Resolucao 005 2017 CONSEPE",
+      "category": "Documentos",
+      "group": "Documentos",
+      "kind": "Resolução",
+      "documentType": "Resolução",
+      "correspondent": "CONSEPE",
+      "fileFormat": "PDF",
+      "pdfUrl": "documents/resolucao-005-2017-consepe.pdf",
+      "sourceUrl": "documents/resolucao-005-2017-consepe.pdf",
+      "tags": [
+        "Documentos",
+        "Resolução",
+        "2017"
+      ],
+      "summary": "Resolução em Documentos.",
+      "chunks": [
+        {
+          "id": "doc-resolucao-005-2017-consepe-arquivo",
+          "page": "—",
+          "heading": "Resolucao 005 2017 CONSEPE",
+          "semanticTags": [
+            "Documentos",
+            "Resolução",
+            "2017"
+          ],
+          "text": "Resolucao 005 2017 CONSEPE. Resolução em Documentos. Arquivo disponível em documents/resolucao-005-2017-consepe.pdf."
+        }
+      ]
+    },
+    {
+      "id": "doc-resolucao-012-2024-concam",
+      "title": "Resolucao 012 2024 CONCAM",
+      "category": "Documentos",
+      "group": "Documentos",
+      "kind": "Resolução",
+      "documentType": "Resolução",
+      "correspondent": "CONCAM",
+      "fileFormat": "PDF",
+      "pdfUrl": "documents/resolucao-012-2024-concam.pdf",
+      "sourceUrl": "documents/resolucao-012-2024-concam.pdf",
+      "tags": [
+        "Documentos",
+        "Resolução",
+        "2024"
+      ],
+      "summary": "Resolução em Documentos.",
+      "chunks": [
+        {
+          "id": "doc-resolucao-012-2024-concam-arquivo",
+          "page": "—",
+          "heading": "Resolucao 012 2024 CONCAM",
+          "semanticTags": [
+            "Documentos",
+            "Resolução",
+            "2024"
+          ],
+          "text": "Resolucao 012 2024 CONCAM. Resolução em Documentos. Arquivo disponível em documents/resolucao-012-2024-concam.pdf."
+        }
+      ]
+    },
+    {
+      "id": "doc-resolucao-08-2010-consup",
+      "title": "Resolucao 08 2010 CONSUP",
+      "category": "Documentos",
+      "group": "Documentos",
+      "kind": "Resolução",
+      "documentType": "Resolução",
+      "correspondent": "CONSUP",
+      "fileFormat": "PDF",
+      "pdfUrl": "documents/resolucao-08-2010-consup.pdf",
+      "sourceUrl": "documents/resolucao-08-2010-consup.pdf",
+      "tags": [
+        "Documentos",
+        "Resolução",
+        "2010"
+      ],
+      "summary": "Resolução em Documentos.",
+      "chunks": [
+        {
+          "id": "doc-resolucao-08-2010-consup-arquivo",
+          "page": "—",
+          "heading": "Resolucao 08 2010 CONSUP",
+          "semanticTags": [
+            "Documentos",
+            "Resolução",
+            "2010"
+          ],
+          "text": "Resolucao 08 2010 CONSUP. Resolução em Documentos. Arquivo disponível em documents/resolucao-08-2010-consup.pdf."
+        }
+      ]
+    },
+    {
+      "id": "doc-resolucao-124-2023-consepe",
+      "title": "Resolucao 124 2023 CONSEPE",
+      "category": "Documentos",
+      "group": "Documentos",
+      "kind": "Resolução",
+      "documentType": "Resolução",
+      "correspondent": "CONSEPE",
+      "fileFormat": "PDF",
+      "pdfUrl": "documents/resolucao-124-2023-consepe.pdf",
+      "sourceUrl": "documents/resolucao-124-2023-consepe.pdf",
+      "tags": [
+        "Documentos",
+        "Resolução",
+        "2023"
+      ],
+      "summary": "Resolução em Documentos.",
+      "chunks": [
+        {
+          "id": "doc-resolucao-124-2023-consepe-arquivo",
+          "page": "—",
+          "heading": "Resolucao 124 2023 CONSEPE",
+          "semanticTags": [
+            "Documentos",
+            "Resolução",
+            "2023"
+          ],
+          "text": "Resolucao 124 2023 CONSEPE. Resolução em Documentos. Arquivo disponível em documents/resolucao-124-2023-consepe.pdf."
+        }
+      ]
+    },
+    {
+      "id": "doc-resolucao1-2010-conae",
+      "title": "Resolucao1 2010 Conae",
+      "category": "Documentos",
+      "group": "Documentos",
+      "kind": "Resolução",
+      "documentType": "Resolução",
+      "correspondent": "A definir",
+      "fileFormat": "PDF",
+      "pdfUrl": "documents/resolucao1_2010_conae.pdf",
+      "sourceUrl": "documents/resolucao1_2010_conae.pdf",
+      "tags": [
+        "Documentos",
+        "Resolução",
+        "2010"
+      ],
+      "summary": "Resolução em Documentos.",
+      "chunks": [
+        {
+          "id": "doc-resolucao1-2010-conae-arquivo",
+          "page": "—",
+          "heading": "Resolucao1 2010 Conae",
+          "semanticTags": [
+            "Documentos",
+            "Resolução",
+            "2010"
+          ],
+          "text": "Resolucao1 2010 Conae. Resolução em Documentos. Arquivo disponível em documents/resolucao1_2010_conae.pdf."
+        }
+      ]
+    },
+    {
+      "id": "doc-resultado-definitivo-votacao",
+      "title": "Resultado Definitivo Votacao",
+      "category": "Documentos",
+      "group": "Documentos",
+      "kind": "Documento",
+      "documentType": "Documento",
+      "correspondent": "A definir",
+      "fileFormat": "PDF",
+      "pdfUrl": "documents/resultado-definitivo-votacao.pdf",
+      "sourceUrl": "documents/resultado-definitivo-votacao.pdf",
+      "tags": [
+        "Documentos",
+        "Documento"
+      ],
+      "summary": "Documento em Documentos.",
+      "chunks": [
+        {
+          "id": "doc-resultado-definitivo-votacao-arquivo",
+          "page": "—",
+          "heading": "Resultado Definitivo Votacao",
+          "semanticTags": [
+            "Documentos",
+            "Documento"
+          ],
+          "text": "Resultado Definitivo Votacao. Documento em Documentos. Arquivo disponível em documents/resultado-definitivo-votacao.pdf."
+        }
+      ]
+    },
+    {
+      "id": "doc-uso-nome-social-resolucao-22-2017-consup",
+      "title": "Uso Nome Social Resolucao 22 2017 CONSUP",
+      "category": "Documentos",
+      "group": "Documentos",
+      "kind": "Resolução",
+      "documentType": "Resolução",
+      "correspondent": "CONSUP",
+      "fileFormat": "PDF",
+      "pdfUrl": "documents/uso-nome-social-resolucao-22-2017-consup.pdf",
+      "sourceUrl": "documents/uso-nome-social-resolucao-22-2017-consup.pdf",
+      "tags": [
+        "Documentos",
+        "Resolução",
+        "2017"
+      ],
+      "summary": "Resolução em Documentos.",
+      "chunks": [
+        {
+          "id": "doc-uso-nome-social-resolucao-22-2017-consup-arquivo",
+          "page": "—",
+          "heading": "Uso Nome Social Resolucao 22 2017 CONSUP",
+          "semanticTags": [
+            "Documentos",
+            "Resolução",
+            "2017"
+          ],
+          "text": "Uso Nome Social Resolucao 22 2017 CONSUP. Resolução em Documentos. Arquivo disponível em documents/uso-nome-social-resolucao-22-2017-consup.pdf."
+        }
+      ]
+    }
+  ]
 }
