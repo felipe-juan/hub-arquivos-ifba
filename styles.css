@@ -2630,3 +2630,17 @@ body.modal-open .topbar,
     height: 36px;
   }
 }
+
+
+/* v0.1.39: desktop quick links use responsive columns, capped by site width at 4 columns */
+@media (min-width: 721px) {
+  #links .linktree-list {
+    max-width: none;
+    grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+    align-items: stretch;
+  }
+
+  #links .linktree-item {
+    min-height: 64px;
+  }
+}
