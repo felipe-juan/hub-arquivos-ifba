@@ -1,4 +1,0 @@
-path,reason
-documents/README.md,ignored pattern: ^readme.*
-documents/manifest.csv,ignored pattern: ^manifest\.csv$
-documents/manifest.json,ignored pattern: ^manifest\.json$
