@@ -391,3 +391,9 @@ Antes de usar qualquer informação para matrícula, trancamento, conclusão de 
 - **Código, estrutura, interface e lógica:** gerados por IA generativa.
 - **Ideias, requisitos, testes, feedback, validação visual e direção do produto:** Felipe Juan.
 - **Fontes acadêmicas:** documentos oficiais fornecidos/consultados do IFBA Campus Vitória da Conquista.
+
+## License
+
+The source code of this project is released under the MIT License.
+
+Important: this license applies to the website/source code of this repository. Institutional documents, PDFs, academic calendars, curricular matrices and other third-party or public institutional materials included or referenced by the project may have their own copyright or usage rules and are not automatically covered by the MIT License.
