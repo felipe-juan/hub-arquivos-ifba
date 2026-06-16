@@ -366,7 +366,7 @@ window.HUB_DATA = {
       "id": "app-barema",
       "title": "Barema de Atividades Complementares",
       "description": "Explorador e simulador do Barema PPC 2024: busque atividades, veja horas aceitas, limites por categoria, regra das 200h e mínimo de 3 categorias.",
-      "url": "apps/barema-explorer-v0.1.6.html",
+      "url": "apps/barema-explorer-v0.1.7.html",
       "category": "Barema",
       "openMode": "new-tab",
       "tags": [
@@ -392,7 +392,7 @@ window.HUB_DATA = {
       "id": "app-calendario",
       "title": "Calendário Acadêmico 2026",
       "description": "App independente para consultar o calendário acadêmico IFBA VCA 2026 por busca, tipo de curso, cards, linha do tempo, mês, ano completo e exportação .ics.",
-      "url": "apps/calendario-academico-ifba-vca-2026-v0.1.7.html",
+      "url": "apps/calendario-academico-ifba-vca-2026-v0.1.12.html",
       "category": "Calendário",
       "openMode": "new-tab",
       "tags": [
@@ -422,7 +422,34 @@ window.HUB_DATA = {
         "app",
         "ferramenta"
       ]
-    }
+    },
+
+    {
+      "id": "app-fluxogramas",
+      "title": "Fluxogramas Curriculares",
+      "description": "App independente para navegar pelos fluxogramas curriculares dos cursos do IFBA VCA em modo interativo e também conferir os PDFs originais.",
+      "url": "apps/fluxogramas-curriculares-v0.1.14.html",
+      "category": "Fluxogramas",
+      "openMode": "new-tab",
+      "tags": [
+        "fluxograma",
+        "fluxogramas",
+        "grade curricular",
+        "matriz curricular",
+        "disciplinas",
+        "pré-requisitos",
+        "pre requisitos",
+        "curso",
+        "sistemas de informação",
+        "engenharia elétrica",
+        "engenharia mecânica",
+        "engenharia civil",
+        "engenharia ambiental",
+        "licenciatura em química",
+        "app",
+        "ferramenta"
+      ]
+    },
   ],
   "guides": [],
   "directoryGroups": [
@@ -450,6 +477,10 @@ window.HUB_DATA = {
         {
           "type": "app",
           "id": "app-calendario"
+        },
+        {
+          "type": "app",
+          "id": "app-fluxogramas"
         },
         {
           "type": "link",

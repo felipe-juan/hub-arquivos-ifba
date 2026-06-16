@@ -20,6 +20,43 @@ const state = {
   archiveVisibleCount: null
 };
 
+const HUB_PREF_KEYS = {
+  desktopColumns: "hubDesktopColumns",
+  archiveView: "hubArchiveView",
+  searchFilters: "hubSearchFilters",
+  filtersOpen: "hubFiltersOpen"
+};
+
+function prefGet(key, fallback = null) {
+  try {
+    const value = localStorage.getItem(key);
+    return value === null ? fallback : value;
+  } catch (_) {
+    return fallback;
+  }
+}
+
+function prefSet(key, value) {
+  try { localStorage.setItem(key, value); } catch (_) {}
+}
+
+function prefRemove(key) {
+  try { localStorage.removeItem(key); } catch (_) {}
+}
+
+function prefGetJson(key, fallback = null) {
+  try {
+    const raw = localStorage.getItem(key);
+    return raw ? JSON.parse(raw) : fallback;
+  } catch (_) {
+    return fallback;
+  }
+}
+
+function prefSetJson(key, value) {
+  try { localStorage.setItem(key, JSON.stringify(value)); } catch (_) {}
+}
+
 function setLoadingStatus(message = "", kind = "info") {
   const box = document.getElementById("loadingStatus");
   if (!box) return;
@@ -37,7 +74,7 @@ function applyDesktopColumns(value = "auto") {
 
 function setupDesktopColumnsControl() {
   const select = document.getElementById("desktopColumnsSelect");
-  const saved = localStorage.getItem("hubDesktopColumns") || "auto";
+  const saved = prefGet(HUB_PREF_KEYS.desktopColumns, "auto");
   applyDesktopColumns(saved);
   if (!select) return;
   select.value = state.desktopColumns;
@@ -45,7 +82,7 @@ function setupDesktopColumnsControl() {
     applyDesktopColumns(select.value);
     resetArchiveLimit();
     renderDocuments();
-    try { localStorage.setItem("hubDesktopColumns", state.desktopColumns); } catch (_) {}
+    prefSet(HUB_PREF_KEYS.desktopColumns, state.desktopColumns);
   });
 }
 
@@ -456,6 +493,7 @@ function emojiForResource(resource = {}, type = "link") {
     return "💡";
   }
   if (type === "app") {
+    if (haystack.includes("fluxograma") || haystack.includes("grade curricular") || haystack.includes("matriz curricular")) return "🗺️";
     if (haystack.includes("calendario") || haystack.includes("calendário") || haystack.includes("datas academicas") || haystack.includes("datas acadêmicas")) return "📅";
     if (haystack.includes("onde resolvo") || haystack.includes("setor") || haystack.includes("problema")) return "🧭";
     if (haystack.includes("barema") || haystack.includes("atividades complementares") || haystack.includes("horas complementares") || haystack.includes("certificado")) return "🎓";
@@ -1752,7 +1790,10 @@ function setupSearch() {
   });
 
   ["typeFilter", "docTypeFilter", "correspondentFilter", "formatFilter"].forEach(id => {
-    document.getElementById(id)?.addEventListener("change", () => runSearch(input.value));
+    document.getElementById(id)?.addEventListener("change", () => {
+      saveSearchFiltersPreference();
+      runSearch(input.value);
+    });
   });
 
   document.getElementById("clearSearch")?.addEventListener("click", () => {
@@ -1761,6 +1802,7 @@ function setupSearch() {
       const el = document.getElementById(id);
       if (el) el.value = "all";
     });
+    prefRemove(HUB_PREF_KEYS.searchFilters);
     runSearch("");
     input.focus();
   });
@@ -2383,15 +2425,46 @@ function setupModal() {
   });
 }
 
-function setupArchiveViews() {
+function applyArchiveView(value = "grid", { persist = true } = {}) {
+  const clean = value === "list" ? "list" : "grid";
+  state.archiveView = clean;
   document.querySelectorAll("[data-view]").forEach(button => {
-    button.addEventListener("click", () => {
-      state.archiveView = button.dataset.view;
-      document.querySelectorAll("[data-view]").forEach(item => item.classList.toggle("active", item === button));
-      document.getElementById("documentGrid").hidden = state.archiveView !== "grid";
-      document.getElementById("directoryGrid").hidden = state.archiveView !== "list";
-      renderArchiveLoadMore(documents.length, Math.min(ensureArchiveLimit(), documents.length));
-    });
+    button.classList.toggle("active", button.dataset.view === clean);
+  });
+  const documentGrid = document.getElementById("documentGrid");
+  const directoryGrid = document.getElementById("directoryGrid");
+  if (documentGrid) documentGrid.hidden = clean !== "grid";
+  if (directoryGrid) directoryGrid.hidden = clean !== "list";
+  if (persist) prefSet(HUB_PREF_KEYS.archiveView, clean);
+  renderArchiveLoadMore(documents.length, Math.min(ensureArchiveLimit(), documents.length));
+}
+
+function saveSearchFiltersPreference() {
+  const filters = getFilters();
+  prefSetJson(HUB_PREF_KEYS.searchFilters, {
+    type: filters.type,
+    docType: filters.docType,
+    correspondent: filters.correspondent,
+    format: filters.format
+  });
+}
+
+function restoreSearchFiltersPreference() {
+  const saved = prefGetJson(HUB_PREF_KEYS.searchFilters, null);
+  if (!saved || typeof saved !== "object") return;
+  [["typeFilter", saved.type], ["docTypeFilter", saved.docType], ["correspondentFilter", saved.correspondent], ["formatFilter", saved.format]].forEach(([id, value]) => {
+    const el = document.getElementById(id);
+    if (!el || !value) return;
+    const hasOption = Array.from(el.options || []).some(option => option.value === value);
+    if (hasOption) el.value = value;
+  });
+}
+
+function setupArchiveViews() {
+  applyArchiveView(prefGet(HUB_PREF_KEYS.archiveView, "grid"), { persist: false });
+
+  document.querySelectorAll("[data-view]").forEach(button => {
+    button.addEventListener("click", () => applyArchiveView(button.dataset.view, { persist: true }));
   });
 
   document.getElementById("archiveLoadMore")?.addEventListener("click", event => {
@@ -2401,6 +2474,7 @@ function setupArchiveViews() {
     renderDocuments();
   });
 }
+
 
 function updateBulkUI() {
   const panel = document.getElementById("bulkPanel");
@@ -3014,12 +3088,13 @@ function setupFilterToggle() {
   const toggle = document.getElementById("filterToggle");
   const card = document.getElementById("filtersCard");
   if (!toggle || !card) return;
-  const setOpen = open => {
+  const setOpen = (open, { persist = true } = {}) => {
     card.classList.toggle("open", open);
     toggle.setAttribute("aria-expanded", open ? "true" : "false");
     toggle.textContent = open ? "Ocultar filtros" : "Filtros";
+    if (persist) prefSet(HUB_PREF_KEYS.filtersOpen, open ? "1" : "0");
   };
-  setOpen(false);
+  setOpen(prefGet(HUB_PREF_KEYS.filtersOpen, "0") === "1", { persist: false });
   toggle.addEventListener("click", () => setOpen(!card.classList.contains("open")));
 }
 
@@ -3104,6 +3179,7 @@ async function boot() {
 
   setLoadingStatus("Preparando busca e filtros...");
   populateFilters();
+  restoreSearchFiltersPreference();
   renderDirectory();
   resetArchiveLimit();
   renderDocuments();
