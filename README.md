@@ -394,6 +394,8 @@ Antes de usar qualquer informação para matrícula, trancamento, conclusão de 
 
 ## License
 
-The source code of this project is released under the MIT License.
+O código-fonte deste projeto é distribuído sob a Licença MIT.
 
-Important: this license applies to the website/source code of this repository. Institutional documents, PDFs, academic calendars, curricular matrices and other third-party or public institutional materials included or referenced by the project may have their own copyright or usage rules and are not automatically covered by the MIT License.
+Importante: esta licença aplica-se ao site/código-fonte deste repositório. Documentos institucionais, PDFs, calendários académicos, matrizes curriculares e outros materiais institucionais públicos ou de terceiros incluídos ou referenciados pelo projeto podem ter as suas próprias regras de direitos de autor ou de utilização e não estão automaticamente abrangidos pela Licença MIT.
+
+
