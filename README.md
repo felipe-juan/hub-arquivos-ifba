@@ -389,5 +389,5 @@ Antes de usar qualquer informação para matrícula, trancamento, conclusão de 
 ## Créditos
 
 - **Código, estrutura, interface e lógica:** gerados por IA generativa.
-- **Ideias, requisitos, testes, feedback, validação visual e direção do produto:** mantenedor humano do projeto.
+- **Ideias, requisitos, testes, feedback, validação visual e direção do produto:** Felipe Juan.
 - **Fontes acadêmicas:** documentos oficiais fornecidos/consultados do IFBA Campus Vitória da Conquista.
