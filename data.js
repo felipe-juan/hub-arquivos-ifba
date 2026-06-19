@@ -428,7 +428,7 @@ window.HUB_DATA = {
       "id": "app-fluxogramas",
       "title": "Fluxogramas Curriculares",
       "description": "App independente para navegar pelos fluxogramas curriculares dos cursos do IFBA VCA em modo interativo e também conferir os PDFs originais.",
-      "url": "apps/fluxogramas-curriculares-v0.1.14.html",
+      "url": "apps/fluxogramas-curriculares-v0.1.18.html",
       "category": "Fluxogramas",
       "openMode": "new-tab",
       "tags": [

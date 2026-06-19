@@ -2592,6 +2592,17 @@ const whereResolveItems = [
     checklist: ["Saiba qual é sua matriz atual.", "Confira equivalências disciplina por disciplina.", "Tire dúvidas antes de protocolar."]
   },
   {
+    id: "quebra-requisito",
+    emoji: "🔓",
+    title: "Quero pedir quebra de requisito / cursar sem pré-requisito",
+    summary: "O HUB não encontrou uma regra geral automática nos fluxogramas: os PDFs mostram os pré-requisitos, mas a liberação excepcional deve ser confirmada com a coordenação e formalizada quando cabível.",
+    action: "Confira no fluxograma qual pré-requisito está pendente e consulte a coordenação antes de abrir pedido formal.",
+    sector: "Coordenação do curso + Protocolo, se houver orientação para requerimento",
+    links: ["app-fluxogramas", "link-email-coordenacao", "link-protocolo"],
+    docs: ["Fluxograma/matriz curricular do curso", "PPC do curso", "Normas acadêmicas"],
+    checklist: ["Identifique a disciplina desejada e o pré-requisito pendente no fluxograma.", "Anote sua matriz/ano e semestre atual.", "Fale com a coordenação antes de protocolar, pois a autorização pode depender de análise do curso.", "Se for orientado a solicitar, registre pelo protocolo e guarde o comprovante."]
+  },
+  {
     id: "complementares",
     emoji: "🎓",
     title: "Atividades complementares / certificados",

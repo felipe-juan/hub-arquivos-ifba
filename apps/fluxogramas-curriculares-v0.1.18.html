@@ -212,6 +212,159 @@ body{
 @media(max-width:680px){.matrix-legend{padding:12px}.legend-chip{width:100%;justify-content:flex-start}}
 
 @media(max-width:680px){.matrix-summary .summary-grid{grid-template-columns:1fr}.matrix-summary{padding:12px}}
+
+
+/* ── Mobile two-column fluxograma board (v0.1.8) ───────────────── */
+@media(max-width:680px){
+  .semester-pills{display:flex}
+  .board-wrap{overflow:visible}
+  .board{
+    min-width:0!important;
+    display:grid!important;
+    grid-template-columns:repeat(2,minmax(0,1fr))!important;
+    gap:8px!important;
+    padding:0!important;
+    align-items:start!important;
+  }
+  .sem-col,
+  .sem-col.mobile-active{
+    display:block!important;
+    margin:0!important;
+    border-radius:14px!important;
+  }
+  .sem-head{
+    padding:8px 7px!important;
+    gap:5px!important;
+  }
+  .sem-head strong{font-size:10.5px!important;line-height:1.05}
+  .sem-head span{font-size:9px!important;white-space:nowrap}
+  .disc-list{gap:5px!important;padding:5px!important}
+  .disc-card{
+    padding:7px 6px 7px 7px!important;
+    border-radius:10px!important;
+    border-left-width:3px!important;
+  }
+  .disc-title{
+    font-size:10.2px!important;
+    line-height:1.18!important;
+    letter-spacing:-.015em;
+  }
+  .disc-meta{
+    margin-top:5px!important;
+    gap:4px!important;
+    font-size:8.6px!important;
+  }
+  .badge{
+    font-size:7.5px!important;
+    padding:2px 4px!important;
+    letter-spacing:.04em!important;
+  }
+  .relation-pill{
+    margin-top:5px!important;
+    padding:2px 5px!important;
+    font-size:7.2px!important;
+  }
+  .toolbar h3{font-size:18px!important}
+  .toolbar p{font-size:12px!important}
+  .matrix-legend{margin-top:2px}
+}
+@media(max-width:390px){
+  .disc-title{font-size:9.6px!important}
+  .disc-card{padding:6px 5px!important}
+  .badge{font-size:7px!important;padding:2px 3px!important}
+  .disc-meta{font-size:8px!important}
+}
+
+/* ── Full-width desktop fluxograma controls (v0.1.9) ───────────── */
+.layout.flux-full{display:block}
+.flux-full .content{width:100%;max-width:none}
+.flux-controls{display:grid;grid-template-columns:minmax(240px,1.05fr) minmax(150px,.34fr) minmax(210px,.54fr) minmax(250px,.66fr);gap:12px;align-items:end;padding:16px;margin-bottom:14px}
+.flux-controls .field{margin:0}
+.flux-controls .view-field{gap:7px}
+.board{min-width:0!important;width:100%}
+.board-wrap{width:100%;overflow:visible}
+@media(max-width:980px){.flux-controls{grid-template-columns:1fr 1fr}.flux-controls .view-field{grid-column:1/-1}}
+@media(max-width:680px){.flux-controls{grid-template-columns:1fr;padding:14px}.flux-controls .view-field{grid-column:auto}.board-wrap{overflow:visible}}
+
+
+/* ── Interaction clarity, path mode, mobile nav and document mode (v0.1.10) ── */
+.disc-card.is-selected{
+  border-color:rgba(89,216,255,.92)!important;
+  background:linear-gradient(135deg,rgba(89,216,255,.24),rgba(56,189,248,.10))!important;
+  box-shadow:0 0 0 2px rgba(89,216,255,.22),0 0 28px rgba(89,216,255,.24),0 18px 46px rgba(0,0,0,.26)!important;
+  opacity:1!important;
+}
+.disc-card.is-prereq{
+  border-color:rgba(248,193,74,.74)!important;
+  background:linear-gradient(135deg,rgba(248,193,74,.18),rgba(251,191,36,.06))!important;
+  box-shadow:0 0 0 1px rgba(248,193,74,.18)!important;
+  opacity:1!important;
+}
+.disc-card.is-unlock{
+  border-color:rgba(53,230,168,.72)!important;
+  background:linear-gradient(135deg,rgba(53,230,168,.17),rgba(45,212,191,.06))!important;
+  box-shadow:0 0 0 1px rgba(53,230,168,.16)!important;
+  opacity:1!important;
+}
+.disc-card.is-dimmed{opacity:.27!important;filter:saturate(.55) brightness(.78)!important}
+.disc-card.is-dimmed:hover{opacity:.44!important;filter:saturate(.75) brightness(.92)!important}
+.focus-bar{
+  position:sticky;top:72px;z-index:28;
+  border:1px solid rgba(89,216,255,.25);
+  background:linear-gradient(135deg,rgba(8,23,34,.92),rgba(6,18,24,.84));
+  backdrop-filter:blur(16px);
+  border-radius:20px;
+  padding:12px 14px;
+  margin-bottom:14px;
+  box-shadow:0 18px 50px rgba(0,0,0,.28),0 0 0 1px rgba(255,255,255,.025) inset;
+}
+.focus-row{display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap}
+.focus-title{display:flex;align-items:center;gap:9px;min-width:0;flex:1}
+.focus-dot{width:10px;height:10px;border-radius:999px;background:var(--accent2);box-shadow:0 0 0 4px rgba(89,216,255,.12),0 0 20px rgba(89,216,255,.35);flex:none}
+.focus-title b{font-size:14px;letter-spacing:-.025em}.focus-title span{display:block;color:var(--muted);font-size:11px;margin-top:2px;line-height:1.35}.focus-actions{display:flex;gap:7px;align-items:center;flex-wrap:wrap}.focus-actions .btn{padding:8px 10px;font-size:11px}.focus-close{width:34px;height:34px;border-radius:999px;display:grid;place-items:center;border:1px solid var(--line2);background:rgba(255,255,255,.04);color:var(--muted)}.focus-close:hover{color:var(--text);background:rgba(255,255,255,.08)}
+.path-panel{margin-top:10px;border-top:1px solid var(--line);padding-top:10px;display:grid;gap:8px}.path-line{display:flex;gap:6px;align-items:center;flex-wrap:wrap;color:var(--muted);font-size:11px}.path-line b{color:var(--faint);text-transform:uppercase;letter-spacing:.10em;font-size:9px}.path-node{border:1px solid var(--line);background:rgba(255,255,255,.04);border-radius:999px;padding:4px 7px;color:var(--text);font-weight:800}.path-node.current{border-color:rgba(89,216,255,.46);background:rgba(89,216,255,.10);color:var(--accent2)}.path-arrow{color:var(--faint)}
+.doc-actions .doc-page-hint{align-self:center;color:var(--muted);font-size:12px;border:1px solid var(--line);border-radius:999px;padding:9px 11px;background:rgba(255,255,255,.035)}
+.course-btn{position:relative}.course-btn .course-info{min-width:0}.course-btn .course-metrics{display:flex;flex-wrap:wrap;gap:5px;margin-top:7px}.course-btn .course-pill{font-size:9px;font-weight:900;letter-spacing:.05em;text-transform:uppercase;border:1px solid var(--line);background:rgba(255,255,255,.04);border-radius:999px;padding:4px 6px;color:var(--muted)}.course-btn.active .course-pill{border-color:rgba(89,216,255,.28);color:#c9f5ff;background:rgba(89,216,255,.07)}
+@media(max-width:680px){
+  .focus-bar{top:62px;border-radius:16px;padding:10px 11px;margin-bottom:10px}
+  .focus-title b{font-size:12px}.focus-title span{font-size:10px}.focus-actions .btn{font-size:10px;padding:7px 9px}.focus-close{width:30px;height:30px}
+  .toolbar{position:sticky;top:60px;z-index:24;background:rgba(8,17,15,.92);backdrop-filter:blur(14px);border-color:rgba(89,216,255,.16)}
+  .toolbar h3{display:none}.toolbar p{display:none}.semester-pills{display:flex;width:100%;gap:6px;padding:0;scrollbar-width:none}.semester-pills button{font-size:10px;padding:7px 9px}
+    .path-line{font-size:10px}.path-node{padding:3px 6px}
+  .doc-actions{gap:6px}.doc-actions .btn{font-size:11px;padding:8px 10px}.doc-actions .doc-page-hint{width:100%;border-radius:12px;text-align:center;font-size:11px}
+}
+
+
+
+
+/* ── Fluxogramas no-search header + side-by-side matrix selector (v0.1.13) ── */
+.course-matrix-hero{
+  display:grid;
+  grid-template-columns:minmax(0,1.5fr) minmax(320px,.58fr);
+  gap:14px;
+  align-items:stretch;
+}
+.course-selector,.matrix-selector{padding:18px}
+.course-selector .course-list{grid-template-columns:repeat(3,minmax(0,1fr));gap:8px}
+.matrix-selector{display:flex;flex-direction:column}
+.matrix-selector .matrix-summary{margin-top:0;flex:1;display:flex;flex-direction:column;justify-content:center}
+.matrix-selector .summary-kicker{display:none}
+.matrix-selector .summary-grid{grid-template-columns:1fr;gap:10px}
+@media(max-width:1180px){.course-selector .course-list{grid-template-columns:repeat(2,minmax(0,1fr))}}
+@media(max-width:900px){.course-matrix-hero{grid-template-columns:1fr}.matrix-selector .summary-grid{grid-template-columns:1fr 1fr}}
+@media(max-width:680px){.course-matrix-hero{gap:10px;margin-bottom:10px}.course-selector,.matrix-selector{padding:14px}.matrix-selector .summary-grid{grid-template-columns:1fr}.course-selector .course-list{grid-template-columns:1fr}}
+
+
+/* ── Inline search restored inside Fluxogramas controls (v0.1.14) ── */
+.inline-search{display:flex;align-items:center;gap:8px;min-height:58px;border:1px solid var(--line2);background:rgba(1,14,11,.58);border-radius:17px;padding:8px 9px}
+.inline-search span{width:28px;height:28px;border-radius:11px;display:grid;place-items:center;color:var(--accent);background:rgba(89,216,255,.10);font-size:13px;flex:none}
+.inline-search input{min-width:0;width:100%;border:0;outline:0;background:transparent;color:var(--text);font-size:15px}
+.inline-search input::placeholder{color:#78908d}
+.inline-search button{width:30px;height:30px;border-radius:999px;border:1px solid var(--line2);background:rgba(255,255,255,.04);color:var(--muted);font-weight:900;line-height:1;display:grid;place-items:center;padding:0;flex:none}
+.inline-search button:hover{color:var(--text);background:rgba(255,255,255,.08)}
+@media(max-width:980px){.flux-search-field{grid-column:1/-1}}
+@media(max-width:680px){.inline-search{min-height:48px;border-radius:14px;padding:7px 8px}.inline-search span{width:25px;height:25px;border-radius:9px}.inline-search input{font-size:13px}.inline-search button{width:27px;height:27px}}
+
 </style>
 </head>
 <body>
@@ -220,34 +373,24 @@ body{
   <a class="brand" href="../index.html#apps"><span class="brand-mark">🗺️</span><span><h1>Fluxogramas Curriculares</h1><p>HUB SI · IFBA Vitória da Conquista</p></span></a>
   <div class="top-actions"><a class="btn" href="../index.html#apps"><span aria-hidden="true">←</span><span class="label">Voltar ao HUB</span></a></div>
 </header>
-<section class="hero">
-  <article class="panel hero-main">
-    <p class="eyebrow">Novo app · interativo + documento oficial</p>
-    <h2>Entenda a grade sem <span>brigar com o PDF.</span></h2>
-    <p>Escolha o curso, selecione a matriz e toque em uma disciplina para destacar pré-requisitos e disciplinas posteriores. Toque de novo para limpar a seleção.</p>
-    <div class="searchbox"><span>⌕</span><input id="search" placeholder="Buscar disciplina, semestre, optativa, estágio, TCC, ACEX..." autocomplete="off"></div>
-    <div class="quick" id="quickChips"></div>
-  </article>
-  <aside class="panel selector">
+<section class="hero course-matrix-hero">
+  <aside class="panel selector course-selector">
     <h3>Escolha o curso</h3>
     <div class="course-list" id="courseList"></div>
+  </aside>
+  <aside class="panel selector matrix-selector">
+    <h3>Matriz selecionada</h3>
     <div class="matrix-summary" id="matrixSummary"></div>
   </aside>
 </section>
-<section class="layout">
-  <aside class="sidebar">
-    <div class="panel side-pad">
+<section class="layout flux-full">
+  <main class="content">
+    <div class="panel flux-controls">
       <div class="field"><label for="versionSelect">Matriz / versão</label><select id="versionSelect"></select></div>
       <div class="field"><label for="kindFilter">Tipo</label><select id="kindFilter"><option value="all">Todos</option><option value="regular">Disciplinas regulares</option><option value="optativa">Optativas</option><option value="extensao">Extensão / ACEX</option><option value="tcc">TCC / Estágio / ACC</option></select></div>
-      <div class="field-title">Modo de visualização</div>
-      <div class="view-toggle"><button id="interactiveBtn" class="active">Interativo</button><button id="documentBtn">Documento</button></div>
+      <div class="field flux-search-field"><label for="fluxSearchInput">Buscar</label><div class="inline-search"><span aria-hidden="true">🔍</span><input id="fluxSearchInput" placeholder="Disciplina..." autocomplete="off" /><button id="fluxSearchClear" type="button" aria-label="Limpar busca">×</button></div></div>
+      <div class="field view-field"><div class="field-title">Modo de visualização</div><div class="view-toggle"><button id="interactiveBtn" class="active">Interativo</button><button id="documentBtn">Documento</button></div></div>
     </div>
-    <div class="panel side-pad">
-      <div class="field-title" style="margin-bottom:10px">Relações de clique</div>
-      <div class="legend"><div class="legend-item"><span class="dot selected"></span> Selecionada</div><div class="legend-item"><span class="dot prereq"></span> Pré-requisito</div><div class="legend-item"><span class="dot after"></span> Depois dela</div><div class="legend-item"><span class="dot opt"></span> Optativa</div><div class="legend-item"><span class="dot doc"></span> Documento oficial</div></div>
-    </div>
-  </aside>
-  <main class="content">
     <div class="panel toolbar">
       <div><h3 id="currentTitle">Fluxograma</h3><p id="currentSubtitle">Selecione uma matriz para começar.</p></div>
       <div class="semester-pills" id="semesterPills"></div>
@@ -256,7 +399,7 @@ body{
       <div class="board-wrap"><div class="board" id="board"></div></div><div class="panel matrix-legend" id="matrixLegend"></div>
     </section>
     <section id="documentView" class="hide">
-      <div class="docs-layout"><aside class="panel"><div class="doc-list" id="docList"></div></aside><section class="panel"><div class="doc-actions"><a class="btn primary" id="openPdf" target="_blank" rel="noopener">Abrir PDF em nova aba</a><button class="btn" id="fitDoc">Recarregar visualização</button></div><div class="pdf-frame"><iframe id="pdfFrame" title="Documento do fluxograma"></iframe></div><div class="notice">Esta aba mostra o documento original enviado. Para decisões acadêmicas, use sempre esta fonte oficial quando houver dúvida.</div></section></div>
+      <div class="docs-layout"><aside class="panel"><div class="doc-list" id="docList"></div></aside><section class="panel"><div class="doc-actions"><a class="btn primary" id="openPdf" target="_blank" rel="noopener">Abrir PDF original</a><a class="btn" id="downloadPdf" download>Baixar PDF</a><button class="btn" id="backInteractive">Voltar ao interativo</button><button class="btn" id="fitDoc">Recarregar visualização</button><span class="doc-page-hint" id="pageHint">Página recomendada: Fluxograma</span></div><div class="pdf-frame"><iframe id="pdfFrame" title="Documento do fluxograma"></iframe></div><div class="notice">Esta aba mostra o documento original enviado. Para decisões acadêmicas, use sempre esta fonte oficial quando houver dúvida.</div></section></div>
     </section>
   </main>
 </section>
@@ -271,7 +414,7 @@ const COURSES = [
  {id:'ambiental',emoji:'🌱',name:'Engenharia Ambiental',short:'Ambiental',desc:'fluxogramas 2014 e 2022',versions:['amb2022','amb2014']}
 ];
 const DOCS={
- bsi2024:[['Matriz curricular 2024','fluxogramas/docs/bsi-matriz-2024.pdf'],['Componentes optativos','fluxogramas/docs/bsi-optativas.pdf']],
+ bsi2024:[['Matriz curricular 2024','fluxogramas/docs/bsi-matriz-2024.pdf'],['Ementário oficial BSI 2024','fluxogramas/docs/bsi-ementario-2024.pdf'],['Componentes optativos','fluxogramas/docs/bsi-optativas.pdf']],
  bsi2017:[['Matriz curricular em vigor a partir de 2017','fluxogramas/docs/bsi-matriz-2017.pdf'],['Fluxograma no PPC','fluxogramas/docs/bsi-ppc-fluxograma.pdf']],
  mec2022:[['Fluxograma Engenharia Mecânica — versão julho/2022','fluxogramas/docs/engenharia-mecanica-2022.pdf']],
  ele2023:[['Base 2023','fluxogramas/docs/engenharia-eletrica-base-2023.pdf'],['Optativas 2023','fluxogramas/docs/engenharia-eletrica-optativas-2023.pdf'],['Ênfases 2023','fluxogramas/docs/engenharia-eletrica-enfases-2023.pdf']],
@@ -281,6 +424,9 @@ const DOCS={
  qui2017:[['Fluxograma Licenciatura em Química 2017','fluxogramas/docs/licenciatura-quimica-2017.pdf']],
  amb2022:[['Fluxograma Engenharia Ambiental 2022','fluxogramas/docs/engenharia-ambiental-2022.pdf']],
  amb2014:[['Fluxograma Engenharia Ambiental 2014','fluxogramas/docs/engenharia-ambiental-2014.pdf']]
+};
+const DOC_PAGE_HINTS={
+  bsi2024:[1,1,1], bsi2017:[1,1], mec2022:[1], ele2023:[1,1,1], eleOld:[2], civil2023:[1], qui2023:[1], qui2017:[1], amb2022:[2], amb2014:[1]
 };
 function c(name,h=60,type='disc',pr=[]){return {name,h,type,pr}};
 const DATA={
@@ -294,17 +440,17 @@ const DATA={
   [c('Qualidade de Software',60,'TEC'),c('Trabalho de Conclusão de Curso I',60,'SUP'),c('Interface Homem-Máquina',60,'TEC'),c('Estágio Supervisionado',60,'SUP'),c('Gestão de Projetos',60,'TEC'),c('Optativa B',60,'OPT'),c('Gestão e Governança de TI',60,'TEC')],
   [c('Meio Ambiente',60,'HUM'),c('Trabalho de Conclusão de Curso II',60,'SUP',['Trabalho de Conclusão de Curso I']),c('Sistemas de Apoio a Decisão',60,'TEC'),c('Optativa C',60,'OPT'),c('Optativa D',60,'OPT')]
  ]},
- bsi2024:{course:'Sistemas de Informação',title:'Matriz 2024',note:'Matriz curricular atual com ACEX e nova distribuição de componentes.',semesters:[
+ bsi2024:{course:'Sistemas de Informação',title:'Matriz 2024',note:'Matriz curricular atual com ACEX e nova distribuição de componentes. Pré-requisitos revisados estritamente pelo Ementário oficial BSI 2024.',semesters:[
   [c('Algoritmos e Programação',60,'CCO'),c('Leitura e Produção de Gêneros Acadêmicos',60,'COM'),c('Fundamentos de Sistemas de Informação',60,'CCO'),c('Matemática Discreta I',60,'MAT'),c('Introdução à Ciência da Computação',60,'CCO'),c('Inglês Aplicado à Computação',60,'COM')],
-  [c('Linguagem de Programação I',60,'CCO',['Algoritmos e Programação']),c('Organização e Arquitetura de Computadores',60,'CCO'),c('Computador, Ética e Sociedade',60,'COM'),c('Matemática Discreta II',60,'MAT'),c('Cálculo Diferencial Aplicado à Computação',60,'MAT'),c('Administração',60,'COM')],
-  [c('Linguagem de Programação II',60,'CCO',['Linguagem de Programação I']),c('Estruturas de Dados',60,'CCO'),c('Sistemas Operacionais',60,'TEC'),c('Probabilidade e Estatística',60,'MAT'),c('Direito Cibernético',60,'HUM'),c('Organizações, Sistemas e Métodos',60,'COM')],
-  [c('Metodologia da Pesquisa Científica',60,'COM'),c('Análise e Modelagem de Sistemas',60,'TEC'),c('Banco de Dados I',60,'TEC'),c('Redes de Computadores',60,'TEC'),c('Programação Web I',60,'TEC'),c('Empreendedorismo',60,'COM'),c('Atividades Curriculares de Extensão I',90,'ACEX')],
-  [c('Processo de Desenvolvimento de Software',60,'TEC'),c('Complexidade de Algoritmos',60,'CCO'),c('Banco de Dados II',60,'TEC'),c('Projeto e Administração de Redes',60,'TEC'),c('Programação Web II',60,'TEC'),c('Economia',60,'COM'),c('Atividades Curriculares de Extensão II',90,'ACEX')],
-  [c('Inteligência Artificial',60,'CCO'),c('Programação para Dispositivos Móveis',60,'TEC'),c('Engenharia de Software',60,'TEC'),c('Sistemas Distribuídos',60,'TEC'),c('Segurança da Informação',60,'TEC'),c('Gestão de Projetos',60,'TEC'),c('Atividades Curriculares de Extensão III',75,'ACEX')],
-  [c('Desenvolvimento Distribuído na Internet',60,'TEC'),c('Qualidade de Software',60,'TEC'),c('Trabalho de Conclusão de Curso I',30,'TCC'),c('Interface Homem-Máquina',60,'TEC'),c('Sistemas de Apoio à Decisão',60,'TEC'),c('Atividades Curriculares de Extensão IV',75,'ACEX'),c('Optativa A',60,'OPT')],
-  [c('Meio Ambiente',60,'HUM'),c('Gestão e Governança de TI',60,'TEC'),c('Trabalho de Conclusão de Curso II',30,'TCC',['Trabalho de Conclusão de Curso I']),c('Optativa B',60,'OPT'),c('Optativa C',60,'OPT')]
+  [c('Linguagem de Programação I',60,'CCO',['Algoritmos e Programação']),c('Organização e Arquitetura de Computadores',60,'CCO'),c('Computador, Ética e Sociedade',60,'COM'),c('Matemática Discreta II',60,'MAT',['Matemática Discreta I']),c('Cálculo Diferencial Aplicado à Computação',60,'MAT',['Matemática Discreta I']),c('Administração',60,'COM')],
+  [c('Linguagem de Programação II',60,'CCO',['Linguagem de Programação I']),c('Estruturas de Dados',60,'CCO',['Linguagem de Programação I']),c('Sistemas Operacionais',60,'TEC',['Organização e Arquitetura de Computadores']),c('Probabilidade e Estatística',60,'MAT'),c('Direito Cibernético',60,'HUM'),c('Organização, Sistemas e Métodos',60,'COM',['Administração'])],
+  [c('Metodologia da Pesquisa Científica',60,'COM'),c('Análise e Modelagem de Sistemas',60,'TEC',['Linguagem de Programação II']),c('Banco de Dados I',60,'TEC',['Linguagem de Programação I']),c('Redes de Computadores',60,'TEC',['Sistemas Operacionais']),c('Programação Web I',60,'TEC',['Linguagem de Programação II']),c('Empreendedorismo',60,'COM',['Administração']),c('Atividades Curriculares de Extensão I',90,'ACEX')],
+  [c('Processo de Desenvolvimento de Software',60,'TEC',['Análise e Modelagem de Sistemas']),c('Complexidade de Algoritmos',60,'CCO',['Cálculo Diferencial Aplicado à Computação','Estruturas de Dados']),c('Banco de Dados II',60,'TEC',['Banco de Dados I','Linguagem de Programação II']),c('Projeto e Administração de Redes',60,'TEC',['Redes de Computadores']),c('Programação Web II',60,'TEC',['Banco de Dados I','Programação Web I']),c('Economia',60,'COM'),c('Atividades Curriculares de Extensão II',90,'ACEX',['Atividades Curriculares de Extensão I'])],
+  [c('Inteligência Artificial',60,'CCO',['Linguagem de Programação II','Matemática Discreta II']),c('Programação para Dispositivos Móveis',60,'TEC',['Processo de Desenvolvimento de Software']),c('Engenharia de Software',60,'TEC',['Processo de Desenvolvimento de Software']),c('Sistemas Distribuídos',60,'TEC',['Redes de Computadores']),c('Segurança da Informação',60,'TEC',['Banco de Dados I','Redes de Computadores']),c('Gestão de Projetos',60,'TEC',['Administração','Processo de Desenvolvimento de Software']),c('Atividades Curriculares de Extensão III',75,'ACEX',['Atividades Curriculares de Extensão II'])],
+  [c('Desenvolvimento Distribuído na Internet',60,'TEC',['Processo de Desenvolvimento de Software','Sistemas Distribuídos']),c('Qualidade de Software',60,'TEC',['Engenharia de Software']),c('Trabalho de Conclusão de Curso I',30,'TCC'),c('Interface Homem-Máquina',60,'TEC',['Engenharia de Software']),c('Sistemas de Apoio à Decisão',60,'TEC',['Gestão de Projetos']),c('Atividades Curriculares de Extensão IV',75,'ACEX',['Atividades Curriculares de Extensão III']),c('Optativa A',60,'OPT')],
+  [c('Meio Ambiente',60,'HUM'),c('Gestão e Governança de TI',60,'TEC',['Gestão de Projetos','Segurança da Informação']),c('Trabalho de Conclusão de Curso II',30,'TCC',['Trabalho de Conclusão de Curso I']),c('Optativa B',60,'OPT'),c('Optativa C',60,'OPT')]
  ]},
- mec2022:{course:'Engenharia Mecânica',title:'Versão julho/2022',note:'Fluxograma curricular de Engenharia Mecânica.',semesters:[
+  mec2022:{course:'Engenharia Mecânica',title:'Versão julho/2022',note:'Fluxograma curricular de Engenharia Mecânica.',semesters:[
   [c('Introdução à Engenharia Mecânica',60,'P'),c('Ciências do Ambiente',60,'B'),c('Física I',60,'B'),c('Introdução à Programação',60,'B'),c('Álgebra Vetorial e Geometria Analítica',60,'B'),c('Cálculo Diferencial e Integral I',60,'B'),c('Expressão Gráfica',60,'P')],
   [c('Química Geral',60,'B'),c('Relações Étnico-Raciais',60,'HUM'),c('Física II',60,'B'),c('Física Experimental I',60,'B'),c('Álgebra Linear',60,'B'),c('Cálculo Diferencial e Integral II',60,'B'),c('Desenho Técnico Mecânico',60,'P')],
   [c('Probabilidade e Estatística',60,'B'),c('Mecânica dos Sólidos I',60,'P'),c('Física III',60,'B'),c('Física Experimental II',60,'B'),c('Equações Diferenciais Ordinárias',60,'B'),c('Cálculo Diferencial e Integral III',60,'B'),c('Desenho Auxiliado por Computador',60,'P')],
@@ -459,38 +605,39 @@ function typeVars(type){const meta=typeMeta(type);return `--type-color:${meta.co
 // o caminho anterior (pré-requisitos) e o caminho posterior (disciplinas liberadas).
 const RELATION_PATCHES={
   bsi2024:{
+    // Fonte única: Ementário oficial BSI 2024. A chave é a disciplina bloqueada;
+    // o valor são seus pré-requisitos diretos exatamente conforme o campo PRÉ-REQUISITOS.
     'Linguagem de Programação I':['Algoritmos e Programação'],
+    'Matemática Discreta II':['Matemática Discreta I'],
+    'Cálculo Diferencial Aplicado à Computação':['Matemática Discreta I'],
     'Linguagem de Programação II':['Linguagem de Programação I'],
     'Estruturas de Dados':['Linguagem de Programação I'],
     'Sistemas Operacionais':['Organização e Arquitetura de Computadores'],
-    'Matemática Discreta II':['Matemática Discreta I'],
-    'Cálculo Diferencial Aplicado à Computação':['Matemática Discreta I'],
-    'Probabilidade e Estatística':['Matemática Discreta II','Cálculo Diferencial Aplicado à Computação'],
-    'Organizações, Sistemas e Métodos':['Administração'],
-    'Análise e Modelagem de Sistemas':['Linguagem de Programação II','Estruturas de Dados'],
-    'Banco de Dados I':['Estruturas de Dados'],
+    'Organização, Sistemas e Métodos':['Administração'],
+    'Análise e Modelagem de Sistemas':['Linguagem de Programação II'],
+    'Banco de Dados I':['Linguagem de Programação I'],
     'Redes de Computadores':['Sistemas Operacionais'],
     'Programação Web I':['Linguagem de Programação II'],
-    'Empreendedorismo':['Organizações, Sistemas e Métodos'],
-    'Processo de Desenvolvimento de Software':['Metodologia da Pesquisa Científica','Análise e Modelagem de Sistemas'],
-    'Complexidade de Algoritmos':['Estruturas de Dados'],
-    'Banco de Dados II':['Banco de Dados I'],
-    'Projeto e Administração de Redes':['Redes de Computadores'],
-    'Programação Web II':['Programação Web I'],
+    'Empreendedorismo':['Administração'],
     'Atividades Curriculares de Extensão II':['Atividades Curriculares de Extensão I'],
-    'Inteligência Artificial':['Complexidade de Algoritmos'],
-    'Programação para Dispositivos Móveis':['Programação Web II'],
-    'Engenharia de Software':['Processo de Desenvolvimento de Software'],
-    'Sistemas Distribuídos':['Redes de Computadores','Programação Web II'],
-    'Segurança da Informação':['Projeto e Administração de Redes'],
-    'Gestão de Projetos':['Organizações, Sistemas e Métodos'],
+    'Processo de Desenvolvimento de Software':['Análise e Modelagem de Sistemas'],
+    'Complexidade de Algoritmos':['Cálculo Diferencial Aplicado à Computação','Estruturas de Dados'],
+    'Banco de Dados II':['Banco de Dados I','Linguagem de Programação II'],
+    'Projeto e Administração de Redes':['Redes de Computadores'],
+    'Programação Web II':['Banco de Dados I','Programação Web I'],
     'Atividades Curriculares de Extensão III':['Atividades Curriculares de Extensão II'],
-    'Desenvolvimento Distribuído na Internet':['Sistemas Distribuídos','Programação Web II'],
+    'Inteligência Artificial':['Linguagem de Programação II','Matemática Discreta II'],
+    'Programação para Dispositivos Móveis':['Processo de Desenvolvimento de Software'],
+    'Engenharia de Software':['Processo de Desenvolvimento de Software'],
+    'Sistemas Distribuídos':['Redes de Computadores'],
+    'Segurança da Informação':['Banco de Dados I','Redes de Computadores'],
+    'Gestão de Projetos':['Administração','Processo de Desenvolvimento de Software'],
+    'Atividades Curriculares de Extensão IV':['Atividades Curriculares de Extensão III'],
+    'Desenvolvimento Distribuído na Internet':['Processo de Desenvolvimento de Software','Sistemas Distribuídos'],
     'Qualidade de Software':['Engenharia de Software'],
     'Interface Homem-Máquina':['Engenharia de Software'],
-    'Sistemas de Apoio à Decisão':['Inteligência Artificial'],
-    'Atividades Curriculares de Extensão IV':['Atividades Curriculares de Extensão III'],
-    'Gestão e Governança de TI':['Gestão de Projetos','Sistemas de Apoio à Decisão'],
+    'Sistemas de Apoio à Decisão':['Gestão de Projetos'],
+    'Gestão e Governança de TI':['Gestão de Projetos','Segurança da Informação'],
     'Trabalho de Conclusão de Curso II':['Trabalho de Conclusão de Curso I']
   },
   bsi2017:{
@@ -856,6 +1003,7 @@ function previousArabicName(name){
   return m[1]+m[2]+(Number(m[3])-1);
 }
 function autoPrereqsFor(version,d){
+  if(version==='bsi2024') return [];
   const out=[];
   [previousRomanName(d.name),previousArabicName(d.name)].forEach(prev=>{ if(prev&&hasDisc(version,prev)) out.push(prev); });
   const acex=d.name.match(/^(Atividades Curriculares de Extensão|ACEX|ATC)\s+(II|III|IV|V|VI|VII|VIII|IX|X|[2-9])$/i);
@@ -884,15 +1032,15 @@ function applyRelationPatches(){
 }
 applyRelationPatches();
 
-const aliasGroups=['tcc','estágio','optativa','acex','cálculo','programação','química','física','redes','banco de dados','provas finais'];
 const PREF_KEY='hubFluxogramasPrefs';
-const DEFAULT_STATE={course:'bsi',version:'bsi2024',view:'interactive',semester:0,query:'',kind:'all',docIndex:0};
+const DEFAULT_STATE={course:'bsi',version:'bsi2024',view:'interactive',semester:0,kind:'all',docIndex:0,query:''};
 let state={...DEFAULT_STATE};
 let selectedDisc=null;
+let pathMode=false;
 const $=s=>document.querySelector(s), $$=s=>Array.from(document.querySelectorAll(s));
 function norm(s){return (s||'').toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g,'')}
 function safeReadPrefs(){try{return JSON.parse(localStorage.getItem(PREF_KEY)||'{}')}catch{return {}}}
-function safeSavePrefs(){try{localStorage.setItem(PREF_KEY,JSON.stringify({course:state.course,version:state.version,view:state.view,semester:state.semester,query:state.query,kind:state.kind,docIndex:state.docIndex}))}catch{}}
+function safeSavePrefs(){try{localStorage.setItem(PREF_KEY,JSON.stringify({course:state.course,version:state.version,view:state.view,semester:state.semester,kind:state.kind,docIndex:state.docIndex,query:state.query||''}))}catch{}}
 function courseForVersion(version){return COURSES.find(c=>(c.versions||[]).includes(version))}
 function loadPrefs(){
   const saved=safeReadPrefs();
@@ -903,11 +1051,11 @@ function loadPrefs(){
   if(!course.versions.includes(next.version)) next.version=course.versions[0];
   next.view=next.view==='document'?'document':'interactive';
   next.kind=['all','regular','optativa','extensao','tcc'].includes(next.kind)?next.kind:'all';
+  next.query=String(next.query||'');
   const semCount=DATA[next.version]?.semesters?.length||1;
   next.semester=Math.max(0,Math.min(semCount-1,Number(next.semester)||0));
   const docs=DOCS[next.version]||[];
   next.docIndex=Math.max(0,Math.min(Math.max(0,docs.length-1),Number(next.docIndex)||0));
-  next.query=String(next.query||'');
   state=next;
 }
 function key(){return 'fluxapp:'+state.version}
@@ -918,7 +1066,7 @@ function currentData(){return DATA[state.version]}
 function currentCourse(){return COURSES.find(c=>c.id===state.course)}
 function currentDocs(){return DOCS[state.version]||[]}
 function kindOf(d){const t=norm(d.type+' '+d.name); if(t.includes('opt'))return 'optativa'; if(t.includes('acex')||t.includes('extens'))return 'extensao'; if(t.includes('tcc')||t.includes('est')||t.includes('acc')||t.includes('supervisionado'))return 'tcc'; return 'regular'}
-function matches(d){if(state.kind!=='all' && kindOf(d)!==state.kind)return false; if(!state.query)return true; const h=norm([d.name,d.type,d.h,d.pr?.join(' ')].join(' ')); return h.includes(norm(state.query))}
+function matches(d){return state.kind==='all' || kindOf(d)===state.kind}
 function isDone(id){return loadDone().has(id)}
 function prereqSatisfied(d){if(!d.pr||!d.pr.length)return true; const done=loadDone(); const all=[]; currentData().semesters.forEach((sem,si)=>sem.forEach((x,di)=>all.push([x,discId(si,di,x)]))); return d.pr.every(p=>all.some(([x,id])=>norm(x.name)===norm(p)&&done.has(id)))}
 function flatDiscs(){const out=[]; currentData().semesters.forEach((sem,si)=>sem.forEach((d,di)=>out.push({d,si,di,id:discId(si,di,d)}))); return out}
@@ -962,24 +1110,81 @@ function relationFor(id){
   return {cls:'is-dimmed', label:''};
 }
 function directUnlocksOf(d){const n=norm(d.name); return flatDiscs().filter(x=>(x.d.pr||[]).some(p=>norm(p)===n))}
-function selectDisc(card){
+function selectDisc(card,opts={}){
   const si=Number(card.dataset.si),di=Number(card.dataset.di);
   const d=currentData().semesters[si][di];
   const id=discId(si,di,d);
-  if(selectedDisc && selectedDisc.id===id){
-    selectedDisc=null;
+  if(selectedDisc && selectedDisc.id===id && !opts.force){
+    selectedDisc=null; pathMode=false;
   }else{
-    selectedDisc={d,si,di,id};
+    selectedDisc={d,si,di,id}; pathMode=!!opts.path; state.semester=si;
   }
+  safeSavePrefs();
+  renderBoard();
+  if(opts.scroll) setTimeout(scrollToSelectedDisc,40);
+}
+function clearSelection(){selectedDisc=null;pathMode=false;renderBoard();}
+function bestSearchMatch(q){
+  const n=norm(q).trim();
+  if(!n) return null;
+  const all=flatDiscs();
+  return all.find(x=>norm(x.d.name)===n) || all.find(x=>norm(x.d.name).startsWith(n)) || all.find(x=>norm(x.d.name).includes(n)) || all.find(x=>norm(x.d.type).includes(n));
+}
+function focusSearchResult(scroll=false){
+  const hit=bestSearchMatch(state.query);
+  if(!hit) return false;
+  if(!matches(hit.d)) state.kind='all';
+  selectedDisc={d:hit.d,si:hit.si,di:hit.di,id:hit.id};
+  pathMode=false;
+  state.semester=hit.si;
+  if(scroll) setTimeout(scrollToSelectedDisc,60);
+  return true;
+}
+function setFluxQuery(q,scroll=false){
+  state.query=String(q||'');
+  if(state.query.trim()){ if(!focusSearchResult(scroll)){ selectedDisc=null; pathMode=false; } }
+  safeSavePrefs();
+  const input=$('#fluxSearchInput'); if(input && input.value!==state.query) input.value=state.query;
+  const kind=$('#kindFilter'); if(kind) kind.value=state.kind;
   renderBoard();
 }
-function clearSelection(){selectedDisc=null; renderBoard();}
 
+function namesFrom(items){return items.map(x=>x.d?x.d.name:x).filter(Boolean)}
+function uniqueNames(list){const seen=new Set();return list.filter(name=>{const n=norm(name); if(seen.has(n)) return false; seen.add(n); return true;});}
+function semesterLabel(si){return `${si+1}º semestre`;}
+function currentDocLabel(){const docs=currentDocs(); const doc=docs[state.docIndex]||docs[0]; return doc?doc[0]:currentData().title;}
+function joinList(list,empty='nenhum vínculo direto'){list=uniqueNames(list); if(!list.length) return empty; if(list.length<=3) return list.join(', '); return `${list.slice(0,3).join(', ')} +${list.length-3}`;}
+function prereqChains(d,trail=[]){
+  const pres=directPrereqNames(d).map(name=>findDiscsByName(name)[0]).filter(Boolean);
+  if(!pres.length) return [[...trail,d.name]];
+  return pres.slice(0,6).flatMap(x=>prereqChains(x.d,[...trail,d.name]));
+}
+function forwardChains(d,trail=[],seen=new Set()){
+  const n=norm(d.name); if(seen.has(n)) return [[...trail,d.name]];
+  const next=directUnlocksOf(d).filter(x=>!seen.has(norm(x.d.name))).slice(0,6);
+  if(!next.length) return [[...trail,d.name]];
+  const nextSeen=new Set(seen); nextSeen.add(n);
+  return next.flatMap(x=>forwardChains(x.d,[...trail,d.name],nextSeen));
+}
+function chainHtml(names,currentName){return uniqueNames(names).map((name,i)=>`${i?'<span class="path-arrow">→</span>':''}<span class="path-node ${norm(name)===norm(currentName)?'current':''}">${name}</span>`).join('')}
+function renderFocusBar(){}
 function toast(msg){const t=$('#toast');t.textContent=msg;t.classList.add('show');setTimeout(()=>t.classList.remove('show'),1800)}
-function renderCourses(){const box=$('#courseList');box.innerHTML=COURSES.map(c=>`<button class="course-btn ${c.id===state.course?'active':''}" data-course="${c.id}"><span class="course-emoji">${c.emoji}</span><span><strong>${c.name}</strong><small>${c.desc}</small></span></button>`).join('');$$('.course-btn').forEach(btn=>btn.onclick=()=>{state.course=btn.dataset.course;state.version=currentCourse().versions[0];state.semester=0;state.docIndex=0;selectedDisc=null;safeSavePrefs();renderAll()})}
-function renderVersionSelect(){const sel=$('#versionSelect');sel.innerHTML=currentCourse().versions.map(v=>`<option value="${v}">${DATA[v].title}</option>`).join('');sel.value=state.version;sel.onchange=e=>{state.version=e.target.value;state.course=(courseForVersion(state.version)||currentCourse()).id;state.semester=0;state.docIndex=0;selectedDisc=null;safeSavePrefs();renderAll()}}
-function renderChips(){const box=$('#quickChips');box.innerHTML=aliasGroups.map(q=>`<button class="chip ${norm(state.query)===norm(q)?'active':''}" data-q="${q}">${q}</button>`).join('');$$('.chip').forEach(b=>b.onclick=()=>{state.query=b.dataset.q;$('#search').value=state.query;safeSavePrefs();renderAll()})}
-function renderPills(){const data=currentData();$('#semesterPills').innerHTML=data.semesters.map((_,i)=>`<button class="${i===state.semester?'active':''}" data-sem="${i}">${i+1}º Sem.</button>`).join('');$$('#semesterPills button').forEach(b=>b.onclick=()=>{state.semester=Number(b.dataset.sem);safeSavePrefs();renderBoard()})}
+function renderCourses(){
+  const box=$('#courseList');
+  box.innerHTML=COURSES.map(c=>{
+    const version=(c.id===state.course?state.version:c.versions[0]);
+    const data=DATA[version]; const total=MATRIX_TOTALS[version]||{};
+    const docs=(DOCS[version]||[]).length;
+    const hours=total.hours||data.semesters.flat().reduce((a,b)=>a+(Number(b.h)||0),0);
+    const credits=total.credits||Math.round(hours/15);
+    return `<button class="course-btn ${c.id===state.course?'active':''}" data-course="${c.id}"><span class="course-emoji">${c.emoji}</span><span class="course-info"><strong>${c.name}</strong><small>${data.title}</small><span class="course-metrics"><span class="course-pill">${formatNum(hours)}h</span><span class="course-pill">${formatNum(credits)} créditos</span><span class="course-pill">${docs} doc${docs===1?'':'s'}</span></span></span></button>`
+  }).join('');
+  $$('.course-btn').forEach(btn=>btn.onclick=()=>{state.course=btn.dataset.course;state.version=currentCourse().versions[0];state.semester=0;state.docIndex=0;selectedDisc=null;pathMode=false;safeSavePrefs();renderAll()})
+}
+function renderVersionSelect(){const sel=$('#versionSelect');sel.innerHTML=currentCourse().versions.map(v=>`<option value="${v}">${DATA[v].title}</option>`).join('');sel.value=state.version;sel.onchange=e=>{state.version=e.target.value;state.course=(courseForVersion(state.version)||currentCourse()).id;state.semester=0;state.docIndex=0;selectedDisc=null;pathMode=false;safeSavePrefs();renderAll()}}
+function scrollToSemester(i){const el=document.getElementById(`sem-${i}`); if(el) el.scrollIntoView({behavior:'smooth',block:'center',inline:'nearest'});}
+function scrollToSelectedDisc(){if(!selectedDisc) return; const el=$$('.disc-card').find(card=>card.dataset.id===selectedDisc.id); if(el) el.scrollIntoView({behavior:'smooth',block:'center',inline:'center'});}
+function renderPills(){const data=currentData();$('#semesterPills').innerHTML=data.semesters.map((_,i)=>`<button class="${i===state.semester?'active':''}" data-sem="${i}">${i+1}º</button>`).join('');$$('#semesterPills button').forEach(b=>b.onclick=()=>{state.semester=Number(b.dataset.sem);safeSavePrefs();renderBoard();setTimeout(()=>scrollToSemester(state.semester),30)})}
 function renderStats(){}
 function matrixTotals(){return MATRIX_TOTALS[state.version]||{};}
 function formatNum(n){return Number(n||0).toLocaleString('pt-BR');}
@@ -1015,17 +1220,39 @@ function renderBoard(){
       return `<article tabindex="0" role="button" class="disc-card type-${norm(tKey)} ${opt?'opt':''} ${rel.cls}" style="${tVars}" data-id="${id}" data-si="${si}" data-di="${di}"><div class="disc-title">${d.name}</div><div class="disc-meta"><span class="badge ${norm(tKey)}">${tKey}</span><span>${d.h||0}h</span></div>${rel.label}</article>`
     }).join('');
     const officialHours=(matrixTotals().semesterHours||[])[si]; const shownHours=officialHours||sem.reduce((a,b)=>a+(Number(b.h)||0),0);
-    return `<section class="sem-col ${si===state.semester?'mobile-active':''}"><div class="sem-head"><strong>${si+1}º Semestre</strong><span>${shownHours}h</span></div><div class="disc-list">${cards||'<div class="empty">Nada neste filtro.</div>'}</div></section>`
+    return `<section id="sem-${si}" class="sem-col ${si===state.semester?'mobile-active':''}"><div class="sem-head"><strong>${si+1}º Semestre</strong><span>${shownHours}h</span></div><div class="disc-list">${cards||'<div class="empty">Nada neste filtro.</div>'}</div></section>`
   }).join('');
-  const board=$('#board');board.style.gridTemplateColumns=`repeat(${data.semesters.length}, minmax(132px, 1fr))`;board.innerHTML=cols;
-  $$('.disc-card').forEach(card=>{card.onclick=()=>selectDisc(card);card.onkeydown=e=>{if(e.key==='Enter'||e.key===' '){e.preventDefault();selectDisc(card)}}});
+  const board=$('#board');board.style.gridTemplateColumns=`repeat(${data.semesters.length}, minmax(0, 1fr))`;board.innerHTML=cols;
+  $$('.disc-card').forEach(card=>{
+    let pressTimer=null;
+    card.addEventListener('pointerdown',()=>{card.dataset.longpress=''; pressTimer=setTimeout(()=>{card.dataset.longpress='1';selectDisc(card,{path:true,scroll:false,force:true});},560)});
+    ['pointerup','pointerleave','pointercancel'].forEach(evt=>card.addEventListener(evt,()=>{if(pressTimer) clearTimeout(pressTimer)}));
+    card.onclick=()=>{if(card.dataset.longpress==='1'){card.dataset.longpress='';return;}selectDisc(card)};
+    card.onkeydown=e=>{if(e.key==='Enter'||e.key===' '){e.preventDefault();selectDisc(card)}}
+  });
   renderPills();
   renderMatrixLegend();
+  renderFocusBar();
 }
 function renderDetail(){}
-function renderDocs(){const docs=currentDocs();const list=$('#docList');if(!docs.length){list.innerHTML='<div class="empty">Nenhum PDF vinculado.</div>';return}list.innerHTML=docs.map((d,i)=>`<button class="doc-btn ${i===state.docIndex?'active':''}" data-doc="${i}"><strong>${d[0]}</strong><small>${d[1].split('/').pop()}</small></button>`).join('');$$('.doc-btn').forEach(b=>b.onclick=()=>{state.docIndex=Number(b.dataset.doc);safeSavePrefs();renderDocs()});const doc=docs[state.docIndex]||docs[0];$('#pdfFrame').src=doc[1]+'#toolbar=1&navpanes=0';$('#openPdf').href=doc[1];$('#fitDoc').onclick=()=>{$('#pdfFrame').src=doc[1]+'#toolbar=1&navpanes=0&v='+Date.now()}}
-function renderAll(){renderCourses();renderVersionSelect();renderMatrixSummary();renderChips();renderToolbar();renderBoard();renderDetail();renderDocs();$('#kindFilter').value=state.kind;$('#search').value=state.query}
-$('#search').oninput=e=>{state.query=e.target.value;safeSavePrefs();renderChips();renderBoard()};$('#kindFilter').onchange=e=>{state.kind=e.target.value;safeSavePrefs();renderBoard()};$('#interactiveBtn').onclick=()=>{state.view='interactive';safeSavePrefs();renderToolbar()};$('#documentBtn').onclick=()=>{state.view='document';safeSavePrefs();renderToolbar();renderDocs()};
+function recommendedPage(){const hints=DOC_PAGE_HINTS[state.version]||[]; return hints[state.docIndex]||1;}
+function pdfSrc(path,page){return `${path}#page=${page}&zoom=page-width&toolbar=1&navpanes=0`;}
+function renderDocs(){
+  const docs=currentDocs();const list=$('#docList');
+  if(!docs.length){list.innerHTML='<div class="empty">Nenhum PDF vinculado.</div>';return}
+  if(state.docIndex>=docs.length) state.docIndex=0;
+  list.innerHTML=docs.map((d,i)=>`<button class="doc-btn ${i===state.docIndex?'active':''}" data-doc="${i}"><strong>${d[0]}</strong><small>${d[1].split('/').pop()}</small></button>`).join('');
+  $$('.doc-btn').forEach(b=>b.onclick=()=>{state.docIndex=Number(b.dataset.doc);safeSavePrefs();renderDocs()});
+  const doc=docs[state.docIndex]||docs[0]; const page=recommendedPage(); const src=pdfSrc(doc[1],page);
+  $('#pdfFrame').src=src;
+  $('#openPdf').href=src;
+  $('#downloadPdf').href=doc[1]; $('#downloadPdf').setAttribute('download',doc[1].split('/').pop());
+  $('#pageHint').textContent=`Página recomendada: Fluxograma · p. ${page}`;
+  $('#backInteractive').onclick=()=>{state.view='interactive';safeSavePrefs();renderToolbar();renderBoard();};
+  $('#fitDoc').onclick=()=>{$('#pdfFrame').src=pdfSrc(doc[1],page)+'&v='+Date.now()}
+}
+function renderAll(){renderCourses();renderVersionSelect();renderMatrixSummary();if(state.query&&state.query.trim()) focusSearchResult(false);renderToolbar();renderBoard();renderDetail();renderDocs();$('#kindFilter').value=state.kind; const s=$('#fluxSearchInput'); if(s) s.value=state.query||'';}
+$('#fluxSearchInput').addEventListener('input',e=>setFluxQuery(e.target.value,true));$('#fluxSearchInput').addEventListener('keydown',e=>{if(e.key==='Enter')setFluxQuery(e.target.value,true)});$('#fluxSearchClear').onclick=()=>{state.query='';safeSavePrefs();$('#fluxSearchInput').value='';renderBoard()};$('#kindFilter').onchange=e=>{state.kind=e.target.value;safeSavePrefs();renderBoard()};$('#interactiveBtn').onclick=()=>{state.view='interactive';safeSavePrefs();renderToolbar();renderBoard()};$('#documentBtn').onclick=()=>{state.view='document';safeSavePrefs();renderToolbar();renderDocs()};
 loadPrefs();
 renderAll();
 </script>

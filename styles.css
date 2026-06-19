@@ -2644,3 +2644,33 @@ body.modal-open .topbar,
     min-height: 64px;
   }
 }
+
+/* v0.1.62: preview modal back to original top spacing; dynamic page result list kept */
+.modal { z-index: 90; }
+.verified-preview-layout { align-items: stretch; }
+.verified-preview-left {
+  grid-template-rows: auto minmax(0, 1fr);
+  overflow: hidden;
+}
+.preview-page-list {
+  max-height: none;
+  min-height: 0;
+  overflow: auto;
+  align-content: start;
+  padding-right: .15rem;
+}
+@media (max-width: 920px) {
+  .modal-card.paperless-modal,
+  .paperless-modal {
+    width: 100%;
+    height: 100dvh;
+    max-height: 100dvh;
+    margin: 0;
+    border-radius: 0;
+  }
+  .verified-preview-left {
+    max-height: none;
+    overflow: visible;
+  }
+  .preview-page-list { overflow: visible; }
+}
