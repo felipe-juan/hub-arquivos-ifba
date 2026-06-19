@@ -428,7 +428,7 @@ window.HUB_DATA = {
       "id": "app-fluxogramas",
       "title": "Fluxogramas Curriculares",
       "description": "App independente para navegar pelos fluxogramas curriculares dos cursos do IFBA VCA em modo interativo e também conferir os PDFs originais.",
-      "url": "apps/fluxogramas-curriculares-v0.1.18.html",
+      "url": "apps/fluxogramas-curriculares-v0.1.19.html",
       "category": "Fluxogramas",
       "openMode": "new-tab",
       "tags": [
@@ -1199,6 +1199,40 @@ window.HUB_DATA = {
         "Tenho meus dados acadêmicos?",
         "Tenho o documento comprobatório?",
         "Sei qual setor deve receber?"
+      ]
+    },
+    {
+      "id": "workflow-quebra-requisito",
+      "emoji": "🧩",
+      "title": "Quero pedir quebra de pré-requisito",
+      "summary": "Pedido excepcional para cursar uma disciplina sem cumprir o pré-requisito normal. Não é automático: precisa de justificativa, análise do colegiado do curso e homologação da Diretoria de Ensino.",
+      "steps": [
+        "Confira no Fluxograma ou no ementário qual é o pré-requisito oficial da disciplina.",
+        "Fale primeiro com a Coordenação do curso para confirmar se o caso faz sentido.",
+        "Abra solicitação pelo SUAP, Protocolo ou CORES, conforme orientação do campus.",
+        "Explique a justificativa: provável formando, estágio, co-requisito, ajuste de oferta ou outro caso excepcional.",
+        "Aguarde a análise do Colegiado e a homologação da Diretoria de Ensino antes de assumir que a matrícula foi aceita."
+      ],
+      "documents": [
+        "pré-requisito",
+        "pre requisito",
+        "quebra de requisito",
+        "fluxograma",
+        "ementário",
+        "matriz curricular",
+        "Normas Acadêmicas",
+        "Regulamento Discente"
+      ],
+      "links": [
+        "app-fluxogramas",
+        "link-protocolo",
+        "link-email-coordenacao"
+      ],
+      "checklist": [
+        "Sei qual disciplina quero cursar?",
+        "Sei qual pré-requisito não foi cumprido?",
+        "Tenho uma justificativa objetiva?",
+        "Conferi com a Coordenação antes de depender dessa matrícula?"
       ]
     },
     {

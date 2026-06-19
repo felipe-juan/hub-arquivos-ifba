@@ -11,9 +11,9 @@
 
 ## Versão atual
 
-**v0.1.64**
+**v0.1.65**
 
-Atualização principal: reconstrução estrita das relações de pré-requisito da Matriz 2024 de Sistemas de Informação a partir do campo **PRÉ-REQUISITOS** do Ementário oficial BSI 2024, sem inferências automáticas para essa matriz.
+Atualização principal: links diretos por matriz no app Fluxogramas, revisão da Matriz 2017 de Sistemas de Informação com base no PPC oficial de 2017 e atualização do card de quebra de pré-requisito.
 
 ## Sobre o projeto
 
@@ -23,13 +23,14 @@ O objetivo é transformar PDFs, planilhas, links e informações acadêmicas dis
 
 O site funciona sem backend e pode ser publicado diretamente no **GitHub Pages**.
 
-## Alterações recentes da v0.1.64
+## Alterações recentes da v0.1.65
 
-- Refeitas as relações de pré-requisito/desbloqueio da **Matriz 2024 de Sistemas de Informação** usando estritamente o campo **PRÉ-REQUISITOS** do `bsi-ementario-2024.pdf`.
-- A matriz interativa BSI 2024 agora tem os pré-requisitos declarados diretamente nos dados das disciplinas, além do mapa de relações usado pelo destaque visual.
-- Desativada a inferência automática de pré-requisitos para a matriz `bsi2024`, para evitar relações inventadas ou herdadas de padrões como `I → II` quando o ementário não disser isso explicitamente.
-- Corrigido o caso de **Complexidade de Algoritmos**, que passa a exigir **Cálculo Diferencial Aplicado à Computação** e **Estruturas de Dados**, conforme o ementário.
-- Mantido o PDF da matriz curricular como referência visual do fluxograma e o ementário como fonte principal dos pré-requisitos.
+- O app **Fluxogramas Curriculares** agora atualiza a URL com um link direto para a matriz selecionada, por exemplo `#sistemas-de-informacao/matriz-2017`.
+- Adicionado botão **Copiar link direto desta matriz** no card da matriz selecionada.
+- Refeitas as relações de pré-requisito/desbloqueio da **Matriz 2017 de Sistemas de Informação** usando o PPC oficial de 2017 como referência principal.
+- Adicionado o arquivo `bsi-ppc-2017.pdf` em `apps/fluxogramas/docs/` e incluído como documento oficial na aba Documento da Matriz 2017.
+- Desativada a inferência automática de pré-requisitos também para `bsi2017`, para evitar relações inventadas por padrão de nomes.
+- Atualizado o card **Quebra de pré-requisito** no app **Onde resolvo isso?**, deixando claro que é uma solicitação excepcional, dependente de justificativa, análise pelo colegiado e homologação pela Diretoria de Ensino.
 - README atualizado nesta versão, mantendo o aviso de que o código foi gerado por IA.
 
 ## O que existe no site
@@ -87,7 +88,7 @@ hub-arquivos-ifba/
 └── apps/
     ├── calendario-academico-ifba-vca-2026-v0.1.12.html
     ├── barema-explorer-v0.1.7.html
-    ├── fluxogramas-curriculares-v0.1.18.html
+    ├── fluxogramas-curriculares-v0.1.19.html
     └── fluxogramas/
         └── docs/
             ├── bsi-matriz-2024.pdf
@@ -147,7 +148,7 @@ fuser -k 8003/tcp
 Se você recebeu um ZIP novo, por exemplo:
 
 ```text
-~/Downloads/hub-arquivos-ifba-v0.1.64.zip
+~/Downloads/hub-arquivos-ifba-v0.1.65.zip
 ```
 
 Use este processo manual seguro:
@@ -158,7 +159,7 @@ cd ~/Documents/hub-arquivos-ifba
 mkdir -p /tmp/hub-update
 rm -rf /tmp/hub-update/*
 
-unzip ~/Downloads/hub-arquivos-ifba-v0.1.64.zip -d /tmp/hub-update
+unzip ~/Downloads/hub-arquivos-ifba-v0.1.65.zip -d /tmp/hub-update
 
 rsync -a --delete \
   --exclude ".git/" \
@@ -223,7 +224,7 @@ apps/fluxogramas/docs/
 O HTML do app fica em:
 
 ```text
-apps/fluxogramas-curriculares-v0.1.18.html
+apps/fluxogramas-curriculares-v0.1.19.html
 ```
 
 Como o HTML está dentro da pasta `apps/`, o caminho correto para apontar para os PDFs é:
@@ -267,13 +268,13 @@ Se algum arquivo for renomeado, o HTML do app também precisa ser atualizado.
 Se o modo Documento mostrar erro 404, confira primeiro se o caminho duplicou:
 
 ```bash
-grep -n "fluxogramas/fluxogramas" apps/fluxogramas-curriculares-v0.1.18.html
+grep -n "fluxogramas/fluxogramas" apps/fluxogramas-curriculares-v0.1.19.html
 ```
 
 Se aparecer resultado, corrija com:
 
 ```bash
-sed -i 's#fluxogramas/fluxogramas/docs/#fluxogramas/docs/#g' apps/fluxogramas-curriculares-v0.1.18.html
+sed -i 's#fluxogramas/fluxogramas/docs/#fluxogramas/docs/#g' apps/fluxogramas-curriculares-v0.1.19.html
 ```
 
 Confira se os PDFs existem:
@@ -319,11 +320,22 @@ O app apresenta o Barema de forma navegável, com busca, categorias e simulaçã
 
 Na Matriz 2024 de Sistemas de Informação, as relações de pré-requisito do modo interativo devem seguir estritamente o campo **PRÉ-REQUISITOS** do `bsi-ementario-2024.pdf`. O PDF da matriz curricular continua sendo mantido como referência visual do fluxograma, mas o ementário é a fonte principal para a lógica interativa de pré-requisitos.
 
+Na Matriz 2017 de Sistemas de Informação, as relações de pré-requisito do modo interativo devem seguir o PPC oficial de 2017 (`bsi-ppc-2017.pdf`), especialmente o Apêndice A/Ementário. Para evitar relações inventadas, a inferência automática de pré-requisitos fica desativada para `bsi2017`.
+
+O app Fluxogramas usa links diretos por hash para funcionar corretamente no GitHub Pages. Exemplos:
+
+```text
+apps/fluxogramas-curriculares-v0.1.19.html#sistemas-de-informacao/matriz-2024
+apps/fluxogramas-curriculares-v0.1.19.html#sistemas-de-informacao/matriz-2017
+```
+
+Esse formato foi escolhido porque links do tipo `/arquivo.html/alguma-coisa` tendem a quebrar em hospedagem estática.
+
 
 Arquivo atual:
 
 ```text
-apps/fluxogramas-curriculares-v0.1.18.html
+apps/fluxogramas-curriculares-v0.1.19.html
 ```
 
 O app reúne fluxogramas/matrizes de diferentes cursos:
