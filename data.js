@@ -359,23 +359,6 @@ window.HUB_DATA = {
       ]
     },
     {
-      "id": "link-pagina-bsi-ifba",
-      "title": "Página oficial do BSI no IFBA",
-      "description": "Página institucional do Bacharelado em Sistemas de Informação no portal do IFBA Campus Vitória da Conquista.",
-      "url": "https://portal.ifba.edu.br/conquista/capas-e-paginas-menu-cursos/sistemas-de-informacao",
-      "category": "Institucional",
-      "tags": [
-        "BSI",
-        "sistemas de informação",
-        "sistemas de informacao",
-        "IFBA",
-        "portal oficial",
-        "curso",
-        "página oficial",
-        "institucional"
-      ]
-    },
-    {
       "id": "link-provas-atividades-passadas",
       "title": "Provas e Atividades Passadas",
       "description": "Pasta no Google Drive com provas, listas e atividades antigas compartilhadas para consulta estudantil.",

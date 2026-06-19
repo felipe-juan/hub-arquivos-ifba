@@ -2892,3 +2892,32 @@ body.modal-open .topbar,
     align-items: flex-start;
   }
 }
+
+
+/* v0.1.71: Links edit mode centered and desktop-optimized */
+@media (min-width: 721px) {
+  #links .links-edit-list {
+    max-width: 820px;
+    margin-inline: auto;
+    justify-self: center;
+    width: min(100%, 820px);
+  }
+
+  #links .link-order-item {
+    grid-template-columns: 2.4rem 2.4rem minmax(0, 1fr) auto;
+    min-height: 64px;
+    padding: .65rem .72rem;
+  }
+
+  #links .link-order-actions button {
+    width: 2.35rem;
+    height: 2.35rem;
+  }
+}
+
+@media (min-width: 1180px) {
+  #links .links-edit-list {
+    max-width: 760px;
+    width: min(100%, 760px);
+  }
+}

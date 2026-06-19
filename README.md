@@ -11,9 +11,9 @@
 
 ## Versão atual
 
-**v0.1.70**
+**v0.1.71**
 
-Atualização principal: correção do cache da interface, garantindo que o botão **Personalizar ordem** carregue o JavaScript e o CSS novos da seção de Links.
+Atualização principal: ajuste visual do modo **Personalizar ordem** na seção de Links, com lista centralizada no desktop, e remoção do atalho da página oficial do BSI no IFBA.
 
 ## Sobre o projeto
 
@@ -23,8 +23,10 @@ O objetivo é transformar PDFs, planilhas, links e informações acadêmicas dis
 
 O site funciona sem backend e pode ser publicado diretamente no **GitHub Pages**.
 
-## Alterações recentes da v0.1.70
+## Alterações recentes da v0.1.71
 
+- Removido o link **Página oficial do BSI no IFBA** da seção de Links.
+- O modo **Personalizar ordem** agora fica centralizado no desktop, evitando que a lista de ordenação fique esticada demais em telas largas.
 - A ordem padrão dos Links foi reorganizada para priorizar: Protocolo, Fluxogramas, Quadro de horário, Calendário, Calculadora e Baremas.
 
 - Corrigido o carregamento de arquivos estáticos com versionamento `?v=0.1.70` em `styles.css`, `data.js` e `app.js`, evitando cache antigo do navegador.
@@ -188,7 +190,7 @@ fuser -k 8003/tcp
 Se você recebeu um ZIP novo, por exemplo:
 
 ```text
-~/Downloads/hub-arquivos-ifba-v0.1.70.zip
+~/Downloads/hub-arquivos-ifba-v0.1.71.zip
 ```
 
 Use este processo manual seguro:
@@ -199,7 +201,7 @@ cd ~/Documents/hub-arquivos-ifba
 mkdir -p /tmp/hub-update
 rm -rf /tmp/hub-update/*
 
-unzip ~/Downloads/hub-arquivos-ifba-v0.1.70.zip -d /tmp/hub-update
+unzip ~/Downloads/hub-arquivos-ifba-v0.1.71.zip -d /tmp/hub-update
 
 rsync -a --delete \
   --exclude ".git/" \
