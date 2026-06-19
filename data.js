@@ -208,10 +208,46 @@ window.HUB_DATA = {
       ]
     },
     {
+      "id": "link-pagina-bsi-ifba",
+      "title": "Página oficial do BSI no IFBA",
+      "description": "Página institucional do Bacharelado em Sistemas de Informação no portal do IFBA Campus Vitória da Conquista.",
+      "url": "https://portal.ifba.edu.br/conquista/capas-e-paginas-menu-cursos/sistemas-de-informacao",
+      "category": "Institucional",
+      "tags": [
+        "BSI",
+        "sistemas de informação",
+        "sistemas de informacao",
+        "IFBA",
+        "portal oficial",
+        "curso",
+        "página oficial",
+        "institucional"
+      ]
+    },
+    {
+      "id": "link-quadro-horario-2026-2",
+      "title": "Quadro de horário 2026.2",
+      "description": "Planilha oficial compartilhada com o quadro de horários do semestre 2026.2.",
+      "url": "https://ifbaedubr-my.sharepoint.com/:x:/g/personal/rodrigobonfim_ifba_edu_br/IQCsaQq5LEbpRbrN4aQdTsRLAYgmR5gmpZ1PZu_wD9dlFmg?rtime=Qo_J-yvO3kg",
+      "category": "Horários",
+      "tags": [
+        "quadro de horário",
+        "quadro de horarios",
+        "horário",
+        "horario",
+        "2026.2",
+        "aulas",
+        "disciplinas",
+        "planilha",
+        "sharepoint",
+        "semestre"
+      ]
+    },
+    {
       "id": "link-fluxograma-antigo",
       "title": "Fluxograma antigo",
-      "description": "Fluxograma da matriz antiga do curso de Sistemas de Informação.",
-      "url": "https://anadisigant.github.io/grade2017/",
+      "description": "Fluxograma interativo da matriz 2017 de Sistemas de Informação.",
+      "url": "apps/fluxogramas-curriculares-v0.1.19.html#sistemas-de-informacao/matriz-2017",
       "category": "Fluxograma",
       "tags": [
         "fluxograma",
@@ -226,8 +262,8 @@ window.HUB_DATA = {
     {
       "id": "link-fluxograma-atual",
       "title": "Fluxograma atual",
-      "description": "Fluxograma da matriz atual no Guia do Universitário.",
-      "url": "https://www.guiadouniversitario.com/en/course/flowchart/17?curriculumId=1754",
+      "description": "Fluxograma interativo da matriz 2024 de Sistemas de Informação.",
+      "url": "apps/fluxogramas-curriculares-v0.1.19.html#sistemas-de-informacao/matriz-2024",
       "category": "Fluxograma",
       "tags": [
         "fluxograma",
@@ -238,6 +274,46 @@ window.HUB_DATA = {
         "disciplinas",
         "pré-requisitos",
         "guia do universitário"
+      ]
+    },
+    {
+      "id": "link-barema-app",
+      "title": "Barema Explorer",
+      "description": "App do HUB para consultar atividades complementares, limites por categoria, regra das 200h e simulação do Barema PPC 2024.",
+      "url": "apps/barema-explorer-v0.1.7.html",
+      "category": "App",
+      "openMode": "new-tab",
+      "tags": [
+        "barema",
+        "barema explorer",
+        "atividades complementares",
+        "horas complementares",
+        "certificados",
+        "PPC 2024",
+        "simulador",
+        "app",
+        "ferramenta"
+      ]
+    },
+    {
+      "id": "link-calculadora-media-app",
+      "title": "Calculadora de Média",
+      "description": "Atalho direto para a calculadora de média parcial, prova final e média final do HUB.",
+      "url": "#calc-media",
+      "category": "App",
+      "tags": [
+        "calculadora",
+        "média",
+        "media",
+        "nota",
+        "notas",
+        "prova final",
+        "média final",
+        "MP",
+        "PF",
+        "MF",
+        "app",
+        "ferramenta"
       ]
     },
     {
@@ -423,7 +499,6 @@ window.HUB_DATA = {
         "ferramenta"
       ]
     },
-
     {
       "id": "app-fluxogramas",
       "title": "Fluxogramas Curriculares",
@@ -449,7 +524,7 @@ window.HUB_DATA = {
         "app",
         "ferramenta"
       ]
-    },
+    }
   ],
   "guides": [],
   "directoryGroups": [

@@ -2632,16 +2632,42 @@ body.modal-open .topbar,
 }
 
 
-/* v0.1.39: desktop quick links use responsive columns, capped by site width at 4 columns */
+/* v0.1.67: desktop quick links can use up to 6 compact columns */
 @media (min-width: 721px) {
   #links .linktree-list {
     max-width: none;
-    grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+    grid-template-columns: repeat(auto-fit, minmax(190px, 1fr));
     align-items: stretch;
   }
 
   #links .linktree-item {
     min-height: 64px;
+  }
+}
+
+@media (min-width: 1180px) {
+  #links .linktree-list {
+    grid-template-columns: repeat(6, minmax(0, 1fr));
+    gap: .56rem;
+  }
+
+  #links .linktree-item {
+    grid-template-columns: 2.35rem minmax(0, 1fr);
+    gap: .62rem;
+    padding: .64rem .68rem;
+    border-radius: 16px;
+  }
+
+  #links .linktree-emoji {
+    width: 2.35rem;
+    height: 2.35rem;
+    border-radius: 13px;
+    font-size: 1.25rem;
+  }
+
+  #links .linktree-item strong {
+    font-size: .9rem;
+    line-height: 1.15;
   }
 }
 

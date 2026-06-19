@@ -11,9 +11,9 @@
 
 ## Versão atual
 
-**v0.1.65**
+**v0.1.67**
 
-Atualização principal: links diretos por matriz no app Fluxogramas, revisão da Matriz 2017 de Sistemas de Informação com base no PPC oficial de 2017 e atualização do card de quebra de pré-requisito.
+Atualização principal: a seção de Links recebeu atalhos para Calculadora, Barema Explorer, Quadro de horário 2026.2 e página oficial do BSI, além de grade rápida com até 6 colunas no desktop.
 
 ## Sobre o projeto
 
@@ -23,14 +23,13 @@ O objetivo é transformar PDFs, planilhas, links e informações acadêmicas dis
 
 O site funciona sem backend e pode ser publicado diretamente no **GitHub Pages**.
 
-## Alterações recentes da v0.1.65
+## Alterações recentes da v0.1.67
 
-- O app **Fluxogramas Curriculares** agora atualiza a URL com um link direto para a matriz selecionada, por exemplo `#sistemas-de-informacao/matriz-2017`.
-- Adicionado botão **Copiar link direto desta matriz** no card da matriz selecionada.
-- Refeitas as relações de pré-requisito/desbloqueio da **Matriz 2017 de Sistemas de Informação** usando o PPC oficial de 2017 como referência principal.
-- Adicionado o arquivo `bsi-ppc-2017.pdf` em `apps/fluxogramas/docs/` e incluído como documento oficial na aba Documento da Matriz 2017.
-- Desativada a inferência automática de pré-requisitos também para `bsi2017`, para evitar relações inventadas por padrão de nomes.
-- Atualizado o card **Quebra de pré-requisito** no app **Onde resolvo isso?**, deixando claro que é uma solicitação excepcional, dependente de justificativa, análise pelo colegiado e homologação pela Diretoria de Ensino.
+- Adicionados atalhos na seção **Links** para **Calculadora de Média** e **Barema Explorer**.
+- Adicionado link do **Quadro de horário 2026.2**.
+- Adicionado link da **página oficial do BSI no portal do IFBA**.
+- Mantidos os links diretos de **Fluxograma antigo** e **Fluxograma atual** para as matrizes 2017 e 2024.
+- A visualização rápida da seção **Links** no desktop agora pode exibir até **6 colunas**.
 - README atualizado nesta versão, mantendo o aviso de que o código foi gerado por IA.
 
 ## O que existe no site
@@ -148,7 +147,7 @@ fuser -k 8003/tcp
 Se você recebeu um ZIP novo, por exemplo:
 
 ```text
-~/Downloads/hub-arquivos-ifba-v0.1.65.zip
+~/Downloads/hub-arquivos-ifba-v0.1.67.zip
 ```
 
 Use este processo manual seguro:
@@ -159,7 +158,7 @@ cd ~/Documents/hub-arquivos-ifba
 mkdir -p /tmp/hub-update
 rm -rf /tmp/hub-update/*
 
-unzip ~/Downloads/hub-arquivos-ifba-v0.1.65.zip -d /tmp/hub-update
+unzip ~/Downloads/hub-arquivos-ifba-v0.1.67.zip -d /tmp/hub-update
 
 rsync -a --delete \
   --exclude ".git/" \
