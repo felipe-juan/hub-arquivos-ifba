@@ -11,9 +11,9 @@
 
 ## Versão atual
 
-**v0.1.67**
+**v0.1.70**
 
-Atualização principal: a seção de Links recebeu atalhos para Calculadora, Barema Explorer, Quadro de horário 2026.2 e página oficial do BSI, além de grade rápida com até 6 colunas no desktop.
+Atualização principal: correção do cache da interface, garantindo que o botão **Personalizar ordem** carregue o JavaScript e o CSS novos da seção de Links.
 
 ## Sobre o projeto
 
@@ -23,14 +23,20 @@ O objetivo é transformar PDFs, planilhas, links e informações acadêmicas dis
 
 O site funciona sem backend e pode ser publicado diretamente no **GitHub Pages**.
 
-## Alterações recentes da v0.1.67
+## Alterações recentes da v0.1.70
 
-- Adicionados atalhos na seção **Links** para **Calculadora de Média** e **Barema Explorer**.
-- Adicionado link do **Quadro de horário 2026.2**.
-- Adicionado link da **página oficial do BSI no portal do IFBA**.
-- Mantidos os links diretos de **Fluxograma antigo** e **Fluxograma atual** para as matrizes 2017 e 2024.
-- A visualização rápida da seção **Links** no desktop agora pode exibir até **6 colunas**.
-- README atualizado nesta versão, mantendo o aviso de que o código foi gerado por IA.
+- A ordem padrão dos Links foi reorganizada para priorizar: Protocolo, Fluxogramas, Quadro de horário, Calendário, Calculadora e Baremas.
+
+- Corrigido o carregamento de arquivos estáticos com versionamento `?v=0.1.70` em `styles.css`, `data.js` e `app.js`, evitando cache antigo do navegador.
+- Corrigido o problema em que o botão **Personalizar ordem** podia não ativar os controles de reordenação por o navegador continuar usando `app.js?v=0.1.61`.
+- Mantido o modo de personalização da ordem dos links com arrastar e soltar, botões de mover no mobile e salvamento via `localStorage`.
+
+- Adicionado modo **Personalizar ordem** na seção de Links.
+- No desktop, os links podem ser reorganizados por arrastar e soltar.
+- No celular, além do arrastar quando suportado pelo navegador, há botões **↑** e **↓** para mover cada link.
+- A ordem personalizada é salva em `localStorage` e volta automaticamente no mesmo navegador/dispositivo.
+- Adicionado botão **Restaurar padrão** para voltar à ordem oficial do HUB.
+- Adicionado atalho do app **Calendário Acadêmico 2026** na seção de Links.
 
 ## O que existe no site
 
@@ -51,6 +57,27 @@ O Acervo usa a pasta `documents/` e o arquivo `documents/manifest.json` para lis
 
 A busca é feita localmente no frontend, sem servidor.
 
+### Links úteis
+
+A seção de Links possui dois modos de visualização:
+
+- **Rápido**: cards compactos em estilo Linktree;
+- **Detalhado**: cards com descrição e categoria.
+
+Também existe o modo **Personalizar ordem**, no qual o usuário pode reorganizar os links conforme sua preferência. A ordem é salva no navegador com `localStorage`.
+
+A ordem padrão definida para o HUB é:
+
+1. Protocolo;
+2. Fluxogramas;
+3. Quadro de horário;
+4. Calendário;
+5. Calculadora;
+6. Baremas;
+7. demais links.
+
+O botão **Restaurar padrão** apaga a personalização local e retorna à ordem acima.
+
 ### Apps independentes
 
 Os apps ficam dentro da pasta `apps/` e são abertos em nova página/aba.
@@ -58,8 +85,22 @@ Os apps ficam dentro da pasta `apps/` e são abertos em nova página/aba.
 Atualmente há:
 
 - **Calendário Acadêmico 2026**;
-- **Barema Explorer**;
+- **Barema Explorer** — versões PPC 2024 e PPC 2010-2017, modo interativo e visualização da planilha;
 - **Fluxogramas Curriculares**.
+
+
+### Pasta `apps/barema/docs/`
+
+A pasta `apps/barema/docs/` guarda os arquivos originais do Barema usados pelo app independente.
+
+Arquivos esperados:
+
+```text
+apps/barema/docs/barema-ppc-2024.xlsx
+apps/barema/docs/barema-ppc-2010-2017.xlsx
+```
+
+O app do Barema usa esses arquivos como fonte visual/documental e também possui dados internos extraídos das planilhas para a experiência interativa.
 
 ## Estrutura principal do repositório
 
@@ -86,7 +127,7 @@ hub-arquivos-ifba/
 │   └── update_documents_and_publish.sh
 └── apps/
     ├── calendario-academico-ifba-vca-2026-v0.1.12.html
-    ├── barema-explorer-v0.1.7.html
+    ├── barema-explorer-v0.1.8.html
     ├── fluxogramas-curriculares-v0.1.19.html
     └── fluxogramas/
         └── docs/
@@ -147,7 +188,7 @@ fuser -k 8003/tcp
 Se você recebeu um ZIP novo, por exemplo:
 
 ```text
-~/Downloads/hub-arquivos-ifba-v0.1.67.zip
+~/Downloads/hub-arquivos-ifba-v0.1.70.zip
 ```
 
 Use este processo manual seguro:
@@ -158,7 +199,7 @@ cd ~/Documents/hub-arquivos-ifba
 mkdir -p /tmp/hub-update
 rm -rf /tmp/hub-update/*
 
-unzip ~/Downloads/hub-arquivos-ifba-v0.1.67.zip -d /tmp/hub-update
+unzip ~/Downloads/hub-arquivos-ifba-v0.1.70.zip -d /tmp/hub-update
 
 rsync -a --delete \
   --exclude ".git/" \
@@ -175,19 +216,6 @@ cd ~/Documents/hub-arquivos-ifba
 python3 -m http.server 8003
 ```
 
-## Como publicar no GitHub Pages
-
-Depois de testar:
-
-```bash
-cd ~/Documents/hub-arquivos-ifba
-git status
-git add .
-git commit -m "Update HUB Arquivos IFBA"
-git push
-```
-
-Se o GitHub Pages estiver configurado para a branch principal, a publicação acontece depois do `git push`.
 
 ## Pasta `documents/`: Acervo geral
 
@@ -310,10 +338,20 @@ O app também possui filtros e busca compacta no topo.
 Arquivo atual:
 
 ```text
-apps/barema-explorer-v0.1.7.html
+apps/barema-explorer-v0.1.8.html
 ```
 
-O app apresenta o Barema de forma navegável, com busca, categorias e simulação.
+O app apresenta o Barema de forma navegável, com duas versões selecionáveis:
+
+- **PPC 2024**;
+- **PPC 2010-2017**.
+
+O app possui:
+
+- modo **Interativo**, com categorias, busca compacta e simulador de horas;
+- modo **Planilha**, com visualização organizada dos itens extraídos do XLSX;
+- download do arquivo XLSX original;
+- link direto por hash para abrir uma versão específica do barema.
 
 ## App Fluxogramas Curriculares
 
@@ -367,7 +405,7 @@ O site usa `localStorage` para lembrar escolhas do usuário, como:
 - modo Interativo/Documento;
 - filtros e visualização do Calendário;
 - filtros do Acervo;
-- modo dos Links;
+- modo e ordem personalizada dos Links;
 - preferências de visualização quando aplicável.
 
 Para limpar as preferências durante testes, abra o console do navegador e rode:

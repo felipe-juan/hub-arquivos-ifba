@@ -17,6 +17,8 @@ const state = {
   temporaryEdits: new Map(),
   desktopColumns: "auto",
   linksView: null,
+  linksEditMode: false,
+  linkDragId: null,
   archiveVisibleCount: null
 };
 
@@ -26,6 +28,19 @@ const HUB_PREF_KEYS = {
   searchFilters: "hubSearchFilters",
   filtersOpen: "hubFiltersOpen"
 };
+
+const LINKS_ORDER_STORAGE_KEY = "hubLinksCustomOrderV1";
+const DEFAULT_LINK_ORDER = [
+  "link-protocolo",
+  "link-fluxograma-atual",
+  "link-fluxograma-antigo",
+  "link-quadro-horario-2026-2",
+  "link-calendario-app",
+  "link-calculadora-media-app",
+  "link-barema-app",
+  "link-barema-atual-planilha",
+  "link-barema-antigo-planilha"
+];
 
 function prefGet(key, fallback = null) {
   try {
@@ -1996,14 +2011,69 @@ function applyLinksView(value, { persist = true } = {}) {
 
   const grid = document.getElementById("linksGrid");
   if (grid) {
-    grid.classList.toggle("linktree-list", clean === "quick");
-    grid.classList.toggle("cards-grid", clean === "cards");
-    grid.dataset.view = clean;
+    grid.classList.toggle("linktree-list", clean === "quick" && !state.linksEditMode);
+    grid.classList.toggle("cards-grid", clean === "cards" && !state.linksEditMode);
+    grid.classList.toggle("links-edit-list", state.linksEditMode);
+    grid.dataset.view = state.linksEditMode ? "edit" : clean;
   }
 
   if (persist) {
     try { localStorage.setItem(linksViewStorageKey(), clean); } catch (_) {}
   }
+}
+
+function orderedUsefulLinks() {
+  const byId = new Map(usefulLinks.map(link => [link.id, link]));
+  const saved = prefGetJson(LINKS_ORDER_STORAGE_KEY, null);
+  const order = Array.isArray(saved) && saved.length ? saved : DEFAULT_LINK_ORDER;
+  const seen = new Set();
+  const ordered = [];
+
+  order.forEach(id => {
+    const item = byId.get(id);
+    if (item && !seen.has(id)) {
+      ordered.push(item);
+      seen.add(id);
+    }
+  });
+
+  usefulLinks.forEach(item => {
+    if (!seen.has(item.id)) {
+      ordered.push(item);
+      seen.add(item.id);
+    }
+  });
+
+  return ordered;
+}
+
+function saveLinksOrder(links = orderedUsefulLinks()) {
+  prefSetJson(LINKS_ORDER_STORAGE_KEY, links.map(link => link.id));
+}
+
+function moveLinkInOrder(id, direction) {
+  const links = orderedUsefulLinks();
+  const index = links.findIndex(link => link.id === id);
+  if (index < 0) return;
+  const nextIndex = direction === "up" ? index - 1 : index + 1;
+  if (nextIndex < 0 || nextIndex >= links.length) return;
+  const [item] = links.splice(index, 1);
+  links.splice(nextIndex, 0, item);
+  saveLinksOrder(links);
+  renderLinks();
+}
+
+function moveDraggedLink(dragId, targetId) {
+  if (!dragId || !targetId || dragId === targetId) return;
+  const links = orderedUsefulLinks();
+  const from = links.findIndex(link => link.id === dragId);
+  const to = links.findIndex(link => link.id === targetId);
+  if (from < 0 || to < 0) return;
+  const [item] = links.splice(from, 1);
+  const targetIndex = links.findIndex(link => link.id === targetId);
+  links.splice(targetIndex < 0 ? to : targetIndex, 0, item);
+  saveLinksOrder(links);
+  renderLinks();
 }
 
 function renderLinktreeItem(link) {
@@ -2015,18 +2085,53 @@ function renderLinktreeItem(link) {
   `;
 }
 
+function renderEditableLinkItem(link, index, total) {
+  return `
+    <article class="link-order-item" draggable="true" data-link-order-id="${escapeHtml(link.id)}">
+      <button type="button" class="drag-handle" draggable="true" aria-label="Arrastar ${escapeHtml(link.title)}">☰</button>
+      <span class="linktree-emoji" aria-hidden="true">${emojiForResource(link, "link")}</span>
+      <div class="link-order-text">
+        <strong>${escapeHtml(link.title)}</strong>
+        <small>${escapeHtml(link.category || "Atalho")}</small>
+      </div>
+      <div class="link-order-actions" aria-label="Mover ${escapeHtml(link.title)}">
+        <button type="button" data-link-move="up" data-link-id="${escapeHtml(link.id)}" ${index === 0 ? "disabled" : ""}>↑</button>
+        <button type="button" data-link-move="down" data-link-id="${escapeHtml(link.id)}" ${index === total - 1 ? "disabled" : ""}>↓</button>
+      </div>
+    </article>
+  `;
+}
+
 function renderLinks() {
   const grid = document.getElementById("linksGrid");
   if (!grid) return;
 
   const view = state.linksView || defaultLinksView();
+  const links = orderedUsefulLinks();
   applyLinksView(view, { persist: false });
+  document.body.classList.toggle("links-editing", state.linksEditMode);
+  document.querySelectorAll("[data-links-edit-toggle]").forEach(button => {
+    button.classList.toggle("active", state.linksEditMode);
+    button.textContent = state.linksEditMode ? "Concluir" : "Personalizar ordem";
+    button.setAttribute("aria-pressed", state.linksEditMode ? "true" : "false");
+  });
+  document.querySelectorAll("[data-links-reset-order]").forEach(button => {
+    button.hidden = !state.linksEditMode;
+  });
+  document.querySelectorAll("[data-links-view]").forEach(button => {
+    button.disabled = state.linksEditMode;
+  });
 
-  grid.innerHTML = usefulLinks.length
-    ? (state.linksView === "quick"
-      ? usefulLinks.map(renderLinktreeItem).join("")
-      : usefulLinks.map(link => renderResourceCard(link, "link")).join(""))
-    : emptyStateHtml("Nenhum link cadastrado ainda", "Quando você adicionar links reais em data.js, eles aparecerão aqui.");
+  if (!links.length) {
+    grid.innerHTML = emptyStateHtml("Nenhum link cadastrado ainda", "Quando você adicionar links reais em data.js, eles aparecerão aqui.");
+    return;
+  }
+
+  grid.innerHTML = state.linksEditMode
+    ? links.map((link, index) => renderEditableLinkItem(link, index, links.length)).join("")
+    : (state.linksView === "quick"
+      ? links.map(renderLinktreeItem).join("")
+      : links.map(link => renderResourceCard(link, "link")).join(""));
 }
 
 function linksViewStorageKey() {
@@ -2041,9 +2146,70 @@ function setupLinksViewToggle() {
 
   document.querySelectorAll("[data-links-view]").forEach(button => {
     button.addEventListener("click", () => {
+      if (state.linksEditMode) return;
       applyLinksView(button.dataset.linksView || "quick", { persist: false });
       try { localStorage.setItem(linksViewStorageKey(), state.linksView); } catch (_) {}
       renderLinks();
+    });
+  });
+
+  document.querySelectorAll("[data-links-edit-toggle]").forEach(button => {
+    button.addEventListener("click", () => {
+      state.linksEditMode = !state.linksEditMode;
+      state.linkDragId = null;
+      renderLinks();
+    });
+  });
+
+  document.querySelectorAll("[data-links-reset-order]").forEach(button => {
+    button.addEventListener("click", () => {
+      prefRemove(LINKS_ORDER_STORAGE_KEY);
+      state.linkDragId = null;
+      renderLinks();
+    });
+  });
+
+  document.getElementById("linksGrid")?.addEventListener("click", event => {
+    const button = event.target.closest("[data-link-move]");
+    if (!button) return;
+    event.preventDefault();
+    moveLinkInOrder(button.dataset.linkId, button.dataset.linkMove);
+  });
+
+  document.getElementById("linksGrid")?.addEventListener("dragstart", event => {
+    const item = event.target.closest("[data-link-order-id]");
+    if (!item || !state.linksEditMode) return;
+    state.linkDragId = item.dataset.linkOrderId;
+    item.classList.add("is-dragging");
+    event.dataTransfer?.setData("text/plain", state.linkDragId || "");
+    if (event.dataTransfer) event.dataTransfer.effectAllowed = "move";
+  });
+
+  document.getElementById("linksGrid")?.addEventListener("dragover", event => {
+    const item = event.target.closest("[data-link-order-id]");
+    if (!item || !state.linksEditMode || !state.linkDragId) return;
+    event.preventDefault();
+    item.classList.add("is-drop-target");
+    if (event.dataTransfer) event.dataTransfer.dropEffect = "move";
+  });
+
+  document.getElementById("linksGrid")?.addEventListener("dragleave", event => {
+    event.target.closest("[data-link-order-id]")?.classList.remove("is-drop-target");
+  });
+
+  document.getElementById("linksGrid")?.addEventListener("drop", event => {
+    const item = event.target.closest("[data-link-order-id]");
+    if (!item || !state.linksEditMode) return;
+    event.preventDefault();
+    const dragId = state.linkDragId || event.dataTransfer?.getData("text/plain");
+    moveDraggedLink(dragId, item.dataset.linkOrderId);
+    state.linkDragId = null;
+  });
+
+  document.getElementById("linksGrid")?.addEventListener("dragend", () => {
+    state.linkDragId = null;
+    document.querySelectorAll(".link-order-item.is-dragging, .link-order-item.is-drop-target").forEach(item => {
+      item.classList.remove("is-dragging", "is-drop-target");
     });
   });
 }

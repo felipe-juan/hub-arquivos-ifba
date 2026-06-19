@@ -7,7 +7,7 @@
   <meta name="description" content="Busca rápida por documentos, links, apps e informações do curso de Sistemas de Informação do IFBA Vitória da Conquista." />
   <link rel="icon" href="favicon.ico" sizes="any" />
   <link rel="apple-touch-icon" href="assets/apple-touch-icon.png" />
-  <link rel="stylesheet" href="styles.css" />
+  <link rel="stylesheet" href="styles.css?v=0.1.70" />
 </head>
 <body>
   <div class="ambient" aria-hidden="true"></div>
@@ -220,9 +220,15 @@
           <p class="eyebrow">Atalhos</p>
           <h2>Links, sistemas e páginas externas</h2>
         </div>
-        <div class="view-toggle links-view-toggle" role="group" aria-label="Modo de visualização dos links">
-          <button type="button" class="active" data-links-view="quick">Rápido</button>
-          <button type="button" data-links-view="cards">Detalhado</button>
+        <div class="links-controls">
+          <div class="view-toggle links-view-toggle" role="group" aria-label="Modo de visualização dos links">
+            <button type="button" class="active" data-links-view="quick">Rápido</button>
+            <button type="button" data-links-view="cards">Detalhado</button>
+          </div>
+          <div class="links-order-controls" role="group" aria-label="Personalização dos links">
+            <button type="button" class="secondary-button links-edit-button" data-links-edit-toggle aria-pressed="false">Personalizar ordem</button>
+            <button type="button" class="secondary-button links-reset-button" data-links-reset-order hidden>Restaurar padrão</button>
+          </div>
         </div>
       </div>
       <div id="linksGrid" class="linktree-list"></div>
@@ -239,11 +245,11 @@
   </div>
 
   <footer class="footer">
-    <span>HUB SI · v0.1.67 · protótipo livre · sempre confira a fonte oficial.</span>
+    <span>HUB SI · v0.1.70 · protótipo livre · sempre confira a fonte oficial.</span>
   </footer>
 
-  <script src="data.js"></script>
+  <script src="data.js?v=0.1.70"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js" referrerpolicy="no-referrer"></script>
-  <script src="app.js?v=0.1.61"></script>
+  <script src="app.js?v=0.1.70"></script>
 </body>
 </html>

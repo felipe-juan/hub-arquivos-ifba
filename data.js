@@ -2,6 +2,170 @@ window.HUB_DATA = {
   "documents": [],
   "usefulLinks": [
     {
+      "id": "link-protocolo",
+      "title": "Protocolo",
+      "description": "Formulário de protocolo para solicitações acadêmicas.",
+      "url": "https://docs.google.com/forms/d/e/1FAIpQLSfLEx2SPGF76TRT7I31dQ8ZR3N8k038rKTqti36rOpWCVjynQ/viewform?pli=1",
+      "category": "Formulário",
+      "tags": [
+        "protocolo",
+        "formulário",
+        "solicitação",
+        "requerimento"
+      ]
+    },
+    {
+      "id": "link-fluxograma-atual",
+      "title": "Fluxograma atual",
+      "description": "Fluxograma interativo da matriz 2024 de Sistemas de Informação.",
+      "url": "apps/fluxogramas-curriculares-v0.1.19.html#sistemas-de-informacao/matriz-2024",
+      "category": "Fluxograma",
+      "tags": [
+        "fluxograma",
+        "matriz atual",
+        "grade atual",
+        "PPC 2024",
+        "currículo",
+        "disciplinas",
+        "pré-requisitos",
+        "guia do universitário"
+      ]
+    },
+    {
+      "id": "link-fluxograma-antigo",
+      "title": "Fluxograma antigo",
+      "description": "Fluxograma interativo da matriz 2017 de Sistemas de Informação.",
+      "url": "apps/fluxogramas-curriculares-v0.1.19.html#sistemas-de-informacao/matriz-2017",
+      "category": "Fluxograma",
+      "tags": [
+        "fluxograma",
+        "matriz antiga",
+        "grade antiga",
+        "PPC 2017",
+        "currículo",
+        "disciplinas",
+        "pré-requisitos"
+      ]
+    },
+    {
+      "id": "link-quadro-horario-2026-2",
+      "title": "Quadro de horário 2026.2",
+      "description": "Planilha oficial compartilhada com o quadro de horários do semestre 2026.2.",
+      "url": "https://ifbaedubr-my.sharepoint.com/:x:/g/personal/rodrigobonfim_ifba_edu_br/IQCsaQq5LEbpRbrN4aQdTsRLAYgmR5gmpZ1PZu_wD9dlFmg?rtime=Qo_J-yvO3kg",
+      "category": "Horários",
+      "tags": [
+        "quadro de horário",
+        "quadro de horarios",
+        "horário",
+        "horario",
+        "2026.2",
+        "aulas",
+        "disciplinas",
+        "planilha",
+        "sharepoint",
+        "semestre"
+      ]
+    },
+    {
+      "id": "link-calendario-app",
+      "title": "Calendário Acadêmico 2026",
+      "description": "Atalho direto para o app de calendário acadêmico do HUB, com busca, visualização mensal/anual e eventos do calendário IFBA VCA 2026.",
+      "url": "apps/calendario-academico-ifba-vca-2026-v0.1.12.html",
+      "category": "App",
+      "openMode": "new-tab",
+      "tags": [
+        "calendário",
+        "calendario",
+        "acadêmico",
+        "academico",
+        "2026",
+        "datas",
+        "eventos",
+        "app",
+        "ferramenta",
+        "IFBA",
+        "VCA"
+      ]
+    },
+    {
+      "id": "link-calculadora-media-app",
+      "title": "Calculadora de Média",
+      "description": "Atalho direto para a calculadora de média parcial, prova final e média final do HUB.",
+      "url": "#calc-media",
+      "category": "App",
+      "tags": [
+        "calculadora",
+        "média",
+        "media",
+        "nota",
+        "notas",
+        "prova final",
+        "média final",
+        "MP",
+        "PF",
+        "MF",
+        "app",
+        "ferramenta"
+      ]
+    },
+    {
+      "id": "link-barema-app",
+      "title": "Barema Explorer",
+      "description": "App do HUB para consultar e simular atividades complementares nas versões Barema PPC 2024 e PPC 2010-2017, com visualização interativa e planilha.",
+      "url": "apps/barema-explorer-v0.1.8.html",
+      "category": "App",
+      "openMode": "new-tab",
+      "tags": [
+        "barema",
+        "barema explorer",
+        "atividades complementares",
+        "horas complementares",
+        "certificados",
+        "PPC 2024",
+        "PPC 2010",
+        "PPC 2017",
+        "planilha",
+        "simulador",
+        "app",
+        "ferramenta"
+      ]
+    },
+    {
+      "id": "link-barema-atual-planilha",
+      "title": "Planilha do Barema atual",
+      "description": "Arquivo XLSX do Barema de Atividades Complementares aplicável ao PPC 2024.",
+      "url": "apps/barema/docs/barema-ppc-2024.xlsx",
+      "category": "Planilha",
+      "tags": [
+        "barema",
+        "barema atual",
+        "atividades complementares",
+        "horas complementares",
+        "certificados",
+        "PPC 2024",
+        "planilha",
+        "google sheets"
+      ]
+    },
+    {
+      "id": "link-barema-antigo-planilha",
+      "title": "Planilha do Barema antigo",
+      "description": "Arquivo XLSX do Barema de Atividades Complementares aplicável aos PPCs 2010-2017.",
+      "url": "apps/barema/docs/barema-ppc-2010-2017.xlsx",
+      "category": "Planilha",
+      "tags": [
+        "barema",
+        "barema antigo",
+        "atividades complementares",
+        "horas complementares",
+        "certificados",
+        "PPC antigo",
+        "PPC 2017",
+        "planilha",
+        "google sheets"
+      ]
+    },
+    {
       "id": "link-email-coordenacao",
       "title": "E-mail da Coordenação",
       "description": "Contato oficial da Coordenação do curso: csi.vdc@ifba.edu.br. Telefone: 0800 077 0084, ramal 1261.",
@@ -27,19 +191,6 @@ window.HUB_DATA = {
         "SI",
         "notícias",
         "comunicação"
-      ]
-    },
-    {
-      "id": "link-protocolo",
-      "title": "Protocolo",
-      "description": "Formulário de protocolo para solicitações acadêmicas.",
-      "url": "https://docs.google.com/forms/d/e/1FAIpQLSfLEx2SPGF76TRT7I31dQ8ZR3N8k038rKTqti36rOpWCVjynQ/viewform?pli=1",
-      "category": "Formulário",
-      "tags": [
-        "protocolo",
-        "formulário",
-        "solicitação",
-        "requerimento"
       ]
     },
     {
@@ -225,133 +376,6 @@ window.HUB_DATA = {
       ]
     },
     {
-      "id": "link-quadro-horario-2026-2",
-      "title": "Quadro de horário 2026.2",
-      "description": "Planilha oficial compartilhada com o quadro de horários do semestre 2026.2.",
-      "url": "https://ifbaedubr-my.sharepoint.com/:x:/g/personal/rodrigobonfim_ifba_edu_br/IQCsaQq5LEbpRbrN4aQdTsRLAYgmR5gmpZ1PZu_wD9dlFmg?rtime=Qo_J-yvO3kg",
-      "category": "Horários",
-      "tags": [
-        "quadro de horário",
-        "quadro de horarios",
-        "horário",
-        "horario",
-        "2026.2",
-        "aulas",
-        "disciplinas",
-        "planilha",
-        "sharepoint",
-        "semestre"
-      ]
-    },
-    {
-      "id": "link-fluxograma-antigo",
-      "title": "Fluxograma antigo",
-      "description": "Fluxograma interativo da matriz 2017 de Sistemas de Informação.",
-      "url": "apps/fluxogramas-curriculares-v0.1.19.html#sistemas-de-informacao/matriz-2017",
-      "category": "Fluxograma",
-      "tags": [
-        "fluxograma",
-        "matriz antiga",
-        "grade antiga",
-        "PPC 2017",
-        "currículo",
-        "disciplinas",
-        "pré-requisitos"
-      ]
-    },
-    {
-      "id": "link-fluxograma-atual",
-      "title": "Fluxograma atual",
-      "description": "Fluxograma interativo da matriz 2024 de Sistemas de Informação.",
-      "url": "apps/fluxogramas-curriculares-v0.1.19.html#sistemas-de-informacao/matriz-2024",
-      "category": "Fluxograma",
-      "tags": [
-        "fluxograma",
-        "matriz atual",
-        "grade atual",
-        "PPC 2024",
-        "currículo",
-        "disciplinas",
-        "pré-requisitos",
-        "guia do universitário"
-      ]
-    },
-    {
-      "id": "link-barema-app",
-      "title": "Barema Explorer",
-      "description": "App do HUB para consultar atividades complementares, limites por categoria, regra das 200h e simulação do Barema PPC 2024.",
-      "url": "apps/barema-explorer-v0.1.7.html",
-      "category": "App",
-      "openMode": "new-tab",
-      "tags": [
-        "barema",
-        "barema explorer",
-        "atividades complementares",
-        "horas complementares",
-        "certificados",
-        "PPC 2024",
-        "simulador",
-        "app",
-        "ferramenta"
-      ]
-    },
-    {
-      "id": "link-calculadora-media-app",
-      "title": "Calculadora de Média",
-      "description": "Atalho direto para a calculadora de média parcial, prova final e média final do HUB.",
-      "url": "#calc-media",
-      "category": "App",
-      "tags": [
-        "calculadora",
-        "média",
-        "media",
-        "nota",
-        "notas",
-        "prova final",
-        "média final",
-        "MP",
-        "PF",
-        "MF",
-        "app",
-        "ferramenta"
-      ]
-    },
-    {
-      "id": "link-barema-atual-planilha",
-      "title": "Planilha do Barema atual",
-      "description": "Planilha do Barema de Atividades Complementares aplicável ao PPC atual.",
-      "url": "https://docs.google.com/spreadsheets/d/1n_yYWBVc4_TdxIyi00SvyEn5JlqYMLPN/edit?gid=906433510#gid=906433510",
-      "category": "Planilha",
-      "tags": [
-        "barema",
-        "barema atual",
-        "atividades complementares",
-        "horas complementares",
-        "certificados",
-        "PPC 2024",
-        "planilha",
-        "google sheets"
-      ]
-    },
-    {
-      "id": "link-barema-antigo-planilha",
-      "title": "Planilha do Barema antigo",
-      "description": "Planilha do Barema de Atividades Complementares aplicável aos PPCs anteriores.",
-      "url": "https://docs.google.com/spreadsheets/d/1GsMckfh2cb9za9uDBVU87sKiBZD4LKwP/edit?gid=337060538#gid=337060538",
-      "category": "Planilha",
-      "tags": [
-        "barema",
-        "barema antigo",
-        "atividades complementares",
-        "horas complementares",
-        "certificados",
-        "PPC antigo",
-        "PPC 2017",
-        "planilha",
-        "google sheets"
-      ]
-    },
-    {
       "id": "link-provas-atividades-passadas",
       "title": "Provas e Atividades Passadas",
       "description": "Pasta no Google Drive com provas, listas e atividades antigas compartilhadas para consulta estudantil.",
@@ -441,8 +465,8 @@ window.HUB_DATA = {
     {
       "id": "app-barema",
       "title": "Barema de Atividades Complementares",
-      "description": "Explorador e simulador do Barema PPC 2024: busque atividades, veja horas aceitas, limites por categoria, regra das 200h e mínimo de 3 categorias.",
-      "url": "apps/barema-explorer-v0.1.7.html",
+      "description": "Explorador e simulador das versões do Barema de Atividades Complementares, com consulta compacta, modo planilha e cálculo de limites por categoria.",
+      "url": "apps/barema-explorer-v0.1.8.html",
       "category": "Barema",
       "openMode": "new-tab",
       "tags": [
@@ -1395,12 +1419,12 @@ window.HUB_DATA = {
       "id": "workflow-complementares",
       "emoji": "🎓",
       "title": "Quero saber regras de atividades complementares",
-      "summary": "Use o app do barema para entender atividades, limites por categoria e regra de horas complementares.",
+      "summary": "Use o app do barema para escolher a versão correta, buscar atividades, entender limites por categoria e simular horas complementares.",
       "steps": [
         "Abra o Barema de Atividades Complementares.",
+        "Selecione sua versão: PPC 2024 ou PPC 2010-2017.",
         "Busque a atividade pelo nome comum do certificado.",
-        "Confira limites por atividade/categoria.",
-        "Guarde certificados e informações necessárias."
+        "Confira limites por atividade/categoria e guarde os comprovantes."
       ],
       "documents": [
         "Barema das Atividades Complementares",
