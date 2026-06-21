@@ -2894,7 +2894,7 @@ body.modal-open .topbar,
 }
 
 
-/* v0.1.71: Links edit mode centered and desktop-optimized */
+/* v0.1.72: Links edit mode centered and desktop-optimized */
 @media (min-width: 721px) {
   #links .links-edit-list {
     max-width: 820px;

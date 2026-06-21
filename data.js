@@ -70,7 +70,7 @@ window.HUB_DATA = {
       "id": "link-calendario-app",
       "title": "Calendário Acadêmico 2026",
       "description": "Atalho direto para o app de calendário acadêmico do HUB, com busca, visualização mensal/anual e eventos do calendário IFBA VCA 2026.",
-      "url": "apps/calendario-academico-ifba-vca-2026-v0.1.12.html",
+      "url": "apps/calendario-academico-ifba-vca-2026-v0.1.13.html",
       "category": "App",
       "openMode": "new-tab",
       "tags": [
@@ -475,7 +475,7 @@ window.HUB_DATA = {
       "id": "app-calendario",
       "title": "Calendário Acadêmico 2026",
       "description": "App independente para consultar o calendário acadêmico IFBA VCA 2026 por busca, tipo de curso, cards, linha do tempo, mês, ano completo e exportação .ics.",
-      "url": "apps/calendario-academico-ifba-vca-2026-v0.1.12.html",
+      "url": "apps/calendario-academico-ifba-vca-2026-v0.1.13.html",
       "category": "Calendário",
       "openMode": "new-tab",
       "tags": [

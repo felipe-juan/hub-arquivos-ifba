@@ -11,9 +11,9 @@
 
 ## Versão atual
 
-**v0.1.71**
+**v0.1.72**
 
-Atualização principal: ajuste visual do modo **Personalizar ordem** na seção de Links, com lista centralizada no desktop, e remoção do atalho da página oficial do BSI no IFBA.
+Atualização principal: melhoria da busca do app **Calendário Acadêmico 2026**, com painel explícito de resultados, agrupamento por mês, sugestões rápidas e detalhes em folha/modal.
 
 ## Sobre o projeto
 
@@ -23,22 +23,14 @@ O objetivo é transformar PDFs, planilhas, links e informações acadêmicas dis
 
 O site funciona sem backend e pode ser publicado diretamente no **GitHub Pages**.
 
-## Alterações recentes da v0.1.71
+## Alterações recentes da v0.1.72
 
-- Removido o link **Página oficial do BSI no IFBA** da seção de Links.
-- O modo **Personalizar ordem** agora fica centralizado no desktop, evitando que a lista de ordenação fique esticada demais em telas largas.
-- A ordem padrão dos Links foi reorganizada para priorizar: Protocolo, Fluxogramas, Quadro de horário, Calendário, Calculadora e Baremas.
-
-- Corrigido o carregamento de arquivos estáticos com versionamento `?v=0.1.70` em `styles.css`, `data.js` e `app.js`, evitando cache antigo do navegador.
-- Corrigido o problema em que o botão **Personalizar ordem** podia não ativar os controles de reordenação por o navegador continuar usando `app.js?v=0.1.61`.
-- Mantido o modo de personalização da ordem dos links com arrastar e soltar, botões de mover no mobile e salvamento via `localStorage`.
-
-- Adicionado modo **Personalizar ordem** na seção de Links.
-- No desktop, os links podem ser reorganizados por arrastar e soltar.
-- No celular, além do arrastar quando suportado pelo navegador, há botões **↑** e **↓** para mover cada link.
-- A ordem personalizada é salva em `localStorage` e volta automaticamente no mesmo navegador/dispositivo.
-- Adicionado botão **Restaurar padrão** para voltar à ordem oficial do HUB.
-- Adicionado atalho do app **Calendário Acadêmico 2026** na seção de Links.
+- O app **Calendário Acadêmico 2026** recebeu um painel explícito de resultados quando a busca está ativa.
+- Os resultados agora aparecem agrupados por mês, com data, categoria, período e tipo de curso.
+- No celular, a busca passa a ser mais direta: os resultados aparecem antes do calendário anual, como uma lista de consulta rápida.
+- Foram adicionados chips de busca rápida, como Matrícula, Trancamento, Férias, Finais, Sábados, Colação, Conselho e Horários.
+- A visualização anual agora destaca meses/dias com resultados e reduz visualmente os meses sem ocorrência.
+- Cada resultado pode abrir uma folha/modal de detalhes ou saltar para o mês correspondente no calendário.
 
 ## O que existe no site
 
@@ -128,7 +120,7 @@ hub-arquivos-ifba/
 │   ├── check_index_status.py
 │   └── update_documents_and_publish.sh
 └── apps/
-    ├── calendario-academico-ifba-vca-2026-v0.1.12.html
+    ├── calendario-academico-ifba-vca-2026-v0.1.13.html
     ├── barema-explorer-v0.1.8.html
     ├── fluxogramas-curriculares-v0.1.19.html
     └── fluxogramas/
@@ -190,7 +182,7 @@ fuser -k 8003/tcp
 Se você recebeu um ZIP novo, por exemplo:
 
 ```text
-~/Downloads/hub-arquivos-ifba-v0.1.71.zip
+~/Downloads/hub-arquivos-ifba-v0.1.72.zip
 ```
 
 Use este processo manual seguro:
@@ -201,7 +193,7 @@ cd ~/Documents/hub-arquivos-ifba
 mkdir -p /tmp/hub-update
 rm -rf /tmp/hub-update/*
 
-unzip ~/Downloads/hub-arquivos-ifba-v0.1.71.zip -d /tmp/hub-update
+unzip ~/Downloads/hub-arquivos-ifba-v0.1.72.zip -d /tmp/hub-update
 
 rsync -a --delete \
   --exclude ".git/" \
@@ -323,7 +315,7 @@ http://localhost:8003/apps/fluxogramas/docs/bsi-matriz-2024.pdf
 Arquivo atual:
 
 ```text
-apps/calendario-academico-ifba-vca-2026-v0.1.12.html
+apps/calendario-academico-ifba-vca-2026-v0.1.13.html
 ```
 
 O app organiza datas do Calendário Acadêmico 2026 do IFBA Vitória da Conquista em modos de visualização como:
@@ -470,3 +462,7 @@ Antes de usar qualquer informação para matrícula, trancamento, conclusão de 
 - **Código, estrutura, interface e lógica:** gerados por IA generativa.
 - **Ideias, requisitos, testes, feedback, validação visual e direção do produto:** mantenedor humano do projeto.
 - **Fontes acadêmicas:** documentos oficiais fornecidos/consultados do IFBA Campus Vitória da Conquista.
+
+### Atualização v0.1.72
+
+- O app de Calendário Acadêmico recebeu uma busca mais explícita, com painel de resultados agrupados por mês, sugestões rápidas, estado vazio, destaque dos meses/dias encontrados e folha de detalhes em dispositivos móveis.
