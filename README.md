@@ -1,9 +1,7 @@
 # HUB Arquivos IFBA
 
 > [!IMPORTANT]
-> ## AVISO GRANDE: ESTE PROJETO FOI CODADO POR IA
->
-> **Todo o código deste repositório foi criado por IA generativa, em especial ChatGPT/OpenAI, a partir de instruções, ideias, testes e revisões humanas.**
+> ### Todo o código deste repositório foi criado por IA generativa, em especial ChatGPT/OpenAI, a partir de instruções, ideias, testes e revisões humanas.**
 >
 > O mantenedor humano atuou principalmente como **idealizador, testador, revisor, curador de conteúdo e validador visual/funcional**. Ele forneceu os arquivos oficiais, descreveu os problemas, pediu ajustes, testou no navegador/localhost/GitHub Pages e decidiu a direção do produto.
 >
