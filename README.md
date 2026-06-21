@@ -11,9 +11,9 @@
 
 ## Versão atual
 
-**v0.1.72**
+**v0.1.73**
 
-Atualização principal: melhoria da busca do app **Calendário Acadêmico 2026**, com painel explícito de resultados, agrupamento por mês, sugestões rápidas e detalhes em folha/modal.
+Atualização principal: melhoria da ordenação da busca do app **Calendário Acadêmico 2026**, agora com resultados futuros primeiro e eventos anteriores separados.
 
 ## Sobre o projeto
 
@@ -23,14 +23,14 @@ O objetivo é transformar PDFs, planilhas, links e informações acadêmicas dis
 
 O site funciona sem backend e pode ser publicado diretamente no **GitHub Pages**.
 
-## Alterações recentes da v0.1.72
+## Alterações recentes da v0.1.73
 
-- O app **Calendário Acadêmico 2026** recebeu um painel explícito de resultados quando a busca está ativa.
-- Os resultados agora aparecem agrupados por mês, com data, categoria, período e tipo de curso.
-- No celular, a busca passa a ser mais direta: os resultados aparecem antes do calendário anual, como uma lista de consulta rápida.
-- Foram adicionados chips de busca rápida, como Matrícula, Trancamento, Férias, Finais, Sábados, Colação, Conselho e Horários.
-- A visualização anual agora destaca meses/dias com resultados e reduz visualmente os meses sem ocorrência.
-- Cada resultado pode abrir uma folha/modal de detalhes ou saltar para o mês correspondente no calendário.
+- A busca do app **Calendário Acadêmico 2026** agora usa **Próximos primeiro** como ordem padrão.
+- Resultados a partir da data atual aparecem antes dos eventos já passados.
+- Eventos anteriores continuam acessíveis, mas ficam agrupados em uma seção própria chamada **Eventos anteriores**.
+- Foi adicionada a alternância **Próximos primeiro / Ano inteiro** no painel de resultados.
+- O botão **Ver no calendário** agora usa a mesma ordem inteligente da busca.
+- O app do calendário foi atualizado para `calendario-academico-ifba-vca-2026-v0.1.14.html`.
 
 ## O que existe no site
 
@@ -120,7 +120,7 @@ hub-arquivos-ifba/
 │   ├── check_index_status.py
 │   └── update_documents_and_publish.sh
 └── apps/
-    ├── calendario-academico-ifba-vca-2026-v0.1.13.html
+    ├── calendario-academico-ifba-vca-2026-v0.1.14.html
     ├── barema-explorer-v0.1.8.html
     ├── fluxogramas-curriculares-v0.1.19.html
     └── fluxogramas/
@@ -182,7 +182,7 @@ fuser -k 8003/tcp
 Se você recebeu um ZIP novo, por exemplo:
 
 ```text
-~/Downloads/hub-arquivos-ifba-v0.1.72.zip
+~/Downloads/hub-arquivos-ifba-v0.1.73.zip
 ```
 
 Use este processo manual seguro:
@@ -193,7 +193,7 @@ cd ~/Documents/hub-arquivos-ifba
 mkdir -p /tmp/hub-update
 rm -rf /tmp/hub-update/*
 
-unzip ~/Downloads/hub-arquivos-ifba-v0.1.72.zip -d /tmp/hub-update
+unzip ~/Downloads/hub-arquivos-ifba-v0.1.73.zip -d /tmp/hub-update
 
 rsync -a --delete \
   --exclude ".git/" \
@@ -315,7 +315,7 @@ http://localhost:8003/apps/fluxogramas/docs/bsi-matriz-2024.pdf
 Arquivo atual:
 
 ```text
-apps/calendario-academico-ifba-vca-2026-v0.1.13.html
+apps/calendario-academico-ifba-vca-2026-v0.1.14.html
 ```
 
 O app organiza datas do Calendário Acadêmico 2026 do IFBA Vitória da Conquista em modos de visualização como:
@@ -463,6 +463,6 @@ Antes de usar qualquer informação para matrícula, trancamento, conclusão de 
 - **Ideias, requisitos, testes, feedback, validação visual e direção do produto:** mantenedor humano do projeto.
 - **Fontes acadêmicas:** documentos oficiais fornecidos/consultados do IFBA Campus Vitória da Conquista.
 
-### Atualização v0.1.72
+### Atualização v0.1.73
 
-- O app de Calendário Acadêmico recebeu uma busca mais explícita, com painel de resultados agrupados por mês, sugestões rápidas, estado vazio, destaque dos meses/dias encontrados e folha de detalhes em dispositivos móveis.
+- A busca do Calendário Acadêmico passou a ordenar por padrão os resultados futuros primeiro, mantendo eventos anteriores em uma seção separada e oferecendo alternância para a ordem completa do ano.
