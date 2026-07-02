@@ -327,6 +327,102 @@ function expandedTerms(query) {
   };
 }
 
+
+function escapeRegExp(text = "") {
+  return text.toString().replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+}
+
+function parseSearchQuery(query = "") {
+  const raw = (query || "").toString();
+  const exactPhrases = [];
+  const withoutQuotes = raw.replace(/"([^"\\]*(?:\\.[^"\\]*)*)"/g, (_, phrase) => {
+    const clean = phrase.replace(/\\"/g, '"').trim();
+    if (clean.length > 0) exactPhrases.push(clean);
+    return " ";
+  });
+
+  const tokens = withoutQuotes.match(/\S+/g) || [];
+  const excludes = [];
+  const visibleTokens = [];
+  const hasExplicitAnd = tokens.some(token => normalize(token) === "and");
+  const hasExplicitOr = tokens.some(token => normalize(token) === "or");
+
+  tokens.forEach(token => {
+    const normalizedToken = normalize(token);
+    if (normalizedToken === "and" || normalizedToken === "or") return;
+    if (token.startsWith("-") && token.length > 1) {
+      excludes.push(token.slice(1));
+      return;
+    }
+    visibleTokens.push(token);
+  });
+
+  const flexQuery = visibleTokens.join(" ").trim();
+  const flexTerms = expandedTerms(flexQuery);
+  const excludeTerms = unique(excludes.flatMap(tokenize));
+  const andTerms = hasExplicitAnd ? flexTerms.exact : [];
+  const orTerms = hasExplicitOr ? flexTerms.exact : [];
+  const displayQuery = [flexQuery, ...exactPhrases.map(term => `"${term}"`)].filter(Boolean).join(" ").trim();
+
+  return {
+    raw,
+    flexQuery,
+    displayQuery,
+    exactPhrases: unique(exactPhrases),
+    flexTerms,
+    excludeTerms,
+    andTerms,
+    orTerms,
+    hasExplicitAnd,
+    hasExplicitOr
+  };
+}
+
+function rawSearchText(text = "") {
+  return (text || "").toString().toLowerCase();
+}
+
+function isWordLikeTerm(term = "") {
+  return /^[A-Za-zÀ-ÖØ-öø-ÿ0-9_]+$/.test(term.trim());
+}
+
+function containsStrictTerm(text = "", term = "") {
+  const cleanTerm = rawSearchText(term).trim();
+  if (!cleanTerm) return false;
+  const haystack = rawSearchText(text);
+  const escaped = escapeRegExp(cleanTerm);
+  if (isWordLikeTerm(cleanTerm)) {
+    const wordChars = "A-Za-zÀ-ÖØ-öø-ÿ0-9_";
+    return new RegExp(`(^|[^${wordChars}])${escaped}(?=[^${wordChars}]|$)`, "i").test(haystack);
+  }
+  return haystack.includes(cleanTerm);
+}
+
+function strictTermIndex(text = "", term = "") {
+  const clean = (text || "").toString();
+  const cleanTerm = (term || "").toString().trim();
+  if (!clean || !cleanTerm) return -1;
+  const haystack = clean.toLowerCase();
+  const needle = cleanTerm.toLowerCase();
+  if (!isWordLikeTerm(cleanTerm)) return haystack.indexOf(needle);
+  const wordChars = "A-Za-zÀ-ÖØ-öø-ÿ0-9_";
+  const regex = new RegExp(`(^|[^${wordChars}])(${escapeRegExp(needle)})(?=[^${wordChars}]|$)`, "i");
+  const match = regex.exec(haystack);
+  return match ? match.index + (match[1] ? match[1].length : 0) : -1;
+}
+
+function resourceSearchFields(resource = {}) {
+  const title = resource.title || "";
+  const text = `${resource.chunk?.heading || ""} ${resource.text || ""}`;
+  const tags = (resource.tags || []).join(" ");
+  const meta = `${resource.subtitle || ""} ${resource.correspondent || ""} ${resource.documentType || ""} ${resource.fileFormat || ""} ${resource.status || ""}`;
+  return { title, text, tags, meta, all: `${title} ${text} ${tags} ${meta}` };
+}
+
+function containsFlexibleTerm(haystackNorm = "", term = "") {
+  return !!term && haystackNorm.includes(normalize(term));
+}
+
 function detectSearchIntent(query = "") {
   const normalized = normalize(query);
   const tokens = new Set(tokenize(query));
@@ -380,9 +476,24 @@ function regexAccentPattern(term = "") {
   return escaped.replace(/[aeioucAEIOUC]/g, char => map[char] || char);
 }
 
-function highlight(text, exactTerms = [], semanticTerms = []) {
+function regexStrictPattern(term = "") {
+  const escaped = escapeHtml(term).replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+  if (!isWordLikeTerm(term)) return { regex: new RegExp(`(${escaped})`, "gi"), strictWord: false };
+  const wordChars = "A-Za-zÀ-ÖØ-öø-ÿ0-9_";
+  return {
+    regex: new RegExp(`(^|[^${wordChars}])(${escaped})(?=[^${wordChars}]|$)`, "gi"),
+    strictWord: true
+  };
+}
+
+function highlight(text, exactTerms = [], semanticTerms = [], strictTerms = []) {
   let safe = escapeHtml(text || "");
   const seen = new Set();
+  const strictItems = (strictTerms || [])
+    .map(term => ({ term, key: `strict:${rawSearchText(term).trim()}` }))
+    .filter(item => item.term && item.term.length > 1 && item.key && !seen.has(item.key) && (seen.add(item.key) || true))
+    .sort((a, b) => b.term.length - a.term.length);
+
   const allTerms = [
     ...exactTerms.map(term => ({ term, cls: "" })),
     ...semanticTerms.map(term => ({ term, cls: "semantic" }))
@@ -392,13 +503,24 @@ function highlight(text, exactTerms = [], semanticTerms = []) {
     .sort((a, b) => b.term.length - a.term.length);
 
   const placeholders = [];
+  const hold = html => {
+    const token = `${placeholders.length}`;
+    placeholders.push(html);
+    return token;
+  };
+
+  for (const { term } of strictItems) {
+    const { regex, strictWord } = regexStrictPattern(term);
+    safe = safe.replace(regex, (...args) => {
+      const match = strictWord ? args[2] : args[1];
+      const prefix = strictWord ? args[1] : "";
+      return `${prefix}${hold(`<mark class="exact">${match}</mark>`)}`;
+    });
+  }
+
   for (const { term, cls } of allTerms) {
     const regex = new RegExp(`(${regexAccentPattern(term)})`, "gi");
-    safe = safe.replace(regex, match => {
-      const token = `${placeholders.length}`;
-      placeholders.push(`<mark${cls ? ` class="${cls}"` : ""}>${match}</mark>`);
-      return token;
-    });
+    safe = safe.replace(regex, match => hold(`<mark${cls ? ` class="${cls}"` : ""}>${match}</mark>`));
   }
 
   placeholders.forEach((html, index) => {
@@ -407,16 +529,24 @@ function highlight(text, exactTerms = [], semanticTerms = []) {
   return safe;
 }
 
-function plainSnippet(text = "", exactTerms = [], semanticTerms = [], limit = 220) {
+function plainSnippet(text = "", exactTerms = [], semanticTerms = [], strictTerms = [], limit = 220) {
   const clean = (text || "").toString().replace(/\s+/g, " ").trim();
   if (!clean) return "";
   const terms = [...exactTerms, ...semanticTerms].map(normalize).filter(Boolean);
   const normalized = normalize(clean);
   let hit = -1;
-  for (const term of terms) {
-    hit = normalized.indexOf(term);
+
+  for (const term of strictTerms || []) {
+    hit = strictTermIndex(clean, term);
     if (hit >= 0) break;
   }
+  if (hit < 0) {
+    for (const term of terms) {
+      hit = normalized.indexOf(term);
+      if (hit >= 0) break;
+    }
+  }
+
   if (hit < 0 || clean.length <= limit) return compactText(clean, limit);
   const start = Math.max(0, hit - Math.floor(limit / 3));
   const end = Math.min(clean.length, start + limit);
@@ -426,13 +556,14 @@ function plainSnippet(text = "", exactTerms = [], semanticTerms = [], limit = 22
 function resultSnippet(result) {
   const exactTerms = result.exactTerms || [];
   const semanticTerms = result.semanticTerms || [];
+  const strictTerms = result.strictTerms || [];
   const terms = [...exactTerms, ...semanticTerms].map(normalize).filter(Boolean);
   const titleText = result.title || "";
   const chunkText = result.type === "document" ? `${result.chunk?.heading || ""}. ${result.text || ""}` : `${result.title}. ${result.text || ""}`;
   const metaText = `${result.subtitle || ""} ${(result.tags || []).join(" ")} ${result.correspondent || ""} ${result.documentType || ""} ${result.fileFormat || ""}`;
 
-  const chunkSnippet = plainSnippet(chunkText, exactTerms, semanticTerms, 230);
-  const highlightedChunk = highlight(chunkSnippet, exactTerms, semanticTerms);
+  const chunkSnippet = plainSnippet(chunkText, exactTerms, semanticTerms, strictTerms, 280);
+  const highlightedChunk = highlight(chunkSnippet, exactTerms, semanticTerms, strictTerms);
   if (/<mark\b/i.test(highlightedChunk)) {
     const matchPrefix = result.type === "document" && result.matchCount > 1
       ? `<span class="match-reason">Encontrado em ${result.matchCount} trechos. Melhor trecho:</span> `
@@ -440,20 +571,20 @@ function resultSnippet(result) {
     return `${matchPrefix}${highlightedChunk}`;
   }
 
-  const titleMatches = terms.some(term => normalize(titleText).includes(term));
+  const titleMatches = terms.some(term => normalize(titleText).includes(term)) || strictTerms.some(term => containsStrictTerm(titleText, term));
   if (result.type === "document" && titleMatches) {
     const countText = result.matchCount > 1 ? ` Também há ${result.matchCount} trechos relacionados.` : "";
-    return `<span class="match-reason">Encontrado pelo título do documento.${countText}</span> ${highlight(compactText(titleText, 150), exactTerms, semanticTerms)}`;
+    return `<span class="match-reason">Encontrado pelo título do documento.${countText}</span> ${highlight(compactText(titleText, 190), exactTerms, semanticTerms, strictTerms)}`;
   }
 
-  const fallback = plainSnippet(`${titleText}. ${metaText}. ${result.text || ""}`, exactTerms, semanticTerms, 230);
-  const highlightedFallback = highlight(fallback, exactTerms, semanticTerms);
+  const fallback = plainSnippet(`${titleText}. ${metaText}. ${result.text || ""}`, exactTerms, semanticTerms, strictTerms, 280);
+  const highlightedFallback = highlight(fallback, exactTerms, semanticTerms, strictTerms);
   if (/<mark\b/i.test(highlightedFallback)) return highlightedFallback;
 
   if (result.type === "document") {
-    return `<span class="match-reason">Resultado encontrado pelos metadados do documento.</span> ${escapeHtml(compactText(result.doc?.summary || result.text || result.title || "Prévia indisponível.", 170))}`;
+    return `<span class="match-reason">Resultado encontrado pelos metadados do documento.</span> ${escapeHtml(compactText(result.doc?.summary || result.text || result.title || "Prévia indisponível.", 210))}`;
   }
-  return escapeHtml(compactText(result.text || result.subtitle || result.title || "Resultado encontrado.", 210));
+  return escapeHtml(compactText(result.text || result.subtitle || result.title || "Resultado encontrado.", 240));
 }
 
 function statusBadge(status) {
@@ -1346,7 +1477,7 @@ function filtersAreActive(filters = getFilters()) {
     .some(value => value && value !== "all");
 }
 
-function scoreResource(resource, query = "", filters = getFilters(), intent = detectSearchIntent(query)) {
+function scoreResource(resource, query = "", filters = getFilters(), intent = detectSearchIntent(query), parsed = parseSearchQuery(query)) {
   filters = filters || getFilters();
   if (filters.type !== "all" && resource.type !== filters.type) return null;
   if (filters.status !== "all" && resource.status !== filters.status) return null;
@@ -1362,17 +1493,31 @@ function scoreResource(resource, query = "", filters = getFilters(), intent = de
       score: resource.scoreBase,
       exactTerms: [],
       semanticTerms: [],
+      strictTerms: [],
+      queryMode: "normal",
       matchSources: { browse: true }
     };
   }
 
-  const terms = expandedTerms(rawQuery);
-  const phrase = normalize(trimmed);
-  const titleNorm = normalize(resource.title || "");
-  const textNorm = normalize(`${resource.chunk?.heading || ""} ${resource.text || ""}`);
-  const tagNorm = normalize((resource.tags || []).join(" "));
-  const metaNorm = normalize(`${resource.subtitle || ""} ${resource.correspondent || ""} ${resource.documentType || ""} ${resource.fileFormat || ""} ${resource.status || ""}`);
+  const fields = resourceSearchFields(resource);
+  const titleRaw = fields.title;
+  const textRaw = fields.text;
+  const tagRaw = fields.tags;
+  const metaRaw = fields.meta;
+  const haystackRaw = fields.all;
+  const titleNorm = normalize(titleRaw);
+  const textNorm = normalize(textRaw);
+  const tagNorm = normalize(tagRaw);
+  const metaNorm = normalize(metaRaw);
   const haystackNorm = `${titleNorm} ${textNorm} ${tagNorm} ${metaNorm}`;
+
+  if (parsed.excludeTerms.some(term => containsFlexibleTerm(haystackNorm, term))) return null;
+  if (parsed.exactPhrases.some(term => !containsStrictTerm(haystackRaw, term))) return null;
+  if (parsed.andTerms.length && parsed.andTerms.some(term => !containsFlexibleTerm(haystackNorm, term))) return null;
+  if (parsed.orTerms.length && !parsed.orTerms.some(term => containsFlexibleTerm(haystackNorm, term))) return null;
+
+  const terms = parsed.flexTerms;
+  const phrase = normalize(parsed.flexQuery || "").trim();
 
   let score = resource.scoreBase;
   let matched = false;
@@ -1382,6 +1527,7 @@ function scoreResource(resource, query = "", filters = getFilters(), intent = de
     tag: false,
     meta: false,
     semantic: false,
+    strict: false,
     browse: false
   };
 
@@ -1390,6 +1536,13 @@ function scoreResource(resource, query = "", filters = getFilters(), intent = de
     matched = true;
     score += points;
   };
+
+  for (const term of parsed.exactPhrases) {
+    if (containsStrictTerm(titleRaw, term)) { mark("title", 84); matchSources.strict = true; }
+    if (containsStrictTerm(textRaw, term)) { mark("text", 34); matchSources.strict = true; }
+    if (containsStrictTerm(tagRaw, term)) { mark("tag", 18); matchSources.strict = true; }
+    if (containsStrictTerm(metaRaw, term)) { mark("meta", 18); matchSources.strict = true; }
+  }
 
   if (phrase.length > 2 && titleNorm.includes(phrase)) mark("title", 70);
   if (phrase.length > 2 && textNorm.includes(phrase)) mark("text", 24);
@@ -1453,6 +1606,9 @@ function scoreResource(resource, query = "", filters = getFilters(), intent = de
     score,
     exactTerms: terms.exact,
     semanticTerms: terms.semantic,
+    strictTerms: parsed.exactPhrases,
+    excludeTerms: parsed.excludeTerms,
+    queryMode: parsed.exactPhrases.length ? "exact" : parsed.hasExplicitOr ? "or" : parsed.hasExplicitAnd ? "and" : "normal",
     matchSources
   };
 }
@@ -1547,11 +1703,12 @@ function groupDocumentResults(results = []) {
 }
 
 function searchResources(query, filters) {
-  const intent = detectSearchIntent(query);
-  const titleNeedle = normalize(query || "").trim();
+  const parsed = parseSearchQuery(query);
+  const intent = detectSearchIntent(parsed.flexQuery || query);
+  const titleNeedle = normalize(parsed.flexQuery || parsed.exactPhrases[0] || "").trim();
   const sourceResources = (query || "").trim() ? buildResources() : buildBrowseResources();
   const scored = sourceResources
-    .map(resource => scoreResource(resource, query, filters, intent))
+    .map(resource => scoreResource(resource, query, filters, intent, parsed))
     .filter(Boolean);
 
   return groupDocumentResults(scored)
@@ -1562,6 +1719,39 @@ function searchResources(query, filters) {
       return b.score - a.score;
     })
     .slice(0, 24);
+}
+
+function searchOperatorSummary(query = "") {
+  const parsed = parseSearchQuery(query);
+  const parts = [];
+  if (parsed.exactPhrases.length) parts.push(`busca exata: ${parsed.exactPhrases.map(term => `“${escapeHtml(term)}”`).join(", ")}`);
+  if (parsed.hasExplicitAnd) parts.push("AND ativo");
+  if (parsed.hasExplicitOr) parts.push("OR ativo");
+  if (parsed.excludeTerms.length) parts.push(`excluindo: ${parsed.excludeTerms.map(escapeHtml).join(", ")}`);
+  return parts.join(" · ");
+}
+
+function matchSourceLabel(result = {}) {
+  const sources = result.matchSources || {};
+  if (sources.browse) return "";
+  const labels = [];
+  if (sources.strict) labels.push("termo exato");
+  if (sources.title) labels.push("título");
+  if (sources.text || sources.semantic) labels.push(result.type === "document" ? "trecho do documento" : "conteúdo");
+  if (sources.tag) labels.push("tag");
+  if (sources.meta) labels.push("metadados");
+  const page = result.type === "document" && result.chunk?.page ? ` · página ${escapeHtml(result.chunk.page)}` : "";
+  const prefix = labels.length ? `Encontrado em: ${labels.join(", ")}` : "Encontrado no item";
+  return `${prefix}${page}`;
+}
+
+function renderMatchLine(result = {}) {
+  const label = matchSourceLabel(result);
+  if (!label) return "";
+  const exact = (result.strictTerms || []).length
+    ? ` <span class="exact-query-chip">"${escapeHtml((result.strictTerms || [])[0])}"</span>`
+    : "";
+  return `<p class="result-match-line">${escapeHtml(label)}${exact}</p>`;
 }
 
 function renderResults(results, query) {
@@ -1594,8 +1784,9 @@ function renderResults(results, query) {
       return `${count} ${label}${count > 1 ? "s" : ""}`;
     })
     .join(" · ");
+  const operatorSummary = searchOperatorSummary(cleanQuery);
   summary.textContent = cleanQuery
-    ? `${results.length} resultado(s): ${countText}. Ordenado por relevância.`
+    ? `${results.length} resultado(s): ${countText}. Ordenado por relevância.${operatorSummary ? ` ${operatorSummary}.` : ""}`
     : `${results.length} item(ns) encontrado(s) com os filtros selecionados: ${countText}.`;
 
   container.innerHTML = results.map((result, index) => renderResultCard(result, index)).join("");
@@ -1612,7 +1803,7 @@ function openPdfAtPage(doc = {}, page = "") {
 
 function renderResultCard(result, index) {
   const openLabel = result.type === "document" ? "Prévia" : result.type === "workflow" ? "Ver passos" : "Abrir";
-  const subtitle = highlight(result.subtitle || "", result.exactTerms || [], result.semanticTerms || []);
+  const subtitle = highlight(result.subtitle || "", result.exactTerms || [], result.semanticTerms || [], result.strictTerms || []);
   const thumbResource = result.type === "document" ? result.doc : result;
   const thumb = thumbnailHtml(thumbResource, result.type, result.type === "document" ? { page: result.chunk?.page } : {});
   const infoRow = result.type === "document"
@@ -1632,9 +1823,10 @@ function renderResultCard(result, index) {
     ? `<a class="secondary-button" href="${escapeHtml(openPdfAtPage(result.doc, result.chunk?.page))}" target="_blank" rel="noopener">Arquivo</a>`
     : `<button type="button" class="secondary-button" data-copy-resource="${index}">Copiar</button>`;
 
-  const titleHtml = highlight(result.title, result.exactTerms || [], result.semanticTerms || []);
+  const titleHtml = highlight(result.title, result.exactTerms || [], result.semanticTerms || [], result.strictTerms || []);
+  const matchLine = renderMatchLine(result);
   const snippetHtml = result.type === "answer"
-    ? `<strong>${highlight(result.answer?.answer || result.title, result.exactTerms || [], result.semanticTerms || [])}</strong><br>${resultSnippet(result)}`
+    ? `<strong>${highlight(result.answer?.answer || result.title, result.exactTerms || [], result.semanticTerms || [], result.strictTerms || [])}</strong><br>${resultSnippet(result)}`
     : resultSnippet(result);
 
   return `
@@ -1644,6 +1836,7 @@ function renderResultCard(result, index) {
         ${infoRow ? `<div class="result-head">${infoRow}</div>` : ""}
         <h3>${titleHtml}</h3>
         <p class="result-subtitle">${subtitle}</p>
+        ${matchLine}
         <p class="snippet result-snippet">${snippetHtml}</p>
       </div>
       <div class="result-actions">

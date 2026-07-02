@@ -9,9 +9,9 @@
 
 ## Versão atual
 
-**v0.1.73**
+**v0.1.74**
 
-Atualização principal: melhoria da ordenação da busca do app **Calendário Acadêmico 2026**, agora com resultados futuros primeiro e eventos anteriores separados.
+Atualização principal: busca do HUB com operadores simples, incluindo aspas para busca exata, e cards de resultado mais claros no celular.
 
 ## Sobre o projeto
 
@@ -21,14 +21,14 @@ O objetivo é transformar PDFs, planilhas, links e informações acadêmicas dis
 
 O site funciona sem backend e pode ser publicado diretamente no **GitHub Pages**.
 
-## Alterações recentes da v0.1.73
+## Alterações recentes da v0.1.74
 
-- A busca do app **Calendário Acadêmico 2026** agora usa **Próximos primeiro** como ordem padrão.
-- Resultados a partir da data atual aparecem antes dos eventos já passados.
-- Eventos anteriores continuam acessíveis, mas ficam agrupados em uma seção própria chamada **Eventos anteriores**.
-- Foi adicionada a alternância **Próximos primeiro / Ano inteiro** no painel de resultados.
-- O botão **Ver no calendário** agora usa a mesma ordem inteligente da busca.
-- O app do calendário foi atualizado para `calendario-academico-ifba-vca-2026-v0.1.14.html`.
+- A busca principal do HUB agora reconhece aspas para busca exata, por exemplo `"marco"`.
+- Termos entre aspas precisam aparecer exatamente como foram digitados, preservando acentuação. Assim, `"marco"` não é tratado como `março`.
+- A busca também aceita operadores simples: `AND`, `OR` e exclusão com `-termo`.
+- Os cards de resultado no celular foram ajustados para mostrar melhor o trecho encontrado, a palavra destacada e a seção/campo onde o resultado foi localizado.
+- Os snippets dos resultados em mobile não ficam mais cortados em duas linhas quando há busca ativa.
+
 
 ## O que existe no site
 
@@ -48,6 +48,18 @@ A página inicial reúne:
 O Acervo usa a pasta `documents/` e o arquivo `documents/manifest.json` para listar e buscar documentos no navegador.
 
 A busca é feita localmente no frontend, sem servidor.
+
+### Sintaxe de busca
+
+A busca principal aceita operadores simples:
+
+- `matricula` — busca normal e flexível, ignorando acentos e maiúsculas/minúsculas;
+- `"marco"` — busca exata pelo termo escrito entre aspas;
+- `matricula AND ajuste` — exige os dois termos;
+- `matricula OR trancamento` — aceita qualquer um dos termos;
+- `matricula -janeiro` — remove resultados que contenham o termo depois do sinal de menos.
+
+A busca exata com aspas preserva acentuação. Por exemplo, `"marco"` e `"março"` são tratados como termos diferentes.
 
 ### Links úteis
 
@@ -180,7 +192,7 @@ fuser -k 8003/tcp
 Se você recebeu um ZIP novo, por exemplo:
 
 ```text
-~/Downloads/hub-arquivos-ifba-v0.1.73.zip
+~/Downloads/hub-arquivos-ifba-v0.1.74.zip
 ```
 
 Use este processo manual seguro:
@@ -191,7 +203,7 @@ cd ~/Documents/hub-arquivos-ifba
 mkdir -p /tmp/hub-update
 rm -rf /tmp/hub-update/*
 
-unzip ~/Downloads/hub-arquivos-ifba-v0.1.73.zip -d /tmp/hub-update
+unzip ~/Downloads/hub-arquivos-ifba-v0.1.74.zip -d /tmp/hub-update
 
 rsync -a --delete \
   --exclude ".git/" \
@@ -461,6 +473,6 @@ Antes de usar qualquer informação para matrícula, trancamento, conclusão de 
 - **Ideias, requisitos, testes, feedback, validação visual e direção do produto:** mantenedor humano do projeto.
 - **Fontes acadêmicas:** documentos oficiais fornecidos/consultados do IFBA Campus Vitória da Conquista.
 
-### Atualização v0.1.73
+### Atualização v0.1.74
 
 - A busca do Calendário Acadêmico passou a ordenar por padrão os resultados futuros primeiro, mantendo eventos anteriores em uma seção separada e oferecendo alternância para a ordem completa do ano.

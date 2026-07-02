@@ -2921,3 +2921,113 @@ body.modal-open .topbar,
     width: min(100%, 760px);
   }
 }
+
+/* v0.1.74: busca avançada e cards de resultado mais legíveis no celular */
+mark.exact {
+  background: rgba(248,193,74,.32);
+  box-shadow: 0 0 0 1px rgba(248,193,74,.22) inset;
+}
+
+.result-match-line {
+  margin: .42rem 0 0;
+  color: var(--green);
+  font-size: .78rem;
+  font-weight: 820;
+  line-height: 1.35;
+}
+
+.exact-query-chip {
+  display: inline-flex;
+  align-items: center;
+  min-height: 1.25rem;
+  margin-left: .18rem;
+  padding: .05rem .38rem;
+  border-radius: 999px;
+  color: var(--amber);
+  background: rgba(248,193,74,.1);
+  border: 1px solid rgba(248,193,74,.28);
+  font-size: .74rem;
+  font-weight: 900;
+}
+
+.match-reason {
+  display: inline;
+  color: var(--green);
+  font-weight: 850;
+}
+
+@media (max-width: 720px) {
+  .results-list {
+    gap: .78rem;
+  }
+
+  .result-card {
+    grid-template-columns: 66px minmax(0, 1fr);
+    gap: .68rem;
+    padding: .82rem;
+    align-items: start;
+  }
+
+  .result-card h3,
+  .result-subtitle,
+  .result-snippet {
+    -webkit-line-clamp: unset !important;
+    display: block !important;
+    overflow: visible !important;
+  }
+
+  .result-card h3 {
+    font-size: .98rem;
+    line-height: 1.22;
+    margin-top: .34rem;
+  }
+
+  .result-subtitle {
+    font-size: .8rem;
+    line-height: 1.35;
+  }
+
+  .result-match-line {
+    display: block;
+    margin-top: .38rem;
+    font-size: .76rem;
+  }
+
+  .result-snippet {
+    margin: .44rem 0 .12rem;
+    font-size: .82rem;
+    line-height: 1.46;
+    color: #d3e3f4;
+  }
+
+  .match-reason {
+    display: block;
+    margin-bottom: .18rem;
+    font-size: .74rem;
+  }
+
+  .result-thumb .doc-thumb {
+    min-height: 88px;
+    border-radius: 13px;
+  }
+
+  .result-actions {
+    grid-column: 1 / -1;
+    margin-top: .08rem;
+  }
+}
+
+@media (max-width: 420px) {
+  .result-card {
+    grid-template-columns: 58px minmax(0, 1fr);
+    padding: .76rem;
+  }
+
+  .result-thumb .doc-thumb {
+    min-height: 78px;
+  }
+
+  .result-snippet {
+    font-size: .8rem;
+  }
+}
