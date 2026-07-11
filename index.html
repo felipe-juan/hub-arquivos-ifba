@@ -5,35 +5,117 @@
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>HUB Arquivos IFBA — SI</title>
   <meta name="description" content="Busca rápida por documentos, links, apps e informações do curso de Sistemas de Informação do IFBA Vitória da Conquista." />
-  <link rel="icon" href="favicon.ico" sizes="any" />
+  <meta name="theme-color" content="#0a0f14" />
+<link rel="icon" href="favicon.ico" sizes="any" />
   <link rel="apple-touch-icon" href="assets/apple-touch-icon.png" />
-  <link rel="stylesheet" href="styles.css?v=0.1.74" />
+  <script>
+    (() => {
+      try {
+        const mode = localStorage.getItem("hubThemeMode") || "auto";
+        const resolved = mode === "auto"
+          ? (matchMedia("(prefers-color-scheme: light)").matches ? "light" : "dark")
+          : mode;
+        document.documentElement.dataset.theme = resolved;
+        document.documentElement.dataset.themeMode = mode;
+        const sidebarWidth = Number(localStorage.getItem("hubSidebarWidth"));
+        if (Number.isFinite(sidebarWidth) && sidebarWidth >= 72 && sidebarWidth <= 420) {
+          document.documentElement.style.setProperty("--sidebar-w", `${sidebarWidth}px`);
+          if (sidebarWidth <= 96) document.documentElement.classList.add("sidebar-icons-only-preload");
+        }
+      } catch (_) {}
+    })();
+  </script>
+  <link rel="stylesheet" href="styles.css?v=0.2.12" />
+  <link rel="stylesheet" href="css/enhancements.css?v=0.2.12" />
 </head>
 <body>
+  <a class="skip-link" href="#mainContent">Pular para o conteúdo</a>
   <div class="ambient" aria-hidden="true"></div>
 
-  <header class="topbar">
+  <header class="mobile-topbar">
     <a class="brand" href="#buscar" aria-label="Ir para busca">
       <span class="brand-mark"><img src="assets/logo-pixel.png" alt="Logo HUB SI" /></span>
-      <span class="brand-text">
-        <strong>HUB SI</strong>
-        <small>IFBA · VCA</small>
-      </span>
+      <span class="brand-text"><strong>HUB SI</strong><small>IFBA · VCA</small></span>
     </a>
-
-    <nav class="nav" aria-label="Navegação principal">
-      <a href="#buscar" class="active">Buscar</a>
-      <a href="#acervo">Acervo</a>
-      <div class="nav-apps-menu">
-        <button id="appsMenuButton" class="nav-apps-button" type="button" aria-expanded="false" aria-controls="appsMenu">Apps <span aria-hidden="true">⌄</span></button>
-        <div id="appsMenu" class="apps-dropdown" hidden></div>
+    <div class="mobile-header-actions">
+      <button id="mobileThemeButton" class="mobile-icon-button" type="button" aria-controls="mobileThemeMenu" aria-expanded="false" aria-label="Escolher tema" title="Tema automático">◐</button>
+      <div id="mobileThemeMenu" class="mobile-theme-menu" hidden aria-label="Escolher tema">
+        <button type="button" data-theme-choice="auto" aria-label="Tema automático" title="Tema automático"><span aria-hidden="true">◐</span></button>
+        <button type="button" data-theme-choice="dark" aria-label="Modo escuro" title="Modo escuro"><span aria-hidden="true">☾</span></button>
+        <button type="button" data-theme-choice="light" aria-label="Modo claro" title="Modo claro"><span aria-hidden="true">☀</span></button>
       </div>
-      <a href="#links">Links</a>
-    </nav>
+      <button id="mobileSidebarToggle" class="mobile-icon-button" type="button" aria-controls="siteSidebar" aria-expanded="false" aria-label="Abrir menu">☰</button>
+    </div>
   </header>
 
-  <main>
+  <aside id="siteSidebar" class="site-sidebar" aria-label="Menu principal">
+    <div class="sidebar-head">
+      <a class="brand sidebar-brand" href="#buscar" aria-label="Ir para busca">
+        <span class="brand-mark"><img src="assets/logo-pixel.png" alt="Logo HUB SI" /></span>
+        <span class="brand-text sidebar-label"><strong>HUB SI</strong><small>IFBA · Vitória da Conquista</small></span>
+      </a>
+      <button id="sidebarCollapseButton" class="sidebar-collapse" type="button" aria-label="Ocultar menu" title="Ocultar menu">‹</button>
+      <button id="mobileSidebarClose" class="sidebar-mobile-close" type="button" aria-label="Fechar menu">×</button>
+    </div>
+
+    <nav class="sidebar-nav" aria-label="Navegação principal">
+      <a href="#buscar" class="active"><span class="nav-icon" aria-hidden="true">⌕</span><span class="sidebar-label">Início</span></a>
+      <a href="#acervo"><span class="nav-icon" aria-hidden="true">🗂️</span><span class="sidebar-label">Acervo</span></a>
+
+      <div class="sidebar-menu-group" data-sidebar-group="apps">
+        <div class="sidebar-menu-row">
+          <a id="appsSectionLink" class="sidebar-menu-link" href="#apps">
+            <span class="nav-icon" aria-hidden="true">🧰</span><span class="sidebar-label">Apps</span>
+          </a>
+          <button id="appsMenuToggle" class="sidebar-submenu-toggle" type="button" aria-expanded="true" aria-controls="appsMenu" aria-label="Mostrar ou ocultar apps">
+            <span class="sidebar-menu-chevron" aria-hidden="true">⌄</span>
+          </button>
+        </div>
+        <div id="appsMenu" class="sidebar-submenu sidebar-apps-list" aria-label="Aplicativos"></div>
+      </div>
+
+      <div class="sidebar-menu-group sidebar-links-group" data-sidebar-group="links">
+        <div class="sidebar-menu-row">
+          <a id="linksSectionLink" class="sidebar-menu-link" href="#atalhos">
+            <span class="nav-icon" aria-hidden="true">🔗</span><span class="sidebar-label">Atalhos</span>
+          </a>
+          <button id="linksMenuToggle" class="sidebar-submenu-toggle" type="button" aria-expanded="false" aria-controls="sidebarLinksList" aria-label="Mostrar ou ocultar atalhos">
+            <span class="sidebar-menu-chevron" aria-hidden="true">⌄</span>
+          </button>
+        </div>
+        <div id="sidebarLinksList" class="sidebar-submenu sidebar-links-list" aria-label="Atalhos externos"></div>
+      </div>
+
+      <div class="sidebar-menu-group" data-sidebar-group="favorites">
+        <button id="favoritesMenuToggle" class="sidebar-menu-toggle" type="button" aria-expanded="true" aria-controls="sidebarFavoritesList">
+          <span class="nav-icon" aria-hidden="true">★</span><span class="sidebar-label">Favoritos</span><span id="sidebarFavoritesCount" class="sidebar-count" aria-label="0 favoritos">0</span><span class="sidebar-menu-chevron" aria-hidden="true">⌄</span>
+        </button>
+        <div id="sidebarFavoritesList" class="sidebar-submenu sidebar-favorites-list" aria-live="polite"></div>
+      </div>
+    </nav>
+
+    <div class="sidebar-bottom">
+      <button id="resetPreferencesButton" class="reset-preferences" type="button" aria-label="Restaurar preferências" title="Restaurar preferências"><span aria-hidden="true">↺</span><span class="preference-label">Restaurar preferências</span></button>
+      <div class="theme-panel">
+        <span class="theme-label">Tema</span>
+        <div class="theme-switch" role="group" aria-label="Tema do site">
+          <button type="button" data-theme-choice="auto" aria-label="Tema automático" title="Tema automático"><span aria-hidden="true">◐</span></button>
+          <button type="button" data-theme-choice="dark" aria-label="Modo escuro" title="Modo escuro"><span aria-hidden="true">☾</span></button>
+          <button type="button" data-theme-choice="light" aria-label="Modo claro" title="Modo claro"><span aria-hidden="true">☀</span></button>
+        </div>
+      </div>
+      <a class="campus-portal" href="https://portal.ifba.edu.br/conquista" target="_blank" rel="noopener">
+        <span aria-hidden="true">🏫</span><span class="sidebar-label">Portal do Campus</span>
+      </a>
+    </div>
+    <div id="sidebarResizeHandle" class="sidebar-resize-handle" role="separator" aria-orientation="vertical" aria-label="Redimensionar menu lateral" tabindex="0"></div>
+  </aside>
+  <button id="sidebarReopenButton" class="sidebar-reopen" type="button" aria-label="Mostrar menu" title="Mostrar menu">›</button>
+  <div id="sidebarOverlay" class="sidebar-overlay" aria-hidden="true"></div>
+
+  <main id="mainContent" class="page-main" tabindex="-1">
     <section id="buscar" class="search-home section" data-nav-section>
+      <div class="search-recent-layout">
       <div class="search-shell search-first">
         <div class="search-topline">
           <span class="status-dot"></span>
@@ -46,6 +128,7 @@
           <input id="searchInput" type="search" placeholder="Buscar PPC, matriz, TCC, estágio, horários, protocolo..." list="autocompleteTerms" />
           <datalist id="autocompleteTerms"></datalist>
           <button type="submit">Buscar</button>
+          <button id="searchHelpButton" class="search-help-button" type="button" aria-haspopup="dialog" aria-controls="searchHelpDialog" title="Ajuda da busca">?</button>
         </form>
         <div id="smartSuggestions" class="smart-suggestions" aria-label="Sugestões de busca"></div>
         <div id="loadingStatus" class="loading-status" role="status" aria-live="polite">Carregando documentos...</div>
@@ -58,8 +141,27 @@
           <button data-example="protocolo">protocolo</button>
           <button data-example="média final">média final</button>
         </div>
+
+        <div class="saved-searches" id="savedSearchesPanel" aria-label="Pesquisas salvas">
+          <div class="saved-searches-head">
+            <span>Pesquisas salvas</span>
+            <button id="saveCurrentSearch" class="text-button" type="button" disabled>Salvar pesquisa atual</button>
+          </div>
+          <div id="savedSearchesList" class="saved-searches-list" aria-live="polite"></div>
+        </div>
+
       </div>
 
+      <section id="recentItemsPanel" class="recent-strip" aria-labelledby="recentItemsTitle" hidden>
+        <div class="recent-strip-head">
+          <div><p class="eyebrow">Continuar de onde parou</p><h2 id="recentItemsTitle">Itens recentes</h2></div>
+          <button id="clearRecentItems" class="text-button" type="button">Limpar</button>
+        </div>
+        <div id="recentItemsList" class="recent-items-list" aria-live="polite"></div>
+      </section>
+      </div>
+
+      <div id="filtersHomeSlot"></div>
       <button id="filterToggle" class="filter-toggle" type="button" aria-expanded="false">Filtros</button>
       <div class="filters-card expanded-filters" id="filtersCard">
         <label>Item
@@ -68,6 +170,7 @@
             <option value="document">Documentos</option>
             <option value="link">Links</option>
             <option value="app">Apps</option>
+            <option value="answer">Contatos e respostas</option>
           </select>
         </label>
         <label>Tipo doc.
@@ -83,10 +186,59 @@
 
       <div class="result-toolbar">
         <p id="resultsSummary" aria-live="polite">Pesquise documentos, regulamentos, contatos, links ou ferramentas.</p>
-        <button id="clearSearch" class="text-button" type="button">limpar</button>
+        <div class="result-toolbar-actions">
+          <label id="searchColumnsControl" class="search-columns-control" hidden>Colunas
+            <select id="searchColumnsSelect" aria-label="Número de colunas dos resultados">
+              <option value="auto">Auto</option>
+              <option value="1">1</option>
+              <option value="2">2</option>
+              <option value="3">3</option>
+              <option value="4">4</option>
+              <option value="5">5</option>
+              <option value="6">6</option>
+            </select>
+          </label>
+          <div id="searchResultsViewToggle" class="view-toggle search-results-view-toggle" role="group" aria-label="Visualização dos resultados" hidden>
+            <button type="button" class="active" data-search-results-view="cards">Cards</button>
+            <button type="button" data-search-results-view="directory">Diretório</button>
+          </div>
+          <button id="clearSearch" class="text-button" type="button">limpar</button>
+        </div>
       </div>
 
       <div id="searchResults" class="results-list"></div>
+      <div id="searchDirectory" class="search-directory directory-view" hidden>
+        <div id="searchDirectoryToolbar" class="directory-toolbar">
+          <label>Ordenar por
+            <select id="searchDirectorySortSelect">
+              <option value="relevance">Relevância</option>
+              <option value="name-asc">Nome: A–Z</option>
+              <option value="name-desc">Nome: Z–A</option>
+              <option value="category-asc">Categoria: A–Z</option>
+              <option value="category-desc">Categoria: Z–A</option>
+              <option value="date-desc">Data: mais recentes</option>
+              <option value="date-asc">Data: mais antigas</option>
+              <option value="size-desc">Tamanho: maior primeiro</option>
+              <option value="size-asc">Tamanho: menor primeiro</option>
+            </select>
+          </label>
+          <label>Linhas por página
+            <select id="searchDirectoryRowsSelect">
+              <option value="10">10</option>
+              <option value="20">20</option>
+              <option value="50">50</option>
+            </select>
+          </label>
+        </div>
+        <p id="searchDirectoryNote" class="directory-note"></p>
+        <div class="directory-table-shell" role="region" aria-label="Resultados em diretório" tabindex="0">
+          <table class="directory-table search-directory-table">
+            <thead><tr><th>Thumb</th><th><button type="button" class="directory-sort-button" data-search-directory-sort-field="name">Nome e correspondência <span aria-hidden="true"></span></button></th><th><button type="button" class="directory-sort-button" data-search-directory-sort-field="category">Categoria <span aria-hidden="true"></span></button></th><th><button type="button" class="directory-sort-button" data-search-directory-sort-field="date">Data <span aria-hidden="true"></span></button></th><th><button type="button" class="directory-sort-button" data-search-directory-sort-field="size">Tamanho <span aria-hidden="true"></span></button></th><th>Ação</th></tr></thead>
+            <tbody id="searchDirectoryTableBody"></tbody>
+          </table>
+        </div>
+        <div id="searchDirectoryPagination" class="directory-pagination" aria-label="Paginação dos resultados"></div>
+      </div>
     </section>
 
     <section id="acervo" class="section content-section" data-nav-section>
@@ -121,7 +273,37 @@
 
       <div id="documentGrid" class="cards-grid archive-view"></div>
       <div id="archiveLoadMore" class="archive-load-more" hidden></div>
-      <div id="directoryGrid" class="directory-grid archive-view" hidden></div>
+      <div id="directoryGrid" class="directory-view archive-view" hidden>
+        <div id="directoryToolbar" class="directory-toolbar directory-toolbar-combined">
+          <label>Ordenar por
+            <select id="directorySortSelect">
+              <option value="name-asc">Nome: A–Z</option>
+              <option value="name-desc">Nome: Z–A</option>
+              <option value="category-asc">Categoria: A–Z</option>
+              <option value="category-desc">Categoria: Z–A</option>
+              <option value="date-desc">Data: mais recentes</option>
+              <option value="date-asc">Data: mais antigas</option>
+              <option value="size-desc">Tamanho: maior primeiro</option>
+              <option value="size-asc">Tamanho: menor primeiro</option>
+            </select>
+          </label>
+          <label>Linhas por página
+            <select id="directoryRowsSelect">
+              <option value="10">10</option>
+              <option value="20">20</option>
+              <option value="50">50</option>
+              <option value="100">100</option>
+            </select>
+          </label>
+        </div>
+        <div class="directory-table-shell" role="region" aria-label="Diretório de documentos" tabindex="0">
+          <table class="directory-table">
+            <thead><tr><th>Thumb</th><th><button type="button" class="directory-sort-button" data-directory-sort-field="name">Nome do arquivo <span aria-hidden="true"></span></button></th><th><button type="button" class="directory-sort-button" data-directory-sort-field="category">Categoria <span aria-hidden="true"></span></button></th><th><button type="button" class="directory-sort-button" data-directory-sort-field="date">Data <span aria-hidden="true"></span></button></th><th><button type="button" class="directory-sort-button" data-directory-sort-field="size">Tamanho <span aria-hidden="true"></span></button></th><th>Ação</th></tr></thead>
+            <tbody id="directoryTableBody"></tbody>
+          </table>
+        </div>
+        <div id="directoryPagination" class="directory-pagination" aria-label="Paginação do diretório"></div>
+      </div>
     </section>
 
     <section id="apps" class="section content-section" data-nav-section>
@@ -133,72 +315,62 @@
       </div>
 
       <div id="appsGrid" class="cards-grid"></div>
+      <div id="appsMoreControl" class="compact-more-control" hidden></div>
 
-      <div class="apps-featured-grid">
-      <div class="calculator-panel" id="calc-media">
+      <div class="calculator-panel media-final-app" id="media-final">
+        <span id="calc-media" class="legacy-anchor" aria-hidden="true"></span>
+        <span id="tabela-final" class="legacy-anchor" aria-hidden="true"></span>
         <div class="section-heading inline">
           <div>
             <p class="eyebrow">App</p>
-            <h2>Cálculo de média final</h2>
+            <h2>Média e prova final</h2>
+            <p class="section-description">Calcule sua situação ou consulte rapidamente quanto precisa tirar na prova final.</p>
           </div>
         </div>
-        <div class="calc-grid calc-grid-single">
+        <div class="media-final-grid">
           <article class="tool-card final-grade-card">
-            <h3>Simulador de situação final</h3>
+            <h3>Cálculo de média final</h3>
             <p>Informe quantas notas parciais existirem no diário. A média parcial é a média simples dessas notas.</p>
-
             <div id="partialGrades" class="grade-list" aria-label="Notas parciais"></div>
             <div class="button-row">
               <button class="secondary-button" id="addGradeButton" type="button">+ Adicionar nota</button>
               <button class="secondary-button ghost-button" id="clearGradesButton" type="button">Limpar</button>
             </div>
-
             <label class="pf-label">Nota da prova final, se já tiver
               <input type="number" id="pfFinal" min="0" max="10" step="0.01" inputmode="decimal" placeholder="Ex.: 6,0" />
             </label>
-
             <button id="finalGradeButton" type="button">Calcular situação</button>
             <div class="result-box result-neutral" id="finalGradeResult">Resultado: —</div>
             <p class="calc-note">Regra usada: MP ≥ 7 aprova por média; 2,5 ≤ MP &lt; 7 exige prova final; MP &lt; 2,5 reprova sem final. Na final: MF = (MP×2 + PF)/3 e a PF necessária é 15 − (MP×2).</p>
           </article>
+
+          <article class="tool-card final-table-card">
+            <h3>Tabela da prova final</h3>
+            <p>Consulte a média parcial e veja diretamente quanto precisa tirar na prova final, sem digitar notas.</p>
+            <div class="final-table-legend" aria-label="Faixas da média parcial">
+              <span><i style="--dot:#10a95b"></i>6,9 a 6,0</span>
+              <span><i style="--dot:#16b8e8"></i>5,9 a 5,0</span>
+              <span><i style="--dot:#fff22d"></i>4,9 a 4,0</span>
+              <span><i style="--dot:#f39a35"></i>3,9 a 3,0</span>
+              <span><i style="--dot:#e5484d"></i>2,9 a 2,5</span>
+            </div>
+            <div class="final-table-shell" role="region" aria-label="Tabela rápida de nota necessária na prova final" tabindex="0">
+              <div class="final-table-wrap" id="finalExamTable"></div>
+            </div>
+            <p class="calc-note">A tabela considera aprovação após a final com média final mínima 5,0. Regra usada: <strong>PF mínima = 15 − 2 × MP</strong>.</p>
+          </article>
         </div>
-      </div>
-
-      <div class="calculator-panel final-table-panel" id="tabela-final">
-        <div class="section-heading inline">
-          <div>
-            <p class="eyebrow">App</p>
-            <h2>Tabela da prova final</h2>
-          </div>
-        </div>
-        <article class="tool-card final-table-card">
-          <h3>Consulta rápida da final</h3>
-          <p>Para quem só quer olhar a média parcial e saber direto quanto precisa tirar na prova final, sem digitar nada.</p>
-
-          <div class="final-table-legend" aria-label="Faixas da média parcial">
-            <span><i style="--dot:#10a95b"></i>6,9 a 6,0</span>
-            <span><i style="--dot:#16b8e8"></i>5,9 a 5,0</span>
-            <span><i style="--dot:#fff22d"></i>4,9 a 4,0</span>
-            <span><i style="--dot:#f39a35"></i>3,9 a 3,0</span>
-            <span><i style="--dot:#f07a22"></i>2,9 a 2,5</span>
-          </div>
-
-          <div class="final-table-shell" role="region" aria-label="Tabela rápida de nota necessária na prova final" tabindex="0">
-            <div class="final-table-wrap" id="finalExamTable"></div>
-          </div>
-
-          <p class="calc-note">A tabela considera aprovação após a final com média final mínima 5,0. Regra usada: <strong>PF mínima = 15 − 2 × MP</strong>.</p>
-        </article>
-      </div>
       </div>
 
       <div class="where-panel" id="onde-resolvo">
-        <div class="section-heading inline">
+        <div class="section-heading inline where-section-heading">
           <div>
             <p class="eyebrow">App</p>
             <h2>Onde resolvo isso?</h2>
           </div>
+          <button id="whereSectionToggle" class="secondary-button where-section-toggle" type="button" aria-expanded="true" aria-controls="whereSectionContent">Ocultar</button>
         </div>
+        <div id="whereSectionContent">
         <article class="tool-card where-tool-card">
           <div class="where-head">
             <div>
@@ -208,33 +380,61 @@
             <span class="emoji-thumb where-big" aria-hidden="true">🧭</span>
           </div>
           <div id="whereOptions" class="where-options" aria-label="Problemas comuns"></div>
+          <div id="whereMoreControl" class="compact-more-control"></div>
           <div id="whereResult" class="where-result" aria-live="polite"></div>
         </article>
+        </div>
       </div>
 
     </section>
 
-    <section id="links" class="section content-section" data-nav-section>
+    <section id="atalhos" class="section content-section links-section" data-nav-section>
       <div class="section-heading links-heading">
         <div>
-          <p class="eyebrow">Atalhos</p>
-          <h2>Links, sistemas e páginas externas</h2>
+          <p class="eyebrow">Acesso rápido</p>
+          <h2>Atalhos</h2>
+          <p class="section-description">Links externos e ferramentas do HUB na ordem escolhida por você.</p>
         </div>
         <div class="links-controls">
-          <div class="view-toggle links-view-toggle" role="group" aria-label="Modo de visualização dos links">
-            <button type="button" class="active" data-links-view="quick">Rápido</button>
-            <button type="button" data-links-view="cards">Detalhado</button>
+          <div class="view-toggle" role="group" aria-label="Visualização dos atalhos">
+            <button type="button" data-links-view="quick">Rápida</button>
+            <button type="button" data-links-view="cards">Detalhada</button>
           </div>
-          <div class="links-order-controls" role="group" aria-label="Personalização dos links">
-            <button type="button" class="secondary-button links-edit-button" data-links-edit-toggle aria-pressed="false">Personalizar ordem</button>
-            <button type="button" class="secondary-button links-reset-button" data-links-reset-order hidden>Restaurar padrão</button>
-          </div>
+          <button type="button" class="secondary-button" data-links-edit-toggle aria-pressed="false">Personalizar ordem</button>
+          <button type="button" class="secondary-button" data-links-reset-order hidden>Restaurar padrão</button>
         </div>
       </div>
-      <div id="linksGrid" class="linktree-list"></div>
+      <div id="linksGrid" class="cards-grid"></div>
+      <div id="linksMoreControl" class="compact-more-control" hidden></div>
     </section>
 
   </main>
+
+
+  <dialog id="searchHelpDialog" class="search-help-dialog" aria-labelledby="searchHelpTitle">
+    <form method="dialog" class="search-help-card">
+      <button class="modal-close" value="close" aria-label="Fechar ajuda">×</button>
+      <p class="eyebrow">Busca avançada</p>
+      <h2 id="searchHelpTitle">Como pesquisar</h2>
+      <div class="search-help-examples">
+        <code>matricula</code><span>busca flexível para acentos vocálicos; “marco” não corresponde a “março”</span>
+        <code>"matriz 2024"</code><span>expressão exata</span>
+        <code>estágio AND relatório</code><span>exige os dois termos</span>
+        <code>matrícula OR ajuste</code><span>aceita qualquer termo</span>
+        <code>calendário -2025</code><span>exclui um termo</span>
+      </div>
+      <button class="small-action" value="close">Entendi</button>
+    </form>
+  </dialog>
+
+  <dialog id="commandPaletteDialog" class="command-palette-dialog" aria-labelledby="commandPaletteTitle">
+    <div class="command-palette-card">
+      <header><div><p class="eyebrow">Acesso rápido</p><h2 id="commandPaletteTitle">Paleta de comandos</h2></div><button type="button" class="command-palette-close" aria-label="Fechar">×</button></header>
+      <label class="command-palette-search"><span aria-hidden="true">⌕</span><input id="commandPaletteInput" type="search" autocomplete="off" placeholder="Buscar documento, app, atalho ou ação..." /></label>
+      <div id="commandPaletteResults" class="command-palette-results" role="listbox" aria-live="polite"></div>
+      <footer><span><kbd>↑</kbd><kbd>↓</kbd> navegar</span><span><kbd>Enter</kbd> abrir</span><span><kbd>Esc</kbd> fechar</span></footer>
+    </div>
+  </dialog>
 
   <div id="previewModal" class="modal" aria-hidden="true" role="dialog" aria-modal="true" aria-labelledby="previewTitle">
     <div class="modal-backdrop" data-close-modal></div>
@@ -245,11 +445,14 @@
   </div>
 
   <footer class="footer">
-    <span>HUB SI · v0.1.74 · protótipo livre · sempre confira a fonte oficial.</span>
+    <span>HUB SI · v0.2.12 · protótipo livre · sempre confira a fonte oficial.</span>
   </footer>
 
-  <script src="data.js?v=0.1.74"></script>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js" referrerpolicy="no-referrer"></script>
-  <script src="app.js?v=0.1.74"></script>
+  <script src="data.js?v=0.2.12"></script>
+  <script src="js/storage.js?v=0.2.12"></script>
+  <script src="js/where-data.js?v=0.2.12"></script>
+  <script src="app.js?v=0.2.12"></script>
+  <script src="js/enhancements.js?v=0.2.12"></script>
+  <script src="js/experience.js?v=0.2.12"></script>
 </body>
 </html>

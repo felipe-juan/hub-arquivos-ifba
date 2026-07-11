@@ -1,0 +1,41 @@
+{
+  "schemaVersion": 1,
+  "updatedAt": "2026-07-11",
+  "apps": [
+    {
+      "id": "barema",
+      "title": "Barema Explorer",
+      "url": "apps/barema/",
+      "internalVersion": "0.1.12",
+      "sourceFiles": [
+        "apps/barema/docs/barema-ppc-2024.xlsx",
+        "apps/barema/docs/barema-ppc-2010-2017.xlsx"
+      ],
+      "status": "curated",
+      "reviewedAt": "2026-07-10"
+    },
+    {
+      "id": "calendario",
+      "title": "Calendário Acadêmico 2026",
+      "url": "apps/calendario/",
+      "internalVersion": "0.1.22",
+      "sourceFiles": [
+        "apps/calendario/docs/calendario-academico-ifba-vca-2026.pdf"
+      ],
+      "status": "official-source",
+      "reviewedAt": "2026-07-10"
+    },
+    {
+      "id": "fluxogramas",
+      "title": "Fluxogramas Curriculares",
+      "url": "apps/fluxogramas/",
+      "internalVersion": "0.1.27",
+      "sourceFiles": [
+        "apps/fluxogramas/docs/bsi-ementario-2024.pdf",
+        "apps/fluxogramas/docs/bsi-ppc-2017.pdf"
+      ],
+      "status": "curated-from-official-documents",
+      "reviewedAt": "2026-07-10"
+    }
+  ]
+}

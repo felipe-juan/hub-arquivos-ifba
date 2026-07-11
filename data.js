@@ -18,7 +18,7 @@ window.HUB_DATA = {
       "id": "link-fluxograma-atual",
       "title": "Fluxograma atual",
       "description": "Fluxograma interativo da matriz 2024 de Sistemas de Informação.",
-      "url": "apps/fluxogramas-curriculares-v0.1.19.html#sistemas-de-informacao/matriz-2024",
+      "url": "apps/fluxogramas/#sistemas-de-informacao/matriz-2024",
       "category": "Fluxograma",
       "tags": [
         "fluxograma",
@@ -35,7 +35,7 @@ window.HUB_DATA = {
       "id": "link-fluxograma-antigo",
       "title": "Fluxograma antigo",
       "description": "Fluxograma interativo da matriz 2017 de Sistemas de Informação.",
-      "url": "apps/fluxogramas-curriculares-v0.1.19.html#sistemas-de-informacao/matriz-2017",
+      "url": "apps/fluxogramas/#sistemas-de-informacao/matriz-2017",
       "category": "Fluxograma",
       "tags": [
         "fluxograma",
@@ -70,7 +70,7 @@ window.HUB_DATA = {
       "id": "link-calendario-app",
       "title": "Calendário Acadêmico 2026",
       "description": "Atalho direto para o app de calendário acadêmico do HUB, com busca, visualização mensal/anual e eventos do calendário IFBA VCA 2026.",
-      "url": "apps/calendario-academico-ifba-vca-2026-v0.1.14.html",
+      "url": "apps/calendario/",
       "category": "App",
       "openMode": "new-tab",
       "tags": [
@@ -89,9 +89,9 @@ window.HUB_DATA = {
     },
     {
       "id": "link-calculadora-media-app",
-      "title": "Calculadora de Média",
+      "title": "Média e Prova Final",
       "description": "Atalho direto para a calculadora de média parcial, prova final e média final do HUB.",
-      "url": "#calc-media",
+      "url": "#media-final",
       "category": "App",
       "tags": [
         "calculadora",
@@ -112,7 +112,7 @@ window.HUB_DATA = {
       "id": "link-barema-app",
       "title": "Barema Explorer",
       "description": "App do HUB para consultar e simular atividades complementares nas versões Barema PPC 2024 e PPC 2010-2017, com visualização interativa e planilha.",
-      "url": "apps/barema-explorer-v0.1.8.html",
+      "url": "apps/barema/",
       "category": "App",
       "openMode": "new-tab",
       "tags": [
@@ -379,43 +379,14 @@ window.HUB_DATA = {
   ],
   "apps": [
     {
-      "id": "app-media",
-      "title": "Cálculo de Média Final",
-      "description": "Calcula a média parcial com quantas notas forem necessárias, informa se o estudante passou por média, se precisa de prova final ou se está reprovado sem direito à final.",
-      "url": "#calc-media",
-      "category": "Calculadora",
+      "id": "app-media-final",
+      "title": "Média e Prova Final",
+      "description": "Um único app com calculadora de média parcial e final, além da tabela rápida para consultar quanto é necessário tirar na prova final.",
+      "url": "#media-final",
+      "category": "Calculadora e tabela",
       "tags": [
-        "média",
-        "média final",
-        "nota",
-        "prova final",
-        "quanto preciso tirar",
-        "calculadora",
-        "app",
-        "ferramenta",
-        "MP",
-        "PF",
-        "MF"
-      ]
-    },
-    {
-      "id": "app-tabela-final",
-      "title": "Tabela da Prova Final",
-      "description": "Consulta rápida para ver quanto precisa tirar na prova final a partir da média parcial, sem digitar notas.",
-      "url": "#tabela-final",
-      "category": "Tabela",
-      "tags": [
-        "tabela",
-        "prova final",
-        "final",
-        "média parcial",
-        "nota necessária",
-        "quanto preciso tirar",
-        "consulta rápida",
-        "app",
-        "ferramenta",
-        "PF",
-        "MP"
+        "média", "média final", "nota", "notas", "prova final", "tabela da final",
+        "quanto preciso tirar", "calculadora", "consulta rápida", "app", "ferramenta", "MP", "PF", "MF"
       ]
     },
     {
@@ -449,7 +420,7 @@ window.HUB_DATA = {
       "id": "app-barema",
       "title": "Barema de Atividades Complementares",
       "description": "Explorador e simulador das versões do Barema de Atividades Complementares, com consulta compacta, modo planilha e cálculo de limites por categoria.",
-      "url": "apps/barema-explorer-v0.1.8.html",
+      "url": "apps/barema/",
       "category": "Barema",
       "openMode": "new-tab",
       "tags": [
@@ -475,7 +446,7 @@ window.HUB_DATA = {
       "id": "app-calendario",
       "title": "Calendário Acadêmico 2026",
       "description": "App independente para consultar o calendário acadêmico IFBA VCA 2026 por busca, tipo de curso, cards, linha do tempo, mês, ano completo e exportação .ics.",
-      "url": "apps/calendario-academico-ifba-vca-2026-v0.1.14.html",
+      "url": "apps/calendario/",
       "category": "Calendário",
       "openMode": "new-tab",
       "tags": [
@@ -510,7 +481,7 @@ window.HUB_DATA = {
       "id": "app-fluxogramas",
       "title": "Fluxogramas Curriculares",
       "description": "App independente para navegar pelos fluxogramas curriculares dos cursos do IFBA VCA em modo interativo e também conferir os PDFs originais.",
-      "url": "apps/fluxogramas-curriculares-v0.1.19.html",
+      "url": "apps/fluxogramas/",
       "category": "Fluxogramas",
       "openMode": "new-tab",
       "tags": [
@@ -542,11 +513,7 @@ window.HUB_DATA = {
       "items": [
         {
           "type": "app",
-          "id": "app-media"
-        },
-        {
-          "type": "app",
-          "id": "app-tabela-final"
+          "id": "app-media-final"
         },
         {
           "type": "app",
@@ -1212,11 +1179,11 @@ window.HUB_DATA = {
     {
       "id": "answer-final",
       "title": "Prova final e média final",
-      "answer": "Use a calculadora de média ou a tabela da prova final.",
+      "answer": "Use o app Média e Prova Final.",
       "description": "A calculadora informa se você passou, se vai para final e quanto precisa tirar na PF.",
       "category": "Ferramenta",
       "sourceLabel": "Regra de média final usada no hub",
-      "url": "#calc-media",
+      "url": "#media-final",
       "tags": [
         "media final",
         "média final",
@@ -1246,8 +1213,7 @@ window.HUB_DATA = {
         "Regulamento discente"
       ],
       "links": [
-        "app-media",
-        "app-tabela-final"
+        "app-media-final"
       ],
       "checklist": [
         "Todas as notas parciais foram lançadas?",

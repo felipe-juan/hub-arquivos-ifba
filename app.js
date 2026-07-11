@@ -12,24 +12,55 @@ const state = {
   lastQuery: "",
   lastResults: [],
   archiveView: "grid",
-  selectMode: false,
-  selectedDocs: new Set(),
-  temporaryEdits: new Map(),
   desktopColumns: "auto",
   linksView: null,
   linksEditMode: false,
   linkDragId: null,
-  archiveVisibleCount: null
+  archiveVisibleCount: null,
+  linksExpanded: false,
+  appsExpanded: false,
+  whereExpanded: false,
+  whereSectionOpen: true,
+  directorySort: "name-asc",
+  directoryRows: 10,
+  directoryPage: 1,
+  searchResultsView: "cards",
+  searchDirectorySort: "relevance",
+  searchDirectoryRows: 10,
+  searchDirectoryPage: 1,
+  searchColumns: "auto",
+  sidebarWidth: 276,
+  themeMode: "auto"
 };
 
 const HUB_PREF_KEYS = {
   desktopColumns: "hubDesktopColumns",
   archiveView: "hubArchiveView",
   searchFilters: "hubSearchFilters",
-  filtersOpen: "hubFiltersOpen"
+  filtersOpen: "hubFiltersOpen",
+  sidebarCollapsed: "hubSidebarCollapsed",
+  sidebarWidth: "hubSidebarWidth",
+  appsMenuOpen: "hubSidebarAppsOpen",
+  favoritesMenuOpen: "hubSidebarFavoritesOpen",
+  linksMenuOpen: "hubSidebarLinksOpen",
+  searchResultsView: "hubSearchResultsView",
+  searchDirectorySort: "hubSearchDirectorySort",
+  searchDirectoryRows: "hubSearchDirectoryRows",
+  searchDirectoryPage: "hubSearchDirectoryPage",
+  searchColumns: "hubSearchColumns",
+  themeMode: "hubThemeMode",
+  appsExpanded: "hubAppsExpanded",
+  whereExpanded: "hubWhereExpanded",
+  whereSectionOpen: "hubWhereSectionOpen",
+  directorySort: "hubDirectorySort",
+  directoryRows: "hubDirectoryRows",
+  directoryPage: "hubDirectoryPage",
+  directoryColumnWidths: "hubDirectoryColumnWidths",
+  searchDirectoryColumnWidths: "hubSearchDirectoryColumnWidths"
 };
 
 const LINKS_ORDER_STORAGE_KEY = "hubLinksCustomOrderV1";
+const SAVED_SEARCHES_STORAGE_KEY = "hubSavedSearchesV1";
 const DEFAULT_LINK_ORDER = [
   "link-protocolo",
   "link-fluxograma-atual",
@@ -41,36 +72,6 @@ const DEFAULT_LINK_ORDER = [
   "link-barema-atual-planilha",
   "link-barema-antigo-planilha"
 ];
-
-function prefGet(key, fallback = null) {
-  try {
-    const value = localStorage.getItem(key);
-    return value === null ? fallback : value;
-  } catch (_) {
-    return fallback;
-  }
-}
-
-function prefSet(key, value) {
-  try { localStorage.setItem(key, value); } catch (_) {}
-}
-
-function prefRemove(key) {
-  try { localStorage.removeItem(key); } catch (_) {}
-}
-
-function prefGetJson(key, fallback = null) {
-  try {
-    const raw = localStorage.getItem(key);
-    return raw ? JSON.parse(raw) : fallback;
-  } catch (_) {
-    return fallback;
-  }
-}
-
-function prefSetJson(key, value) {
-  try { localStorage.setItem(key, JSON.stringify(value)); } catch (_) {}
-}
 
 function setLoadingStatus(message = "", kind = "info") {
   const box = document.getElementById("loadingStatus");
@@ -102,7 +103,7 @@ function setupDesktopColumnsControl() {
 }
 
 function isMobileViewport() {
-  return window.matchMedia && window.matchMedia("(max-width: 720px)").matches;
+  return window.matchMedia && window.matchMedia("(max-width: 920px)").matches;
 }
 
 function getArchiveColumnCount() {
@@ -117,7 +118,7 @@ function getArchiveColumnCount() {
 function getArchiveBatchSize() {
   if (isMobileViewport()) return 8;
   const columns = getArchiveColumnCount();
-  return Math.max(4, Math.min(24, columns * 2));
+  return Math.max(2, Math.min(12, columns));
 }
 
 function resetArchiveLimit() {
@@ -159,12 +160,14 @@ const stopWords = new Set([
 
 const normalize = (text = "") => text
   .toString()
+  .toLowerCase()
+  .replace(/ç/g, "__cedilla__")
   .normalize("NFD")
   .replace(/[\u0300-\u036f]/g, "")
-  .toLowerCase();
+  .replace(/__cedilla__/g, "ç");
 
 const tokenize = (text = "") => normalize(text)
-  .replace(/[^a-z0-9\s]/g, " ")
+  .replace(/[^a-z0-9ç\s]/g, " ")
   .split(/\s+/)
   .filter(token => token.length > 2 && !stopWords.has(token));
 
@@ -287,14 +290,12 @@ function enrichDocument(doc) {
   const predictedCorrespondent = predictFromModel(classifier.correspondent, base._indexText, 1)[0]?.label;
   const predictedTags = predictFromModel(classifier.tags, base._indexText, 8).map(item => item.label);
   const ruleTags = inferTagsFromText(base._indexText);
-  const manualEdit = state.temporaryEdits.get(base.id) || {};
-
   const enriched = {
     ...base,
-    documentType: manualEdit.documentType || base.documentType || predictedType || "Documento",
-    correspondent: manualEdit.correspondent || base.correspondent || predictedCorrespondent || "A definir",
+    documentType: base.documentType || predictedType || "Documento",
+    correspondent: base.correspondent || predictedCorrespondent || "A definir",
     fileFormat: base.fileFormat || "PDF",
-    tags: unique([...(base.tags || []), ...ruleTags, ...predictedTags, ...(manualEdit.tags || [])]),
+    tags: unique([...(base.tags || []), ...ruleTags, ...predictedTags]),
     chunks: base.chunks || [],
     autoMetadata: {
       documentType: predictedType || base.documentType,
@@ -470,8 +471,8 @@ function detectSearchIntent(query = "") {
 function regexAccentPattern(term = "") {
   const escaped = escapeHtml(term).replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
   const map = {
-    a: "[aàáâãäå]", e: "[eèéêë]", i: "[iìíîï]", o: "[oòóôõö]", u: "[uùúûü]", c: "[cç]",
-    A: "[AÀÁÂÃÄÅ]", E: "[EÈÉÊË]", I: "[IÌÍÎÏ]", O: "[OÒÓÔÕÖ]", U: "[UÙÚÛÜ]", C: "[CÇ]"
+    a: "[aàáâãäå]", e: "[eèéêë]", i: "[iìíîï]", o: "[oòóôõö]", u: "[uùúûü]", c: "c",
+    A: "[AÀÁÂÃÄÅ]", E: "[EÈÉÊË]", I: "[IÌÍÎÏ]", O: "[OÒÓÔÕÖ]", U: "[UÙÚÛÜ]", C: "C"
   };
   return escaped.replace(/[aeioucAEIOUC]/g, char => map[char] || char);
 }
@@ -495,8 +496,7 @@ function highlight(text, exactTerms = [], semanticTerms = [], strictTerms = []) 
     .sort((a, b) => b.term.length - a.term.length);
 
   const allTerms = [
-    ...exactTerms.map(term => ({ term, cls: "" })),
-    ...semanticTerms.map(term => ({ term, cls: "semantic" }))
+    ...exactTerms.map(term => ({ term, cls: "" }))
   ]
     .map(item => ({ ...item, key: normalize(item.term) }))
     .filter(item => item.term && item.term.length > 2 && item.key && !seen.has(item.key) && (seen.add(item.key) || true))
@@ -553,38 +553,64 @@ function plainSnippet(text = "", exactTerms = [], semanticTerms = [], strictTerm
   return `${start > 0 ? "…" : ""}${clean.slice(start, end).trim()}${end < clean.length ? "…" : ""}`;
 }
 
+function literalMatchIndex(text = "", exactTerms = [], semanticTerms = [], strictTerms = []) {
+  const source = String(text || "");
+  let best = -1;
+  for (const term of strictTerms || []) {
+    const index = strictTermIndex(source, term);
+    if (index >= 0 && (best < 0 || index < best)) best = index;
+  }
+  for (const term of [...(exactTerms || [])]) {
+    if (!term) continue;
+    try {
+      const match = new RegExp(regexAccentPattern(term), "i").exec(source);
+      if (match && (best < 0 || match.index < best)) best = match.index;
+    } catch (_) {}
+  }
+  return best;
+}
+
+function snippetAroundLiteral(text = "", exactTerms = [], semanticTerms = [], strictTerms = [], limit = 340) {
+  const clean = String(text || "").replace(/\s+/g, " ").trim();
+  if (!clean) return "";
+  const hit = literalMatchIndex(clean, exactTerms, semanticTerms, strictTerms);
+  if (hit < 0) return "";
+  if (clean.length <= limit) return clean;
+  const start = Math.max(0, hit - Math.floor(limit * .34));
+  const end = Math.min(clean.length, start + limit);
+  return `${start > 0 ? "…" : ""}${clean.slice(start, end).trim()}${end < clean.length ? "…" : ""}`;
+}
+
+function resultCandidateTexts(result = {}) {
+  const candidates = [];
+  const add = (text, label = "trecho") => {
+    const clean = String(text || "").replace(/\s+/g, " ").trim();
+    if (clean && !candidates.some(item => item.text === clean)) candidates.push({ text: clean, label });
+  };
+  (result.matchedChunks || []).forEach(chunk => add(`${chunk.heading || ""}. ${chunk.text || ""}`, chunk.page ? `trecho da página ${chunk.page}` : "trecho do documento"));
+  if (result.chunk) add(`${result.chunk.heading || ""}. ${result.chunk.text || ""}`, result.chunk.page ? `trecho da página ${result.chunk.page}` : "trecho do documento");
+  add(result.text, result.type === "document" ? "trecho do documento" : "conteúdo");
+  add(result.title, "título");
+  add(result.subtitle, "metadados");
+  add(result.doc?.summary, "resumo do documento");
+  add(`${result.correspondent || ""} ${result.documentType || ""} ${result.fileFormat || ""} ${(result.tags || []).join(" ")}`, "metadados");
+  return candidates;
+}
+
 function resultSnippet(result) {
   const exactTerms = result.exactTerms || [];
-  const semanticTerms = result.semanticTerms || [];
   const strictTerms = result.strictTerms || [];
-  const terms = [...exactTerms, ...semanticTerms].map(normalize).filter(Boolean);
-  const titleText = result.title || "";
-  const chunkText = result.type === "document" ? `${result.chunk?.heading || ""}. ${result.text || ""}` : `${result.title}. ${result.text || ""}`;
-  const metaText = `${result.subtitle || ""} ${(result.tags || []).join(" ")} ${result.correspondent || ""} ${result.documentType || ""} ${result.fileFormat || ""}`;
+  const candidates = resultCandidateTexts(result);
 
-  const chunkSnippet = plainSnippet(chunkText, exactTerms, semanticTerms, strictTerms, 280);
-  const highlightedChunk = highlight(chunkSnippet, exactTerms, semanticTerms, strictTerms);
-  if (/<mark\b/i.test(highlightedChunk)) {
-    const matchPrefix = result.type === "document" && result.matchCount > 1
-      ? `<span class="match-reason">Encontrado em ${result.matchCount} trechos. Melhor trecho:</span> `
-      : "";
-    return `${matchPrefix}${highlightedChunk}`;
+  for (const candidate of candidates) {
+    const snippet = snippetAroundLiteral(candidate.text, exactTerms, [], strictTerms, 620);
+    if (!snippet) continue;
+    const highlighted = highlight(snippet, exactTerms, [], strictTerms);
+    if (/<mark\b/i.test(highlighted)) return highlighted;
   }
 
-  const titleMatches = terms.some(term => normalize(titleText).includes(term)) || strictTerms.some(term => containsStrictTerm(titleText, term));
-  if (result.type === "document" && titleMatches) {
-    const countText = result.matchCount > 1 ? ` Também há ${result.matchCount} trechos relacionados.` : "";
-    return `<span class="match-reason">Encontrado pelo título do documento.${countText}</span> ${highlight(compactText(titleText, 190), exactTerms, semanticTerms, strictTerms)}`;
-  }
-
-  const fallback = plainSnippet(`${titleText}. ${metaText}. ${result.text || ""}`, exactTerms, semanticTerms, strictTerms, 280);
-  const highlightedFallback = highlight(fallback, exactTerms, semanticTerms, strictTerms);
-  if (/<mark\b/i.test(highlightedFallback)) return highlightedFallback;
-
-  if (result.type === "document") {
-    return `<span class="match-reason">Resultado encontrado pelos metadados do documento.</span> ${escapeHtml(compactText(result.doc?.summary || result.text || result.title || "Prévia indisponível.", 210))}`;
-  }
-  return escapeHtml(compactText(result.text || result.subtitle || result.title || "Resultado encontrado.", 240));
+  const fallback = compactText(result.doc?.summary || result.text || result.subtitle || result.title || "Resultado encontrado.", 520);
+  return `<span class="match-reason">Resultado relacionado.</span> ${escapeHtml(fallback)}`;
 }
 
 function statusBadge(status) {
@@ -771,11 +797,24 @@ function thumbnailHtml(resource, type = "document", options = {}) {
   `;
 }
 
+let pdfJsLoadPromise = null;
+function ensurePdfJs() {
+  if (window.pdfjsLib) return Promise.resolve(true);
+  if (pdfJsLoadPromise) return pdfJsLoadPromise;
+  pdfJsLoadPromise = new Promise(resolve => {
+    const script = document.createElement("script");
+    script.src = "https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js";
+    script.referrerPolicy = "no-referrer";
+    script.async = true;
+    script.onload = () => resolve(Boolean(window.pdfjsLib));
+    script.onerror = () => { console.warn("PDF.js não carregou; miniaturas permanecerão no fallback visual."); resolve(false); };
+    document.head.appendChild(script);
+  });
+  return pdfJsLoadPromise;
+}
+
 function setupPdfJs() {
-  if (!window.pdfjsLib) {
-    console.warn("PDF.js não carregou; miniaturas reais de PDF ficarão no fallback visual.");
-    return false;
-  }
+  if (!window.pdfjsLib) return false;
   if (!window.pdfjsLib.GlobalWorkerOptions.workerSrc) {
     window.pdfjsLib.GlobalWorkerOptions.workerSrc = "https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js";
   }
@@ -783,7 +822,8 @@ function setupPdfJs() {
 }
 
 async function renderSinglePdfThumbnail(el) {
-  if (!setupPdfJs() || !el || el.dataset.pdfRendered) return;
+  if (!el || el.dataset.pdfRendered) return;
+  if (!(await ensurePdfJs()) || !setupPdfJs()) return;
   const url = el.dataset.pdfUrl;
   if (!url) return;
   el.dataset.pdfRendered = "loading";
@@ -814,32 +854,32 @@ async function renderSinglePdfThumbnail(el) {
   }
 }
 
+let pdfThumbObserver = null;
 function renderPdfThumbnails() {
   const thumbs = [...document.querySelectorAll(".doc-thumb[data-pdf-url]:not([data-pdf-rendered])")];
-  if (!thumbs.length || !setupPdfJs()) return;
+  if (!thumbs.length) return;
 
   if ("IntersectionObserver" in window) {
-    const observer = new IntersectionObserver(entries => {
-      entries.forEach(entry => {
-        if (entry.isIntersecting) {
-          observer.unobserve(entry.target);
+    if (!pdfThumbObserver) {
+      pdfThumbObserver = new IntersectionObserver(entries => {
+        entries.forEach(entry => {
+          if (!entry.isIntersecting) return;
+          pdfThumbObserver.unobserve(entry.target);
           renderSinglePdfThumbnail(entry.target);
-        }
-      });
-    }, { rootMargin: "240px" });
-    thumbs.forEach(el => observer.observe(el));
+        });
+      }, { rootMargin: "180px" });
+    }
+    thumbs.forEach(el => pdfThumbObserver.observe(el));
     return;
   }
 
-  thumbs.slice(0, 40).forEach(renderSinglePdfThumbnail);
+  thumbs.slice(0, 16).forEach(renderSinglePdfThumbnail);
 }
 
 function schedulePdfThumbnailRender() {
-  requestAnimationFrame(() => {
-    renderPdfThumbnails();
-    window.setTimeout(renderPdfThumbnails, 350);
-    window.setTimeout(renderPdfThumbnails, 1200);
-  });
+  const run = () => renderPdfThumbnails();
+  if ("requestIdleCallback" in window) requestIdleCallback(run, { timeout: 900 });
+  else window.setTimeout(run, 120);
 }
 
 
@@ -889,7 +929,7 @@ function writeCachedPdfText(doc, payload) {
 }
 
 async function extractPdfTextInBrowser(doc) {
-  if (!setupPdfJs()) return null;
+  if (!(await ensurePdfJs()) || !setupPdfJs()) return null;
   const url = doc.pdfUrl || doc.sourceUrl;
   if (!url || !/\.pdf($|[?#])/i.test(url)) return null;
 
@@ -956,7 +996,7 @@ function applyExtractedPayload(docId, payload) {
   documents.forEach(update);
 }
 
-async function backgroundIndexMissingPdfText() {
+async function backgroundIndexMissingPdfText(maxDocuments = 3) {
   const candidates = documents.filter(doc => {
     const url = doc.pdfUrl || doc.sourceUrl || "";
     return /\.pdf($|[?#])/i.test(url) && !hasRealIndexedText(doc);
@@ -966,11 +1006,11 @@ async function backgroundIndexMissingPdfText() {
 
   const summary = document.getElementById("resultsSummary");
   if (summary && !state.lastQuery) {
-    summary.textContent = `Indexando conteúdo de ${candidates.length} PDF(s) em segundo plano...`;
+    summary.textContent = `Indexando até ${Math.min(candidates.length, Math.max(0, maxDocuments))} PDF(s) em segundo plano...`;
   }
 
   let changed = false;
-  for (const doc of candidates) {
+  for (const doc of candidates.slice(0, Math.max(0, maxDocuments))) {
     const payload = await extractPdfTextInBrowser(doc);
     if (payload) {
       applyExtractedPayload(doc.id, payload);
@@ -1124,7 +1164,12 @@ function normalizeManifestDocument(entry = {}, index = 0) {
     docDate: entry.docDate || entry.date || entry.data || "",
     createdDate: entry.createdDate || entry.creationDate || entry.createdAt || entry.created || entry.docDate || entry.date || entry.data || "",
     pageCount: entry.pageCount || entry.pagesCount || entry.page_count || entry.pages || "",
+    fileSize: Number(entry.fileSize || entry.sizeBytes || entry.size || 0) || 0,
     collectedDate: entry.collectedDate || entry.collected || "",
+    sourceLabel: entry.sourceLabel || entry.source || entry.correspondent || "IFBA / fonte institucional",
+    reviewedDate: entry.reviewedDate || entry.lastReviewed || entry.collectedDate || entry.collected || "",
+    validityStatus: entry.validityStatus || entry.validity || entry.statusLabel || "A conferir",
+    supersededBy: entry.supersededBy || "",
     sourceUrl: normalizeManifestPath(entry.sourceUrl || entry.officialUrl || originalPath),
     pdfUrl: normalizeManifestPath(entry.pdfUrl || entry.path || originalPath),
     thumbnailUrl: entry.thumbnailUrl || entry.coverUrl || "",
@@ -1755,6 +1800,7 @@ function renderMatchLine(result = {}) {
 }
 
 function renderResults(results, query) {
+  updateSavedSearchControls();
   const container = document.getElementById("searchResults");
   const summary = document.getElementById("resultsSummary");
   const cleanQuery = (query || "").trim();
@@ -1762,15 +1808,27 @@ function renderResults(results, query) {
   state.lastResults = (cleanQuery || activeFilter) ? results : [];
   state.lastQuery = query;
 
+  const viewToggle = document.getElementById("searchResultsViewToggle");
+  const directory = document.getElementById("searchDirectory");
+  const columnsControl = document.getElementById("searchColumnsControl");
+
   if (!cleanQuery && !activeFilter) {
     summary.textContent = "Pesquise documentos, regulamentos, contatos, links ou ferramentas.";
+    container.hidden = false;
     container.innerHTML = "";
+    if (directory) directory.hidden = true;
+    if (viewToggle) viewToggle.hidden = true;
+    if (columnsControl) columnsControl.hidden = true;
     return;
   }
 
   if (!results.length) {
     summary.textContent = "Não encontrei isso no acervo.";
+    container.hidden = false;
     container.innerHTML = emptyStateHtml("Não encontrei isso no acervo", "Tente procurar por: estágio, TCC, protocolo, matriz, final ou coordenador.");
+    if (directory) directory.hidden = true;
+    if (viewToggle) viewToggle.hidden = true;
+    if (columnsControl) columnsControl.hidden = true;
     return;
   }
 
@@ -1790,6 +1848,10 @@ function renderResults(results, query) {
     : `${results.length} item(ns) encontrado(s) com os filtros selecionados: ${countText}.`;
 
   container.innerHTML = results.map((result, index) => renderResultCard(result, index)).join("");
+  if (viewToggle) viewToggle.hidden = false;
+  if (columnsControl) columnsControl.hidden = state.searchResultsView !== "cards";
+  renderSearchDirectory(results);
+  applySearchResultsView(state.searchResultsView, { persist: false });
   schedulePdfThumbnailRender();
 }
 
@@ -1801,9 +1863,20 @@ function openPdfAtPage(doc = {}, page = "") {
   return base;
 }
 
+function documentDownloadName(doc = {}) {
+  const source = doc.pdfUrl || doc.sourceUrl || "documento.pdf";
+  const raw = String(source).split(/[?#]/)[0].split("/").pop() || "documento.pdf";
+  try { return decodeURIComponent(raw); } catch (_) { return raw; }
+}
+
+function documentDownloadLink(doc = {}, label = "Baixar", className = "secondary-button") {
+  const url = doc.pdfUrl || doc.sourceUrl || "#";
+  return `<a class="${className}" href="${escapeHtml(url)}" download="${escapeHtml(documentDownloadName(doc))}">${escapeHtml(label)}</a>`;
+}
+
 function renderResultCard(result, index) {
   const openLabel = result.type === "document" ? "Prévia" : result.type === "workflow" ? "Ver passos" : "Abrir";
-  const subtitle = highlight(result.subtitle || "", result.exactTerms || [], result.semanticTerms || [], result.strictTerms || []);
+  const subtitle = highlight(result.subtitle || "", result.exactTerms || [], [], result.strictTerms || []);
   const thumbResource = result.type === "document" ? result.doc : result;
   const thumb = thumbnailHtml(thumbResource, result.type, result.type === "document" ? { page: result.chunk?.page } : {});
   const infoRow = result.type === "document"
@@ -1820,34 +1893,239 @@ function renderResultCard(result, index) {
   }
 
   const secondaryAction = result.type === "document"
-    ? `<a class="secondary-button" href="${escapeHtml(openPdfAtPage(result.doc, result.chunk?.page))}" target="_blank" rel="noopener">Arquivo</a>`
+    ? `<a class="secondary-button" href="${escapeHtml(openPdfAtPage(result.doc, result.chunk?.page))}" target="_blank" rel="noopener">Abrir</a>${documentDownloadLink(result.doc)}`
     : `<button type="button" class="secondary-button" data-copy-resource="${index}">Copiar</button>`;
 
-  const titleHtml = highlight(result.title, result.exactTerms || [], result.semanticTerms || [], result.strictTerms || []);
+  const titleHtml = highlight(result.title, result.exactTerms || [], [], result.strictTerms || []);
   const matchLine = renderMatchLine(result);
   const snippetHtml = result.type === "answer"
-    ? `<strong>${highlight(result.answer?.answer || result.title, result.exactTerms || [], result.semanticTerms || [], result.strictTerms || [])}</strong><br>${resultSnippet(result)}`
+    ? `<strong>${highlight(result.answer?.answer || result.title, result.exactTerms || [], result.strictTerms || [])}</strong><br>${resultSnippet(result)}`
     : resultSnippet(result);
+  const resultId = result.type === "document" ? (result.doc?.id || result.id) : result.id;
+  const resultUrl = result.type === "document" ? openPdfAtPage(result.doc, result.chunk?.page) : (result.url || "#");
 
   return `
-    <article class="result-card result-${escapeHtml(result.type)}">
+    <article class="result-card result-${escapeHtml(result.type)}" tabindex="0" data-result-index="${index}" aria-label="Resultado ${index + 1}: ${escapeHtml(result.title || "Item")}">
       <div class="result-thumb">${thumb}</div>
-      <div class="result-body">
+      <div class="result-meta-actions">
         ${infoRow ? `<div class="result-head">${infoRow}</div>` : ""}
+        <div class="result-actions">
+          ${primaryAction}
+          ${secondaryAction}
+          <button type="button" class="favorite-toggle" data-favorite-toggle data-favorite-id="${escapeHtml(resultId)}" data-favorite-kind="${escapeHtml(result.type)}" data-favorite-title="${escapeHtml(result.title || "Item")}" data-favorite-url="${escapeHtml(resultUrl)}" data-favorite-meta="${escapeHtml(result.subtitle || result.fileFormat || "Item")}" aria-label="Adicionar aos favoritos" title="Adicionar aos favoritos">☆</button>
+        </div>
+      </div>
+      <div class="result-body">
         <h3>${titleHtml}</h3>
         <p class="result-subtitle">${subtitle}</p>
+      </div>
+      <div class="result-details">
         ${matchLine}
         <p class="snippet result-snippet">${snippetHtml}</p>
-      </div>
-      <div class="result-actions">
-        ${primaryAction}
-        ${secondaryAction}
       </div>
     </article>
   `;
 }
 
+
+function applySearchColumns(value = "auto", { persist = true } = {}) {
+  const allowed = new Set(["auto", "1", "2", "3", "4", "5", "6"]);
+  const clean = allowed.has(String(value)) ? String(value) : "auto";
+  state.searchColumns = clean;
+  const results = document.getElementById("searchResults");
+  if (results) {
+    if (clean === "auto") results.style.removeProperty("--search-result-columns");
+    else results.style.setProperty("--search-result-columns", clean);
+    results.dataset.searchColumns = clean;
+  }
+  const select = document.getElementById("searchColumnsSelect");
+  if (select) select.value = clean;
+  if (persist) prefSet(HUB_PREF_KEYS.searchColumns, clean);
+}
+
+function setupSearchColumns() {
+  applySearchColumns(prefGet(HUB_PREF_KEYS.searchColumns, "auto"), { persist: false });
+  document.getElementById("searchColumnsSelect")?.addEventListener("change", event => {
+    applySearchColumns(event.target.value, { persist: true });
+  });
+}
+
+function applySearchResultsView(value = "cards", { persist = true } = {}) {
+  const clean = value === "directory" ? "directory" : "cards";
+  state.searchResultsView = clean;
+  document.querySelectorAll("[data-search-results-view]").forEach(button => {
+    const active = button.dataset.searchResultsView === clean;
+    button.classList.toggle("active", active);
+    button.setAttribute("aria-pressed", active ? "true" : "false");
+  });
+  const cards = document.getElementById("searchResults");
+  const directory = document.getElementById("searchDirectory");
+  const columnsControl = document.getElementById("searchColumnsControl");
+  const hasSearch = Boolean((state.lastQuery || "").trim() || filtersAreActive(getFilters()));
+
+  if (clean === "directory" && hasSearch) renderSearchDirectory(state.lastResults || []);
+
+  if (cards) {
+    const showCards = !hasSearch || clean === "cards";
+    cards.hidden = !showCards;
+    cards.style.display = showCards ? "" : "none";
+  }
+  if (directory) {
+    const showDirectory = hasSearch && clean === "directory";
+    directory.hidden = !showDirectory;
+    directory.style.display = showDirectory ? "grid" : "none";
+    directory.setAttribute("aria-hidden", showDirectory ? "false" : "true");
+    if (showDirectory) requestAnimationFrame(() => renderSearchDirectory(state.lastResults || []));
+  }
+  if (columnsControl) columnsControl.hidden = !hasSearch || clean !== "cards";
+  if (persist) prefSet(HUB_PREF_KEYS.searchResultsView, clean);
+}
+
+function sortedSearchDocumentResults(results = state.lastResults || []) {
+  const docs = results.map((result, resultIndex) => ({ result, resultIndex, doc: result.doc }))
+    .filter(item => item.result?.type === "document" && item.doc);
+  const sort = state.searchDirectorySort || "relevance";
+  if (sort === "relevance") return docs;
+  const [field, direction] = sort.split("-");
+  const multiplier = direction === "desc" ? -1 : 1;
+  return docs.sort((a, b) => {
+    if (field === "category") return multiplier * String(a.doc.documentType || a.doc.category || "").localeCompare(String(b.doc.documentType || b.doc.category || ""), "pt-BR", { sensitivity: "base" });
+    if (field === "date") return multiplier * (directoryDateValue(a.doc) - directoryDateValue(b.doc));
+    if (field === "size") return multiplier * (directoryFileSize(a.doc) - directoryFileSize(b.doc));
+    return multiplier * String(a.doc.title || "").localeCompare(String(b.doc.title || ""), "pt-BR", { sensitivity: "base" });
+  });
+}
+
+function defaultDirectorySortDirection(field = "name") {
+  return ["date", "size"].includes(field) ? "desc" : "asc";
+}
+
+function toggledDirectorySort(current = "name-asc", field = "name") {
+  const [currentField, currentDirection] = String(current || "").split("-");
+  const direction = currentField === field
+    ? (currentDirection === "asc" ? "desc" : "asc")
+    : defaultDirectorySortDirection(field);
+  return `${field}-${direction}`;
+}
+
+function syncDirectorySortHeaders(selector, sort = "") {
+  const [field, direction] = String(sort || "").split("-");
+  document.querySelectorAll(selector).forEach(button => {
+    const active = button.dataset.directorySortField === field || button.dataset.searchDirectorySortField === field;
+    const th = button.closest("th");
+    if (th) th.setAttribute("aria-sort", active ? (direction === "desc" ? "descending" : "ascending") : "none");
+    button.classList.toggle("active", active);
+    const icon = button.querySelector("span");
+    if (icon) icon.textContent = active ? (direction === "desc" ? "↓" : "↑") : "↕";
+  });
+}
+
+function renderSearchDirectoryPagination(total = 0, pageCount = 1) {
+  const box = document.getElementById("searchDirectoryPagination");
+  if (!box) return;
+  const page = Math.min(Math.max(1, state.searchDirectoryPage), Math.max(1, pageCount));
+  const from = total ? ((page - 1) * state.searchDirectoryRows) + 1 : 0;
+  const to = Math.min(total, page * state.searchDirectoryRows);
+  const pages = [];
+  for (let value = Math.max(1, page - 2); value <= Math.min(pageCount, page + 2); value += 1) pages.push(value);
+  box.innerHTML = `
+    <span>${from}–${to} de ${total} documento(s)</span>
+    <div class="directory-page-buttons">
+      <button type="button" data-search-directory-page="first" ${page <= 1 ? "disabled" : ""} aria-label="Primeira página">«</button>
+      <button type="button" data-search-directory-page="prev" ${page <= 1 ? "disabled" : ""} aria-label="Página anterior">‹</button>
+      ${pages.map(value => `<button type="button" data-search-directory-page="${value}" class="${value === page ? "active" : ""}" aria-current="${value === page ? "page" : "false"}">${value}</button>`).join("")}
+      <button type="button" data-search-directory-page="next" ${page >= pageCount ? "disabled" : ""} aria-label="Próxima página">›</button>
+      <button type="button" data-search-directory-page="last" ${page >= pageCount ? "disabled" : ""} aria-label="Última página">»</button>
+    </div>`;
+}
+
+function renderSearchDirectory(results = state.lastResults || []) {
+  const tbody = document.getElementById("searchDirectoryTableBody");
+  const note = document.getElementById("searchDirectoryNote");
+  const sortSelect = document.getElementById("searchDirectorySortSelect");
+  const rowsSelect = document.getElementById("searchDirectoryRowsSelect");
+  if (!tbody) return;
+  if (sortSelect) sortSelect.value = state.searchDirectorySort;
+  if (rowsSelect) rowsSelect.value = String(state.searchDirectoryRows);
+  syncDirectorySortHeaders("[data-search-directory-sort-field]", state.searchDirectorySort);
+
+  const docs = sortedSearchDocumentResults(results);
+  const pageCount = Math.max(1, Math.ceil(docs.length / state.searchDirectoryRows));
+  state.searchDirectoryPage = Math.min(Math.max(1, state.searchDirectoryPage), pageCount);
+  const start = (state.searchDirectoryPage - 1) * state.searchDirectoryRows;
+  const pageDocs = docs.slice(start, start + state.searchDirectoryRows);
+  if (note) note.textContent = `${docs.length} documento(s) entre ${results.length} resultado(s). Esta visualização mostra exclusivamente documentos.`;
+
+  tbody.innerHTML = pageDocs.length ? pageDocs.map(({ result, resultIndex, doc }) => {
+    const fileUrl = doc.pdfUrl || doc.sourceUrl || "#";
+    const category = doc.documentType || doc.category || "Documentos";
+    const snippet = resultSnippet(result);
+    return `<tr>
+      <td class="directory-thumb-cell">${thumbnailHtml(doc, "document", { page: result.chunk?.page })}</td>
+      <td class="directory-name-cell"><strong>${highlight(doc.title || "Documento", result.exactTerms || [], result.semanticTerms || [], result.strictTerms || [])}</strong><small class="search-directory-snippet">${snippet}</small></td>
+      <td><span class="directory-category">${escapeHtml(category)}</span></td>
+      <td>${escapeHtml(doc.displayDate || doc.date || "—")}</td>
+      <td>${escapeHtml(formatFileSize(directoryFileSize(doc)))}</td>
+      <td><div class="directory-actions"><button type="button" data-preview-index="${resultIndex}">Prévia</button><a class="secondary-button" href="${escapeHtml(openPdfAtPage(doc, result.chunk?.page))}" target="_blank" rel="noopener">Abrir</a>${documentDownloadLink(doc)}<button type="button" class="favorite-toggle" data-favorite-toggle data-favorite-id="${escapeHtml(doc.id)}" data-favorite-kind="document" data-favorite-title="${escapeHtml(doc.title || "Documento")}" data-favorite-url="${escapeHtml(fileUrl)}" data-favorite-meta="${escapeHtml(category)}" aria-label="Adicionar aos favoritos" title="Adicionar aos favoritos">☆</button></div></td>
+    </tr>`;
+  }).join("") : `<tr><td colspan="6"><div class="empty-state"><strong>Nenhum documento entre os resultados.</strong><span>Use Cards para ver links, apps, contatos e respostas.</span></div></td></tr>`;
+  renderSearchDirectoryPagination(docs.length, pageCount);
+  schedulePdfThumbnailRender();
+}
+
+function setupSearchResultsView() {
+  state.searchResultsView = prefGet(HUB_PREF_KEYS.searchResultsView, "cards") === "directory" ? "directory" : "cards";
+  state.searchDirectorySort = prefGet(HUB_PREF_KEYS.searchDirectorySort, "relevance");
+  state.searchDirectoryRows = Number(prefGet(HUB_PREF_KEYS.searchDirectoryRows, "10")) || 10;
+  state.searchDirectoryPage = Math.max(1, Number(prefGet(HUB_PREF_KEYS.searchDirectoryPage, "1")) || 1);
+  document.querySelectorAll("[data-search-results-view]").forEach(button => button.addEventListener("click", () => applySearchResultsView(button.dataset.searchResultsView, { persist: true })));
+  document.getElementById("searchDirectorySortSelect")?.addEventListener("change", event => {
+    state.searchDirectorySort = event.target.value;
+    state.searchDirectoryPage = 1;
+    prefSet(HUB_PREF_KEYS.searchDirectorySort, state.searchDirectorySort);
+    prefSet(HUB_PREF_KEYS.searchDirectoryPage, "1");
+    renderSearchDirectory();
+  });
+  document.querySelector(".search-directory-table thead")?.addEventListener("click", event => {
+    const button = event.target.closest("[data-search-directory-sort-field]");
+    if (!button) return;
+    state.searchDirectorySort = toggledDirectorySort(state.searchDirectorySort, button.dataset.searchDirectorySortField);
+    state.searchDirectoryPage = 1;
+    prefSet(HUB_PREF_KEYS.searchDirectorySort, state.searchDirectorySort);
+    prefSet(HUB_PREF_KEYS.searchDirectoryPage, "1");
+    renderSearchDirectory();
+  });
+  document.getElementById("searchDirectoryRowsSelect")?.addEventListener("change", event => {
+    state.searchDirectoryRows = Number(event.target.value) || 10;
+    state.searchDirectoryPage = 1;
+    prefSet(HUB_PREF_KEYS.searchDirectoryRows, String(state.searchDirectoryRows));
+    prefSet(HUB_PREF_KEYS.searchDirectoryPage, "1");
+    renderSearchDirectory();
+  });
+  document.getElementById("searchDirectoryPagination")?.addEventListener("click", event => {
+    const button = event.target.closest("[data-search-directory-page]");
+    if (!button || button.disabled) return;
+    const total = sortedSearchDocumentResults().length;
+    const pageCount = Math.max(1, Math.ceil(total / state.searchDirectoryRows));
+    const action = button.dataset.searchDirectoryPage;
+    if (action === "first") state.searchDirectoryPage = 1;
+    else if (action === "prev") state.searchDirectoryPage = Math.max(1, state.searchDirectoryPage - 1);
+    else if (action === "next") state.searchDirectoryPage = Math.min(pageCount, state.searchDirectoryPage + 1);
+    else if (action === "last") state.searchDirectoryPage = pageCount;
+    else state.searchDirectoryPage = Math.min(pageCount, Math.max(1, Number(action) || 1));
+    prefSet(HUB_PREF_KEYS.searchDirectoryPage, String(state.searchDirectoryPage));
+    renderSearchDirectory();
+    document.getElementById("searchDirectory")?.scrollIntoView({ behavior: "smooth", block: "start" });
+  });
+  applySearchResultsView(state.searchResultsView, { persist: false });
+}
+
 function runSearch(query = document.getElementById("searchInput").value) {
+  const normalizedQuery = String(query || "").trim();
+  if (normalizedQuery !== String(state.lastQuery || "").trim()) {
+    state.searchDirectoryPage = 1;
+    prefSet(HUB_PREF_KEYS.searchDirectoryPage, "1");
+  }
   const results = searchResources(query, getFilters());
   renderResults(results, query);
   updateSuggestions(query);
@@ -1966,6 +2244,119 @@ function updateSuggestions(query) {
   box.innerHTML = suggestions.map(term => `<button type="button" data-suggest="${escapeHtml(term)}">${escapeHtml(term)}</button>`).join("");
 }
 
+function loadSavedSearches() {
+  try {
+    const parsed = JSON.parse(localStorage.getItem(SAVED_SEARCHES_STORAGE_KEY) || "[]");
+    return Array.isArray(parsed) ? parsed.slice(0, 10) : [];
+  } catch (_) { return []; }
+}
+
+function persistSavedSearches(items) {
+  try { localStorage.setItem(SAVED_SEARCHES_STORAGE_KEY, JSON.stringify(items.slice(0, 10))); } catch (_) {}
+}
+
+function currentSearchSnapshot() {
+  const query = document.getElementById("searchInput")?.value?.trim() || "";
+  const filters = getFilters();
+  return { query, filters };
+}
+
+function savedSearchLabel(item) {
+  if (item.query) return item.query;
+  const labels = [];
+  if (item.filters?.type && item.filters.type !== "all") labels.push(typeLabel[item.filters.type] || item.filters.type);
+  if (item.filters?.docType && item.filters.docType !== "all") labels.push(item.filters.docType);
+  if (item.filters?.correspondent && item.filters.correspondent !== "all") labels.push(item.filters.correspondent);
+  if (item.filters?.format && item.filters.format !== "all") labels.push(item.filters.format);
+  return labels.join(" · ") || "Pesquisa";
+}
+
+function updateSavedSearchControls() {
+  const button = document.getElementById("saveCurrentSearch");
+  if (!button) return;
+  const snapshot = currentSearchSnapshot();
+  button.disabled = !snapshot.query && !filtersAreActive(snapshot.filters);
+}
+
+function renderSavedSearches() {
+  const list = document.getElementById("savedSearchesList");
+  if (!list) return;
+  const items = loadSavedSearches();
+  list.innerHTML = items.length ? items.map(item => `
+    <span class="saved-search-chip">
+      <button type="button" data-run-saved-search="${escapeHtml(item.id)}" title="Executar pesquisa salva">${escapeHtml(savedSearchLabel(item))}</button>
+      <button type="button" data-remove-saved-search="${escapeHtml(item.id)}" aria-label="Remover pesquisa ${escapeHtml(savedSearchLabel(item))}" title="Remover">×</button>
+    </span>
+  `).join("") : `<span class="saved-searches-empty">Nenhuma pesquisa salva.</span>`;
+  updateSavedSearchControls();
+}
+
+function setupSavedSearches() {
+  const saveButton = document.getElementById("saveCurrentSearch");
+  const list = document.getElementById("savedSearchesList");
+  renderSavedSearches();
+  saveButton?.addEventListener("click", () => {
+    const snapshot = currentSearchSnapshot();
+    if (!snapshot.query && !filtersAreActive(snapshot.filters)) return;
+    const signature = JSON.stringify(snapshot);
+    const items = loadSavedSearches().filter(item => JSON.stringify({ query: item.query, filters: item.filters }) !== signature);
+    items.unshift({ id: `search-${Date.now()}`, ...snapshot });
+    persistSavedSearches(items);
+    renderSavedSearches();
+  });
+  list?.addEventListener("click", event => {
+    const remove = event.target.closest("[data-remove-saved-search]");
+    if (remove) {
+      persistSavedSearches(loadSavedSearches().filter(item => item.id !== remove.dataset.removeSavedSearch));
+      renderSavedSearches();
+      return;
+    }
+    const run = event.target.closest("[data-run-saved-search]");
+    if (!run) return;
+    const item = loadSavedSearches().find(saved => saved.id === run.dataset.runSavedSearch);
+    if (!item) return;
+    const input = document.getElementById("searchInput");
+    if (input) input.value = item.query || "";
+    const ids = { type: "typeFilter", docType: "docTypeFilter", correspondent: "correspondentFilter", format: "formatFilter" };
+    Object.entries(ids).forEach(([key, id]) => {
+      const el = document.getElementById(id);
+      if (el) el.value = item.filters?.[key] || "all";
+    });
+    runSearch(item.query || "");
+    document.getElementById("buscar")?.scrollIntoView({ behavior: "smooth", block: "start" });
+  });
+  document.getElementById("searchInput")?.addEventListener("input", updateSavedSearchControls);
+  ["typeFilter", "docTypeFilter", "correspondentFilter", "formatFilter"].forEach(id => document.getElementById(id)?.addEventListener("change", updateSavedSearchControls));
+}
+
+function openSearchResultByIndex(index = 0, { newTab = false } = {}) {
+  const result = state.lastResults?.[Number(index)];
+  if (!result) return false;
+  if (newTab) {
+    const url = result.type === "document"
+      ? openPdfAtPage(result.doc, result.chunk?.page)
+      : (result.url || result.app?.url || result.link?.url || "");
+    if (url && url !== "#") window.open(url, "_blank", "noopener");
+    return Boolean(url && url !== "#");
+  }
+  const card = document.querySelector(`.result-card[data-result-index="${Number(index)}"]`);
+  const target = card?.querySelector("[data-preview-index], [data-workflow-open], a.small-action");
+  if (target) {
+    target.click();
+    return true;
+  }
+  return false;
+}
+
+function focusSearchResult(index = 0) {
+  const cards = [...document.querySelectorAll(".result-card[data-result-index]")];
+  if (!cards.length) return false;
+  const safe = Math.max(0, Math.min(cards.length - 1, Number(index) || 0));
+  cards[safe].focus({ preventScroll: true });
+  cards[safe].scrollIntoView({ behavior: "smooth", block: "nearest" });
+  return true;
+}
+
 function setupSearch() {
   const form = document.getElementById("searchForm");
   const input = document.getElementById("searchInput");
@@ -1974,6 +2365,26 @@ function setupSearch() {
   form.addEventListener("submit", event => {
     event.preventDefault();
     runSearch(input.value);
+  });
+
+  input.addEventListener("keydown", event => {
+    if (event.key === "ArrowDown" && state.lastResults?.length) {
+      event.preventDefault();
+      focusSearchResult(0);
+      return;
+    }
+    if (event.key === "Enter") {
+      event.preventDefault();
+      if (String(state.lastQuery || "").trim() !== input.value.trim()) runSearch(input.value);
+      if (state.lastResults?.length) openSearchResultByIndex(0, { newTab: event.ctrlKey || event.metaKey });
+      else runSearch(input.value);
+      return;
+    }
+    if (event.key === "Escape" && input.value) {
+      event.preventDefault();
+      input.value = "";
+      runSearch("");
+    }
   });
 
   input.addEventListener("input", () => {
@@ -2021,15 +2432,18 @@ function setupSearch() {
 
 function renderResourceCard(resource, kind) {
   const action = kind === "document"
-    ? `<button type="button" data-doc-preview="${escapeHtml(resource.id)}">Prévia</button><a class="secondary-button" href="${escapeHtml(resource.pdfUrl || resource.sourceUrl || '#')}" target="_blank" rel="noopener">Arquivo</a>`
+    ? `<button type="button" data-doc-preview="${escapeHtml(resource.id)}">Prévia</button><a class="secondary-button" href="${escapeHtml(resource.pdfUrl || resource.sourceUrl || '#')}" target="_blank" rel="noopener">Abrir</a>${documentDownloadLink(resource)}`
     : `<a class="small-action" href="${escapeHtml(resource.url)}"${linkTargetAttrs(resource)}>Abrir</a>`;
   const subtitle = kind === "document" ? documentInfoInline(resource) : (resource.category || "Atalho");
   const infoRow = kind === "document"
     ? documentInfoBadges(resource)
     : itemInfoBadges(kind, resource.category || inferFormat({ ...resource, type: kind }));
 
+  const favoriteUrl = kind === "document" ? (resource.pdfUrl || resource.sourceUrl || "#") : (resource.url || "#");
+  const favoriteMeta = kind === "document" ? documentInfoInline(resource) : (resource.category || "Atalho");
   return `
     <article class="resource-card resource-${escapeHtml(kind)}" id="${escapeHtml(resource.id)}">
+      <button type="button" class="favorite-toggle" data-favorite-toggle data-favorite-id="${escapeHtml(resource.id)}" data-favorite-kind="${escapeHtml(kind)}" data-favorite-title="${escapeHtml(resource.title || "Item")}" data-favorite-url="${escapeHtml(favoriteUrl)}" data-favorite-meta="${escapeHtml(favoriteMeta)}" aria-label="Adicionar aos favoritos" title="Adicionar aos favoritos">☆</button>
       ${thumbnailHtml(resource, kind)}
       <div class="badge-row">${infoRow}</div>
       <h3>${escapeHtml(resource.title)}</h3>
@@ -2059,79 +2473,115 @@ function refMeta(resource, type) {
   return resource.category || (type === "guide" ? "Informação" : "Item");
 }
 
+function directoryFileSize(doc = {}) {
+  const value = Number(doc.fileSize || doc.sizeBytes || doc.size || 0);
+  return Number.isFinite(value) && value > 0 ? value : 0;
+}
+
+function formatFileSize(bytes = 0) {
+  const value = Number(bytes || 0);
+  if (!Number.isFinite(value) || value <= 0) return "—";
+  const units = ["B", "KB", "MB", "GB"];
+  let size = value;
+  let unit = 0;
+  while (size >= 1024 && unit < units.length - 1) {
+    size /= 1024;
+    unit += 1;
+  }
+  const digits = unit === 0 ? 0 : size >= 10 ? 1 : 2;
+  return `${size.toLocaleString("pt-BR", { maximumFractionDigits: digits })} ${units[unit]}`;
+}
+
+function directoryDateValue(doc = {}) {
+  const raw = doc.createdDate || doc.creationDate || doc.createdAt || doc.docDate || doc.date || "";
+  if (!raw) return 0;
+  const iso = Date.parse(raw);
+  if (Number.isFinite(iso)) return iso;
+  const match = String(raw).match(/(\d{1,2})[\/.-](\d{1,2})[\/.-](\d{4})/);
+  if (match) return new Date(Number(match[3]), Number(match[2]) - 1, Number(match[1])).getTime();
+  return 0;
+}
+
+function sortedDirectoryDocuments() {
+  const list = [...documents];
+  const sort = state.directorySort || "name-asc";
+  const collator = new Intl.Collator("pt-BR", { sensitivity: "base", numeric: true });
+  const [field, direction] = sort.split("-");
+  const multiplier = direction === "desc" ? -1 : 1;
+  list.sort((a, b) => {
+    if (field === "category") {
+      return multiplier * collator.compare(a.group || a.category || "", b.group || b.category || "");
+    }
+    if (field === "date") return multiplier * (directoryDateValue(a) - directoryDateValue(b));
+    if (field === "size") return multiplier * (directoryFileSize(a) - directoryFileSize(b));
+    return multiplier * collator.compare(a.title || "", b.title || "");
+  });
+  return list;
+}
+
+function renderDirectoryPagination(total, pageCount) {
+  const box = document.getElementById("directoryPagination");
+  if (!box) return;
+  const page = Math.min(Math.max(1, state.directoryPage), Math.max(1, pageCount));
+  const from = total ? ((page - 1) * state.directoryRows) + 1 : 0;
+  const to = Math.min(total, page * state.directoryRows);
+  const pages = [];
+  const low = Math.max(1, page - 2);
+  const high = Math.min(pageCount, page + 2);
+  for (let value = low; value <= high; value += 1) pages.push(value);
+  box.innerHTML = `
+    <span>Mostrando <strong>${from}–${to}</strong> de <strong>${total}</strong> documentos.</span>
+    <div class="directory-page-buttons">
+      <button type="button" data-directory-page="first" ${page <= 1 ? "disabled" : ""} aria-label="Primeira página">«</button>
+      <button type="button" data-directory-page="prev" ${page <= 1 ? "disabled" : ""} aria-label="Página anterior">‹</button>
+      ${pages.map(value => `<button type="button" data-directory-page="${value}" class="${value === page ? "active" : ""}" aria-current="${value === page ? "page" : "false"}">${value}</button>`).join("")}
+      <button type="button" data-directory-page="next" ${page >= pageCount ? "disabled" : ""} aria-label="Próxima página">›</button>
+      <button type="button" data-directory-page="last" ${page >= pageCount ? "disabled" : ""} aria-label="Última página">»</button>
+    </div>
+  `;
+}
+
 function renderDirectory() {
   const container = document.getElementById("directoryGrid");
-  if (!container) return;
+  const tbody = document.getElementById("directoryTableBody");
+  if (!container || !tbody) return;
 
-  const renderedGroups = directoryGroups.map(group => {
-    const items = (group.items || [])
-      .map(ref => ({ ref, resource: findResourceByRef(ref) }))
-      .filter(item => item.resource)
-      .map(({ ref, resource }) => {
-        const href = ref.type === "document" ? `#${resource.id}` : (resource.url || `#${resource.id}`);
-        const targetAttrs = ref.type === "document" ? "" : linkTargetAttrs(resource);
-        const extraAttrs = ref.type === "document" ? `data-directory-doc="${escapeHtml(resource.id)}"` : "";
-        const format = ref.type === "document" ? "" : inferFormat({ ...resource, type: ref.type });
-        const miniIcon = ref.type === "document" ? (typeIcon[ref.type] || "PDF") : emojiForResource(resource, ref.type);
-        return `
-          <a class="directory-item" href="${escapeHtml(href)}" ${extraAttrs}${targetAttrs}>
-            <span class="mini-icon type-${escapeHtml(ref.type)}">${escapeHtml(miniIcon || "•")}</span>
-            <span>
-              <strong>${escapeHtml(refTitle(resource))}</strong>
-              <small>${escapeHtml(refMeta(resource, ref.type))}</small>
-            </span>
-            ${format ? `<em>${escapeHtml(format)}</em>` : ""}
-          </a>
-        `;
-      }).join("");
+  const sortSelect = document.getElementById("directorySortSelect");
+  const rowsSelect = document.getElementById("directoryRowsSelect");
+  if (sortSelect) sortSelect.value = state.directorySort;
+  if (rowsSelect) rowsSelect.value = String(state.directoryRows);
+  syncDirectorySortHeaders("[data-directory-sort-field]", state.directorySort);
 
-    if (!items.trim()) return "";
-
-    return `
-      <article class="directory-card" id="${escapeHtml(group.id)}">
-        <header>
-          <h3>${escapeHtml(group.title)}</h3>
-          <p>${escapeHtml(group.description || "")}</p>
-        </header>
-        <div class="directory-items">${items}</div>
-      </article>
-    `;
-  }).filter(Boolean).join("");
-
-  if (renderedGroups) {
-    container.innerHTML = renderedGroups;
+  if (!documents.length) {
+    tbody.innerHTML = `<tr><td colspan="6">${emptyStateHtml("Nenhum documento no diretório ainda", "Adicione documentos ao Acervo e gere o manifesto.")}</td></tr>`;
+    renderDirectoryPagination(0, 1);
     return;
   }
 
-  const groupedDocs = Object.entries(documents.reduce((groups, doc) => {
-    const title = doc.group || doc.category || categoryFromPath(doc.pdfUrl || doc.sourceUrl || "");
-    groups[title] = groups[title] || [];
-    groups[title].push(doc);
-    return groups;
-  }, {})).map(([title, docs]) => `
-      <article class="directory-card" id="group-${escapeHtml(slugify(title))}">
-        <header>
-          <h3>${escapeHtml(title)}</h3>
-          <p>${docs.length} documento(s).</p>
-        </header>
-        <div class="directory-items">
-          ${docs.map(doc => `
-            <a class="directory-item" href="#${escapeHtml(doc.id)}" data-directory-doc="${escapeHtml(doc.id)}">
-              <span class="mini-icon type-document">PDF</span>
-              <span>
-                <strong>${escapeHtml(doc.title)}</strong>
-                <small>${escapeHtml(refMeta(doc, "document"))}</small>
-              </span>
-            </a>
-          `).join("")}
-        </div>
-      </article>
-    `).join("");
+  const sorted = sortedDirectoryDocuments();
+  const pageCount = Math.max(1, Math.ceil(sorted.length / state.directoryRows));
+  state.directoryPage = Math.min(Math.max(1, state.directoryPage), pageCount);
+  prefSet(HUB_PREF_KEYS.directoryPage, String(state.directoryPage));
+  const start = (state.directoryPage - 1) * state.directoryRows;
+  const pageDocs = sorted.slice(start, start + state.directoryRows);
 
-  container.innerHTML = groupedDocs || emptyStateHtml(
-    "Nenhum documento no diretório ainda",
-    "Adicione PDFs em subpastas de documents/ e gere documents/manifest.json para o hub criar as categorias automaticamente."
-  );
+  tbody.innerHTML = pageDocs.map(doc => {
+    const fileUrl = doc.pdfUrl || doc.sourceUrl || "#";
+    const category = doc.group || doc.category || categoryFromPath(fileUrl);
+    return `
+      <tr>
+        <td class="directory-thumb-cell">${thumbnailHtml(doc, "document")}</td>
+        <td class="directory-name-cell"><strong>${escapeHtml(doc.title || "Documento")}</strong><small>${escapeHtml((fileUrl.split("/").pop() || "arquivo").replace(/%20/g, " "))}</small></td>
+        <td><span class="directory-category">${escapeHtml(category || "Documentos")}</span></td>
+        <td>${escapeHtml(createdDateText(doc))}</td>
+        <td>${escapeHtml(formatFileSize(directoryFileSize(doc)))}</td>
+        <td><div class="directory-actions"><button type="button" data-directory-doc="${escapeHtml(doc.id)}">Prévia</button><a class="secondary-button" href="${escapeHtml(fileUrl)}" target="_blank" rel="noopener">Abrir</a>${documentDownloadLink(doc)}<button type="button" class="favorite-toggle" data-favorite-toggle data-favorite-id="${escapeHtml(doc.id)}" data-favorite-kind="document" data-favorite-title="${escapeHtml(doc.title || "Documento")}" data-favorite-url="${escapeHtml(fileUrl)}" data-favorite-meta="${escapeHtml(category || "Documentos")}" aria-label="Adicionar aos favoritos" title="Adicionar aos favoritos">☆</button></div></td>
+      </tr>
+    `;
+  }).join("");
+
+  renderDirectoryPagination(sorted.length, pageCount);
+  schedulePdfThumbnailRender();
 }
 
 function emptyStateHtml(title, text) {
@@ -2174,9 +2624,6 @@ function renderArchiveLoadMore(total = documents.length, visible = 0) {
 function renderDocuments() {
   const grid = document.getElementById("documentGrid");
   if (!grid) return;
-  const archiveTools = document.querySelector(".archive-tools");
-  if (archiveTools) archiveTools.hidden = !documents.length;
-
   if (!documents.length) {
     grid.innerHTML = emptyStateHtml("Nenhum documento cadastrado ainda", "Adicione PDFs em /documents e gere o manifesto.");
     renderArchiveLoadMore(0, 0);
@@ -2191,7 +2638,7 @@ function renderDocuments() {
 }
 
 function defaultLinksView() {
-  return window.matchMedia && window.matchMedia("(max-width: 720px)").matches ? "quick" : "cards";
+  return window.matchMedia && window.matchMedia("(max-width: 920px)").matches ? "quick" : "cards";
 }
 
 function applyLinksView(value, { persist = true } = {}) {
@@ -2254,6 +2701,7 @@ function moveLinkInOrder(id, direction) {
   links.splice(nextIndex, 0, item);
   saveLinksOrder(links);
   renderLinks();
+  renderSidebarLinks();
 }
 
 function moveDraggedLink(dragId, targetId) {
@@ -2267,14 +2715,21 @@ function moveDraggedLink(dragId, targetId) {
   links.splice(targetIndex < 0 ? to : targetIndex, 0, item);
   saveLinksOrder(links);
   renderLinks();
+  renderSidebarLinks();
 }
 
 function renderLinktreeItem(link) {
+  const roleLabel = /^apps\//.test(link.url || "") || /^#/.test(link.url || "") || link.category === "App"
+    ? "Ferramenta do HUB"
+    : "Link externo";
   return `
-    <a class="linktree-item" href="${escapeHtml(link.url || "#")}"${linkTargetAttrs({ ...link, newTab: true })}>
-      <span class="linktree-emoji" aria-hidden="true">${emojiForResource(link, "link")}</span>
-      <strong>${escapeHtml(link.title)}</strong>
-    </a>
+    <article class="linktree-shell">
+      <a class="linktree-item" href="${escapeHtml(link.url || "#")}"${linkTargetAttrs({ ...link, newTab: true })}>
+        <span class="linktree-emoji" aria-hidden="true">${emojiForResource(link, "link")}</span>
+        <span class="linktree-copy"><strong>${escapeHtml(link.title)}</strong><small>${roleLabel}</small></span>
+      </a>
+      <button type="button" class="favorite-toggle linktree-favorite" data-favorite-toggle data-favorite-id="${escapeHtml(link.id)}" data-favorite-kind="link" data-favorite-title="${escapeHtml(link.title || "Link")}" data-favorite-url="${escapeHtml(link.url || "#")}" data-favorite-meta="${escapeHtml(link.category || "Link externo")}" aria-label="Adicionar aos favoritos" title="Adicionar aos favoritos">☆</button>
+    </article>
   `;
 }
 
@@ -2293,6 +2748,42 @@ function renderEditableLinkItem(link, index, total) {
       </div>
     </article>
   `;
+}
+
+function linksExpandedStorageKey() {
+  const device = isMobileViewport() ? "mobile" : "desktop";
+  const view = state.linksView || defaultLinksView();
+  return `hubLinksExpanded:${device}:${view}`;
+}
+
+function collapsedLinksLimit(grid) {
+  if (isMobileViewport()) return state.linksView === "cards" ? 4 : 10;
+  const columns = Math.max(1, (getComputedStyle(grid).gridTemplateColumns || "").split(" ").filter(Boolean).length);
+  return columns * 2;
+}
+
+function applyLinksLimit() {
+  const grid = document.getElementById("linksGrid");
+  const control = document.getElementById("linksMoreControl");
+  if (!grid || !control) return;
+  const items = [...grid.children];
+  if (state.linksEditMode || !items.length) {
+    items.forEach(item => item.classList.remove("compact-hidden"));
+    control.innerHTML = "";
+    control.hidden = true;
+    return;
+  }
+  state.linksExpanded = prefGet(linksExpandedStorageKey(), "0") === "1";
+  const limit = collapsedLinksLimit(grid);
+  const shouldLimit = items.length > limit;
+  items.forEach((item, index) => item.classList.toggle("compact-hidden", shouldLimit && !state.linksExpanded && index >= limit));
+  if (!shouldLimit) {
+    control.innerHTML = "";
+    control.hidden = true;
+    return;
+  }
+  control.hidden = false;
+  control.innerHTML = `<button type="button" class="secondary-button" data-links-more>${state.linksExpanded ? "Mostrar menos" : `Ver mais ${items.length - limit}`}</button>`;
 }
 
 function renderLinks() {
@@ -2325,6 +2816,7 @@ function renderLinks() {
     : (state.linksView === "quick"
       ? links.map(renderLinktreeItem).join("")
       : links.map(link => renderResourceCard(link, "link")).join(""));
+  requestAnimationFrame(applyLinksLimit);
 }
 
 function linksViewStorageKey() {
@@ -2359,6 +2851,7 @@ function setupLinksViewToggle() {
       prefRemove(LINKS_ORDER_STORAGE_KEY);
       state.linkDragId = null;
       renderLinks();
+      renderSidebarLinks();
     });
   });
 
@@ -2405,8 +2898,42 @@ function setupLinksViewToggle() {
       item.classList.remove("is-dragging", "is-drop-target");
     });
   });
+
+  document.getElementById("linksMoreControl")?.addEventListener("click", event => {
+    const button = event.target.closest("[data-links-more]");
+    if (!button) return;
+    state.linksExpanded = !state.linksExpanded;
+    prefSet(linksExpandedStorageKey(), state.linksExpanded ? "1" : "0");
+    applyLinksLimit();
+  });
+  window.addEventListener("resize", () => requestAnimationFrame(applyLinksLimit));
 }
 
+
+function getGridColumnCount(element, fallback = 3) {
+  if (!element) return fallback;
+  const template = getComputedStyle(element).gridTemplateColumns || "";
+  const count = template.split(" ").filter(Boolean).length;
+  return Math.max(1, count || fallback);
+}
+
+function applyAppsLimit() {
+  const grid = document.getElementById("appsGrid");
+  const control = document.getElementById("appsMoreControl");
+  if (!grid || !control) return;
+  const items = [...grid.children];
+  if (!items.length || items[0]?.classList.contains("empty-state")) {
+    control.hidden = true;
+    control.innerHTML = "";
+    return;
+  }
+  state.appsExpanded = prefGet(HUB_PREF_KEYS.appsExpanded, "0") === "1";
+  const limit = isMobileViewport() ? Math.min(4, items.length) : Math.min(getGridColumnCount(grid, 3), items.length);
+  const shouldLimit = items.length > limit;
+  items.forEach((item, index) => item.classList.toggle("compact-hidden", shouldLimit && !state.appsExpanded && index >= limit));
+  control.hidden = !shouldLimit;
+  control.innerHTML = shouldLimit ? `<button type="button" class="secondary-button" data-apps-more>${state.appsExpanded ? "Mostrar menos" : `Ver mais ${items.length - limit}`}</button>` : "";
+}
 
 function renderApps() {
   const grid = document.getElementById("appsGrid");
@@ -2415,6 +2942,17 @@ function renderApps() {
   grid.innerHTML = visibleApps.length
     ? visibleApps.map(app => renderResourceCard(app, "app")).join("")
     : emptyStateHtml("Nenhum app cadastrado", "Os apps internos do hub aparecerão aqui.");
+  requestAnimationFrame(applyAppsLimit);
+}
+
+function setupAppsMoreControl() {
+  document.getElementById("appsMoreControl")?.addEventListener("click", event => {
+    if (!event.target.closest("[data-apps-more]")) return;
+    state.appsExpanded = !state.appsExpanded;
+    prefSet(HUB_PREF_KEYS.appsExpanded, state.appsExpanded ? "1" : "0");
+    applyAppsLimit();
+  });
+  window.addEventListener("resize", () => requestAnimationFrame(applyAppsLimit), { passive: true });
 }
 
 function resourceById(id) {
@@ -2604,30 +3142,6 @@ function bestChunksForDoc(doc, exactTerms = [], semanticTerms = []) {
   return chunks.slice(0, 1);
 }
 
-function createShareUrl(docId, expires = "") {
-  const url = new URL(window.location.href.split("#")[0]);
-  url.searchParams.set("share", docId);
-  if (expires) url.searchParams.set("expires", expires);
-  else url.searchParams.delete("expires");
-  return url.toString();
-}
-
-function renderShareBox(doc) {
-  const today = new Date().toISOString().slice(0, 10);
-  return `
-    <section class="share-box">
-      <h3>Link público</h3>
-      <p>Como o hub é público, a data de expiração é controlada pelo próprio site ao abrir o link.</p>
-      <label>Expira em <input type="date" id="shareExpiry" min="${today}" /></label>
-      <div class="share-line">
-        <input id="shareUrl" readonly value="${escapeHtml(createShareUrl(doc.id))}" />
-        <button type="button" data-copy-share>Copiar</button>
-      </div>
-    </section>
-  `;
-}
-
-
 function setPreviewModalOpen(open) {
   const modal = document.getElementById("previewModal");
   if (!modal) return;
@@ -2673,6 +3187,13 @@ function openPreview(result) {
           <p>${infoHtml}</p>
         </div>
       </header>
+
+      <section class="source-confidence" aria-label="Informações da fonte">
+        <div><span>Fonte</span><strong>${escapeHtml(doc.sourceLabel || doc.correspondent || "IFBA / fonte institucional")}</strong></div>
+        <div><span>Última conferência</span><strong>${escapeHtml(doc.reviewedDate || doc.collectedDate || "Não informada")}</strong></div>
+        <div><span>Situação</span><strong>${escapeHtml(doc.validityStatus || (doc.status === "verified" ? "Fonte conferida" : "A conferir"))}</strong></div>
+        ${doc.supersededBy ? `<div><span>Substituído por</span><strong>${escapeHtml(doc.supersededBy)}</strong></div>` : ""}
+      </section>
 
       <section class="verified-preview-layout">
         <aside class="verified-preview-left">
@@ -2784,6 +3305,61 @@ function setupModal() {
   });
 }
 
+document.addEventListener("keydown", event => {
+  const target = event.target;
+  const typing = target && /^(INPUT|TEXTAREA|SELECT)$/i.test(target.tagName || "") || target?.isContentEditable;
+  if (!typing && !event.ctrlKey && !event.metaKey && !event.altKey && event.key === "/") {
+    event.preventDefault();
+    const input = document.getElementById("searchInput");
+    input?.focus();
+    input?.select();
+  }
+});
+
+document.addEventListener("keydown", event => {
+  const card = event.target.closest?.(".result-card[data-result-index]");
+  if (!card || event.target.closest("button, a, input, select, textarea")) return;
+  const index = Number(card.dataset.resultIndex || 0);
+  if (event.key === "Enter" || event.key === " ") {
+    event.preventDefault();
+    openSearchResultByIndex(index, { newTab: event.ctrlKey || event.metaKey });
+  } else if (event.key === "ArrowDown" || event.key === "ArrowRight") {
+    event.preventDefault();
+    focusSearchResult(index + 1);
+  } else if (event.key === "ArrowUp" || event.key === "ArrowLeft") {
+    event.preventDefault();
+    focusSearchResult(index - 1);
+  } else if (event.key === "Home") {
+    event.preventDefault();
+    focusSearchResult(0);
+  } else if (event.key === "End") {
+    event.preventDefault();
+    focusSearchResult((state.lastResults?.length || 1) - 1);
+  }
+});
+
+function relocateFiltersCard(archiveView = "grid") {
+  const card = document.getElementById("filtersCard");
+  const homeSlot = document.getElementById("filtersHomeSlot");
+  const directoryToolbar = document.getElementById("directoryToolbar");
+  const toggle = document.getElementById("filterToggle");
+  if (!card || !homeSlot || !directoryToolbar) return;
+  const inDirectory = archiveView === "list";
+  if (inDirectory) {
+    if (card.parentElement !== directoryToolbar) directoryToolbar.prepend(card);
+    card.classList.add("in-directory-toolbar", "open");
+    if (toggle) toggle.hidden = true;
+  } else {
+    if (card.parentElement !== homeSlot) homeSlot.appendChild(card);
+    card.classList.remove("in-directory-toolbar");
+    if (toggle) toggle.hidden = false;
+    const shouldOpen = prefGet(HUB_PREF_KEYS.filtersOpen, "0") === "1";
+    card.classList.toggle("open", shouldOpen);
+    toggle?.setAttribute("aria-expanded", shouldOpen ? "true" : "false");
+    if (toggle) toggle.textContent = shouldOpen ? "Ocultar filtros" : "Filtros";
+  }
+}
+
 function applyArchiveView(value = "grid", { persist = true } = {}) {
   const clean = value === "list" ? "list" : "grid";
   state.archiveView = clean;
@@ -2794,8 +3370,11 @@ function applyArchiveView(value = "grid", { persist = true } = {}) {
   const directoryGrid = document.getElementById("directoryGrid");
   if (documentGrid) documentGrid.hidden = clean !== "grid";
   if (directoryGrid) directoryGrid.hidden = clean !== "list";
+  document.querySelector(".archive-columns-control")?.toggleAttribute("hidden", clean !== "grid");
+  relocateFiltersCard(clean);
   if (persist) prefSet(HUB_PREF_KEYS.archiveView, clean);
   renderArchiveLoadMore(documents.length, Math.min(ensureArchiveLimit(), documents.length));
+  if (clean === "list") renderDirectory();
 }
 
 function saveSearchFiltersPreference() {
@@ -2819,6 +3398,71 @@ function restoreSearchFiltersPreference() {
   });
 }
 
+function setupResizableDirectoryTable(tableSelector, storageKey, defaults = [74, 360, 180, 140, 110, 250]) {
+  const table = document.querySelector(tableSelector);
+  if (!table || table.dataset.resizableReady === "1") return;
+  table.dataset.resizableReady = "1";
+  const headers = [...table.querySelectorAll("thead th")];
+  if (!headers.length) return;
+  let widths = prefGetJson(storageKey, null);
+  if (!Array.isArray(widths) || widths.length !== headers.length) widths = defaults.slice(0, headers.length);
+  const minWidths = [60, 180, 120, 110, 90, 190];
+  let colgroup = table.querySelector("colgroup");
+  if (!colgroup) {
+    colgroup = document.createElement("colgroup");
+    colgroup.innerHTML = headers.map(() => "<col>").join("");
+    table.prepend(colgroup);
+  }
+  const cols = [...colgroup.children];
+  const applyWidths = () => {
+    widths = widths.map((value, index) => Math.max(minWidths[index] || 80, Number(value) || defaults[index] || 120));
+    cols.forEach((col, index) => { col.style.width = `${widths[index]}px`; });
+    headers.forEach((header, index) => { header.style.width = `${widths[index]}px`; });
+    table.style.tableLayout = "fixed";
+    table.style.width = `${widths.reduce((sum, value) => sum + value, 0)}px`;
+  };
+  applyWidths();
+  headers.forEach((header, index) => {
+    const handle = document.createElement("span");
+    handle.className = "directory-column-resizer";
+    handle.setAttribute("role", "separator");
+    handle.setAttribute("aria-orientation", "vertical");
+    handle.setAttribute("aria-label", `Redimensionar coluna ${header.textContent.trim()}`);
+    header.appendChild(handle);
+    let startX = 0;
+    let startWidth = 0;
+    const move = event => {
+      if (!startX) return;
+      widths[index] = Math.max(minWidths[index] || 80, startWidth + event.clientX - startX);
+      applyWidths();
+    };
+    const finish = event => {
+      if (!startX) return;
+      startX = 0;
+      document.body.classList.remove("directory-column-resizing");
+      try { handle.releasePointerCapture(event.pointerId); } catch (_) {}
+      prefSetJson(storageKey, widths.map(Math.round));
+    };
+    handle.addEventListener("pointerdown", event => {
+      startX = event.clientX;
+      startWidth = widths[index];
+      document.body.classList.add("directory-column-resizing");
+      handle.setPointerCapture(event.pointerId);
+      event.preventDefault();
+      event.stopPropagation();
+    });
+    handle.addEventListener("pointermove", move);
+    handle.addEventListener("pointerup", finish);
+    handle.addEventListener("pointercancel", finish);
+    handle.addEventListener("click", event => { event.preventDefault(); event.stopPropagation(); });
+  });
+}
+
+function setupResizableDirectoryTables() {
+  setupResizableDirectoryTable("#directoryGrid .directory-table", HUB_PREF_KEYS.directoryColumnWidths);
+  setupResizableDirectoryTable("#searchDirectory .directory-table", HUB_PREF_KEYS.searchDirectoryColumnWidths, [74, 440, 170, 130, 110, 250]);
+}
+
 function setupArchiveViews() {
   applyArchiveView(prefGet(HUB_PREF_KEYS.archiveView, "grid"), { persist: false });
 
@@ -2832,169 +3476,52 @@ function setupArchiveViews() {
     state.archiveVisibleCount = Math.min(documents.length, ensureArchiveLimit() + getArchiveBatchSize());
     renderDocuments();
   });
-}
 
-
-function updateBulkUI() {
-  const panel = document.getElementById("bulkPanel");
-  const button = document.getElementById("selectModeButton");
-  const count = document.getElementById("selectedCount");
-  if (!panel || !button || !count) return;
-  panel.hidden = !state.selectMode;
-  button.textContent = state.selectMode ? "Sair da edição em lote" : "Selecionar para edição em lote";
-  count.textContent = state.selectedDocs.size;
-  document.querySelectorAll(".select-doc").forEach(el => { el.hidden = !state.selectMode; });
-  document.querySelectorAll("[data-select-doc]").forEach(input => { input.checked = state.selectedDocs.has(input.dataset.selectDoc); });
-}
-
-function setupBulkEditing() {
-  const button = document.getElementById("selectModeButton");
-  if (!button) return;
-  button.addEventListener("click", () => {
-    state.selectMode = !state.selectMode;
-    if (!state.selectMode) state.selectedDocs.clear();
-    renderDocuments();
-  });
-
-  document.getElementById("documentGrid").addEventListener("change", event => {
-    const input = event.target.closest("[data-select-doc]");
-    if (!input) return;
-    if (input.checked) state.selectedDocs.add(input.dataset.selectDoc);
-    else state.selectedDocs.delete(input.dataset.selectDoc);
-    updateBulkUI();
-  });
-
-  document.getElementById("bulkApplyButton").addEventListener("click", () => {
-    const tag = document.getElementById("bulkTagInput").value.trim();
-    const type = document.getElementById("bulkTypeInput").value.trim();
-    const correspondent = document.getElementById("bulkCorrespondentInput").value.trim();
-    state.selectedDocs.forEach(id => {
-      const current = state.temporaryEdits.get(id) || { tags: [] };
-      state.temporaryEdits.set(id, {
-        ...current,
-        tags: unique([...(current.tags || []), tag].filter(Boolean)),
-        documentType: type || current.documentType,
-        correspondent: correspondent || current.correspondent
-      });
-    });
-    refreshDocuments();
-    populateFilters();
-    renderDocuments();
+  state.directorySort = prefGet(HUB_PREF_KEYS.directorySort, "name-asc");
+  state.directoryRows = Number(prefGet(HUB_PREF_KEYS.directoryRows, "10")) || 10;
+  state.directoryPage = Math.max(1, Number(prefGet(HUB_PREF_KEYS.directoryPage, "1")) || 1);
+  document.getElementById("directorySortSelect")?.addEventListener("change", event => {
+    state.directorySort = event.target.value;
+    state.directoryPage = 1;
+    prefSet(HUB_PREF_KEYS.directorySort, state.directorySort);
+    prefSet(HUB_PREF_KEYS.directoryPage, "1");
     renderDirectory();
-    runSearch(document.getElementById("searchInput").value);
   });
-
-  document.getElementById("bulkExportButton").addEventListener("click", () => {
-    const output = document.getElementById("bulkOutput");
-    const data = [...state.selectedDocs].map(id => {
-      const doc = documents.find(item => item.id === id);
-      const edit = state.temporaryEdits.get(id) || {};
-      return {
-        id,
-        title: doc?.title,
-        addTags: edit.tags || [],
-        documentType: edit.documentType || doc?.documentType,
-        correspondent: edit.correspondent || doc?.correspondent
-      };
-    });
-    output.hidden = false;
-    output.value = JSON.stringify(data, null, 2);
-    output.focus();
+  document.querySelector("#directoryGrid .directory-table thead")?.addEventListener("click", event => {
+    const button = event.target.closest("[data-directory-sort-field]");
+    if (!button) return;
+    state.directorySort = toggledDirectorySort(state.directorySort, button.dataset.directorySortField);
+    state.directoryPage = 1;
+    prefSet(HUB_PREF_KEYS.directorySort, state.directorySort);
+    prefSet(HUB_PREF_KEYS.directoryPage, "1");
+    renderDirectory();
+  });
+  document.getElementById("directoryRowsSelect")?.addEventListener("change", event => {
+    state.directoryRows = Number(event.target.value) || 10;
+    state.directoryPage = 1;
+    prefSet(HUB_PREF_KEYS.directoryRows, String(state.directoryRows));
+    prefSet(HUB_PREF_KEYS.directoryPage, "1");
+    renderDirectory();
+  });
+  document.getElementById("directoryPagination")?.addEventListener("click", event => {
+    const button = event.target.closest("[data-directory-page]");
+    if (!button || button.disabled) return;
+    const pageCount = Math.max(1, Math.ceil(documents.length / state.directoryRows));
+    const action = button.dataset.directoryPage;
+    if (action === "first") state.directoryPage = 1;
+    else if (action === "prev") state.directoryPage = Math.max(1, state.directoryPage - 1);
+    else if (action === "next") state.directoryPage = Math.min(pageCount, state.directoryPage + 1);
+    else if (action === "last") state.directoryPage = pageCount;
+    else state.directoryPage = Math.min(pageCount, Math.max(1, Number(action) || 1));
+    prefSet(HUB_PREF_KEYS.directoryPage, String(state.directoryPage));
+    renderDirectory();
+    document.getElementById("directoryGrid")?.scrollIntoView({ behavior: "smooth", block: "start" });
   });
 }
 
 
 
-const whereResolveItems = [
-  {
-    id: "segunda-chamada",
-    emoji: "📝",
-    title: "Perdi uma prova / preciso de segunda chamada",
-    summary: "O caminho mais provável é abrir protocolo e anexar a justificativa/documento comprobatório, quando houver.",
-    action: "Abra protocolo e anexe a justificativa, se houver.",
-    sector: "Protocolo + Coordenação do curso",
-    links: ["link-protocolo", "link-email-coordenacao"],
-    docs: ["Normas Acadêmicas", "segunda chamada", "avaliação em segunda chamada"],
-    checklist: ["Separe atestado ou justificativa, se existir.", "Confira o prazo com a regra oficial aplicável.", "Guarde o comprovante do protocolo."]
-  },
-  {
-    id: "estagio",
-    emoji: "🧭",
-    title: "Quero fazer estágio",
-    summary: "Comece pelo CAENS e confira o regulamento/documentos de estágio do curso.",
-    action: "Fale com o CAENS antes de iniciar ou enviar documentos.",
-    sector: "CAENS",
-    links: ["link-caens-estagios", "link-whatsapp-caens"],
-    docs: ["Estágio Curricular Supervisionado", "Regulamento de Estágio", "PPC"],
-    checklist: ["Converse com o CAENS antes de iniciar.", "Confira termo/plano/relatório exigidos.", "Procure a coordenação se a dúvida for curricular."]
-  },
-  {
-    id: "tcc",
-    emoji: "🎓",
-    title: "Quero entender TCC",
-    summary: "Procure o regulamento de TCC aplicável ao seu PPC e confirme etapas com a coordenação/orientador.",
-    action: "Confira o regulamento e alinhe as etapas com orientador/coordenação.",
-    sector: "Coordenação + orientador",
-    links: ["link-email-coordenacao"],
-    docs: ["Trabalho de Conclusão de Curso", "Regulamento de TCC", "PPC"],
-    checklist: ["Identifique seu PPC/matriz.", "Verifique regras de orientação e banca.", "Procure modelos/atas se existirem no acervo."]
-  },
-  {
-    id: "migracao",
-    emoji: "🔁",
-    title: "Quero migrar de matriz",
-    summary: "Você precisa conferir o regulamento de migração e o quadro de equivalência antes de protocolar.",
-    action: "Compare sua matriz com o quadro de equivalência antes de protocolar.",
-    sector: "Coordenação do curso",
-    links: ["link-email-coordenacao", "link-protocolo"],
-    docs: ["Regulamento de Migração Curricular", "Quadro de Equivalência", "Matriz Curricular", "PPC 2024"],
-    checklist: ["Saiba qual é sua matriz atual.", "Confira equivalências disciplina por disciplina.", "Tire dúvidas antes de protocolar."]
-  },
-  {
-    id: "quebra-requisito",
-    emoji: "🔓",
-    title: "Quero pedir quebra de requisito / cursar sem pré-requisito",
-    summary: "O HUB não encontrou uma regra geral automática nos fluxogramas: os PDFs mostram os pré-requisitos, mas a liberação excepcional deve ser confirmada com a coordenação e formalizada quando cabível.",
-    action: "Confira no fluxograma qual pré-requisito está pendente e consulte a coordenação antes de abrir pedido formal.",
-    sector: "Coordenação do curso + Protocolo, se houver orientação para requerimento",
-    links: ["app-fluxogramas", "link-email-coordenacao", "link-protocolo"],
-    docs: ["Fluxograma/matriz curricular do curso", "PPC do curso", "Normas acadêmicas"],
-    checklist: ["Identifique a disciplina desejada e o pré-requisito pendente no fluxograma.", "Anote sua matriz/ano e semestre atual.", "Fale com a coordenação antes de protocolar, pois a autorização pode depender de análise do curso.", "Se for orientado a solicitar, registre pelo protocolo e guarde o comprovante."]
-  },
-  {
-    id: "complementares",
-    emoji: "🎓",
-    title: "Atividades complementares / certificados",
-    summary: "Use o Barema para conferir se a atividade conta, qual categoria usa e quais limites se aplicam.",
-    action: "Confira o Barema e organize seus certificados por categoria.",
-    sector: "Coordenação / Colegiado, conforme regra do curso",
-    links: ["app-barema"],
-    docs: ["Barema das Atividades Complementares", "Regulamento das Atividades Complementares"],
-    checklist: ["Confira se o certificado tem carga horária.", "Veja limite por categoria/atividade.", "Organize os comprovantes antes de enviar."]
-  },
-  {
-    id: "contato-setor",
-    emoji: "💬",
-    title: "Quero falar com um setor",
-    summary: "Use este atalho quando a dúvida for de estágio, acessibilidade, assistência, registro ou atendimento estudantil.",
-    action: "Escolha o setor mais próximo do problema e envie mensagem objetiva.",
-    sector: "CAENS, CAPNE, CORES ou Serviços Sociais",
-    links: ["link-whatsapp-caens", "link-whatsapp-capne", "link-whatsapp-cores", "link-whatsapp-servicos-sociais"],
-    docs: ["Política de Assistência Estudantil", "Inclusão e acessibilidade", "Normas acadêmicas"],
-    checklist: ["Identifique se o assunto é estágio, acessibilidade, registro ou assistência.", "Envie mensagem objetiva com nome, matrícula e contexto.", "Se for solicitação formal, use protocolo."]
-  },
-  {
-    id: "documento-comprova",
-    emoji: "🔎",
-    title: "Quero saber qual documento comprova isso",
-    summary: "Pesquise pelo assunto e abra a prévia do documento para copiar a referência e conferir a página certa.",
-    action: "Pesquise pelo termo comum e abra a prévia do documento.",
-    sector: "Acervo do HUB + fonte oficial",
-    links: ["link-protocolo"],
-    docs: ["PPC", "Regulamentos", "Resoluções", "Portarias"],
-    checklist: ["Pesquise pelo termo comum e pelo termo oficial.", "Confira data e total de páginas do documento.", "Use a prévia para achar página/trecho antes de enviar."]
-  }
-];
+const whereResolveItems = window.HUB_WHERE_ITEMS || [];
 
 function resolveLinkedResource(id) {
   return resourceById(id) || usefulLinks.find(item => item.id === id) || apps.find(item => item.id === id);
@@ -3021,8 +3548,10 @@ function linksForWhere(item = {}) {
 function renderWhereResolve() {
   const options = document.getElementById("whereOptions");
   const result = document.getElementById("whereResult");
+  const control = document.getElementById("whereMoreControl");
   if (!options) return;
 
+  state.whereExpanded = prefGet(HUB_PREF_KEYS.whereExpanded, "0") === "1";
   options.innerHTML = whereResolveItems.map(item => {
     const linked = linksForWhere(item);
     const actionLabel = item.action || item.checklist?.[0] || "Confira o caminho indicado.";
@@ -3041,10 +3570,7 @@ function renderWhereResolve() {
       <article class="where-help-card" id="where-${escapeHtml(item.id)}">
         <header>
           <span class="where-help-emoji" aria-hidden="true">${escapeHtml(item.emoji)}</span>
-          <div>
-            <h3>${escapeHtml(item.title)}</h3>
-            <p>${escapeHtml(item.summary)}</p>
-          </div>
+          <div><h3>${escapeHtml(item.title)}</h3><p>${escapeHtml(item.summary)}</p></div>
         </header>
         <div class="where-help-grid">
           <div><small>O que fazer?</small><strong>${escapeHtml(actionLabel)}</strong></div>
@@ -3057,11 +3583,46 @@ function renderWhereResolve() {
     `;
   }).join("");
 
+  const applyWhereLimit = () => {
+    const cards = [...options.children];
+    const limit = isMobileViewport() ? Math.min(2, cards.length) : Math.min(getGridColumnCount(options, 4), cards.length);
+    const remaining = Math.max(0, cards.length - limit);
+    cards.forEach((card, index) => card.classList.toggle("compact-hidden", remaining > 0 && !state.whereExpanded && index >= limit));
+    if (control) {
+      control.hidden = remaining <= 0;
+      control.innerHTML = remaining > 0 ? `<button type="button" class="secondary-button" data-where-more>${state.whereExpanded ? "Mostrar menos" : `Ver mais ${remaining}`}</button>` : "";
+    }
+  };
+  requestAnimationFrame(applyWhereLimit);
   if (result) result.innerHTML = "";
 }
 
 function setupWhereResolve() {
+  const content = document.getElementById("whereSectionContent");
+  const toggle = document.getElementById("whereSectionToggle");
+  const applyOpen = (open, { persist = true } = {}) => {
+    state.whereSectionOpen = Boolean(open);
+    if (content) content.hidden = !state.whereSectionOpen;
+    if (toggle) {
+      toggle.setAttribute("aria-expanded", state.whereSectionOpen ? "true" : "false");
+      toggle.textContent = state.whereSectionOpen ? "Ocultar" : "Mostrar";
+    }
+    if (persist) prefSet(HUB_PREF_KEYS.whereSectionOpen, state.whereSectionOpen ? "1" : "0");
+  };
+  applyOpen(prefGet(HUB_PREF_KEYS.whereSectionOpen, "1") !== "0", { persist: false });
   renderWhereResolve();
+  toggle?.addEventListener("click", () => applyOpen(!state.whereSectionOpen));
+  document.getElementById("whereMoreControl")?.addEventListener("click", event => {
+    if (!event.target.closest("[data-where-more]")) return;
+    state.whereExpanded = !state.whereExpanded;
+    prefSet(HUB_PREF_KEYS.whereExpanded, state.whereExpanded ? "1" : "0");
+    renderWhereResolve();
+  });
+  let whereResizeTimer = 0;
+  window.addEventListener("resize", () => {
+    window.clearTimeout(whereResizeTimer);
+    whereResizeTimer = window.setTimeout(renderWhereResolve, 120);
+  }, { passive: true });
 }
 
 function formatGrade(value) {
@@ -3084,9 +3645,19 @@ function setupCalculators() {
     return Number.isFinite(value) ? value : null;
   }
 
-  function setFinalResult(kind, html) {
-    finalOutput.classList.remove("result-positive", "result-negative", "result-warning", "result-neutral");
-    finalOutput.classList.add(`result-${kind}`);
+  function resultRangeClass(mp) {
+    if (!Number.isFinite(mp) || mp < 2.5 || mp >= 7) return "";
+    if (mp >= 6) return "result-range-g1";
+    if (mp >= 5) return "result-range-g2";
+    if (mp >= 4) return "result-range-g3";
+    if (mp >= 3) return "result-range-g4";
+    return "result-range-g5";
+  }
+
+  function setFinalResult(kind, html, mp = null) {
+    finalOutput.classList.remove("result-positive", "result-negative", "result-warning", "result-neutral", "result-range-g1", "result-range-g2", "result-range-g3", "result-range-g4", "result-range-g5");
+    const range = resultRangeClass(mp);
+    finalOutput.classList.add(range || `result-${kind}`);
     finalOutput.innerHTML = html;
   }
 
@@ -3117,6 +3688,7 @@ function setupCalculators() {
       <button class="remove-row" type="button" aria-label="Remover nota">×</button>
     `;
     row.querySelector("input")?.addEventListener("input", () => {
+      finalOutput.classList.remove("result-positive", "result-negative", "result-warning", "result-range-g1", "result-range-g2", "result-range-g3", "result-range-g4", "result-range-g5");
       finalOutput.classList.add("result-neutral");
     });
     row.querySelector("button")?.addEventListener("click", () => {
@@ -3181,15 +3753,15 @@ function setupCalculators() {
     if (pf === null) {
       const resultKind = neededPf >= 7.2 ? "negative" : "warning";
       const icon = neededPf >= 7.2 ? "⚠️" : "⚠️";
-      setFinalResult(resultKind, `<div class="official-result"><strong>${icon} Vai para prova final</strong>${base}<span class="calc-detail">Precisa tirar <strong>${formatGrade(neededPf)}</strong> na final.</span>${rule}</div>`);
+      setFinalResult(resultKind, `<div class="official-result"><strong>${icon} Vai para prova final</strong>${base}<span class="calc-detail">Precisa tirar <strong>${formatGrade(neededPf)}</strong> na final.</span>${rule}</div>`, mp);
       return;
     }
 
     const mf = ((mp * 2) + pf) / 3;
     if (mf >= 5) {
-      setFinalResult("positive", `<div class="official-result"><strong>✅ Aprovado após a final</strong>${base}<span class="calc-detail">PF: <strong>${formatGrade(pf)}</strong> · MF: <strong>${formatGrade(mf)}</strong></span>${rule}</div>`);
+      setFinalResult("positive", `<div class="official-result"><strong>✅ Aprovado após a final</strong>${base}<span class="calc-detail">PF: <strong>${formatGrade(pf)}</strong> · MF: <strong>${formatGrade(mf)}</strong></span>${rule}</div>`, mp);
     } else {
-      setFinalResult("negative", `<div class="official-result"><strong>❌ Reprovado após a final</strong>${base}<span class="calc-detail">PF: <strong>${formatGrade(pf)}</strong> · MF: <strong>${formatGrade(mf)}</strong></span><span class="calc-detail">Precisava tirar ${formatGrade(neededPf)} na PF.</span>${rule}</div>`);
+      setFinalResult("negative", `<div class="official-result"><strong>❌ Reprovado após a final</strong>${base}<span class="calc-detail">PF: <strong>${formatGrade(pf)}</strong> · MF: <strong>${formatGrade(mf)}</strong></span><span class="calc-detail">Precisava tirar ${formatGrade(neededPf)} na PF.</span>${rule}</div>`, mp);
     }
   }
 
@@ -3210,154 +3782,69 @@ function setupCalculators() {
 }
 
 
+function renderSidebarLinks() {
+  const linksMenu = document.getElementById("sidebarLinksList");
+  if (!linksMenu) return;
+  const links = orderedUsefulLinks();
+  linksMenu.innerHTML = links.length ? links.map(link => `
+    <a href="${escapeHtml(link.url || "#")}"${linkTargetAttrs({ ...link, newTab: true })}>
+      <span aria-hidden="true">${emojiForResource(link, "link")}</span>
+      <span class="sidebar-label">${escapeHtml(link.title)}</span>
+    </a>`).join("") : `<p class="sidebar-empty">Nenhum atalho cadastrado.</p>`;
+}
+
+function setupSidebarLinksEditing() {}
+
 function setupAppsMenu() {
-  const wrapper = document.querySelector(".nav-apps-menu");
-  const button = document.getElementById("appsMenuButton");
-  const menu = document.getElementById("appsMenu");
-  if (!wrapper || !button || !menu) return;
-
-  const currentApps = apps.length ? apps : [];
-  const menuHtml = [
-    `<a href="#apps" data-app-menu-main><span>🧰</span><strong>Todos os apps</strong><small>Ver seção completa</small></a>`,
-    ...currentApps.map(app => {
-      const isExternal = app.openMode === "new-tab" || /^(https?:)?\/\//.test(app.url || "") || (app.url || "").endsWith(".html");
-      const attrs = isExternal ? ` target="_blank" rel="noopener"` : "";
-      return `<a href="${escapeHtml(app.url || "#apps")}"${attrs}><span>${emojiForResource(app, "app")}</span><strong>${escapeHtml(app.title)}</strong><small>${escapeHtml(app.category || "App")}</small></a>`;
-    })
-  ].join("");
-
-  menu.innerHTML = menuHtml;
-
-  // Mobile fix: render the apps list in a body-level portal.
-  // This avoids clipping/stacking problems caused by the fixed bottom nav on phones.
-  let mobileMenu = document.getElementById("mobileAppsMenuPortal");
-  if (!mobileMenu) {
-    mobileMenu = document.createElement("div");
-    mobileMenu.id = "mobileAppsMenuPortal";
-    mobileMenu.className = "mobile-apps-panel";
-    mobileMenu.hidden = true;
-    mobileMenu.setAttribute("role", "menu");
-    document.body.appendChild(mobileMenu);
+  const appsMenu = document.getElementById("appsMenu");
+  const linksMenu = document.getElementById("sidebarLinksList");
+  if (appsMenu) {
+    const items = apps.map(app => ({ title: app.title, url: app.url || "#apps", emoji: emojiForResource(app, "app") }));
+    appsMenu.innerHTML = items.map(item => {
+      const attrs = linkTargetAttrs({ url: item.url, newTab: true });
+      return `<a href="${escapeHtml(item.url)}"${attrs}><span aria-hidden="true">${escapeHtml(item.emoji)}</span><span class="sidebar-label">${escapeHtml(item.title)}</span></a>`;
+    }).join("");
   }
-  mobileMenu.innerHTML = menuHtml;
+  if (linksMenu) renderSidebarLinks();
 
-  const isMobileMenu = () => window.matchMedia("(max-width: 920px)").matches;
-
-  const positionMobileMenu = () => {
-    if (!mobileMenu || !isMobileMenu()) return;
-    const topbar = document.querySelector(".topbar");
-    const rect = topbar?.getBoundingClientRect();
-    const fallbackTop = 70;
-    const top = Math.max(8, Math.round((rect?.bottom || fallbackTop) + 8));
-    const bottomReserved = 96;
-    const available = Math.max(220, window.innerHeight - top - bottomReserved);
-    mobileMenu.style.top = `${top}px`;
-    mobileMenu.style.bottom = "auto";
-    mobileMenu.style.maxHeight = `${Math.min(450, available)}px`;
-  };
-
-  const setOpen = open => {
-    const mobile = isMobileMenu();
-    if (mobile && open) positionMobileMenu();
-    menu.hidden = mobile ? true : !open;
-    mobileMenu.hidden = mobile ? !open : true;
-    wrapper.classList.toggle("is-open", open);
-    button.setAttribute("aria-expanded", open ? "true" : "false");
-    document.body.classList.toggle("apps-menu-open", open);
-  };
-  const close = () => setOpen(false);
-  const toggle = () => setOpen(button.getAttribute("aria-expanded") !== "true");
-
-  button.setAttribute("aria-haspopup", "menu");
-
-  // Use only click/touchend-safe behavior. Some mobile browsers fire pointer/touch/click
-  // sequences that can open and close the menu in the same tap.
-  button.onclick = event => {
-    event.preventDefault();
-    event.stopPropagation();
-    toggle();
-  };
-  button.onpointerdown = null;
-  button.ontouchstart = null;
-
-  const menuClickHandler = event => {
-    const link = event.target.closest("a");
-    if (!link) return;
-    // Close even for target=_blank links so the overlay is not left open when
-    // the user returns to the tab.
-    window.setTimeout(close, 0);
-  };
-  menu.onclick = menuClickHandler;
-  mobileMenu.onclick = menuClickHandler;
-
-  if (!setupAppsMenu._boundDocumentClose) {
-    document.addEventListener("click", event => {
-      const currentWrapper = document.querySelector(".nav-apps-menu");
-      const currentMenu = document.getElementById("appsMenu");
-      const currentMobileMenu = document.getElementById("mobileAppsMenuPortal");
-      if (!currentWrapper || !currentMenu || !currentMobileMenu) return;
-      const clickedInside = currentWrapper.contains(event.target)
-        || currentMenu.contains(event.target)
-        || currentMobileMenu.contains(event.target);
-      if (!clickedInside) {
-        currentMenu.hidden = true;
-        currentMobileMenu.hidden = true;
-        currentWrapper.classList.remove("is-open");
-        document.getElementById("appsMenuButton")?.setAttribute("aria-expanded", "false");
-        document.body.classList.remove("apps-menu-open");
-      }
-    });
-    document.addEventListener("keydown", event => {
-      if (event.key !== "Escape") return;
-      const currentMenu = document.getElementById("appsMenu");
-      const currentMobileMenu = document.getElementById("mobileAppsMenuPortal");
-      const currentWrapper = document.querySelector(".nav-apps-menu");
-      if (currentMenu) currentMenu.hidden = true;
-      if (currentMobileMenu) currentMobileMenu.hidden = true;
-      currentWrapper?.classList.remove("is-open");
-      document.getElementById("appsMenuButton")?.setAttribute("aria-expanded", "false");
-      document.body.classList.remove("apps-menu-open");
-    });
-    window.addEventListener("resize", () => {
-      const expanded = document.getElementById("appsMenuButton")?.getAttribute("aria-expanded") === "true";
-      if (expanded) {
-        document.getElementById("appsMenu")?.setAttribute("hidden", "");
-        const currentMobileMenu = document.getElementById("mobileAppsMenuPortal");
-        if (currentMobileMenu) {
-          currentMobileMenu.hidden = !window.matchMedia("(max-width: 920px)").matches;
-          const topbar = document.querySelector(".topbar");
-          const rect = topbar?.getBoundingClientRect();
-          const top = Math.max(8, Math.round((rect?.bottom || 70) + 8));
-          const available = Math.max(220, window.innerHeight - top - 96);
-          currentMobileMenu.style.top = `${top}px`;
-          currentMobileMenu.style.bottom = "auto";
-          currentMobileMenu.style.maxHeight = `${Math.min(450, available)}px`;
-        }
-      }
-    });
-    setupAppsMenu._boundDocumentClose = true;
-  }
+  const groups = [
+    ["appsMenuToggle", "appsMenu", HUB_PREF_KEYS.appsMenuOpen, true],
+    ["favoritesMenuToggle", "sidebarFavoritesList", HUB_PREF_KEYS.favoritesMenuOpen, true],
+    ["linksMenuToggle", "sidebarLinksList", HUB_PREF_KEYS.linksMenuOpen, false]
+  ];
+  groups.forEach(([buttonId, panelId, key, defaultOpen]) => {
+    const button = document.getElementById(buttonId);
+    const panel = document.getElementById(panelId);
+    if (!button || !panel) return;
+    const setOpen = (open, persist = true) => {
+      panel.hidden = !open;
+      button.setAttribute("aria-expanded", open ? "true" : "false");
+      button.closest(".sidebar-menu-group")?.classList.toggle("is-open", open);
+      if (persist) prefSet(key, open ? "1" : "0");
+    };
+    setOpen(prefGet(key, defaultOpen ? "1" : "0") === "1", false);
+    button.addEventListener("click", () => setOpen(button.getAttribute("aria-expanded") !== "true"));
+  });
 }
 
 
-function setupFixedHeader() {
-  const header = document.querySelector(".topbar");
-  if (!header) return;
-  header.classList.remove("is-hidden");
-}
+function setupFixedHeader() {}
 
 function setupNavigation() {
-  const navLinks = [...document.querySelectorAll(".nav a[href^='#']")];
-  const appMenuButton = document.getElementById("appsMenuButton");
+  const navLinks = [...document.querySelectorAll(".sidebar-nav a[href^='#']")];
   const sections = [...document.querySelectorAll("[data-nav-section]")];
 
   const mark = id => {
-    navLinks.forEach(link => link.classList.toggle("active", link.getAttribute("href") === `#${id}`));
-    appMenuButton?.classList.toggle("active", id === "apps");
+    navLinks.forEach(link => {
+      const active = link.getAttribute("href") === `#${id}`;
+      link.classList.toggle("active", active);
+      if (active) link.setAttribute("aria-current", "location");
+      else link.removeAttribute("aria-current");
+    });
   };
 
   const currentSection = () => {
-    const offset = 92;
+    const offset = isMobileViewport() ? 70 : 24;
     const position = window.scrollY + offset;
     let current = sections[0]?.id || "buscar";
     sections.forEach(section => {
@@ -3395,6 +3882,136 @@ function setupNavigation() {
   requestUpdate();
 }
 
+
+function resolvedTheme(mode = "auto") {
+  if (mode === "light" || mode === "dark") return mode;
+  return window.matchMedia && window.matchMedia("(prefers-color-scheme: light)").matches ? "light" : "dark";
+}
+
+function applyThemeMode(mode = "auto", { persist = true } = {}) {
+  const clean = ["auto", "dark", "light"].includes(mode) ? mode : "auto";
+  state.themeMode = clean;
+  document.documentElement.dataset.themeMode = clean;
+  document.documentElement.dataset.theme = resolvedTheme(clean);
+  document.querySelectorAll("[data-theme-choice]").forEach(button => button.classList.toggle("active", button.dataset.themeChoice === clean));
+  const mobile = document.getElementById("mobileThemeButton");
+  if (mobile) {
+    const map = { auto: ["◐", "Tema automático"], dark: ["☾", "Modo escuro"], light: ["☀", "Modo claro"] };
+    mobile.textContent = map[clean][0];
+    mobile.title = map[clean][1];
+    mobile.setAttribute("aria-label", `${map[clean][1]}. Toque para alterar.`);
+  }
+  if (persist) prefSet(HUB_PREF_KEYS.themeMode, clean);
+}
+
+function setupTheme() {
+  const mobileButton = document.getElementById("mobileThemeButton");
+  const mobileMenu = document.getElementById("mobileThemeMenu");
+  const setMobileThemeMenu = open => {
+    if (!mobileMenu || !mobileButton) return;
+    mobileMenu.hidden = !open;
+    mobileButton.setAttribute("aria-expanded", open ? "true" : "false");
+  };
+
+  applyThemeMode(prefGet(HUB_PREF_KEYS.themeMode, "auto"), { persist: false });
+  document.querySelectorAll("[data-theme-choice]").forEach(button => button.addEventListener("click", () => {
+    applyThemeMode(button.dataset.themeChoice);
+    setMobileThemeMenu(false);
+  }));
+  mobileButton?.addEventListener("click", event => {
+    event.stopPropagation();
+    setMobileThemeMenu(mobileMenu?.hidden ?? true);
+  });
+  mobileMenu?.addEventListener("click", event => event.stopPropagation());
+  document.addEventListener("click", () => setMobileThemeMenu(false));
+  document.addEventListener("keydown", event => { if (event.key === "Escape") setMobileThemeMenu(false); });
+
+  const media = window.matchMedia?.("(prefers-color-scheme: light)");
+  media?.addEventListener?.("change", () => { if (state.themeMode === "auto") applyThemeMode("auto", { persist: false }); });
+  window.addEventListener("storage", event => { if (event.key === HUB_PREF_KEYS.themeMode) applyThemeMode(event.newValue || "auto", { persist: false }); });
+}
+
+function setupSidebar() {
+  const sidebar = document.getElementById("siteSidebar");
+  const overlay = document.getElementById("sidebarOverlay");
+  const mobileToggle = document.getElementById("mobileSidebarToggle");
+  const closeButton = document.getElementById("mobileSidebarClose");
+  const collapseButton = document.getElementById("sidebarCollapseButton");
+  const reopenButton = document.getElementById("sidebarReopenButton");
+  if (!sidebar) return;
+
+  const applyCollapsed = collapsed => {
+    document.body.classList.toggle("sidebar-collapsed", collapsed);
+    prefSet(HUB_PREF_KEYS.sidebarCollapsed, collapsed ? "1" : "0");
+    collapseButton?.setAttribute("aria-label", collapsed ? "Mostrar menu" : "Ocultar menu");
+  };
+  const setMobileOpen = open => {
+    document.body.classList.toggle("mobile-sidebar-open", open);
+    mobileToggle?.setAttribute("aria-expanded", open ? "true" : "false");
+    overlay?.setAttribute("aria-hidden", open ? "false" : "true");
+  };
+
+  applyCollapsed(prefGet(HUB_PREF_KEYS.sidebarCollapsed, "0") === "1");
+  collapseButton?.addEventListener("click", () => applyCollapsed(!document.body.classList.contains("sidebar-collapsed")));
+  reopenButton?.addEventListener("click", () => applyCollapsed(false));
+  mobileToggle?.addEventListener("click", () => setMobileOpen(!document.body.classList.contains("mobile-sidebar-open")));
+  closeButton?.addEventListener("click", () => setMobileOpen(false));
+  overlay?.addEventListener("click", () => setMobileOpen(false));
+  sidebar.addEventListener("click", event => {
+    if (event.target.closest("a") && isMobileViewport()) setMobileOpen(false);
+  });
+  document.addEventListener("keydown", event => { if (event.key === "Escape") setMobileOpen(false); });
+  window.addEventListener("resize", () => { if (!isMobileViewport()) setMobileOpen(false); });
+
+  const resizeHandle = document.getElementById("sidebarResizeHandle");
+  const minWidth = 72;
+  const maxWidth = 420;
+  const applyWidth = (value, persist = true) => {
+    const width = Math.min(maxWidth, Math.max(minWidth, Math.round(Number(value) || 276)));
+    state.sidebarWidth = width;
+    document.documentElement.style.setProperty("--sidebar-w", `${width}px`);
+    const iconsOnly = width <= 96;
+    document.body.classList.toggle("sidebar-icons-only", iconsOnly);
+    document.documentElement.classList.toggle("sidebar-icons-only-preload", iconsOnly);
+    resizeHandle?.setAttribute("aria-valuenow", String(width));
+    resizeHandle?.setAttribute("aria-valuemin", String(minWidth));
+    resizeHandle?.setAttribute("aria-valuemax", String(maxWidth));
+    if (persist) prefSet(HUB_PREF_KEYS.sidebarWidth, String(width));
+  };
+  applyWidth(Number(prefGet(HUB_PREF_KEYS.sidebarWidth, "276")), false);
+  if (resizeHandle) {
+    let resizing = false;
+    const onMove = event => {
+      if (!resizing || isMobileViewport()) return;
+      applyWidth(event.clientX, false);
+    };
+    const finish = event => {
+      if (!resizing) return;
+      resizing = false;
+      document.body.classList.remove("sidebar-resizing");
+      try { resizeHandle.releasePointerCapture(event.pointerId); } catch (_) {}
+      applyWidth(state.sidebarWidth, true);
+    };
+    resizeHandle.addEventListener("pointerdown", event => {
+      if (isMobileViewport()) return;
+      resizing = true;
+      document.body.classList.add("sidebar-resizing");
+      resizeHandle.setPointerCapture(event.pointerId);
+      event.preventDefault();
+    });
+    resizeHandle.addEventListener("pointermove", onMove);
+    resizeHandle.addEventListener("pointerup", finish);
+    resizeHandle.addEventListener("pointercancel", finish);
+    resizeHandle.addEventListener("dblclick", () => applyWidth(276, true));
+    resizeHandle.addEventListener("keydown", event => {
+      if (!["ArrowLeft", "ArrowRight", "Home", "End"].includes(event.key)) return;
+      event.preventDefault();
+      if (event.key === "Home") applyWidth(minWidth, true);
+      else if (event.key === "End") applyWidth(maxWidth, true);
+      else applyWidth(state.sidebarWidth + (event.key === "ArrowRight" ? 10 : -10), true);
+    });
+  }
+}
 
 const finalExamGroups = [
   { cls: "g1", rows: [[6.9,1.2],[6.8,1.4],[6.7,1.6],[6.6,1.8],[6.5,2.0],[6.4,2.2],[6.3,2.4],[6.2,2.6],[6.1,2.8],[6.0,3.0]] },
@@ -3459,10 +4076,12 @@ function setupFilterToggle() {
   const card = document.getElementById("filtersCard");
   if (!toggle || !card) return;
   const setOpen = (open, { persist = true } = {}) => {
-    card.classList.toggle("open", open);
-    toggle.setAttribute("aria-expanded", open ? "true" : "false");
-    toggle.textContent = open ? "Ocultar filtros" : "Filtros";
-    if (persist) prefSet(HUB_PREF_KEYS.filtersOpen, open ? "1" : "0");
+    const forcedOpen = card.classList.contains("in-directory-toolbar");
+    const finalOpen = forcedOpen ? true : open;
+    card.classList.toggle("open", finalOpen);
+    toggle.setAttribute("aria-expanded", finalOpen ? "true" : "false");
+    toggle.textContent = finalOpen ? "Ocultar filtros" : "Filtros";
+    if (persist && !forcedOpen) prefSet(HUB_PREF_KEYS.filtersOpen, finalOpen ? "1" : "0");
   };
   setOpen(prefGet(HUB_PREF_KEYS.filtersOpen, "0") === "1", { persist: false });
   toggle.addEventListener("click", () => setOpen(!card.classList.contains("open")));
@@ -3522,24 +4141,41 @@ function refreshCurrentSearchIfNeeded() {
   }
 }
 
+function setupPwa() {
+  if (!("serviceWorker" in navigator)) return;
+  window.addEventListener("load", () => {
+    navigator.serviceWorker.register("service-worker.js", { scope: "./" })
+      .catch(error => console.warn("Service worker não registrado:", error));
+  }, { once: true });
+}
+
+
 async function boot() {
   renderInitialLoadingPlaceholders();
+  setupPwa();
   setLoadingStatus("Carregando interface...");
 
   // Render immediately available static content first. This keeps the page filled
   // even if the user scrolls fast on mobile before the document manifest finishes.
   renderApps();
+  setupAppsMoreControl();
+  renderGuides();
   setupLinksViewToggle();
   renderLinks();
-  renderGuides();
+  setupSearchResultsView();
+  setupSearchColumns();
   setupSearch();
+  setupSavedSearches();
   setupModal();
   setupArchiveViews();
+  setupResizableDirectoryTables();
   setupCalculators();
   setupWhereResolve();
   setupFilterToggle();
   buildFinalExamTable();
   setupAppsMenu();
+  setupTheme();
+  setupSidebar();
   setupNavigation();
   setupFixedHeader();
   setupDesktopColumnsControl();
@@ -3559,10 +4195,15 @@ async function boot() {
   schedulePdfThumbnailRender();
   window.setTimeout(() => setLoadingStatus(""), 1200);
 
-  backgroundIndexMissingPdfText().finally(() => {
-    if (!state.lastQuery) setLoadingStatus("");
-    refreshCurrentSearchIfNeeded();
-  });
+  const scheduleBackgroundIndex = () => {
+    if (navigator.connection?.saveData || document.visibilityState === "hidden") return;
+    backgroundIndexMissingPdfText(3).finally(() => {
+      if (!state.lastQuery) setLoadingStatus("");
+      refreshCurrentSearchIfNeeded();
+    });
+  };
+  if ("requestIdleCallback" in window) requestIdleCallback(scheduleBackgroundIndex, { timeout: 6000 });
+  else window.setTimeout(scheduleBackgroundIndex, 3500);
 }
 
 

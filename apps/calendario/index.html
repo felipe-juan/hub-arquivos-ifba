@@ -1,0 +1,1372 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Calendário Acadêmico IFBA VCA 2026 — HUB SI v0.1.22</title>
+  <meta name="description" content="App de consulta do calendário acadêmico 2026 do IFBA Vitória da Conquista." />
+  <link rel="icon" href="../../favicon.ico" sizes="any" />
+<meta name="theme-color" content="#0a0f14" />
+  <script>
+    (()=>{try{const mode=localStorage.getItem("hubThemeMode")||"auto";const resolved=mode==="auto"?(matchMedia("(prefers-color-scheme: light)").matches?"light":"dark"):mode;document.documentElement.dataset.theme=resolved;document.documentElement.dataset.themeMode=mode;}catch{}})();
+  </script>
+  <style>
+    :root{color-scheme:dark;--bg:#0a0f14;--surface:rgba(18,27,37,.94);--line:rgba(255,255,255,.11);--ink:#f8fbff;--text:#d9e5f1;--muted:#91a3b6;--faint:#66788c;--green:#35e6a8;--cyan:#59d8ff;--blue:#83b9ff;--amber:#f8c14a;--red:#fb7185;--purple:#b79dff;--shadow:0 18px 44px rgba(0,0,0,.34);--topbar-h:68px;--max:1180px}
+    *{box-sizing:border-box}html{scroll-behavior:smooth}body{margin:0;padding-top:0;min-height:100vh;color:var(--text);background:var(--bg);font-family:Inter,ui-sans-serif,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;line-height:1.45}
+    body::before{content:"";position:fixed;inset:0;z-index:-2;background:radial-gradient(circle at 14% -14%,rgba(53,230,168,.18),transparent 27rem),radial-gradient(circle at 88% 0%,rgba(89,216,255,.12),transparent 22rem),linear-gradient(180deg,#090e13 0%,#0c1118 50%,#090e13 100%)}
+    body::after{content:"";position:fixed;inset:0;z-index:-1;pointer-events:none;background-image:linear-gradient(rgba(255,255,255,.028) 1px,transparent 1px),linear-gradient(90deg,rgba(255,255,255,.028) 1px,transparent 1px);background-size:36px 36px;opacity:.7;mask-image:linear-gradient(to bottom,#000,transparent 78%)}
+    button,input,select,a{font:inherit}button{cursor:pointer}a{color:inherit}
+    .topbar{position:fixed;top:0;left:0;right:0;z-index:60;display:flex;align-items:center;justify-content:space-between;gap:1rem;padding:.7rem clamp(.9rem,3vw,1.4rem);background:rgba(9,14,19,.78);backdrop-filter:blur(18px);border-bottom:1px solid var(--line)}
+    .brand{display:inline-flex;align-items:center;gap:.65rem;color:var(--ink);text-decoration:none;min-width:0}.brand-mark{width:42px;height:42px;display:grid;place-items:center;flex:0 0 auto}.brand-mark img{width:100%;height:100%;display:block;object-fit:contain;image-rendering:pixelated;filter:drop-shadow(0 10px 20px rgba(0,0,0,.28))}.brand-text{display:grid;line-height:1.04}.brand-text small{color:var(--muted);font-size:.73rem;margin-top:.1rem}
+    .top-actions{display:flex;align-items:center;gap:.55rem;flex-wrap:wrap;justify-content:flex-end}.ghost-btn,.primary-btn,.view-btn,.profile-btn{min-height:40px;border:0;border-radius:999px;padding:.66rem .96rem;cursor:pointer;color:#061015;background:linear-gradient(135deg,var(--green),var(--cyan));font-weight:850;text-decoration:none;display:inline-flex;align-items:center;justify-content:center;gap:.45rem;white-space:nowrap;box-shadow:0 10px 28px rgba(53,230,168,.16)}.ghost-btn,.view-btn,.profile-btn{color:var(--ink);background:rgba(255,255,255,.07);border:1px solid var(--line);box-shadow:none}.ghost-btn:hover,.primary-btn:hover,.view-btn:hover,.profile-btn:hover,.pill:hover{transform:translateY(-1px)}
+    .app{width:min(var(--max),calc(100% - 2rem));margin:0 auto;padding:1rem 0 3.2rem}.hero{display:grid;grid-template-columns:minmax(0,1.2fr) minmax(300px,.8fr);gap:1rem;margin-bottom:1rem}.hero-card,.panel,.stat,.toolbar,.event-card,.month-group,.calendar-wrap,.source-note,.empty-state,.search-results-panel,.event-sheet-panel{border:1px solid var(--line);background:linear-gradient(180deg,rgba(18,27,37,.95),rgba(12,19,28,.93));box-shadow:var(--shadow)}.hero-card{border-radius:24px;overflow:hidden;position:relative}.hero-main{padding:clamp(1.05rem,3vw,1.55rem);min-height:0}.hero-main::after{content:"";position:absolute;right:-100px;bottom:-130px;width:330px;height:330px;background:conic-gradient(from 220deg,rgba(53,230,168,.18),rgba(89,216,255,.16),rgba(53,230,168,.08));border-radius:50%;filter:blur(2px)}.hero-content{position:relative;z-index:1}
+    .eyebrow{display:inline-flex;align-items:center;gap:.45rem;padding:.4rem .65rem;border:1px solid var(--line);border-radius:999px;background:rgba(255,255,255,.06);color:var(--green);font-size:.78rem;font-weight:850;margin-bottom:.85rem;text-transform:uppercase;letter-spacing:.08em}.hero h2{margin:0;max-width:760px;font-size:clamp(2rem,5vw,4.2rem);line-height:.94;letter-spacing:-.07em;color:var(--ink)}.hero h2 span{color:var(--green)}.hero-text{margin:.85rem 0 0;max-width:760px;color:var(--muted);font-size:1rem;line-height:1.55}
+    .search-box{margin-top:1.15rem;display:flex;align-items:center;gap:.6rem;padding:.55rem;border-radius:22px;background:rgba(255,255,255,.07);border:1px solid var(--line);max-width:760px}.search-icon{width:38px;height:38px;border-radius:14px;display:grid;place-items:center;background:rgba(53,230,168,.12);color:var(--green);flex:none}#searchInput{border:0;outline:0;background:transparent;width:100%;font-size:1rem;color:var(--ink);min-width:0}#searchInput::placeholder{color:var(--faint)}.search-box button{border:0;border-radius:14px;padding:.66rem .9rem;background:linear-gradient(135deg,var(--green),var(--cyan));color:#061015;font-weight:900;white-space:nowrap}.quick-pills{display:flex;flex-wrap:wrap;gap:.5rem;margin-top:.85rem}.pill{border:1px solid var(--line);background:rgba(255,255,255,.06);border-radius:999px;color:var(--muted);padding:.48rem .68rem;font-size:.82rem}
+    .today-card{padding:1.15rem;display:flex;flex-direction:column;gap:.85rem;border-radius:24px}.today-head{display:flex;align-items:flex-start;justify-content:space-between;gap:.8rem}.today-date{color:var(--green);font-weight:850;font-size:.78rem;text-transform:uppercase;letter-spacing:.08em}.today-card h3{margin:.25rem 0 0;font-size:1.55rem;line-height:1.05;letter-spacing:-.04em;color:var(--ink)}.status-chip{padding:.44rem .6rem;border-radius:999px;background:rgba(53,230,168,.12);color:var(--green);font-weight:850;font-size:.75rem;white-space:nowrap}.progress-wrap{border-radius:18px;background:rgba(255,255,255,.045);border:1px solid var(--line);padding:.9rem}.progress-row{display:flex;justify-content:space-between;gap:.5rem;color:var(--muted);font-size:.82rem;margin-bottom:.5rem}.progress-track{height:12px;border-radius:999px;background:rgba(255,255,255,.08);overflow:hidden}.progress-fill{height:100%;width:0%;border-radius:999px;background:linear-gradient(90deg,var(--green),var(--cyan));transition:width .3s ease}.progress-mode-switch{display:grid;grid-template-columns:1fr 1fr;gap:.35rem;margin-bottom:.7rem;padding:.25rem;border:1px solid var(--line);border-radius:999px;background:rgba(255,255,255,.04)}.progress-mode-btn{min-height:32px;border:0;border-radius:999px;background:transparent;color:var(--muted);font-size:.74rem;font-weight:900;letter-spacing:.02em}.progress-mode-btn.active{background:linear-gradient(135deg,var(--green),var(--cyan));color:#061015}
+    .next-stack{display:grid;gap:.55rem}.mini-event{border:1px solid var(--line);background:rgba(255,255,255,.05);border-radius:16px;padding:.68rem .75rem;display:flex;align-items:center;gap:.65rem;min-width:0}.mini-event .dot{width:10px;height:10px;border-radius:50%;background:var(--green);flex:none}.mini-event strong{display:block;font-size:.88rem;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;color:var(--ink)}.mini-event span{display:block;color:var(--muted);font-size:.75rem;margin-top:.12rem}
+    .workspace{display:grid;grid-template-columns:295px minmax(0,1fr);gap:1rem;align-items:start}.side{position:sticky;top:calc(var(--topbar-h) + 14px);display:grid;gap:.8rem}.panel{border-radius:22px;overflow:hidden}.panel-pad{padding:1rem}.panel h3{margin:0 0:.75rem;font-size:1rem;color:var(--ink);letter-spacing:-.02em}.field{display:grid;gap:.35rem;margin-bottom:.75rem}.field label{color:var(--muted);font-size:.72rem;font-weight:850;text-transform:uppercase;letter-spacing:.08em}select{width:100%;border:1px solid var(--line);border-radius:14px;background:rgba(255,255,255,.07);padding:.65rem .75rem;color:var(--ink);outline:0}option{background:#111922;color:var(--ink)}.toggle-grid{display:grid;grid-template-columns:1fr;gap:.5rem}.profile-btn{width:100%;border-radius:16px;text-align:left;justify-content:flex-start;padding:.75rem}.profile-btn.active,.view-btn.active{border-color:rgba(53,230,168,.36);background:rgba(53,230,168,.12);color:var(--ink)}.profile-emoji{width:32px;height:32px;border-radius:12px;background:rgba(53,230,168,.10);display:grid;place-items:center;flex:none}.profile-btn small{display:block;color:var(--muted);font-weight:500;margin-top:.12rem}.legend-list{display:grid;gap:.5rem}.legend-item{display:flex;align-items:center;gap:.5rem;color:var(--muted);font-size:.83rem}.legend-dot{width:11px;height:11px;border-radius:50%;flex:none;background:var(--green)}
+    .content{display:grid;gap:1rem}.stats{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:.75rem}.stat{border-radius:20px;padding:1rem;min-width:0}.stat b{display:block;font-size:1.8rem;letter-spacing:-.04em;color:var(--ink)}.stat span{display:block;color:var(--muted);font-size:.8rem;margin-top:.25rem}.toolbar{display:flex;align-items:center;justify-content:space-between;gap:.8rem;border-radius:22px;padding:.9rem}.toolbar-left h3{margin:0;font-size:1.25rem;letter-spacing:-.03em;color:var(--ink)}.toolbar-left p{margin:.25rem 0 0;color:var(--muted);font-size:.82rem}.view-switch{display:flex;gap:.5rem;flex-wrap:wrap;justify-content:flex-end}.view-switch .view-btn{width:auto;padding:.55rem .75rem;border-radius:999px;font-size:.82rem;text-align:center}
+    .section{display:none}.section.active{display:block}.cards-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:.75rem}.event-card{border-radius:20px;padding:1rem;min-width:0;position:relative;overflow:hidden}.event-card::before{content:"";position:absolute;left:0;top:0;bottom:0;width:5px;background:var(--green)}.event-card.is-past{opacity:.62}.event-card.soon{outline:2px solid rgba(251,113,133,.18);box-shadow:0 12px 32px rgba(251,113,133,.10)}.event-top{display:flex;justify-content:space-between;gap:.65rem;align-items:flex-start;margin-bottom:.7rem}.badge{display:inline-flex;align-items:center;gap:.35rem;padding:.38rem .5rem;border-radius:999px;font-size:.74rem;font-weight:850;background:rgba(53,230,168,.12);color:var(--green);white-space:nowrap}.event-date{text-align:right;color:var(--muted);font-weight:850;font-size:.75rem;white-space:nowrap}.event-card h4{margin:0;font-size:1.06rem;line-height:1.18;letter-spacing:-.03em;color:var(--ink)}.event-desc{margin:.5rem 0 0;color:var(--muted);font-size:.88rem;line-height:1.45}.event-meta{display:flex;flex-wrap:wrap;gap:.5rem;margin-top:.75rem}.meta{border:1px solid var(--line);border-radius:999px;padding:.32rem .5rem;color:var(--muted);font-size:.74rem;background:rgba(255,255,255,.05)}
+    .timeline{position:relative;display:grid;gap:.75rem}.month-group{border-radius:20px;overflow:hidden}.month-title{padding:.8rem 1rem;background:rgba(255,255,255,.055);border-bottom:1px solid var(--line);display:flex;justify-content:space-between;align-items:center;gap:.8rem}.month-title h4{margin:0;font-size:1rem;color:var(--ink);letter-spacing:-.02em}.month-title span{color:var(--muted);font-size:.75rem;font-weight:850}.timeline-items{display:grid}.timeline-item{display:grid;grid-template-columns:112px minmax(0,1fr);gap:.75rem;padding:.8rem 1rem;border-top:1px solid var(--line)}.timeline-item:first-child{border-top:0}.time-date{color:var(--green);font-weight:900;font-size:.82rem}.timeline-item h5{margin:0;font-size:.94rem;color:var(--ink)}.timeline-item p{margin:.25rem 0 0;color:var(--muted);font-size:.82rem}
+    .calendar-wrap{border-radius:22px;padding:1rem;overflow:hidden}.calendar-head{display:flex;justify-content:space-between;gap:.8rem;align-items:center;margin-bottom:.75rem}.calendar-head h3{margin:0;font-size:1.4rem;letter-spacing:-.03em;text-transform:capitalize;color:var(--ink)}.month-nav{display:flex;gap:.5rem}.month-nav button{border:1px solid var(--line);border-radius:12px;background:rgba(255,255,255,.07);color:var(--ink);padding:.5rem .65rem;min-height:38px}.calendar-grid{display:grid;grid-template-columns:repeat(7,minmax(0,1fr));gap:.5rem}.dow{text-align:center;color:var(--muted);font-size:.72rem;font-weight:900;text-transform:uppercase;padding:.5rem 0}.day{min-height:98px;border:1px solid var(--line);border-radius:16px;background:rgba(255,255,255,.045);padding:.55rem;overflow:hidden;position:relative}.day.empty{background:transparent;border:0}.day.today{outline:2px solid rgba(251,113,133,.28)}.day-num{font-weight:900;font-size:.82rem;color:var(--ink)}.day.has-events .day-num{color:var(--green)}.day-events{display:grid;gap:.25rem;margin-top:.5rem}.day-chip{border:1px solid rgba(255,255,255,.16);border-radius:8px;padding:.25rem .32rem;font-size:.68rem;line-height:1.1;color:var(--ink);background:rgba(53,230,168,.18);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;font-weight:850;text-shadow:0 1px 2px rgba(0,0,0,.35)}.day-chip.more{background:rgba(255,255,255,.08);color:var(--text);border-color:rgba(255,255,255,.14);text-align:center;text-shadow:none}
+    .empty-state{border:1px dashed rgba(255,255,255,.16);border-radius:22px;padding:1.6rem;text-align:center;color:var(--muted)}.empty-state b{display:block;color:var(--ink);margin-bottom:.35rem;font-size:1.05rem}.source-note{border-radius:22px;padding:1rem;color:var(--muted);font-size:.82rem;line-height:1.45}.source-note strong{color:var(--ink)}.source-note a{color:var(--green);font-weight:850;text-decoration:none}.mobile-filters{display:none;margin-bottom:.75rem}
+
+    .year-wrap{overflow:visible}.year-hint{color:var(--muted);font-size:.82rem;font-weight:750}.year-calendar-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:.85rem}.mini-month{border:1px solid var(--line);border-radius:18px;background:rgba(255,255,255,.045);padding:.75rem;min-width:0}.mini-month h4{margin:0 0:.55rem;color:var(--ink);font-size:1rem;letter-spacing:-.03em;text-transform:capitalize}.mini-calendar-grid{display:grid;grid-template-columns:repeat(7,minmax(0,1fr));gap:.26rem}.mini-dow{color:var(--faint);font-size:.62rem;font-weight:900;text-align:center;text-transform:uppercase;padding:.15rem 0}.mini-day{min-height:34px;border:1px solid rgba(255,255,255,.08);border-radius:9px;background:rgba(255,255,255,.035);display:flex;align-items:center;justify-content:center;position:relative;color:var(--muted);font-size:.78rem;font-weight:780;overflow:hidden}.mini-day.empty{background:transparent;border-color:transparent}.mini-day.today{outline:2px solid rgba(53,230,168,.3);color:var(--ink)}.mini-day.has-events{color:var(--ink);background:var(--event-bg,rgba(53,230,168,.08));border-color:var(--event-border,rgba(53,230,168,.22))}.mini-day-number{position:relative;z-index:1;line-height:1}.mini-event-dots{position:absolute;left:50%;bottom:3px;transform:translateX(-50%);display:flex;align-items:center;justify-content:center;gap:2px;max-width:90%;pointer-events:none}.mini-event-dot{width:5px;height:5px;border-radius:999px;background:var(--dot-color,var(--green));box-shadow:0 0 0 1px rgba(0,0,0,.32),0 0 7px var(--dot-color,var(--green))}.mini-event-dot.more{width:auto;min-width:12px;height:10px;padding:0 3px;background:rgba(248,251,255,.92);color:#061015;font-size:.46rem;font-weight:950;line-height:10px;box-shadow:none}.mini-day.event-popover-active,.day.event-popover-active{outline:2px solid rgba(89,216,255,.42);background:rgba(89,216,255,.12);border-color:rgba(89,216,255,.32)}.year-popover{position:fixed;z-index:220;max-width:min(340px,calc(100vw - 24px));padding:.8rem;border:1px solid rgba(255,255,255,.16);border-radius:18px;background:linear-gradient(180deg,rgba(18,27,37,.98),rgba(9,14,20,.98));box-shadow:0 22px 55px rgba(0,0,0,.42);color:var(--text);pointer-events:none;opacity:0;transform:translateY(5px);transition:opacity .12s ease,transform .12s ease}.year-popover.show{opacity:1;transform:translateY(0)}.year-popover-date{color:var(--green);font-size:.74rem;font-weight:950;text-transform:uppercase;letter-spacing:.08em;margin-bottom:.48rem}.year-popover-list{display:grid;gap:.48rem}.year-popover-item{display:grid;grid-template-columns:auto minmax(0,1fr);gap:.52rem;padding:.55rem;border:1px solid rgba(255,255,255,.10);border-radius:14px;background:rgba(255,255,255,.045)}.year-popover-emoji{width:1.8rem;height:1.8rem;border-radius:11px;display:grid;place-items:center;background:rgba(53,230,168,.10);border:1px solid rgba(255,255,255,.10)}.year-popover-item strong{display:block;color:var(--ink);font-size:.88rem;line-height:1.16}.year-popover-item span{display:block;color:var(--muted);font-size:.74rem;margin-top:.15rem}.year-popover-item em{display:block;color:var(--faint);font-style:normal;font-size:.72rem;margin-top:.18rem;line-height:1.25}@media(max-width:680px){.year-calendar-grid{grid-template-columns:1fr}.mini-month{padding:.8rem}.mini-day{min-height:38px}.year-popover{max-width:calc(100vw - 18px);padding:.7rem}.year-popover-item{padding:.5rem}.year-popover-item strong{font-size:.84rem}}
+    @media(max-width:980px){.year-calendar-grid{grid-template-columns:repeat(2,minmax(0,1fr))}.hero{grid-template-columns:1fr}.workspace{grid-template-columns:1fr}.side{position:static;display:none}.mobile-filters{display:block}.stats{grid-template-columns:repeat(2,minmax(0,1fr))}.cards-grid{grid-template-columns:1fr}.toolbar{align-items:flex-start;flex-direction:column}.view-switch{justify-content:flex-start}}@media(max-width:680px){.year-calendar-grid{grid-template-columns:1fr!important}}
+    @media(max-width:680px){:root{--topbar-h:64px}.app{width:min(100% - 1rem,var(--max));padding-top:.65rem}.topbar{padding:.55rem .72rem}.top-actions .ghost-btn{display:none}.brand-mark{width:38px;height:38px}.brand-text small{font-size:.68rem}.primary-btn{padding:.55rem .7rem;min-height:36px;font-size:.82rem}.hero-main,.today-card{padding:1rem}.hero h2{font-size:clamp(1.8rem,10vw,3rem)}.hero-text{font-size:.92rem}.search-box{align-items:stretch}.search-box button{display:none}.quick-pills{overflow:auto;flex-wrap:nowrap;padding-bottom:.25rem}.pill{white-space:nowrap}.stats{grid-template-columns:1fr 1fr}.stat{padding:.85rem}.stat b{font-size:1.45rem}.calendar-grid{gap:.32rem}.day{min-height:76px;border-radius:12px;padding:.42rem}.day-chip{font-size:.62rem}.timeline-item{grid-template-columns:86px minmax(0,1fr);padding:.75rem}.toolbar{padding:.8rem}.event-top{display:grid}.event-date{text-align:left}}
+
+    /* Official day-status layer extracted from the PDF calendar grids */
+    .day[data-day-status]:not([data-day-status="letivo"]),.mini-day[data-day-status]:not([data-day-status="letivo"]){background:var(--status-bg,rgba(255,255,255,.045));border-color:var(--status-border,rgba(255,255,255,.12))}.day[data-day-status="feriado"],.mini-day[data-day-status="feriado"]{box-shadow:inset 0 0 0 1px rgba(255,74,104,.22)}.day[data-day-status="ferias"],.mini-day[data-day-status="ferias"]{box-shadow:inset 0 0 0 1px rgba(160,220,110,.16)}.day-status-chip{border:1px solid var(--status-border,rgba(255,255,255,.16));background:var(--status-chip-bg,rgba(255,255,255,.08));color:var(--status-chip-fg,#f8fbff);border-radius:8px;padding:3px 5px;font-size:10px;font-weight:950;line-height:1.1;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.day-status-chip.is-class{opacity:.82}.day-status-chip.is-no-class{box-shadow:0 0 0 1px rgba(0,0,0,.16)}.official-status-line{display:flex;align-items:flex-start;gap:.52rem;padding:.55rem;border:1px solid rgba(255,255,255,.12);border-radius:14px;background:rgba(255,255,255,.055);margin-bottom:.48rem}.official-status-line .year-popover-emoji{background:var(--status-chip-bg,rgba(53,230,168,.12));border-color:var(--status-border,rgba(255,255,255,.12))}.official-status-line strong{display:block;color:var(--ink);font-size:.88rem;line-height:1.16}.official-status-line span{display:block;color:var(--muted);font-size:.74rem;margin-top:.15rem}.official-status-line em{display:block;color:var(--faint);font-style:normal;font-size:.72rem;margin-top:.18rem;line-height:1.25}.mini-day[data-day-status="letivo"]{background:rgba(255,255,255,.035)}.mini-day[data-day-status="nao_letivo"]{color:#d7e7ff}.mini-day[data-day-status="ferias"]{color:#e6ffd5}.mini-day[data-day-status="feriado"]{color:#ffe4ea}.mini-day[data-day-status="final"]{color:#ffe3ef}.mini-day[data-day-status="conselho_diag"]{color:#d7f9ff}.mini-day[data-day-status="planejamento"]{color:#d9ffe9}.mini-day[data-day-status="inicio"]{color:#fff0bf}.mini-day[data-day-status="termino"]{color:#efe6ff}.mini-day[data-day-status="compensacao"]{color:#f4f6fa}.status-legend-note{color:var(--muted);font-size:.76rem;margin-top:.6rem;line-height:1.35}.source-note strong.verified{color:var(--green)}
+
+  
+    /* v0.1.10: compact search hero + stats moved to bottom */
+    .hero{grid-template-columns:minmax(0,1fr) minmax(300px,.72fr);gap:.8rem;margin-bottom:.85rem}
+    .hero-main{padding:clamp(.78rem,2vw,1.05rem)}
+    .hero-main::after{width:220px;height:220px;right:-80px;bottom:-110px;opacity:.72}
+    .eyebrow{padding:.28rem .52rem;font-size:.68rem;margin-bottom:.5rem}
+    .hero h2{font-size:clamp(1.45rem,3.2vw,2.55rem);line-height:1.02;letter-spacing:-.055em;max-width:680px}
+    .hero-text{margin:.42rem 0 0;max-width:680px;font-size:.86rem;line-height:1.42}
+    .search-box{margin-top:.58rem;gap:.42rem;padding:.34rem .4rem;border-radius:16px;max-width:680px}
+    .search-icon{width:30px;height:30px;border-radius:11px;font-size:.86rem}
+    #searchInput{font-size:.9rem}
+    .search-box button{border-radius:11px;padding:.43rem .62rem;font-size:.82rem}
+    .quick-pills{gap:.34rem;margin-top:.45rem}
+    .pill{padding:.3rem .5rem;font-size:.73rem}
+    .stats.stats-bottom{margin-top:.1rem}
+    @media(max-width:680px){.hero-main,.today-card{padding:.78rem}.hero h2{font-size:1.42rem}.hero-text{font-size:.82rem;line-height:1.35}.search-box{margin-top:.48rem;padding:.32rem;border-radius:14px}.search-icon{width:28px;height:28px;border-radius:10px}.quick-pills{margin-top:.38rem}.stats.stats-bottom{grid-template-columns:1fr 1fr}}
+
+    /* v0.1.11: inline toolbar search */
+    .toolbar-search{flex:1 1 270px;min-width:220px;display:flex;align-items:center;gap:.5rem;border:1px solid var(--line);background:rgba(255,255,255,.055);border-radius:999px;padding:.36rem .45rem .36rem .72rem}
+    .toolbar-search span{width:22px;height:22px;display:grid;place-items:center;color:var(--green);font-size:.9rem;line-height:1;flex:none}
+    .toolbar-search input{border:0;outline:0;background:transparent;min-width:0;width:100%;color:var(--ink);font-size:.86rem}
+    .toolbar-search input::placeholder{color:var(--faint)}
+    .toolbar-search button{width:28px;height:28px;border-radius:999px;border:1px solid var(--line);background:rgba(255,255,255,.055);color:var(--muted);display:grid;place-items:center;padding:0;font-weight:900;line-height:1;flex:none}
+    .toolbar-search button:hover{color:var(--ink);background:rgba(255,255,255,.10)}
+    .hero-main .search-box,.hero-main .quick-pills{display:none!important}
+    @media(max-width:820px){.toolbar{display:grid}.toolbar-search{width:100%;min-width:0;order:2}.view-switch{order:3;justify-content:flex-start}.toolbar-left{order:1}}
+    @media(max-width:680px){.toolbar-search{padding:.32rem .4rem .32rem .62rem}.toolbar-search input{font-size:.82rem}.toolbar-search button{width:26px;height:26px}}
+
+
+
+    /* v0.1.13: search results-first layer */
+    .search-results-panel{display:none;border-radius:22px;padding:1rem;background:linear-gradient(180deg,rgba(18,27,37,.98),rgba(10,17,25,.95));overflow:hidden}.content.search-active .search-results-panel{display:block}.search-results-head{display:flex;justify-content:space-between;align-items:flex-start;gap:1rem;margin-bottom:.8rem}.search-kicker{display:inline-flex;align-items:center;gap:.35rem;color:var(--green);font-size:.72rem;font-weight:950;text-transform:uppercase;letter-spacing:.08em}.search-results-head h3{margin:.18rem 0 0;color:var(--ink);font-size:1.35rem;letter-spacing:-.04em}.search-results-head p{margin:.28rem 0 0;color:var(--muted);font-size:.86rem;line-height:1.35}.search-results-actions{display:flex;gap:.45rem;flex-wrap:wrap;justify-content:flex-end}.search-action-btn{border:1px solid var(--line);border-radius:999px;background:rgba(255,255,255,.07);color:var(--ink);font-weight:900;padding:.55rem .72rem;min-height:38px}.search-action-btn.primary{background:linear-gradient(135deg,var(--green),var(--cyan));color:#061015;border-color:transparent}.search-chip-row{display:flex;flex-wrap:wrap;gap:.42rem;margin:.35rem 0 .85rem}.search-chip{border:1px solid var(--line);background:rgba(255,255,255,.055);color:var(--muted);border-radius:999px;padding:.42rem .62rem;font-size:.8rem;font-weight:850}.search-chip:hover,.search-chip.active{color:var(--ink);border-color:rgba(53,230,168,.34);background:rgba(53,230,168,.10)}.search-results-list{display:grid;gap:.8rem}.search-month-group{display:grid;gap:.5rem}.search-month-title{display:flex;align-items:center;justify-content:space-between;gap:.7rem;color:var(--muted);font-size:.8rem;font-weight:900;text-transform:uppercase;letter-spacing:.08em}.search-month-title strong{color:var(--ink);font-size:.9rem;text-transform:capitalize;letter-spacing:0}.search-result-card{width:100%;border:1px solid var(--line);border-radius:18px;background:rgba(255,255,255,.045);color:var(--text);padding:.75rem;display:grid;grid-template-columns:76px minmax(0,1fr) auto;gap:.75rem;align-items:center;text-align:left;box-shadow:none}.search-result-card:hover{background:rgba(255,255,255,.075);border-color:rgba(53,230,168,.28);transform:translateY(-1px)}.search-result-date{border-radius:15px;background:rgba(53,230,168,.10);border:1px solid rgba(53,230,168,.18);display:grid;place-items:center;align-self:stretch;min-height:58px;color:var(--green);font-weight:950;text-transform:uppercase;line-height:1.05}.search-result-date b{display:block;font-size:1.05rem;color:var(--ink)}.search-result-date span{display:block;font-size:.68rem;letter-spacing:.08em}.search-result-main h4{margin:0;color:var(--ink);font-size:1rem;letter-spacing:-.02em}.search-result-main p{margin:.2rem 0 0;color:var(--muted);font-size:.82rem;line-height:1.3}.search-result-meta{display:flex;flex-wrap:wrap;gap:.35rem;margin-top:.45rem}.search-result-meta span{border:1px solid rgba(255,255,255,.10);background:rgba(255,255,255,.055);border-radius:999px;padding:.24rem .44rem;color:var(--muted);font-size:.72rem;font-weight:850}.search-card-actions{display:flex;flex-direction:column;gap:.35rem}.search-card-actions button{border:1px solid var(--line);border-radius:999px;background:rgba(255,255,255,.06);color:var(--ink);font-size:.74rem;font-weight:900;padding:.42rem .55rem;white-space:nowrap}.search-card-actions button.primary{background:rgba(53,230,168,.14);border-color:rgba(53,230,168,.28);color:#d9fff2}.search-empty{border:1px dashed rgba(255,255,255,.16);border-radius:18px;padding:1.1rem;text-align:left;color:var(--muted);background:rgba(255,255,255,.035)}.search-empty b{display:block;color:var(--ink);font-size:1rem;margin-bottom:.25rem}.content.search-active .year-wrap{box-shadow:0 12px 36px rgba(53,230,168,.08)}.content.search-active .year-hint{color:var(--green)}.mini-month.search-mode{transition:opacity .15s ease,border-color .15s ease,background .15s ease}.mini-month.no-search-matches{opacity:.42}.mini-month-title{display:flex;align-items:center;justify-content:space-between;gap:.5rem;margin:0 0 .55rem}.mini-month-title h4{margin:0!important}.mini-month-badge{border:1px solid rgba(53,230,168,.20);background:rgba(53,230,168,.10);color:var(--green);border-radius:999px;padding:.18rem .42rem;font-size:.62rem;font-weight:950;white-space:nowrap}.mini-day.search-dim:not(.empty),.day.search-dim:not(.empty){opacity:.36}.mini-day.search-hit,.day.search-hit{outline:2px solid rgba(89,216,255,.46);border-color:rgba(89,216,255,.44)!important;background:rgba(89,216,255,.12)!important;color:var(--ink)!important}.event-sheet{position:fixed;inset:0;z-index:300;display:none;align-items:end;justify-content:center;background:rgba(0,0,0,.45);padding:1rem}.event-sheet.show{display:flex}.event-sheet-panel{width:min(560px,100%);border-radius:24px;background:linear-gradient(180deg,rgba(18,27,37,.99),rgba(9,14,20,.99));box-shadow:0 30px 80px rgba(0,0,0,.55);padding:1rem;position:relative}.event-sheet-close{position:absolute;top:.75rem;right:.75rem;width:38px;height:38px;border-radius:999px;border:1px solid var(--line);background:rgba(255,255,255,.07);color:var(--ink);font-weight:950}.event-sheet-kicker{color:var(--green);font-size:.74rem;font-weight:950;text-transform:uppercase;letter-spacing:.08em;margin-right:2.8rem}.event-sheet-panel h3{margin:.35rem 2.8rem .35rem 0;color:var(--ink);font-size:1.35rem;letter-spacing:-.04em;line-height:1.05}.event-sheet-panel p{margin:.35rem 0;color:var(--muted);line-height:1.42}.event-sheet-meta{display:flex;flex-wrap:wrap;gap:.42rem;margin:.75rem 0}.event-sheet-meta span{border:1px solid rgba(255,255,255,.11);border-radius:999px;background:rgba(255,255,255,.055);color:var(--muted);padding:.34rem .52rem;font-size:.78rem;font-weight:850}.event-sheet-actions{display:flex;gap:.5rem;flex-wrap:wrap;margin-top:.85rem}.event-sheet-actions button{border:1px solid var(--line);border-radius:999px;background:rgba(255,255,255,.07);color:var(--ink);font-weight:900;padding:.6rem .8rem}.event-sheet-actions .primary{background:linear-gradient(135deg,var(--green),var(--cyan));color:#061015;border-color:transparent}@media(min-width:681px){.event-sheet{align-items:center}.event-sheet-panel{border-radius:26px}.search-results-panel{padding:1.05rem}.search-results-list{gap:.9rem}}@media(max-width:680px){.content.search-active{gap:.75rem}.search-results-panel{border-radius:20px;padding:.8rem;margin-top:-.2rem}.search-results-head{display:grid;gap:.65rem;margin-bottom:.65rem}.search-results-actions{justify-content:flex-start}.search-action-btn{min-height:36px;padding:.48rem .62rem;font-size:.8rem}.search-chip-row{flex-wrap:nowrap;overflow-x:auto;padding-bottom:.15rem;margin-bottom:.7rem}.search-chip{white-space:nowrap;font-size:.76rem}.search-result-card{grid-template-columns:58px minmax(0,1fr);gap:.62rem;padding:.65rem;border-radius:17px}.search-result-date{min-height:60px;border-radius:14px}.search-result-main h4{font-size:.94rem;line-height:1.15}.search-result-main p{font-size:.78rem;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}.search-card-actions{grid-column:1/-1;flex-direction:row}.search-card-actions button{flex:1;justify-content:center}.search-month-title{font-size:.72rem}.event-sheet{padding:0;align-items:end}.event-sheet-panel{border-radius:24px 24px 0 0;border-left:0;border-right:0;border-bottom:0;max-height:86vh;overflow:auto}.event-sheet-panel h3{font-size:1.18rem}.content.search-active .section.active{opacity:.84}}
+
+    /* v0.1.12: remove marketing hero card + keep toolbar actions on one desktop row */
+    .hero.hero-compact{grid-template-columns:minmax(0,1fr);margin-bottom:.9rem}
+    .hero.hero-compact .today-card{display:grid;grid-template-columns:minmax(220px,.9fr) minmax(240px,1fr) minmax(260px,1.2fr);align-items:start;gap:.9rem;border-radius:22px;padding:.9rem}
+    .hero.hero-compact .today-head{align-items:center}.hero.hero-compact .today-card h3{font-size:1.12rem;line-height:1.12}.hero.hero-compact .progress-wrap{padding:.75rem;border-radius:16px}.hero.hero-compact .next-stack{max-height:128px;overflow:auto;padding-right:.2rem}
+    .toolbar{display:grid;grid-template-columns:minmax(230px,1fr) minmax(220px,300px) auto;align-items:center;gap:.7rem;padding:.85rem .9rem}.toolbar-left{min-width:0}.toolbar-left h3{font-size:1.12rem}.toolbar-left p{font-size:.78rem;line-height:1.25}.toolbar-search{min-width:0;width:100%;flex:0 1 auto}.view-switch{flex-wrap:nowrap;gap:.38rem;justify-content:flex-end}.view-switch .view-btn{min-height:38px;padding:.48rem .62rem;font-size:.78rem;white-space:nowrap}
+    @media(max-width:1120px){.toolbar{grid-template-columns:minmax(200px,1fr) minmax(190px,260px) auto}.view-switch .view-btn{padding:.45rem .54rem;font-size:.75rem}.toolbar-search input{font-size:.8rem}}
+    @media(max-width:980px){.hero.hero-compact .today-card{grid-template-columns:1fr}.toolbar{display:grid;grid-template-columns:1fr}.view-switch{justify-content:flex-start;flex-wrap:wrap}.toolbar-search{order:2}.view-switch{order:3}.toolbar-left{order:1}}
+
+    /* v0.1.14: future-first search order */
+    .search-order-switch{display:inline-flex;align-items:center;gap:.25rem;padding:.24rem;border:1px solid var(--line);border-radius:999px;background:rgba(255,255,255,.045);min-height:38px}
+    .search-order-btn{border:0;border-radius:999px;background:transparent;color:var(--muted);font-size:.76rem;font-weight:950;padding:.42rem .62rem;white-space:nowrap}
+    .search-order-btn.active{background:linear-gradient(135deg,var(--green),var(--cyan));color:#061015;box-shadow:0 8px 24px rgba(53,230,168,.14)}
+    .search-section-label{display:flex;align-items:center;justify-content:space-between;gap:.7rem;margin:.25rem 0 .1rem;color:var(--green);font-size:.76rem;font-weight:950;text-transform:uppercase;letter-spacing:.08em}
+    .search-section-label span{color:var(--faint);font-size:.72rem;letter-spacing:0;text-transform:none;font-weight:850}
+    .search-results-list.with-sections{gap:1.05rem}
+    .search-section{display:grid;gap:.7rem}
+    .search-section.previous{border-top:1px solid rgba(255,255,255,.10);padding-top:1rem;margin-top:.2rem}
+    @media(max-width:680px){.search-results-actions{width:100%;justify-content:flex-start}.search-order-switch{width:100%;display:grid;grid-template-columns:1fr 1fr}.search-order-btn{font-size:.72rem;padding:.45rem .4rem}.search-section-label{align-items:flex-start;flex-direction:column;gap:.2rem}}
+  
+    /* v0.1.16: layout compacto em uma coluna */
+    .hero,.workspace{grid-template-columns:1fr}
+    .calendar-compact-panel{display:block;margin-bottom:1rem;border-radius:22px;padding:.8rem 1rem}
+    .compact-track-field{margin:0;display:grid;grid-template-columns:minmax(130px,.35fr) minmax(220px,.65fr);align-items:center;gap:.8rem}
+    .compact-track-field label{margin:0}
+    .compact-track-field select{min-height:44px}
+    .legend-bottom{margin-top:0}.legend-bottom .legend-list{grid-template-columns:repeat(auto-fit,minmax(180px,1fr))}
+    @media(max-width:680px){.compact-track-field{grid-template-columns:1fr;gap:.4rem}.calendar-compact-panel{padding:.75rem}.legend-bottom .legend-list{grid-template-columns:1fr 1fr}}
+    @media(max-width:440px){.legend-bottom .legend-list{grid-template-columns:1fr}}
+
+    /* Tema claro compartilhado com o HUB */
+    html[data-theme="light"]{color-scheme:light;--bg:#f3f7fb;--surface:rgba(255,255,255,.96);--line:rgba(17,35,55,.14);--ink:#102033;--text:#263b50;--muted:#5c7085;--faint:#75879a;--shadow:0 16px 38px rgba(31,57,82,.12)}
+    html[data-theme="light"] body::before{background:radial-gradient(circle at 14% -14%,rgba(22,163,115,.12),transparent 27rem),radial-gradient(circle at 88% 0%,rgba(32,151,202,.10),transparent 22rem),linear-gradient(180deg,#f8fbfe 0%,#edf4f9 100%)}
+    html[data-theme="light"] body::after{background-image:linear-gradient(rgba(26,51,75,.045) 1px,transparent 1px),linear-gradient(90deg,rgba(26,51,75,.045) 1px,transparent 1px)}
+    html[data-theme="light"] .topbar{background:rgba(248,251,254,.88)}
+    html[data-theme="light"] .hero-card,html[data-theme="light"] .panel,html[data-theme="light"] .stat,html[data-theme="light"] .toolbar,html[data-theme="light"] .event-card,html[data-theme="light"] .month-group,html[data-theme="light"] .calendar-wrap,html[data-theme="light"] .source-note,html[data-theme="light"] .empty-state,html[data-theme="light"] .search-results-panel,html[data-theme="light"] .event-sheet-panel{background:linear-gradient(180deg,rgba(255,255,255,.98),rgba(245,249,252,.98))}
+    html[data-theme="light"] select,html[data-theme="light"] .ghost-btn,html[data-theme="light"] .view-btn,html[data-theme="light"] .profile-btn,html[data-theme="light"] .mini-event,html[data-theme="light"] .progress-wrap,html[data-theme="light"] .pill,html[data-theme="light"] .meta{background:rgba(31,75,110,.055)}
+    html[data-theme="light"] option{background:#fff;color:var(--ink)}
+  
+/* v0.2.5 — calendário em cards compactos e fonte oficial por último */
+.calendar-overview-card{display:grid;grid-template-columns:minmax(210px,.75fr) minmax(170px,.45fr) minmax(250px,.75fr) minmax(300px,1fr);align-items:center;gap:10px;padding:11px 12px;margin-bottom:10px;border-radius:18px}.calendar-overview-card .today-head{margin:0}.calendar-overview-card .today-date{font-size:.72rem}.calendar-overview-card #currentPeriodTitle{font-size:.94rem;margin:.15rem 0 0}.calendar-overview-card .compact-track-field{display:grid;grid-template-columns:1fr;gap:.25rem;margin:0}.calendar-overview-card .compact-track-field label{font-size:.62rem}.calendar-overview-card select{min-height:38px;padding:.48rem .62rem;border-radius:11px;font-size:.78rem}.calendar-overview-card .progress-wrap{margin:0;padding:.48rem .55rem;border-radius:12px}.calendar-overview-card .progress-mode-switch button{padding:.3rem .48rem;font-size:.68rem}.calendar-overview-card .progress-row{font-size:.7rem;margin-top:.35rem}.calendar-overview-card .progress-track{height:7px;margin-top:.3rem}.calendar-next-compact{min-width:0}.calendar-next-compact h3{font-size:.75rem;margin:0 0 .35rem}.calendar-next-compact .next-stack{display:flex;gap:.35rem;overflow:auto}.calendar-next-compact .next-item{min-width:185px;padding:.45rem .55rem;border-radius:11px}.calendar-next-compact .next-item strong{font-size:.72rem}.calendar-next-compact .next-item span{font-size:.62rem}
+.toolbar{padding:.62rem .7rem!important;gap:.5rem!important;border-radius:16px!important}.toolbar-left h3{font-size:.95rem!important}.toolbar-left p{font-size:.68rem!important}.toolbar-search{height:36px;padding:.2rem .35rem .2rem .6rem!important}.toolbar-search input{font-size:.76rem!important}.view-switch .view-btn{min-height:34px!important;padding:.38rem .5rem!important;font-size:.7rem!important}
+.calendar-stats-card{padding:.55rem .65rem;margin-top:.65rem;border-radius:16px}.calendar-stats-card .stats{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:0;margin:0}.calendar-stats-card .stat{min-height:0;padding:.45rem .65rem;border:0;border-right:1px solid var(--line);border-radius:0;background:transparent;box-shadow:none}.calendar-stats-card .stat:last-child{border-right:0}.calendar-stats-card .stat strong{font-size:1.1rem}.calendar-stats-card .stat span{font-size:.65rem}.legend-bottom{margin-top:.65rem!important}.source-note{margin-top:.65rem!important;margin-bottom:0!important}
+@media(max-width:1120px){.calendar-overview-card{grid-template-columns:1fr 1fr}.calendar-next-compact{grid-column:1/-1}.calendar-next-compact .next-stack{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));overflow:visible}.calendar-next-compact .next-item{min-width:0}}
+@media(max-width:680px){.calendar-overview-card{grid-template-columns:1fr;padding:9px}.calendar-next-compact{grid-column:auto}.calendar-next-compact .next-stack{display:flex;overflow:auto}.calendar-next-compact .next-item{min-width:170px}.calendar-stats-card .stats{grid-template-columns:1fr 1fr}.calendar-stats-card .stat:nth-child(2){border-right:0}.calendar-stats-card .stat:nth-child(-n+2){border-bottom:1px solid var(--line)}.toolbar{grid-template-columns:1fr!important}.toolbar-left{display:none}.toolbar-search{order:1}.view-switch{order:2;overflow:auto;flex-wrap:nowrap!important}.view-switch .view-btn{flex:0 0 auto}}
+
+/* v0.1.19 — cards compactos conforme as referências visuais */
+.calendar-overview-card{
+  grid-template-columns:minmax(200px,.72fr) minmax(260px,.88fr) minmax(340px,1.4fr)!important;
+}
+.calendar-query-card{
+  display:grid;
+  grid-template-columns:minmax(210px,.7fr) minmax(230px,.85fr) minmax(260px,1fr) auto;
+  align-items:center;
+  gap:.65rem;
+  padding:.72rem .78rem;
+  border-radius:18px;
+  margin-bottom:.75rem;
+}
+.calendar-query-card .compact-track-field{margin:0;display:grid;gap:.25rem}
+.calendar-query-card .compact-track-field label{font-size:.62rem}
+.calendar-query-card select{min-height:38px;padding:.46rem .62rem;border-radius:12px;font-size:.8rem}
+.calendar-query-card .toolbar-left h3{margin:0;font-size:1rem}
+.calendar-query-card .toolbar-left p{margin:.18rem 0 0;font-size:.7rem;line-height:1.28}
+.calendar-query-card .toolbar-search{height:38px;min-width:0;padding:.22rem .36rem .22rem .62rem!important}
+.calendar-query-card .view-switch{display:flex;flex-wrap:nowrap;justify-content:flex-end;gap:.32rem}
+.calendar-query-card .view-btn{min-height:34px!important;padding:.36rem .5rem!important;font-size:.7rem!important}
+.year-summary-card{display:grid;grid-template-columns:minmax(260px,.75fr) minmax(0,1.6fr);align-items:center;gap:.8rem;padding:.72rem .82rem;border-radius:18px;margin-bottom:.72rem}
+.year-summary-head{display:flex;align-items:flex-start;justify-content:space-between;gap:.6rem;flex-direction:column}
+.year-summary-head h3{margin:0;color:var(--ink);font-size:1.12rem}
+.year-summary-head .year-hint{font-size:.72rem}
+.year-summary-card .stats{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:0}
+.year-summary-card .stat{min-height:0;padding:.5rem .65rem;border:0;border-left:1px solid var(--line);border-radius:0;background:transparent;box-shadow:none}
+.year-summary-card .stat b,.year-summary-card .stat strong{font-size:1.25rem!important}
+.year-summary-card .stat span{font-size:.66rem!important}
+.year-wrap{margin-top:0}
+.calendar-load-error{display:grid;gap:.45rem;margin:1rem auto;padding:1rem 1.1rem;width:min(900px,calc(100% - 2rem));border:1px solid rgba(251,113,133,.55);border-radius:16px;background:rgba(251,113,133,.12);color:var(--ink)}
+.calendar-load-error span{color:var(--muted)}
+.calendar-load-error button{justify-self:start;border:1px solid var(--line);border-radius:12px;padding:.55rem .75rem;background:rgba(255,255,255,.07);color:var(--ink)}
+@media(max-width:1180px){
+  .calendar-query-card{grid-template-columns:1fr 1fr}.calendar-query-card .toolbar-search{grid-column:1/2}.calendar-query-card .view-switch{grid-column:2;justify-content:flex-start}
+  .calendar-overview-card{grid-template-columns:1fr 1fr!important}.calendar-next-compact{grid-column:1/-1}
+  .year-summary-card{grid-template-columns:1fr}.year-summary-head{flex-direction:row;align-items:center}.year-summary-card .stat:first-child{border-left:0}
+}
+@media(max-width:720px){
+  .calendar-overview-card,.calendar-query-card{grid-template-columns:1fr!important;padding:.62rem!important}
+  .calendar-query-card .toolbar-search,.calendar-query-card .view-switch{grid-column:auto}
+  .calendar-query-card .view-switch{overflow:auto;justify-content:flex-start}
+  .calendar-query-card .toolbar-left{display:block!important}
+  .year-summary-card{padding:.62rem}.year-summary-head{flex-direction:column;align-items:flex-start}.year-summary-card .stats{grid-template-columns:1fr 1fr}.year-summary-card .stat{border-left:0;border-top:1px solid var(--line)}.year-summary-card .stat:nth-child(even){border-left:1px solid var(--line)}
+}
+
+
+/* v0.1.19 — layout sem sobreposição e próximas datas limitadas a duas */
+.calendar-query-card{grid-template-columns:minmax(170px,.55fr) minmax(250px,1fr) auto!important;align-items:end!important}
+.calendar-query-card .compact-track-field{min-width:0}
+.calendar-query-card .toolbar-search{min-width:0;width:100%}
+.calendar-query-card .view-switch{min-width:0;justify-content:flex-end}
+.calendar-overview-card{grid-template-columns:minmax(210px,.75fr) minmax(190px,.55fr) minmax(0,1.2fr)!important;align-items:stretch!important}
+.calendar-next-compact{min-width:0;overflow:hidden}
+.calendar-next-compact .next-stack{display:grid!important;grid-template-columns:repeat(2,minmax(0,1fr))!important;gap:.4rem!important;overflow:visible!important}
+.calendar-next-compact .mini-event{min-width:0!important;width:100%;overflow:hidden}
+.calendar-next-compact .mini-event>div{min-width:0}
+.calendar-next-compact .mini-event strong{white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.calendar-next-compact .mini-event span{white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+@media(max-width:1180px){.calendar-query-card{grid-template-columns:1fr 1fr!important}.calendar-query-card .view-switch{grid-column:1/-1!important;justify-content:flex-start}.calendar-overview-card{grid-template-columns:1fr 1fr!important}.calendar-next-compact{grid-column:1/-1!important}}
+@media(max-width:720px){.calendar-query-card,.calendar-overview-card{grid-template-columns:1fr!important}.calendar-next-compact{grid-column:auto!important}.calendar-next-compact .next-stack{grid-template-columns:1fr!important}}
+
+
+/* v0.1.21 — espaçamento uniforme e remoção do espaço reservado pelo header legado. */
+body.hub-app-shell-ready{padding-top:0!important}
+body.hub-app-shell-ready .app{padding-top:.72rem!important}
+.content{gap:.72rem!important}
+.calendar-overview-card,.calendar-query-card,.year-summary-card{margin:0!important}
+.calendar-overview-card{gap:.62rem!important;padding:.72rem!important}
+.calendar-overview-card>*,.calendar-query-card>*{min-width:0}
+.calendar-overview-status,.progress-wrap,.calendar-next-compact{align-self:stretch}
+.calendar-overview-status{display:flex;align-items:center;padding:.12rem .08rem}
+.calendar-next-compact{display:grid;align-content:center;gap:.32rem}
+.calendar-next-compact h3{margin:0!important}
+.calendar-next-compact .next-stack{gap:.48rem!important}
+.calendar-next-compact .mini-event{padding:.55rem .62rem!important;border-radius:13px!important}
+.calendar-query-card{gap:.58rem!important;padding:.68rem .72rem!important}
+.year-summary-card{gap:.7rem!important;padding:.72rem .78rem!important}
+@media(max-width:920px){body.hub-app-shell-ready{padding-top:var(--hub-shell-mobile-h)!important}body.hub-app-shell-ready .app{padding-top:.6rem!important}}
+
+
+/* v0.1.21 — controles sem sobreposição, documento oficial e revisão completa do tema claro. */
+.calendar-query-card{
+  display:grid!important;
+  grid-template-columns:minmax(170px,.52fr) minmax(260px,1fr)!important;
+  grid-template-areas:"track search" "views views";
+  align-items:end!important;
+  gap:.62rem .72rem!important;
+  padding:.72rem!important;
+}
+.calendar-query-card .compact-track-field{grid-area:track;min-width:0;margin:0!important}
+.calendar-query-card .toolbar-search{grid-area:search;min-width:0;width:100%;margin:0!important}
+.calendar-query-card .view-switch{grid-area:views;display:flex!important;justify-content:flex-start!important;align-items:center;gap:.36rem!important;min-width:0;overflow-x:auto;padding-top:.05rem}
+.calendar-query-card .view-btn{flex:0 0 auto}
+.calendar-overview-card{gap:.72rem!important;padding:.78rem!important}
+.calendar-overview-status,.calendar-overview-card .progress-wrap,.calendar-next-compact{padding:.62rem!important;border:1px solid var(--line);border-radius:15px;background:rgba(255,255,255,.035)}
+.calendar-overview-status{display:flex!important;align-items:center!important}
+.calendar-next-compact{display:grid!important;align-content:start!important;gap:.45rem!important}
+.calendar-next-compact .next-stack{gap:.45rem!important}
+.calendar-next-compact .mini-event{margin:0!important}
+.calendar-document-card{padding:.85rem;border-radius:20px;display:grid;gap:.72rem}
+.calendar-document-head{display:flex;align-items:center;justify-content:space-between;gap:.8rem;flex-wrap:wrap}
+.calendar-document-head h3{margin:.18rem 0;color:var(--ink);font-size:1.08rem}
+.calendar-document-head p{margin:0;color:var(--muted);font-size:.78rem}
+.calendar-document-head .eyebrow{margin:0;padding:.28rem .48rem;font-size:.62rem}
+.calendar-document-actions{display:flex;gap:.42rem;flex-wrap:wrap}
+.calendar-pdf-frame{min-height:72vh;border:1px solid var(--line);border-radius:16px;overflow:hidden;background:rgba(0,0,0,.16);position:relative}
+.calendar-pdf-placeholder{min-height:72vh;display:grid;place-items:center;color:var(--muted);padding:1rem;text-align:center}
+#calendarPdfHost,.calendar-pdf-object,.calendar-pdf-fallback{display:block;width:100%;height:72vh;border:0;background:#fff}
+html[data-theme="light"] .year-popover{background:linear-gradient(180deg,#fff,#f3f7fa);border-color:rgba(18,40,62,.18);box-shadow:0 20px 46px rgba(25,56,67,.2);color:var(--text)}
+html[data-theme="light"] .year-popover-item,html[data-theme="light"] .official-status-line{background:rgba(31,75,110,.055);border-color:rgba(18,40,62,.14)}
+html[data-theme="light"] .year-popover-emoji{background:rgba(8,127,91,.1);border-color:rgba(18,40,62,.14)}
+html[data-theme="light"] .event-sheet{background:rgba(23,45,58,.28)}
+html[data-theme="light"] .event-sheet-panel{background:linear-gradient(180deg,#fff,#f3f7fa);border-color:rgba(18,40,62,.16);box-shadow:0 24px 60px rgba(25,56,67,.22)}
+html[data-theme="light"] .event-sheet-meta span,html[data-theme="light"] .event-sheet-actions button{background:rgba(31,75,110,.06);border-color:rgba(18,40,62,.15);color:var(--ink)}
+html[data-theme="light"] .event-sheet-actions .primary,html[data-theme="light"] .primary-btn,html[data-theme="light"] .progress-mode-btn.active,html[data-theme="light"] .search-action-btn.primary,html[data-theme="light"] .search-card-actions button.primary{color:#fff!important;text-shadow:0 1px 1px rgba(0,0,0,.2)}
+html[data-theme="light"] .day-chip{color:#061015!important;text-shadow:none!important;border-color:rgba(18,40,62,.18)!important}
+html[data-theme="light"] .day-chip.more{color:#102033!important;background:rgba(31,75,110,.08)!important}
+html[data-theme="light"] .mini-day[data-day-status]{color:#102033!important}
+html[data-theme="light"] .calendar-overview-status,html[data-theme="light"] .calendar-overview-card .progress-wrap,html[data-theme="light"] .calendar-next-compact{background:rgba(31,75,110,.045)}
+html[data-theme="light"] .calendar-pdf-frame{background:#e7edf1}
+@media(max-width:720px){
+  .calendar-query-card{grid-template-columns:1fr!important;grid-template-areas:"track" "search" "views"!important}
+  .calendar-overview-status,.calendar-overview-card .progress-wrap,.calendar-next-compact{padding:.58rem!important}
+  .calendar-document-head{align-items:flex-start}
+  .calendar-pdf-frame,.calendar-pdf-placeholder,#calendarPdfHost,.calendar-pdf-object,.calendar-pdf-fallback{height:68vh;min-height:68vh}
+}
+
+
+/* Ajustes adicionais de contraste em ações primárias no tema claro. */
+html[data-theme="light"] .search-order-btn.active,html[data-theme="light"] .search-box button{color:#fff!important;text-shadow:0 1px 1px rgba(0,0,0,.2)}
+
+
+
+/* v0.1.22 — documento visível imediatamente, espaçamento e light mode completos. */
+.calendar-pdf-placeholder[hidden], #calendarPdfHost[hidden] { display: none !important; }
+#documentView.active { scroll-margin-top: 12px; }
+.calendar-pdf-frame { margin-top: .15rem; }
+
+/* Espaçamento uniforme entre todos os painéis e visualizações. */
+.app { display: grid; gap: .82rem; }
+.workspace, .content { gap: .82rem !important; }
+.calendar-overview-card,
+.calendar-query-card,
+.search-results-panel,
+.section.active > *,
+.legend-bottom,
+.source-note { margin-block: 0 !important; }
+.section.active { display: grid !important; gap: .82rem; }
+.calendar-wrap, .year-summary-card, .calendar-document-card { margin: 0 !important; }
+.cards-grid, .timeline, .year-calendar-grid { gap: .82rem !important; }
+
+/* Todos os chips de evento do mês usam texto preto no modo claro. */
+html[data-theme="light"] #calendarGrid .day-chip,
+html[data-theme="light"] #calendarGrid .day-chip *,
+html[data-theme="light"] .calendar-grid .day-chip,
+html[data-theme="light"] .calendar-grid .day-chip * {
+  color: #071018 !important;
+  text-shadow: none !important;
+}
+
+/* Emoji centralizado e proporcional nos pop-ups e detalhes de status. */
+.year-popover-item .year-popover-emoji,
+.official-status-line .year-popover-emoji {
+  width: 2rem !important;
+  height: 2rem !important;
+  min-width: 2rem !important;
+  min-height: 2rem !important;
+  display: grid !important;
+  place-items: center !important;
+  align-self: start !important;
+  margin: 0 !important;
+  padding: 0 !important;
+  font-size: 1.12rem !important;
+  line-height: 1 !important;
+  text-align: center !important;
+  flex: 0 0 2rem !important;
+}
+
+/* Contraste das ações escuras/verde-azuladas no modo claro. */
+html[data-theme="light"] .primary-btn,
+html[data-theme="light"] .search-box button,
+html[data-theme="light"] .progress-mode-btn.active,
+html[data-theme="light"] .search-action-btn.primary,
+html[data-theme="light"] .search-order-btn.active,
+html[data-theme="light"] .event-sheet-actions .primary {
+  color: #fff !important;
+  text-shadow: 0 1px 1px rgba(0,0,0,.24) !important;
+}
+
+@media (max-width: 720px) {
+  #documentView.active { scroll-margin-top: calc(var(--hub-shell-mobile-h, 54px) + 10px); }
+  .app { gap: .68rem; padding-top: .55rem; }
+  .workspace, .content { gap: .68rem !important; }
+  .calendar-overview-card, .calendar-query-card,
+  .calendar-wrap, .year-summary-card, .calendar-document-card,
+  .legend-bottom, .source-note { border-radius: 17px !important; }
+  .section.active { gap: .68rem; }
+}
+
+</style>
+  <link rel="stylesheet" href="../app-shell.css?v=0.2.12" />
+</head>
+<body>
+  <header class="topbar"><a class="brand" href="../../index.html#apps" aria-label="Voltar para o HUB SI"><span class="brand-mark"><img src="../../assets/logo-pixel.png" alt="Logo HUB SI" /></span><span class="brand-text"><strong>Calendário</strong><small>IFBA · VCA · 2026</small></span></a><div class="top-actions"><a class="ghost-btn" href="../../index.html#apps">← HUB</a><button class="primary-btn" id="downloadIcsBtn" type="button">Exportar .ics</button></div></header>
+  <main class="app">
+    <section class="panel calendar-overview-card" aria-live="polite">
+      <div class="calendar-overview-status"><div class="today-head"><div><div class="today-date" id="todayDate">Hoje</div><h3 id="currentPeriodTitle">Carregando período...</h3></div><div class="status-chip" id="statusChip">Agora</div></div></div>
+      <div class="progress-wrap"><div class="progress-mode-switch" aria-label="Tipo de progresso"><button class="progress-mode-btn active" data-progress-mode="semester" type="button">Semestre</button><button class="progress-mode-btn" data-progress-mode="year" type="button">Ano letivo</button></div><div class="progress-row"><span id="progressLabel">Progresso do semestre</span><strong id="progressValue">0%</strong></div><div class="progress-track" aria-hidden="true"><div class="progress-fill" id="progressFill"></div></div></div>
+      <div class="calendar-next-compact"><h3>Próximas datas importantes</h3><div class="next-stack" id="nextStack"></div></div>
+    </section>
+    <section class="workspace"><section class="content" id="events">
+      <div class="panel calendar-query-card">
+        <div class="field compact-track-field"><label for="mobileTrackSelect">Tipo de curso</label><select id="mobileTrackSelect"><option value="grad">🎓 Graduação</option><option value="sub">🧰 Subsequente</option><option value="int">🏫 Integrado</option></select></div>
+        <div class="toolbar-search" role="search" aria-label="Buscar no calendário"><span aria-hidden="true">🔍</span><input id="searchInput" placeholder="Buscar data ou evento..." autocomplete="off" /><button id="searchClear" type="button" aria-label="Limpar busca">×</button></div>
+        <div class="view-switch" role="tablist" aria-label="Modo de visualização"><button class="view-btn" data-view="timeline" type="button">Linha do tempo</button><button class="view-btn" data-view="calendar" type="button">Mês</button><button class="view-btn active" data-view="year" type="button">Ano</button><button class="view-btn" data-view="cards" type="button">Cards</button><button class="view-btn" data-view="document" type="button">Documento</button></div>
+      </div>
+      <section class="search-results-panel" id="searchResultsPanel" aria-live="polite"><div class="search-results-head"><div><span class="search-kicker">🔎 Busca ativa</span><h3 id="searchResultsPanelTitle">Resultados de busca</h3><p id="searchResultsPanelHelp">Digite uma palavra para localizar datas acadêmicas.</p></div><div class="search-results-actions"><div class="search-order-switch" role="group" aria-label="Ordem dos resultados"><button class="search-order-btn active" data-search-order="upcoming" type="button">Próximos primeiro</button><button class="search-order-btn" data-search-order="year" type="button">Ano inteiro</button></div><button class="search-action-btn primary" id="searchShowCalendar" type="button">Ver no calendário</button><button class="search-action-btn" id="searchPanelClear" type="button">Limpar busca</button></div></div><div class="search-chip-row" id="searchChipRow"></div><div class="search-results-list" id="searchResultsList"></div></section>
+      <section class="section" id="cardsView"><div class="cards-grid" id="cardsGrid"></div></section>
+      <section class="section" id="timelineView"><div class="timeline" id="timelineGrid"></div></section>
+      <section class="section" id="calendarView"><div class="calendar-wrap"><div class="calendar-head"><h3 id="calendarTitle">Mês</h3><div class="month-nav"><button id="prevMonthBtn" aria-label="Mês anterior" type="button">←</button><button id="todayMonthBtn" type="button">Hoje</button><button id="nextMonthBtn" aria-label="Próximo mês" type="button">→</button></div></div><div class="calendar-grid" id="calendarGrid"></div></div></section>
+      <section class="section active" id="yearView">
+        <div class="panel year-summary-card"><div class="year-summary-head"><h3>Calendário 2026 completo</h3><span class="year-hint">Visualização convencional com todos os meses</span></div><div class="stats stats-bottom" id="statsGrid"></div></div>
+        <div class="calendar-wrap year-wrap"><div class="year-calendar-grid" id="yearCalendarGrid"></div></div>
+      </section>
+      <section class="section" id="documentView">
+        <div class="panel calendar-document-card">
+          <div class="calendar-document-head"><div><span class="eyebrow">Documento oficial</span><h3>Calendário Acadêmico IFBA VCA 2026</h3><p>Resolução Conselho de Campus nº 002/2026.</p></div><div class="calendar-document-actions"><a class="ghost-btn" href="docs/calendario-academico-ifba-vca-2026.pdf" target="_blank" rel="noopener">Abrir PDF</a><a class="ghost-btn" href="docs/calendario-academico-ifba-vca-2026.pdf" download>Baixar PDF</a></div></div>
+          <div class="calendar-pdf-frame" id="calendarPdfFrame"><div class="calendar-pdf-placeholder" id="calendarPdfPlaceholder">Carregando documento oficial…</div><div id="calendarPdfHost" hidden></div></div>
+        </div>
+      </section>
+      <div class="panel panel-pad legend-bottom"><h3>Legenda</h3><div class="legend-list" id="legendList"></div></div>
+      <div class="source-note"><strong class="verified">Fonte oficial:</strong> Calendário Acadêmico IFBA Vitória da Conquista 2026, Resolução Conselho de Campus nº 002/2026. Os status dos dias foram conferidos contra as grades coloridas do PDF oficial. <a href="docs/calendario-academico-ifba-vca-2026.pdf" target="_blank" rel="noopener">Abrir PDF oficial</a>.</div>
+    </section></section>
+  </main>
+<div class="event-sheet" id="eventSheet" aria-hidden="true"><div class="event-sheet-panel" role="dialog" aria-modal="true" aria-labelledby="eventSheetTitle"><button class="event-sheet-close" id="eventSheetClose" type="button" aria-label="Fechar">×</button><div class="event-sheet-kicker" id="eventSheetKicker">Data acadêmica</div><h3 id="eventSheetTitle">Evento</h3><p id="eventSheetDesc"></p><div class="event-sheet-meta" id="eventSheetMeta"></div><div class="event-sheet-actions"><button class="primary" id="eventSheetCalendar" type="button">Ver no calendário</button><button id="eventSheetClose2" type="button">Fechar</button></div></div></div>
+<script src="data/calendar-data.js?v=0.2.12"></script>
+<script>
+
+const CALENDAR_DATA = window.CALENDAR_DATA;
+if (!CALENDAR_DATA || !Array.isArray(CALENDAR_DATA.EVENTS)) {
+  document.body.insertAdjacentHTML("afterbegin", '<div class="calendar-load-error" role="alert"><strong>Não foi possível carregar os dados do calendário.</strong><span>Atualize a página com Ctrl + Shift + R. Se o erro continuar, confirme se <code>data/calendar-data.js</code> está disponível.</span></div>');
+  throw new Error("CALENDAR_DATA indisponível ou inválido");
+}
+const { CATEGORIES, TRACKS, EVENTS, DAY_STATUS, DAY_STATUS_META, STATS } = CALENDAR_DATA;
+
+const PREF_KEY = "hubCalendarioPrefs";
+const DEFAULT_STATE = {
+  track:"grad",
+  category:"all",
+  month:"all",
+  status:"all",
+  query:"",
+  view:"year",
+  progressMode:"semester",
+  searchOrder:"upcoming",
+  calendarDate:new Date(2026, 5, 1)
+};
+let state = {...DEFAULT_STATE};
+
+function safeReadPrefs(){
+  try { return JSON.parse(localStorage.getItem(PREF_KEY) || "{}"); } catch { return {}; }
+}
+function safeSavePrefs(){
+  try {
+    localStorage.setItem(PREF_KEY, JSON.stringify({
+      track: state.track,
+      category: state.category,
+      month: state.month,
+      status: state.status,
+      query: state.query,
+      view: state.view,
+      progressMode: state.progressMode,
+      searchOrder: state.searchOrder,
+      calendarDate: state.calendarDate instanceof Date ? state.calendarDate.toISOString() : String(state.calendarDate || "")
+    }));
+  } catch {}
+}
+function loadPrefs(){
+  const saved = safeReadPrefs();
+  const next = {...DEFAULT_STATE, ...saved};
+  next.track = ["grad","sub","int"].includes(next.track) ? next.track : DEFAULT_STATE.track;
+  // Filtros laterais foram removidos na interface compacta.
+  next.category = "all";
+  next.month = "all";
+  next.status = "all";
+  next.view = ["cards","timeline","calendar","year","document"].includes(next.view) ? next.view : "year";
+  next.progressMode = next.progressMode === "year" ? "year" : "semester";
+  next.searchOrder = next.searchOrder === "year" ? "year" : "upcoming";
+  next.query = String(next.query || "");
+  const savedDate = saved.calendarDate ? new Date(saved.calendarDate) : DEFAULT_STATE.calendarDate;
+  next.calendarDate = Number.isNaN(savedDate.getTime()) ? DEFAULT_STATE.calendarDate : new Date(savedDate.getFullYear(), savedDate.getMonth(), 1);
+  state = next;
+}
+
+const monthNames = ["janeiro","fevereiro","março","abril","maio","junho","julho","agosto","setembro","outubro","novembro","dezembro"];
+const shortDow = ["D","S","T","Q","Q","S","S"];
+
+function parseLocal(dateStr){
+  if(!dateStr) return null;
+  const [y,m,d] = dateStr.split("-").map(Number);
+  return new Date(y, m-1, d);
+}
+function toISO(date){
+  const y = date.getFullYear();
+  const m = String(date.getMonth()+1).padStart(2,"0");
+  const d = String(date.getDate()).padStart(2,"0");
+  return `${y}-${m}-${d}`;
+}
+
+function dayStatusForDate(date){
+  const byTrack = DAY_STATUS[state.track] || DAY_STATUS.grad || {};
+  return byTrack[toISO(date)] || null;
+}
+function dayStatusMeta(status){ return DAY_STATUS_META[status] || null; }
+function applyDayStatusStyle(cell, status){
+  if(!status) return;
+  const meta = dayStatusMeta(status);
+  if(!meta) return;
+  cell.dataset.dayStatus = status;
+  cell.style.setProperty("--status-bg", meta.bg);
+  cell.style.setProperty("--status-border", meta.border);
+  cell.style.setProperty("--status-chip-bg", meta.chipBg);
+  cell.style.setProperty("--status-chip-fg", meta.chipFg);
+}
+function statusChipHtml(status){
+  const meta = dayStatusMeta(status);
+  if(!meta || status === "letivo") return "";
+  return `<div class="day-status-chip ${meta.classDay ? "is-class" : "is-no-class"}" style="--status-border:${meta.border};--status-chip-bg:${meta.chipBg};--status-chip-fg:${meta.chipFg}" title="${escapeHtml(meta.label)}">${meta.emoji} ${escapeHtml(meta.short)}</div>`;
+}
+function statusPopoverHtml(status){
+  const meta = dayStatusMeta(status);
+  if(!meta) return "";
+  const classText = meta.classDay ? "Conta como dia letivo" : "Não é dia letivo";
+  return `<div class="official-status-line" style="--status-border:${meta.border};--status-chip-bg:${meta.chipBg}"><span class="year-popover-emoji" aria-hidden="true">${meta.emoji}</span><div><strong>${escapeHtml(meta.label)}</strong><span>${escapeHtml(classText)} · calendário oficial</span><em>${escapeHtml(meta.desc)}</em></div></div>`;
+}
+function formatDate(dateStr){
+  const d = parseLocal(dateStr);
+  if(!d) return "";
+  return d.toLocaleDateString("pt-BR", {day:"2-digit", month:"short", year:"numeric"}).replace(".", "");
+}
+function formatRange(ev){
+  if(ev.dateText) return ev.dateText;
+  if(ev.end && ev.end !== ev.start){
+    const s = parseLocal(ev.start), e = parseLocal(ev.end);
+    const sameMonth = s.getMonth() === e.getMonth() && s.getFullYear() === e.getFullYear();
+    if(sameMonth) return `${String(s.getDate()).padStart(2,"0")} a ${formatDate(ev.end)}`;
+    return `${formatDate(ev.start)} a ${formatDate(ev.end)}`;
+  }
+  return formatDate(ev.start);
+}
+function daysBetween(a,b){
+  const ms = 24*60*60*1000;
+  return Math.floor((stripTime(b) - stripTime(a))/ms);
+}
+function stripTime(d){ return new Date(d.getFullYear(), d.getMonth(), d.getDate()); }
+function eventEnd(ev){ return parseLocal(ev.end || ev.start); }
+function isEventInMonth(ev, monthIndex, year=2026){
+  if(!ev.start) return false;
+  const s = parseLocal(ev.start), e = eventEnd(ev);
+  const first = new Date(year, monthIndex, 1);
+  const last = new Date(year, monthIndex + 1, 0);
+  return s <= last && e >= first;
+}
+function eventMatchesDate(ev, date){
+  if(!ev.start) return false;
+  const d = stripTime(date);
+  return d >= stripTime(parseLocal(ev.start)) && d <= stripTime(eventEnd(ev));
+}
+function normalize(str){
+  return (str || "").toString().toLowerCase()
+    .replace(/ç/g, "__cedilla__")
+    .normalize("NFD").replace(/[\u0300-\u036f]/g, "")
+    .replace(/__cedilla__/g, "ç");
+}
+function categoryStyle(cat){
+  const map = {
+    green:["var(--green-soft)","var(--green-2)","var(--green)"],
+    blue:["var(--blue-soft)","#155488","var(--blue)"],
+    red:["var(--red-soft)","#9f1922","var(--red)"],
+    amber:["var(--amber-soft)","#866012","var(--amber)"],
+    purple:["var(--purple-soft)","#4b2a8d","var(--purple)"],
+    teal:["var(--teal-soft)","#0a5f56","var(--teal)"]
+  };
+  return map[CATEGORIES[cat]?.color || "green"];
+}
+function categoryChipStyle(cat){
+  const color = CATEGORIES[cat]?.color || "green";
+  const map = {
+    green:["rgba(53,230,168,.22)","#d9fff2","rgba(53,230,168,.48)","var(--green)"],
+    blue:["rgba(131,185,255,.23)","#e2efff","rgba(131,185,255,.50)","var(--blue)"],
+    red:["rgba(251,113,133,.24)","#ffe1e7","rgba(251,113,133,.52)","var(--red)"],
+    amber:["rgba(248,193,74,.24)","#fff2c7","rgba(248,193,74,.52)","var(--amber)"],
+    purple:["rgba(183,157,255,.25)","#f0eaff","rgba(183,157,255,.54)","var(--purple)"],
+    teal:["rgba(89,216,255,.22)","#e0f8ff","rgba(89,216,255,.50)","var(--cyan)"]
+  };
+  return map[color] || map.green;
+}
+function getToday(){
+  const now = new Date();
+  // If opened far away from the 2026 academic year, keep the concept useful by anchoring to current real date
+  // but all filters still work for 2026/2027 data.
+  return now;
+}
+function eventStatus(ev){
+  if(!ev.start) return "undated";
+  const today = stripTime(getToday());
+  const s = stripTime(parseLocal(ev.start));
+  const e = stripTime(eventEnd(ev));
+  if(e < today) return "past";
+  const diff = daysBetween(today, s);
+  if(diff >= 0 && diff <= 30) return "soon";
+  return "future";
+}
+
+function filteredEvents(){
+  const q = normalize(state.query);
+  return EVENTS.filter(ev => {
+    if(state.track !== "all" && !ev.tracks.includes(state.track)) return false;
+    if(state.category !== "all" && ev.category !== state.category) return false;
+    if(state.month !== "all" && !isEventInMonth(ev, Number(state.month))) return false;
+    if(state.status !== "all" && eventStatus(ev) !== state.status) return false;
+    if(q){
+      const hay = normalize([ev.title, ev.desc, ev.aliases, ev.dateText, CATEGORIES[ev.category]?.label, ev.tracks.map(t=>TRACKS[t].label).join(" ")].join(" "));
+      if(!hay.includes(q)) return false;
+    }
+    return true;
+  }).sort((a,b) => {
+    if(!a.start && !b.start) return a.title.localeCompare(b.title);
+    if(!a.start) return 1;
+    if(!b.start) return -1;
+    return parseLocal(a.start) - parseLocal(b.start);
+  });
+}
+
+function syncControls(){
+  document.querySelectorAll(".profile-btn").forEach(btn => btn.classList.toggle("active", btn.dataset.track === state.track));
+  const categorySelect = document.getElementById("categorySelect"); if(categorySelect) categorySelect.value = state.category;
+  const mobileCategorySelect = document.getElementById("mobileCategorySelect"); if(mobileCategorySelect) mobileCategorySelect.value = state.category;
+  const monthSelect = document.getElementById("monthSelect"); if(monthSelect) monthSelect.value = state.month;
+  const statusSelect = document.getElementById("statusSelect"); if(statusSelect) statusSelect.value = state.status;
+  const mobileTrackSelect = document.getElementById("mobileTrackSelect"); if(mobileTrackSelect) mobileTrackSelect.value = state.track;
+  document.getElementById("searchInput").value = state.query;
+  document.querySelectorAll(".view-btn[data-view]").forEach(btn => btn.classList.toggle("active", btn.dataset.view === state.view));
+  document.querySelectorAll(".progress-mode-btn[data-progress-mode]").forEach(btn => btn.classList.toggle("active", btn.dataset.progressMode === state.progressMode));
+  document.querySelectorAll(".search-order-btn[data-search-order]").forEach(btn => btn.classList.toggle("active", btn.dataset.searchOrder === state.searchOrder));
+}
+
+function renderStats(){
+  const grid = document.getElementById("statsGrid");
+  grid.innerHTML = "";
+  (STATS[state.track] || STATS.all).forEach(([num, label]) => {
+    const div = document.createElement("div");
+    div.className = "stat";
+    div.innerHTML = `<b>${num}</b><span>${label}</span>`;
+    grid.appendChild(div);
+  });
+}
+
+function renderResultsHeader(list){}
+
+function orderCardsFromCurrentMonth(list){
+  const today = getToday();
+  const monthStart = new Date(today.getFullYear(), today.getMonth(), 1);
+  const future = [];
+  const previous = [];
+  list.forEach(ev => {
+    if (!ev.start) { future.push(ev); return; }
+    const end = eventEnd(ev);
+    (end >= monthStart ? future : previous).push(ev);
+  });
+  const byStart = (a,b) => {
+    if (!a.start && !b.start) return a.title.localeCompare(b.title, "pt-BR");
+    if (!a.start) return 1;
+    if (!b.start) return -1;
+    return parseLocal(a.start) - parseLocal(b.start);
+  };
+  future.sort(byStart);
+  previous.sort(byStart);
+  return [...future, ...previous];
+}
+
+function renderCards(list){
+  const grid = document.getElementById("cardsGrid");
+  grid.innerHTML = "";
+  if(!list.length){
+    grid.innerHTML = `<div class="empty-state" style="grid-column:1/-1"><b>Nenhuma data encontrada.</b> Tente remover um filtro ou usar uma palavra mais simples, como “nota”, “matrícula” ou “feriado”.</div>`;
+    return;
+  }
+  orderCardsFromCurrentMonth(list).forEach(ev => {
+    const [bg,fg,border] = categoryStyle(ev.category);
+    const status = eventStatus(ev);
+    const tracks = ev.tracks.map(t => TRACKS[t].label).join(", ");
+    const card = document.createElement("article");
+    card.className = `event-card ${status === "past" ? "is-past" : ""} ${status === "soon" ? "soon" : ""}`;
+    card.style.setProperty("--green", border);
+    card.innerHTML = `
+      <div class="event-top">
+        <span class="badge" style="background:${bg};color:${fg}">${CATEGORIES[ev.category].emoji} ${CATEGORIES[ev.category].label}</span>
+        <span class="event-date">${formatRange(ev)}</span>
+      </div>
+      <h4>${ev.title}</h4>
+      <p class="event-desc">${ev.desc || ""}</p>
+      <div class="event-meta">
+        <span class="meta">${tracks}</span>
+        <span class="meta">${statusLabel(status, ev)}</span>
+      </div>
+    `;
+    grid.appendChild(card);
+  });
+}
+
+function statusLabel(status, ev){
+  if(status === "undated") return "aguardando edital";
+  const today = stripTime(getToday());
+  const s = stripTime(parseLocal(ev.start));
+  const e = stripTime(eventEnd(ev));
+  if(e < today) return "já passou";
+  if(s <= today && e >= today) return "acontecendo agora";
+  const d = daysBetween(today, s);
+  if(d === 0) return "hoje";
+  if(d === 1) return "amanhã";
+  return `em ${d} dias`;
+}
+
+function renderTimeline(list){
+  const wrap = document.getElementById("timelineGrid");
+  wrap.innerHTML = "";
+  if(!list.length){
+    wrap.innerHTML = `<div class="empty-state"><b>Nenhuma data encontrada.</b> A linha do tempo aparece aqui quando há resultados.</div>`;
+    return;
+  }
+  const groups = {};
+  list.forEach(ev => {
+    const key = ev.start ? `${parseLocal(ev.start).getFullYear()}-${String(parseLocal(ev.start).getMonth()+1).padStart(2,"0")}` : "sem-data";
+    if(!groups[key]) groups[key] = [];
+    groups[key].push(ev);
+  });
+  Object.entries(groups).forEach(([key, evs]) => {
+    const section = document.createElement("section");
+    section.className = "month-group";
+    let title = "Aguardando edital";
+    if(key !== "sem-data"){
+      const [y,m] = key.split("-").map(Number);
+      title = `${monthNames[m-1]} de ${y}`;
+    }
+    section.innerHTML = `
+      <div class="month-title">
+        <h4>${title}</h4>
+        <span>${evs.length} item${evs.length === 1 ? "" : "s"}</span>
+      </div>
+      <div class="timeline-items"></div>
+    `;
+    const items = section.querySelector(".timeline-items");
+    evs.forEach(ev => {
+      const item = document.createElement("div");
+      item.className = "timeline-item";
+      item.innerHTML = `
+        <div class="time-date">${formatRange(ev)}</div>
+        <div>
+          <h5>${CATEGORIES[ev.category].emoji} ${ev.title}</h5>
+          <p>${ev.desc || ""}</p>
+        </div>
+      `;
+      items.appendChild(item);
+    });
+    wrap.appendChild(section);
+  });
+}
+
+function renderCalendar(){
+  const grid = document.getElementById("calendarGrid");
+  grid.innerHTML = "";
+  const date = state.calendarDate;
+  const year = date.getFullYear(), month = date.getMonth();
+  document.getElementById("calendarTitle").textContent = `${monthNames[month]} de ${year}`;
+
+  shortDow.forEach(d => {
+    const el = document.createElement("div");
+    el.className = "dow";
+    el.textContent = d;
+    grid.appendChild(el);
+  });
+
+  const first = new Date(year, month, 1);
+  const startDay = first.getDay();
+  const daysInMonth = new Date(year, month+1, 0).getDate();
+  for(let i=0;i<startDay;i++){
+    const el = document.createElement("div");
+    el.className = "day empty";
+    grid.appendChild(el);
+  }
+
+  const list = filteredEvents().filter(ev => ev.start && isEventInMonth(ev, month, year));
+  const todayIso = toISO(getToday());
+  for(let d=1; d<=daysInMonth; d++){
+    const cur = new Date(year, month, d);
+    const dayEvents = list.filter(ev => eventMatchesDate(ev, cur));
+    const dayStatus = dayStatusForDate(cur);
+    const cell = document.createElement("div");
+    cell.className = `day ${dayEvents.length ? "has-events" : ""} ${toISO(cur) === todayIso ? "today" : ""} ${isSearchActive() && dayEvents.length ? "search-hit" : isSearchActive() ? "search-dim" : ""}`;
+    applyDayStatusStyle(cell, dayStatus);
+    const visible = dayEvents.slice(0,3);
+    const statusChip = statusChipHtml(dayStatus);
+    cell.innerHTML = `
+      <div class="day-num">${d}</div>
+      <div class="day-events">
+        ${statusChip}
+        ${visible.map(ev => {
+          const [bg,fg,border] = categoryChipStyle(ev.category);
+          return `<div class="day-chip" style="background:${bg};color:${fg};border-color:${border}" title="${escapeHtml(ev.title)}">${CATEGORIES[ev.category].emoji} ${escapeHtml(ev.title)}</div>`;
+        }).join("")}
+        ${dayEvents.length > 3 ? `<div class="day-chip more">+${dayEvents.length - 3}</div>` : ""}
+      </div>
+    `;
+    bindDayInfoPopover(cell, cur, dayEvents, dayStatus);
+    grid.appendChild(cell);
+  }
+}
+
+
+function escapeHtml(value){
+  return (value || "").toString().replace(/[&<>"']/g, ch => ({"&":"&amp;","<":"&lt;",">":"&gt;","\"":"&quot;","'":"&#039;"}[ch]));
+}
+
+let yearPopoverEl = null;
+let yearLongPressTimer = null;
+let yearActiveCell = null;
+
+function ensureYearPopover(){
+  if(yearPopoverEl) return yearPopoverEl;
+  yearPopoverEl = document.createElement("div");
+  yearPopoverEl.className = "year-popover";
+  yearPopoverEl.setAttribute("role", "tooltip");
+  document.body.appendChild(yearPopoverEl);
+  return yearPopoverEl;
+}
+
+function popoverDateLabel(date){
+  return date.toLocaleDateString("pt-BR", {weekday:"long", day:"2-digit", month:"long", year:"numeric"});
+}
+
+function showYearPopover(cell, date, events, status){
+  if(!events.length && !status) return;
+  const pop = ensureYearPopover();
+  if(yearActiveCell && yearActiveCell !== cell) yearActiveCell.classList.remove("event-popover-active");
+  yearActiveCell = cell;
+  cell.classList.add("event-popover-active");
+  pop.innerHTML = `
+    <div class="year-popover-date">${escapeHtml(popoverDateLabel(date))}</div>
+    ${statusPopoverHtml(status)}
+    <div class="year-popover-list">
+      ${events.map(ev => `
+        <div class="year-popover-item">
+          <span class="year-popover-emoji" aria-hidden="true">${CATEGORIES[ev.category]?.emoji || "•"}</span>
+          <div>
+            <strong>${escapeHtml(ev.title)}</strong>
+            <span>${escapeHtml(formatRange(ev))} · ${escapeHtml(CATEGORIES[ev.category]?.label || "Data acadêmica")}</span>
+            ${ev.desc ? `<em>${escapeHtml(ev.desc)}</em>` : ""}
+          </div>
+        </div>
+      `).join("")}
+    </div>
+  `;
+  const rect = cell.getBoundingClientRect();
+  pop.classList.add("show");
+  const popRect = pop.getBoundingClientRect();
+  let left = rect.left + rect.width / 2 - popRect.width / 2;
+  left = Math.max(10, Math.min(left, window.innerWidth - popRect.width - 10));
+  let top = rect.top - popRect.height - 10;
+  if(top < 10) top = Math.min(window.innerHeight - popRect.height - 10, rect.bottom + 10);
+  pop.style.left = `${left}px`;
+  pop.style.top = `${Math.max(10, top)}px`;
+}
+
+function hideYearPopover(){
+  clearTimeout(yearLongPressTimer);
+  if(yearActiveCell){
+    yearActiveCell.classList.remove("event-popover-active");
+    yearActiveCell = null;
+  }
+  if(yearPopoverEl) yearPopoverEl.classList.remove("show");
+}
+
+function describeYearDay(date, events, status){
+  const meta = dayStatusMeta(status);
+  const parts = [];
+  if(meta) parts.push(`${meta.label}: ${meta.classDay ? "conta como dia letivo" : "não é dia letivo"}`);
+  events.forEach(ev => parts.push(`${CATEGORIES[ev.category]?.label || "Data"} - ${ev.title}`));
+  return `${popoverDateLabel(date)}: ${parts.join("; ")}`;
+}
+
+function bindYearDayPopover(cell, date, events, status){
+  if(!events.length && !status) return;
+  cell.tabIndex = 0;
+  cell.setAttribute("aria-label", describeYearDay(date, events, status));
+  cell.addEventListener("mouseenter", () => showYearPopover(cell, date, events, status));
+  cell.addEventListener("mouseleave", hideYearPopover);
+  cell.addEventListener("focus", () => showYearPopover(cell, date, events, status));
+  cell.addEventListener("blur", hideYearPopover);
+  cell.addEventListener("pointerdown", () => {
+    clearTimeout(yearLongPressTimer);
+    yearLongPressTimer = setTimeout(() => showYearPopover(cell, date, events, status), 420);
+  });
+  cell.addEventListener("pointerup", hideYearPopover);
+  cell.addEventListener("pointercancel", hideYearPopover);
+  cell.addEventListener("pointerleave", () => {
+    clearTimeout(yearLongPressTimer);
+  });
+}
+
+function bindDayInfoPopover(cell, date, events, status){
+  bindYearDayPopover(cell, date, events, status);
+}
+
+function renderYearCalendar(){
+  const wrap = document.getElementById("yearCalendarGrid");
+  if(!wrap) return;
+  wrap.innerHTML = "";
+  const year = 2026;
+  const activeSearch = isSearchActive();
+  const list = filteredEvents().filter(ev => ev.start);
+  const todayIso = toISO(getToday());
+  const hint = document.querySelector(".year-hint");
+  if(hint) hint.textContent = activeSearch ? "Busca ativa: meses sem resultado ficam apagados." : "Visualização convencional com todos os meses";
+  for(let month=0; month<12; month++){
+    const monthMatches = list.filter(ev => isEventInMonth(ev, month, year));
+    const card = document.createElement("article");
+    card.className = `mini-month ${activeSearch ? "search-mode" : ""} ${activeSearch && !monthMatches.length ? "no-search-matches" : ""}`;
+    card.innerHTML = `<div class="mini-month-title"><h4>${monthNames[month]} ${year}</h4>${activeSearch ? `<span class="mini-month-badge">${monthMatches.length} resultado${monthMatches.length === 1 ? "" : "s"}</span>` : ""}</div><div class="mini-calendar-grid"></div>`;
+    const grid = card.querySelector(".mini-calendar-grid");
+    shortDow.forEach(d => {
+      const el = document.createElement("div");
+      el.className = "mini-dow";
+      el.textContent = d;
+      grid.appendChild(el);
+    });
+    const first = new Date(year, month, 1);
+    const startDay = first.getDay();
+    const daysInMonth = new Date(year, month + 1, 0).getDate();
+    for(let i=0; i<startDay; i++){
+      const empty = document.createElement("div");
+      empty.className = "mini-day empty";
+      grid.appendChild(empty);
+    }
+    for(let d=1; d<=daysInMonth; d++){
+      const cur = new Date(year, month, d);
+      const dayEvents = list.filter(ev => eventMatchesDate(ev, cur));
+      const dayStatus = dayStatusForDate(cur);
+      const cell = document.createElement("div");
+      cell.className = `mini-day ${dayEvents.length ? "has-events" : ""} ${dayEvents.length > 1 ? "multi" : ""} ${toISO(cur) === todayIso ? "today" : ""} ${activeSearch && dayEvents.length ? "search-hit" : activeSearch ? "search-dim" : ""}`;
+      applyDayStatusStyle(cell, dayStatus);
+      const uniqueKeys = [];
+      if(dayStatus && dayStatus !== "letivo") uniqueKeys.push(`status:${dayStatus}`);
+      dayEvents.forEach(ev => {
+        const key = `event:${ev.category}`;
+        if(!uniqueKeys.includes(key)) uniqueKeys.push(key);
+      });
+      const dots = uniqueKeys.slice(0,3).map(key => {
+        if(key.startsWith("status:")){
+          const meta = dayStatusMeta(key.slice(7));
+          return `<span class="mini-event-dot" style="--dot-color:${meta?.border || "var(--green)"}" aria-hidden="true"></span>`;
+        }
+        const [, , accent] = categoryStyle(key.slice(6));
+        return `<span class="mini-event-dot" style="--dot-color:${accent}" aria-hidden="true"></span>`;
+      }).join("");
+      const more = uniqueKeys.length > 3 ? `<span class="mini-event-dot more" aria-hidden="true">+${uniqueKeys.length - 3}</span>` : "";
+      cell.innerHTML = `<span class="mini-day-number">${d}</span>${uniqueKeys.length ? `<span class="mini-event-dots">${dots}${more}</span>` : ""}`;
+      bindYearDayPopover(cell, cur, dayEvents, dayStatus);
+      grid.appendChild(cell);
+    }
+    wrap.appendChild(card);
+  }
+}
+
+function renderTodayPanel(){
+  const today = getToday();
+  document.getElementById("todayDate").textContent = today.toLocaleDateString("pt-BR", {weekday:"long", day:"2-digit", month:"long", year:"numeric"});
+
+  const track = state.track;
+  const semesterPeriods = track === "int" ? [
+    {title:"I Unidade", start:"2026-02-05", end:"2026-05-16"},
+    {title:"II Unidade", start:"2026-05-18", end:"2026-09-05"},
+    {title:"III Unidade", start:"2026-09-08", end:"2026-12-09"}
+  ] : [
+    {title:"Semestre 2026.1", start:"2026-02-05", end:"2026-07-04"},
+    {title:"Intervalo / férias docentes", start:"2026-07-13", end:"2026-07-31"},
+    {title:"Semestre 2026.2", start:"2026-08-03", end:"2026-12-19"}
+  ];
+  const yearPeriod = track === "int"
+    ? {title:"Ano letivo 2026", start:"2026-02-05", end:"2026-12-09"}
+    : {title:"Ano letivo 2026", start:"2026-02-05", end:"2026-12-19"};
+  const periods = state.progressMode === "year" ? [yearPeriod] : semesterPeriods;
+
+  const current = periods.find(p => stripTime(today) >= parseLocal(p.start) && stripTime(today) <= parseLocal(p.end));
+  let title = state.progressMode === "year" ? yearPeriod.title : "Fora do período principal de 2026";
+  let chip = "Consulta";
+  let pct = 0;
+  let label = state.progressMode === "year" ? "Progresso do ano letivo" : "Progresso do semestre";
+  if(current){
+    title = current.title;
+    chip = "Em andamento";
+    const total = Math.max(1, daysBetween(parseLocal(current.start), parseLocal(current.end)));
+    const done = Math.min(total, Math.max(0, daysBetween(parseLocal(current.start), today)));
+    pct = Math.round((done/total)*100);
+    label = `${formatDate(current.start)} → ${formatDate(current.end)}`;
+  } else {
+    const next = periods.find(p => parseLocal(p.start) > stripTime(today));
+    if(next){
+      title = `Próximo: ${next.title}`;
+      chip = "Próximo";
+      label = `começa em ${daysBetween(today, parseLocal(next.start))} dias`;
+    } else if(state.progressMode === "year" && stripTime(today) > parseLocal(yearPeriod.end)) {
+      title = yearPeriod.title;
+      chip = "Encerrado";
+      pct = 100;
+      label = `${formatDate(yearPeriod.start)} → ${formatDate(yearPeriod.end)}`;
+    }
+  }
+  document.getElementById("currentPeriodTitle").textContent = title;
+  document.getElementById("statusChip").textContent = chip;
+  document.getElementById("progressLabel").textContent = label;
+  document.getElementById("progressValue").textContent = `${pct}%`;
+  document.getElementById("progressFill").style.width = `${pct}%`;
+
+  const next = EVENTS.filter(ev => ev.start && (state.track === "all" || ev.tracks.includes(state.track)) && eventEnd(ev) >= stripTime(today))
+    .sort((a,b)=>parseLocal(a.start)-parseLocal(b.start))
+    .slice(0,2);
+  const stack = document.getElementById("nextStack");
+  stack.innerHTML = next.map(ev => {
+    const [, , border] = categoryStyle(ev.category);
+    return `<div class="mini-event"><span class="dot" style="background:${border}"></span><div><strong>${ev.title}</strong><span>${formatRange(ev)} • ${TRACKS[state.track]?.label || "Graduação"}</span></div></div>`;
+  }).join("") || `<div class="mini-event"><span class="dot"></span><div><strong>Nenhuma data futura no filtro atual</strong><span>Altere o tipo de curso ou remova filtros.</span></div></div>`;
+}
+
+function renderLegend(){
+  const wrap = document.getElementById("legendList");
+  wrap.innerHTML = Object.entries(CATEGORIES).map(([key,cat]) => {
+    const [bg,fg,border] = categoryStyle(key);
+    return `<div class="legend-item"><span class="legend-dot" style="background:${border}"></span>${cat.emoji} ${cat.label}</div>`;
+  }).join("");
+}
+
+function populateSelects(){
+  const catOptions = `<option value="all">Todas</option>` + Object.entries(CATEGORIES).map(([k,c]) => `<option value="${k}">${c.emoji} ${c.label}</option>`).join("");
+  const categorySelect = document.getElementById("categorySelect"); if(categorySelect) categorySelect.innerHTML = catOptions;
+  const mobileCategorySelect = document.getElementById("mobileCategorySelect"); if(mobileCategorySelect) mobileCategorySelect.innerHTML = catOptions;
+
+  const monthOptions = `<option value="all">Todos</option>` + monthNames.map((m,i)=>`<option value="${i}">${m[0].toUpperCase()+m.slice(1)}</option>`).join("");
+  const monthSelect = document.getElementById("monthSelect"); if(monthSelect) monthSelect.innerHTML = monthOptions;
+}
+
+
+const SEARCH_CHIPS = [
+  ["matrícula", "Matrícula"],
+  ["trancamento", "Trancamento"],
+  ["férias", "Férias"],
+  ["final", "Finais"],
+  ["sábado", "Sábados"],
+  ["colação", "Colação"],
+  ["conselho", "Conselho"],
+  ["horários", "Horários"]
+];
+let activeSheetEventId = null;
+
+function isSearchActive(){
+  return normalize(state.query).length > 0;
+}
+
+function compactDateLabel(ev){
+  if(!ev.start) return {day:"?", month:"sem"};
+  const d = parseLocal(ev.start);
+  return {day:String(d.getDate()).padStart(2,"0"), month:monthNames[d.getMonth()].slice(0,3).toUpperCase()};
+}
+
+function eventTrackLabel(ev){
+  return ev.tracks.map(t => TRACKS[t]?.label).filter(Boolean).join(", ");
+}
+
+function searchGroupKey(ev){
+  if(!ev.start) return "sem-data";
+  const d = parseLocal(ev.start);
+  return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,"0")}`;
+}
+
+function searchGroupTitle(key){
+  if(key === "sem-data") return "Aguardando edital";
+  const [year, month] = key.split("-").map(Number);
+  return `${monthNames[month-1]} de ${year}`;
+}
+
+function renderSearchChips(){
+  const row = document.getElementById("searchChipRow");
+  if(!row) return;
+  const current = normalize(state.query);
+  row.innerHTML = SEARCH_CHIPS.map(([query,label]) => `<button class="search-chip ${normalize(query) === current ? "active" : ""}" data-search-chip="${escapeHtml(query)}" type="button">${escapeHtml(label)}</button>`).join("");
+}
+
+function renderSearchResultCard(ev){
+  const d = compactDateLabel(ev);
+  const cat = CATEGORIES[ev.category] || {label:"Data", emoji:"•"};
+  return `<article class="search-result-card" data-event-id="${escapeHtml(ev.id)}" tabindex="0" role="button" aria-label="Abrir detalhes de ${escapeHtml(ev.title)}">
+    <div class="search-result-date"><span>${escapeHtml(d.month)}</span><b>${escapeHtml(d.day)}</b></div>
+    <div class="search-result-main">
+      <h4>${escapeHtml(ev.title)}</h4>
+      <p>${escapeHtml(ev.desc || "")}</p>
+      <div class="search-result-meta"><span>${cat.emoji} ${escapeHtml(cat.label)}</span><span>${escapeHtml(formatRange(ev))}</span><span>${escapeHtml(eventTrackLabel(ev))}</span></div>
+    </div>
+    <div class="search-card-actions"><button class="primary" data-search-action="details" data-event-id="${escapeHtml(ev.id)}" type="button">Detalhes</button><button data-search-action="calendar" data-event-id="${escapeHtml(ev.id)}" type="button">Ver no calendário</button></div>
+  </article>`;
+}
+
+
+function splitSearchResultsByTime(list){
+  const today = stripTime(getToday());
+  const upcoming = [];
+  const previous = [];
+  list.forEach(ev => {
+    if(!ev.start || eventEnd(ev) >= today) upcoming.push(ev);
+    else previous.push(ev);
+  });
+  const byDateAsc = (a,b) => {
+    if(!a.start && !b.start) return a.title.localeCompare(b.title);
+    if(!a.start) return 1;
+    if(!b.start) return -1;
+    return parseLocal(a.start) - parseLocal(b.start);
+  };
+  upcoming.sort(byDateAsc);
+  previous.sort(byDateAsc);
+  return {upcoming, previous};
+}
+
+function renderGroupedSearchResults(list){
+  const groups = {};
+  list.forEach(ev => {
+    const key = searchGroupKey(ev);
+    if(!groups[key]) groups[key] = [];
+    groups[key].push(ev);
+  });
+  return Object.entries(groups).map(([key, evs]) => `<section class="search-month-group"><div class="search-month-title"><strong>${escapeHtml(searchGroupTitle(key))}</strong><span>${evs.length} item${evs.length === 1 ? "" : "s"}</span></div>${evs.map(renderSearchResultCard).join("")}</section>`).join("");
+}
+
+function searchOrderedEvents(list){
+  if(state.searchOrder === "year") return list;
+  const {upcoming, previous} = splitSearchResultsByTime(list);
+  return [...upcoming, ...previous];
+}
+
+function renderSearchResults(list){
+  const content = document.getElementById("events");
+  const panel = document.getElementById("searchResultsPanel");
+  if(!content || !panel) return;
+  const active = isSearchActive();
+  content.classList.toggle("search-active", active);
+  panel.hidden = !active;
+  if(!active) return;
+  renderSearchChips();
+  syncControls();
+  const title = document.getElementById("searchResultsPanelTitle");
+  const help = document.getElementById("searchResultsPanelHelp");
+  const results = document.getElementById("searchResultsList");
+  const q = state.query.trim();
+  title.textContent = `${list.length} resultado${list.length === 1 ? "" : "s"} para “${q}”`;
+  if(!list.length){
+    help.textContent = "Nenhuma data encontrada. Tente uma palavra mais simples ou use uma sugestão abaixo.";
+    results.classList.remove("with-sections");
+    results.innerHTML = `<div class="search-empty"><b>Nenhum resultado para “${escapeHtml(q)}”.</b><span>Tente buscar por: matrícula, férias, final, sábado, trancamento ou colação.</span></div>`;
+    return;
+  }
+  if(state.searchOrder === "year"){
+    help.textContent = "Mostrando os resultados na ordem do ano letivo.";
+    results.classList.remove("with-sections");
+    results.innerHTML = renderGroupedSearchResults(list);
+    return;
+  }
+  const {upcoming, previous} = splitSearchResultsByTime(list);
+  const parts = [];
+  if(upcoming.length){
+    parts.push(`<section class="search-section upcoming"><div class="search-section-label">Próximos resultados <span>A partir de hoje primeiro</span></div>${renderGroupedSearchResults(upcoming)}</section>`);
+  }
+  if(previous.length){
+    const note = upcoming.length ? "Resultados anteriores ficam aqui para consulta" : "Nenhum resultado futuro encontrado";
+    parts.push(`<section class="search-section previous"><div class="search-section-label">Eventos anteriores <span>${escapeHtml(note)}</span></div>${renderGroupedSearchResults(previous)}</section>`);
+  }
+  help.textContent = upcoming.length
+    ? "Mostrando primeiro os eventos a partir de hoje. Eventos anteriores aparecem no final."
+    : "Não há resultado futuro para essa busca; mostrando eventos anteriores.";
+  results.classList.add("with-sections");
+  results.innerHTML = parts.join("");
+}
+
+function openEventSheet(eventId){
+  const ev = EVENTS.find(item => item.id === eventId);
+  const sheet = document.getElementById("eventSheet");
+  if(!ev || !sheet) return;
+  activeSheetEventId = ev.id;
+  const cat = CATEGORIES[ev.category] || {label:"Data acadêmica", emoji:"•"};
+  document.getElementById("eventSheetKicker").textContent = `${cat.emoji} ${cat.label}`;
+  document.getElementById("eventSheetTitle").textContent = ev.title;
+  document.getElementById("eventSheetDesc").textContent = ev.desc || "Data acadêmica do calendário oficial.";
+  document.getElementById("eventSheetMeta").innerHTML = `<span>${escapeHtml(formatRange(ev))}</span><span>${escapeHtml(eventTrackLabel(ev))}</span><span>${escapeHtml(statusLabel(eventStatus(ev), ev))}</span>`;
+  sheet.classList.add("show");
+  sheet.setAttribute("aria-hidden", "false");
+}
+
+function closeEventSheet(){
+  const sheet = document.getElementById("eventSheet");
+  if(!sheet) return;
+  sheet.classList.remove("show");
+  sheet.setAttribute("aria-hidden", "true");
+}
+
+function focusCalendarEvent(eventId){
+  const ev = EVENTS.find(item => item.id === eventId);
+  if(!ev || !ev.start) return;
+  const d = parseLocal(ev.start);
+  state.calendarDate = new Date(d.getFullYear(), d.getMonth(), 1);
+  state.view = "calendar";
+  safeSavePrefs();
+  closeEventSheet();
+  renderAll();
+  setTimeout(() => {
+    document.getElementById("calendarView")?.scrollIntoView({block:"start", behavior:"smooth"});
+  }, 50);
+}
+
+function jumpFirstSearchResult(){
+  const ev = searchOrderedEvents(filteredEvents()).find(item => item.start);
+  if(ev) focusCalendarEvent(ev.id);
+}
+
+function ensureCalendarPdfLoaded(){
+  const host = document.getElementById("calendarPdfHost");
+  const placeholder = document.getElementById("calendarPdfPlaceholder");
+  if(!host) return;
+  if(host.dataset.loaded !== "true"){
+    const src = new URL("docs/calendario-academico-ifba-vca-2026.pdf#page=1&zoom=page-width&toolbar=1&navpanes=0", document.baseURI).href;
+    const object = document.createElement("object");
+    object.type = "application/pdf";
+    object.data = src;
+    object.className = "calendar-pdf-object";
+    object.setAttribute("aria-label", "Calendário Acadêmico IFBA Vitória da Conquista 2026");
+    const frame = document.createElement("iframe");
+    frame.src = src;
+    frame.className = "calendar-pdf-fallback";
+    frame.title = "Calendário Acadêmico IFBA Vitória da Conquista 2026";
+    frame.loading = "eager";
+    object.append(frame);
+    host.replaceChildren(object);
+    host.dataset.loaded = "true";
+  }
+  host.hidden = false;
+  if(placeholder){ placeholder.hidden = true; placeholder.style.display = "none"; }
+}
+
+function renderAll(){
+  syncControls();
+  renderStats();
+  const list = filteredEvents();
+  renderResultsHeader(list);
+  renderSearchResults(list);
+  renderCards(list);
+  renderTimeline(list);
+  renderCalendar();
+  renderYearCalendar();
+  renderTodayPanel();
+  renderLegend();
+
+  document.querySelectorAll(".section").forEach(s => s.classList.remove("active"));
+  const activeView = document.getElementById(`${state.view}View`);
+  if(activeView) activeView.classList.add("active");
+  if(state.view === "document") requestAnimationFrame(ensureCalendarPdfLoaded);
+}
+
+function setQuery(q){
+  state.query = q.trim();
+  safeSavePrefs();
+  renderAll();
+  document.getElementById("events").scrollIntoView({block:"start", behavior:"smooth"});
+}
+
+function exportICS(){
+  const today = stripTime(getToday());
+  const next = filteredEvents().filter(ev => ev.start && eventEnd(ev) >= today).slice(0,12);
+  if(!next.length){
+    alert("Não há datas futuras para exportar com os filtros atuais.");
+    return;
+  }
+  const dt = d => d.replaceAll("-","");
+  const ics = [
+    "BEGIN:VCALENDAR",
+    "VERSION:2.0",
+    "PRODID:-//Hub Arquivos IFBA//Calendario Academico//PT-BR"
+  ];
+  next.forEach(ev => {
+    const start = dt(ev.start);
+    const endDate = ev.end ? new Date(parseLocal(ev.end).getTime()+24*60*60*1000) : new Date(parseLocal(ev.start).getTime()+24*60*60*1000);
+    ics.push("BEGIN:VEVENT");
+    ics.push(`UID:${ev.id}@hub-ifba-vca`);
+    ics.push(`DTSTAMP:${dt(toISO(new Date()))}T120000Z`);
+    ics.push(`DTSTART;VALUE=DATE:${start}`);
+    ics.push(`DTEND;VALUE=DATE:${dt(toISO(endDate))}`);
+    ics.push(`SUMMARY:${ev.title.replaceAll(",", "\\,")}`);
+    ics.push(`DESCRIPTION:${(ev.desc || "").replaceAll(",", "\\,")}`);
+    ics.push("END:VEVENT");
+  });
+  ics.push("END:VCALENDAR");
+  const blob = new Blob([ics.join("\r\n")], {type:"text/calendar;charset=utf-8"});
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement("a");
+  a.href = url;
+  a.download = "calendario-academico-ifba-vca-2026.ics";
+  document.body.appendChild(a);
+  a.click();
+  a.remove();
+  URL.revokeObjectURL(url);
+}
+
+function bindEvents(){
+  const searchBtn = document.getElementById("searchBtn");
+  if(searchBtn) searchBtn.addEventListener("click", () => setQuery(document.getElementById("searchInput").value));
+  const searchClear = document.getElementById("searchClear");
+  if(searchClear) searchClear.addEventListener("click", () => { state.query = ""; safeSavePrefs(); document.getElementById("searchInput").value = ""; renderAll(); });
+  document.getElementById("searchInput").addEventListener("input", e => {
+    state.query = e.target.value;
+    safeSavePrefs();
+    renderAll();
+  });
+  document.getElementById("searchInput").addEventListener("keydown", e => {
+    if(e.key === "Enter") setQuery(e.target.value);
+  });
+  document.querySelectorAll(".pill").forEach(btn => btn.addEventListener("click", () => setQuery(btn.dataset.query)));
+
+  document.querySelectorAll(".search-order-btn[data-search-order]").forEach(btn => btn.addEventListener("click", () => {
+    state.searchOrder = btn.dataset.searchOrder === "year" ? "year" : "upcoming";
+    safeSavePrefs();
+    renderAll();
+  }));
+  const searchPanelClear = document.getElementById("searchPanelClear");
+  if(searchPanelClear) searchPanelClear.addEventListener("click", () => { state.query = ""; safeSavePrefs(); document.getElementById("searchInput").value = ""; renderAll(); });
+  const searchShowCalendar = document.getElementById("searchShowCalendar");
+  if(searchShowCalendar) searchShowCalendar.addEventListener("click", jumpFirstSearchResult);
+  const searchPanel = document.getElementById("searchResultsPanel");
+  if(searchPanel) searchPanel.addEventListener("click", e => {
+    const chip = e.target.closest("[data-search-chip]");
+    if(chip){ setQuery(chip.dataset.searchChip); return; }
+    const action = e.target.closest("[data-search-action]");
+    if(action){
+      e.stopPropagation();
+      if(action.dataset.searchAction === "calendar") focusCalendarEvent(action.dataset.eventId);
+      else openEventSheet(action.dataset.eventId);
+      return;
+    }
+    const card = e.target.closest(".search-result-card[data-event-id]");
+    if(card) openEventSheet(card.dataset.eventId);
+  });
+  if(searchPanel) searchPanel.addEventListener("keydown", e => {
+    if((e.key === "Enter" || e.key === " ") && e.target.closest(".search-result-card[data-event-id]")){
+      e.preventDefault();
+      openEventSheet(e.target.closest(".search-result-card[data-event-id]").dataset.eventId);
+    }
+  });
+  const eventSheetClose = document.getElementById("eventSheetClose");
+  if(eventSheetClose) eventSheetClose.addEventListener("click", closeEventSheet);
+  const eventSheetClose2 = document.getElementById("eventSheetClose2");
+  if(eventSheetClose2) eventSheetClose2.addEventListener("click", closeEventSheet);
+  const eventSheet = document.getElementById("eventSheet");
+  if(eventSheet) eventSheet.addEventListener("click", e => { if(e.target === eventSheet) closeEventSheet(); });
+  const eventSheetCalendar = document.getElementById("eventSheetCalendar");
+  if(eventSheetCalendar) eventSheetCalendar.addEventListener("click", () => { if(activeSheetEventId) focusCalendarEvent(activeSheetEventId); });
+  document.addEventListener("keydown", e => { if(e.key === "Escape") closeEventSheet(); });
+
+  document.querySelectorAll(".profile-btn").forEach(btn => btn.addEventListener("click", () => {
+    state.track = btn.dataset.track;
+    safeSavePrefs();
+    renderAll();
+  }));
+  const mobileTrackSelect = document.getElementById("mobileTrackSelect");
+  if(mobileTrackSelect) mobileTrackSelect.addEventListener("change", e => { state.track = e.target.value; safeSavePrefs(); renderAll(); });
+  const categorySelect = document.getElementById("categorySelect");
+  if(categorySelect) categorySelect.addEventListener("change", e => { state.category = e.target.value; safeSavePrefs(); renderAll(); });
+  const mobileCategorySelect = document.getElementById("mobileCategorySelect");
+  if(mobileCategorySelect) mobileCategorySelect.addEventListener("change", e => { state.category = e.target.value; safeSavePrefs(); renderAll(); });
+  const monthSelect = document.getElementById("monthSelect");
+  if(monthSelect) monthSelect.addEventListener("change", e => { state.month = e.target.value; if(e.target.value !== "all") state.calendarDate = new Date(2026, Number(e.target.value), 1); safeSavePrefs(); renderAll(); });
+  const statusSelect = document.getElementById("statusSelect");
+  if(statusSelect) statusSelect.addEventListener("change", e => { state.status = e.target.value; safeSavePrefs(); renderAll(); });
+
+  document.querySelectorAll(".view-btn[data-view]").forEach(btn => btn.addEventListener("click", () => {
+    state.view = btn.dataset.view;
+    safeSavePrefs();
+    renderAll();
+    if(state.view === "document"){
+      requestAnimationFrame(() => {
+        ensureCalendarPdfLoaded();
+        document.getElementById("documentView")?.scrollIntoView({block:"start", behavior:"smooth"});
+      });
+    }
+  }));
+
+  document.querySelectorAll(".progress-mode-btn[data-progress-mode]").forEach(btn => btn.addEventListener("click", () => {
+    state.progressMode = btn.dataset.progressMode;
+    safeSavePrefs();
+    renderAll();
+  }));
+
+  document.getElementById("prevMonthBtn").addEventListener("click", () => {
+    state.calendarDate = new Date(state.calendarDate.getFullYear(), state.calendarDate.getMonth()-1, 1);
+    safeSavePrefs();
+    renderAll();
+  });
+  document.getElementById("nextMonthBtn").addEventListener("click", () => {
+    state.calendarDate = new Date(state.calendarDate.getFullYear(), state.calendarDate.getMonth()+1, 1);
+    safeSavePrefs();
+    renderAll();
+  });
+  document.getElementById("todayMonthBtn").addEventListener("click", () => {
+    const t = getToday();
+    state.calendarDate = new Date(t.getFullYear(), t.getMonth(), 1);
+    safeSavePrefs();
+    renderAll();
+  });
+  document.getElementById("downloadIcsBtn").addEventListener("click", exportICS);
+}
+
+
+function syncSharedTheme(){
+  let mode="auto";
+  try{mode=localStorage.getItem("hubThemeMode")||"auto";}catch{}
+  const resolved=mode==="auto"?(matchMedia("(prefers-color-scheme: light)").matches?"light":"dark"):mode;
+  document.documentElement.dataset.theme=resolved;
+  document.documentElement.dataset.themeMode=mode;
+}
+syncSharedTheme();
+matchMedia("(prefers-color-scheme: light)").addEventListener?.("change",()=>{if((localStorage.getItem("hubThemeMode")||"auto")==="auto")syncSharedTheme();});
+window.addEventListener("storage",e=>{if(e.key==="hubThemeMode")syncSharedTheme();});
+
+try {
+  loadPrefs();
+  populateSelects();
+  bindEvents();
+  renderAll();
+  document.documentElement.dataset.calendarReady = "true";
+} catch (error) {
+  console.error("Falha ao iniciar o Calendário:", error);
+  const app = document.querySelector("main.app");
+  if (app && !document.querySelector(".calendar-load-error")) app.insertAdjacentHTML("afterbegin", `<div class="calendar-load-error" role="alert"><strong>O Calendário não conseguiu iniciar.</strong><span>${String(error?.message || error)}</span><button type="button" onclick="localStorage.removeItem('${PREF_KEY}');location.reload()">Restaurar preferências do Calendário</button></div>`);
+}
+
+</script>
+<script src="../../data.js?v=0.2.12"></script>
+<script src="../app-shell.js?v=0.2.12"></script>
+</body>
+</html>

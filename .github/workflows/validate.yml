@@ -1,0 +1,34 @@
+name: Validar site
+
+on:
+  push:
+  pull_request:
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Validar estrutura, links internos e dados
+        run: python3 scripts/validate_site.py
+      - name: Verificar sintaxe JavaScript
+        run: |
+          node --check app.js
+          node --check data.js
+          node --check js/storage.js
+          node --check js/where-data.js
+          node --check js/enhancements.js
+          node --check apps/barema/data/barema-data.js
+          node --check apps/calendario/data/calendar-data.js
+          node --check apps/fluxogramas/data/fluxogramas-data.js
+      - name: Verificar JavaScript inline dos apps
+        run: python3 scripts/check_inline_scripts.py
+      - name: Instalar navegador para teste responsivo
+        run: |
+          npm install --no-save playwright
+          npx playwright install --with-deps chromium
+      - name: Testar larguras de celular, tablet e desktop
+        run: node scripts/responsive_smoke_test.mjs
