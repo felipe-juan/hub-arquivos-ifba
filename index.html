@@ -25,8 +25,8 @@
       } catch (_) {}
     })();
   </script>
-  <link rel="stylesheet" href="styles.css?v=0.2.12" />
-  <link rel="stylesheet" href="css/enhancements.css?v=0.2.12" />
+  <link rel="stylesheet" href="styles.css?v=0.2.13" />
+  <link rel="stylesheet" href="css/enhancements.css?v=0.2.13" />
 </head>
 <body>
   <a class="skip-link" href="#mainContent">Pular para o conteúdo</a>
@@ -95,7 +95,7 @@
     </nav>
 
     <div class="sidebar-bottom">
-      <button id="resetPreferencesButton" class="reset-preferences" type="button" aria-label="Restaurar preferências" title="Restaurar preferências"><span aria-hidden="true">↺</span><span class="preference-label">Restaurar preferências</span></button>
+      <button id="resetPreferencesButton" class="reset-preferences" type="button" aria-label="Restaurar preferências" title="Restaurar preferências"><span class="reset-preferences-icon" aria-hidden="true">↺</span><span class="preference-label">Restaurar preferências</span></button>
       <div class="theme-panel">
         <span class="theme-label">Tema</span>
         <div class="theme-switch" role="group" aria-label="Tema do site">
@@ -104,9 +104,14 @@
           <button type="button" data-theme-choice="light" aria-label="Modo claro" title="Modo claro"><span aria-hidden="true">☀</span></button>
         </div>
       </div>
-      <a class="campus-portal" href="https://portal.ifba.edu.br/conquista" target="_blank" rel="noopener">
-        <span aria-hidden="true">🏫</span><span class="sidebar-label">Portal do Campus</span>
-      </a>
+      <div class="sidebar-external-links" aria-label="Sistemas institucionais">
+        <a class="campus-portal sidebar-external-link" href="https://portal.ifba.edu.br/conquista" target="_blank" rel="noopener" title="Portal do Campus">
+          <span aria-hidden="true">🏫</span><span class="sidebar-label">Portal</span>
+        </a>
+        <a class="campus-portal sidebar-external-link" href="https://suap.ifba.edu.br" target="_blank" rel="noopener" title="SUAP">
+          <span aria-hidden="true">🔐</span><span class="sidebar-label">SUAP</span>
+        </a>
+      </div>
     </div>
     <div id="sidebarResizeHandle" class="sidebar-resize-handle" role="separator" aria-orientation="vertical" aria-label="Redimensionar menu lateral" tabindex="0"></div>
   </aside>
@@ -445,14 +450,14 @@
   </div>
 
   <footer class="footer">
-    <span>HUB SI · v0.2.12 · protótipo livre · sempre confira a fonte oficial.</span>
+    <span>HUB SI · v0.2.13 · protótipo livre · sempre confira a fonte oficial.</span>
   </footer>
 
-  <script src="data.js?v=0.2.12"></script>
-  <script src="js/storage.js?v=0.2.12"></script>
-  <script src="js/where-data.js?v=0.2.12"></script>
-  <script src="app.js?v=0.2.12"></script>
-  <script src="js/enhancements.js?v=0.2.12"></script>
-  <script src="js/experience.js?v=0.2.12"></script>
+  <script src="data.js?v=0.2.13"></script>
+  <script src="js/storage.js?v=0.2.13"></script>
+  <script src="js/where-data.js?v=0.2.13"></script>
+  <script src="app.js?v=0.2.13"></script>
+  <script src="js/enhancements.js?v=0.2.13"></script>
+  <script src="js/experience.js?v=0.2.13"></script>
 </body>
 </html>

@@ -1,13 +1,13 @@
-const VERSION = "hub-ifba-v0.2.12";
+const VERSION = "hub-ifba-v0.2.13";
 const STATIC_CACHE = `${VERSION}-static`;
 const RUNTIME_CACHE = `${VERSION}-runtime`;
 const CORE = [
   "./", "./index.html", "./offline.html",
-  "./styles.css?v=0.2.12", "./css/enhancements.css?v=0.2.12",
-  "./data.js?v=0.2.12", "./app.js?v=0.2.12", "./js/storage.js?v=0.2.12",
-  "./js/where-data.js?v=0.2.12", "./js/enhancements.js?v=0.2.12", "./js/experience.js?v=0.2.12",
+  "./styles.css?v=0.2.13", "./css/enhancements.css?v=0.2.13",
+  "./data.js?v=0.2.13", "./app.js?v=0.2.13", "./js/storage.js?v=0.2.13",
+  "./js/where-data.js?v=0.2.13", "./js/enhancements.js?v=0.2.13", "./js/experience.js?v=0.2.13",
   "./assets/logo-pixel.png", "./assets/logo-pixel-64.png", "./assets/apple-touch-icon.png", "./favicon.ico",
-  "./apps/app-shell.css?v=0.2.12", "./apps/app-shell.js?v=0.2.12", "./apps/catalog.json"
+  "./apps/app-shell.css?v=0.2.13", "./apps/app-shell.js?v=0.2.13", "./apps/catalog.json"
 ];
 
 self.addEventListener("install", event => {

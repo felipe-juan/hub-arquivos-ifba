@@ -102,3 +102,12 @@ html[data-theme="light"] .hub-shell-mobile-theme-menu button{color:#102630;backg
 html[data-theme="light"] .hub-shell-theme button.active,html[data-theme="light"] .hub-shell-mobile-theme-menu button.active{color:#fff!important;text-shadow:0 1px 1px rgba(0,0,0,.2)}
 
 html[data-theme="light"] .hub-shell-theme button.active,html[data-theme="light"] .hub-shell-mobile-theme-menu button.active{background:linear-gradient(135deg,#087f5b,#087fa3)!important;color:#fff!important}
+
+
+/* v0.2.13 — Portal/SUAP e restauração centralizada no shell dos apps. */
+.hub-shell-reset-icon{flex:0 0 2rem;width:2rem;height:2rem;display:grid;place-items:center;align-self:center;margin:0;border-radius:10px;background:rgba(255,255,255,.055);font-size:1.3rem;line-height:1}
+.hub-shell-external-links{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:.38rem;width:100%;min-width:0}
+.hub-shell-external-links .hub-shell-portal{min-width:0;width:100%;grid-template-columns:2rem minmax(0,1fr);gap:.35rem;padding:.4rem}.hub-shell-external-links .hub-shell-label{min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.hub-shell-icons-only .hub-shell-reset{display:grid;grid-template-columns:1fr;place-items:center;min-height:42px;padding:.25rem}.hub-shell-icons-only .hub-shell-reset-icon{width:2.25rem;height:2.25rem;font-size:1.42rem;margin:0 auto}.hub-shell-icons-only .hub-shell-external-links{grid-template-columns:1fr;gap:.32rem;width:100%}.hub-shell-icons-only .hub-shell-external-links .hub-shell-portal{grid-template-columns:1fr;place-items:center;padding:.25rem;min-height:40px}
+html[data-theme="light"] .hub-shell-reset-icon{background:rgba(16,36,45,.055)}
+@media(max-width:920px){.hub-shell-icons-only .hub-shell-external-links{grid-template-columns:repeat(2,minmax(0,1fr))}.hub-shell-icons-only .hub-shell-external-links .hub-shell-portal{grid-template-columns:2rem minmax(0,1fr);place-items:initial;padding:.4rem}}

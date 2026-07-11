@@ -159,9 +159,9 @@
           </div>
         </nav>
         <div class="hub-shell-bottom">
-          <button class="hub-shell-reset" id="hubShellReset" type="button" aria-label="Restaurar preferências" title="Restaurar preferências"><span>↺</span><span class="hub-shell-label">Restaurar preferências</span></button>
+          <button class="hub-shell-reset" id="hubShellReset" type="button" aria-label="Restaurar preferências" title="Restaurar preferências"><span class="hub-shell-reset-icon" aria-hidden="true">↺</span><span class="hub-shell-label">Restaurar preferências</span></button>
           <div class="hub-shell-theme" role="group" aria-label="Tema"><button type="button" data-hub-shell-theme="auto" aria-label="Tema automático" title="Tema automático">◐</button><button type="button" data-hub-shell-theme="dark" aria-label="Modo escuro" title="Modo escuro">☾</button><button type="button" data-hub-shell-theme="light" aria-label="Modo claro" title="Modo claro">☀</button></div>
-          <a class="hub-shell-portal" href="https://portal.ifba.edu.br/conquista" target="_blank" rel="noopener"><span class="hub-shell-navicon">🏫</span><span class="hub-shell-label">Portal do Campus</span></a>
+          <div class="hub-shell-external-links" aria-label="Sistemas institucionais"><a class="hub-shell-portal" href="https://portal.ifba.edu.br/conquista" target="_blank" rel="noopener" title="Portal do Campus"><span class="hub-shell-navicon">🏫</span><span class="hub-shell-label">Portal</span></a><a class="hub-shell-portal" href="https://suap.ifba.edu.br" target="_blank" rel="noopener" title="SUAP"><span class="hub-shell-navicon">🔐</span><span class="hub-shell-label">SUAP</span></a></div>
         </div>
         <div class="hub-shell-resize" id="hubShellResize" role="separator" tabindex="0" aria-orientation="vertical" aria-label="Redimensionar menu"></div>
       </aside>

@@ -9,9 +9,9 @@ O projeto deve ser tratado como uma ferramenta experimental de apoio. Para decis
 
 ## Versão atual
 
-**v0.2.12**
+**v0.2.13**
 
-Esta versão corrige o empilhamento e o espaçamento entre a busca e os itens recentes no mobile e altera a proporção das miniaturas de documentos para `1:1,414`.
+Esta versão estabiliza o ícone de restauração de preferências na sidebar compacta e acrescenta acessos diretos ao **Portal** e ao **SUAP**, lado a lado na sidebar normal e empilhados no modo de apenas ícones.
 
 ## Sobre o projeto
 
@@ -81,7 +81,7 @@ A sidebar inclui:
 - Favoritos;
 - tema Automático, Escuro ou Claro;
 - restauração de preferências;
-- acesso ao Portal do Campus.
+- acesso ao Portal do Campus e ao SUAP.
 
 A ordem personalizada da seção **Atalhos** da página inicial é compartilhada com a sidebar e com os apps independentes. Favoritos, ordem e estados dos menus são armazenados apenas no navegador do usuário.
 
@@ -106,6 +106,15 @@ O site utiliza um `service-worker.js` para armazenar recursos essenciais no cach
 - não há botão de instalação nem interface de gerenciamento offline nesta versão.
 
 O comportamento exato depende das políticas de cache e armazenamento do navegador.
+
+
+## Alterações da v0.2.13
+
+- O ícone de **Restaurar preferências** mantém tamanho fixo, alinhamento central e boa legibilidade em todas as larguras da sidebar.
+- O botão **Portal do Campus** foi simplificado para **Portal**.
+- Adicionado acesso direto ao **SUAP** (`suap.ifba.edu.br`) com ícone próprio.
+- Portal e SUAP aparecem lado a lado na sidebar normal e um abaixo do outro no modo compacto com apenas ícones.
+- O mesmo comportamento foi aplicado às sidebars do Calendário, Fluxogramas e Barema.
 
 ## Alterações da v0.2.12
 
@@ -347,7 +356,7 @@ Como o projeto utiliza service worker, use `Ctrl + Shift + R` depois de substitu
 
 ## Como atualizar usando o ZIP
 
-Exemplo para a v0.2.12:
+Exemplo para a v0.2.13:
 
 ```bash
 cd ~/Documents/hub-arquivos-ifba
@@ -355,7 +364,7 @@ cd ~/Documents/hub-arquivos-ifba
 mkdir -p /tmp/hub-update
 rm -rf /tmp/hub-update/*
 
-unzip ~/Downloads/hub-arquivos-ifba-v0.2.12.zip -d /tmp/hub-update
+unzip ~/Downloads/hub-arquivos-ifba-v0.2.13.zip -d /tmp/hub-update
 
 rsync -a --delete \
   --exclude ".git/" \
@@ -378,7 +387,7 @@ Em outro terminal:
 cd ~/Documents/hub-arquivos-ifba
 git status
 git add .
-git commit -m "Update to v0.2.12"
+git commit -m "Update to v0.2.13"
 git pull --rebase origin main
 git push
 ```
