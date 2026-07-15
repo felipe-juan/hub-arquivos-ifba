@@ -143,22 +143,27 @@
       <aside class="hub-shell-sidebar" id="hubShellSidebar" aria-label="Menu principal">
         <div class="hub-shell-head"><a class="hub-shell-brand" href="../../index.html"><img src="../../assets/logo-pixel.png" alt=""><span><strong>HUB SI</strong><small>IFBA · Vitória da Conquista</small></span></a><button class="hub-shell-icon hub-shell-collapse" id="hubShellCollapse" type="button" aria-label="Ocultar menu">‹</button></div>
         <nav class="hub-shell-nav">
-          <a href="../../index.html#buscar"><span class="hub-shell-navicon">⌕</span><span>Início</span></a>
+          <form class="hub-shell-search-form" id="hubShellSearchForm" role="search" aria-label="Buscar no HUB">
+            <button class="hub-shell-search-submit" type="submit" aria-label="Buscar" title="Buscar"><span aria-hidden="true">🔍</span></button>
+            <input id="hubShellSearchInput" type="search" autocomplete="off" placeholder="Buscar no HUB..." aria-label="Buscar documentos, apps, links e contatos" />
+          </form>
+          <a href="../../index.html#inicio"><span class="hub-shell-navicon">🏠</span><span>Início</span></a>
           <a href="../../index.html#acervo"><span class="hub-shell-navicon">🗂️</span><span>Acervo</span></a>
           <div class="hub-shell-group">
             <div class="hub-shell-menu-row"><a class="hub-shell-section-link" href="../../index.html#apps"><span class="hub-shell-navicon">🧰</span><span>Apps</span></a><button class="hub-shell-toggle hub-shell-chevron-button" data-hub-shell-toggle="apps" type="button" aria-label="Mostrar ou ocultar apps"><span class="hub-shell-chevron">⌄</span></button></div>
             <div class="hub-shell-submenu" id="hubShellApps">${appLinks}</div>
           </div>
           <div class="hub-shell-group">
-            <div class="hub-shell-menu-row"><a class="hub-shell-section-link" href="../../index.html#atalhos"><span class="hub-shell-navicon">🔗</span><span>Atalhos</span></a><button class="hub-shell-toggle hub-shell-chevron-button" data-hub-shell-toggle="links" type="button" aria-label="Mostrar ou ocultar atalhos"><span class="hub-shell-chevron">⌄</span></button></div>
+            <div class="hub-shell-menu-row"><a class="hub-shell-section-link" href="../../index.html#links"><span class="hub-shell-navicon">🔗</span><span>Links</span></a><button class="hub-shell-toggle hub-shell-chevron-button" data-hub-shell-toggle="links" type="button" aria-label="Mostrar ou ocultar links"><span class="hub-shell-chevron">⌄</span></button></div>
             <div class="hub-shell-submenu" id="hubShellLinks"></div>
           </div>
           <div class="hub-shell-group">
-            <button class="hub-shell-toggle" data-hub-shell-toggle="favorites" type="button"><span class="hub-shell-navicon">★</span><span>Favoritos</span><span class="hub-shell-chevron">⌄</span></button>
+            <button class="hub-shell-toggle" data-hub-shell-toggle="favorites" type="button"><span class="hub-shell-navicon">⭐</span><span>Favoritos</span><span class="hub-shell-chevron">⌄</span></button>
             <div class="hub-shell-submenu" id="hubShellFavorites"></div>
           </div>
         </nav>
         <div class="hub-shell-bottom">
+          <button class="report-issue-button hub-button hub-button--ghost" id="hubShellReport" type="button" aria-label="Reportar problema" title="Reportar problema"><span class="report-issue-icon" aria-hidden="true">🐞</span><span class="hub-shell-label">Reportar problema</span></button>
           <button class="hub-shell-reset" id="hubShellReset" type="button" aria-label="Restaurar preferências" title="Restaurar preferências"><span class="hub-shell-reset-icon" aria-hidden="true">↺</span><span class="hub-shell-label">Restaurar preferências</span></button>
           <div class="hub-shell-theme" role="group" aria-label="Tema"><button type="button" data-hub-shell-theme="auto" aria-label="Tema automático" title="Tema automático">◐</button><button type="button" data-hub-shell-theme="dark" aria-label="Modo escuro" title="Modo escuro">☾</button><button type="button" data-hub-shell-theme="light" aria-label="Modo claro" title="Modo claro">☀</button></div>
           <div class="hub-shell-external-links" aria-label="Sistemas institucionais"><a class="hub-shell-portal" href="https://portal.ifba.edu.br/conquista" target="_blank" rel="noopener" title="Portal do Campus"><span class="hub-shell-navicon">🏫</span><span class="hub-shell-label">Portal</span></a><a class="hub-shell-portal" href="https://suap.ifba.edu.br" target="_blank" rel="noopener" title="SUAP"><span class="hub-shell-navicon">🔐</span><span class="hub-shell-label">SUAP</span></a></div>
@@ -171,6 +176,7 @@
 
     renderLinks();
     renderFavorites();
+    window.HUB_UI?.setupReportButton(document.getElementById("hubShellReport"), { title: document.title, context: currentApp || "app" });
     setupGroup('[data-hub-shell-toggle="apps"]', "hubShellApps", PREF.apps, true);
     setupGroup('[data-hub-shell-toggle="links"]', "hubShellLinks", PREF.links, false);
     setupGroup('[data-hub-shell-toggle="favorites"]', "hubShellFavorites", PREF.favorites, true);
@@ -273,11 +279,16 @@
   else inject();
 })();
 
-// v0.2.10 — mantém os apps disponíveis offline após a primeira visita.
+// Registro compartilhado: cache offline e aviso quando uma nova versão estiver disponível.
 if ("serviceWorker" in navigator) {
   window.addEventListener("load", () => {
     const root = new URL("../../", window.location.href);
-    navigator.serviceWorker.register(new URL("service-worker.js", root).href, { scope: root.pathname })
+    const url = new URL("service-worker.js", root).href;
+    if (window.HUB_UI?.registerServiceWorker) {
+      window.HUB_UI.registerServiceWorker({ url, scope: root.pathname });
+      return;
+    }
+    navigator.serviceWorker.register(url, { scope: root.pathname })
       .catch(error => console.warn("Service worker não registrado no app:", error));
   }, { once: true });
 }

@@ -15,9 +15,9 @@ def check_file(path: str) -> None:
 
 
 required = [
-    "index.html", "app.js", "data.js", "styles.css", "service-worker.js", "offline.html",
-    "css/enhancements.css", "js/storage.js", "js/where-data.js", "js/enhancements.js",
-    "scripts/check_inline_scripts.py", "scripts/responsive_smoke_test.mjs",
+    "index.html", "app.js", "data.js", "styles.css", "service-worker.js", "offline.html", "DESIGN_SYSTEM.md",
+    "css/enhancements.css", "css/design-system.css", "css/specificity-baseline.json", "js/storage.js", "js/design-system.js", "js/where-data.js", "js/enhancements.js",
+    "scripts/check_inline_scripts.py", "scripts/responsive_smoke_test.mjs", "scripts/update_content.py", "scripts/audit_css.py", ".github/workflows/validate.yml",
     "apps/catalog.json", "apps/README.md",
     "apps/barema/index.html", "apps/barema/data/barema-data.js", "apps/barema/data/source-metadata.json",
     "apps/calendario/index.html", "apps/calendario/data/calendar-data.js", "apps/calendario/data/source-metadata.json",
@@ -111,6 +111,15 @@ for redirect in [
 ]:
     if redirect.exists() and redirect.stat().st_size > 5000:
         errors.append(f"Redirecionamento versionado grande demais: {redirect.relative_to(ROOT)}")
+
+# Recursos compartilhados de qualidade e atualização.
+index_text = (ROOT / "index.html").read_text(encoding="utf-8")
+if "reportIssueButton" not in index_text:
+    errors.append("Botão de reportar problema ausente da página principal")
+if "css/design-system.css" not in index_text or "js/design-system.js" not in index_text:
+    errors.append("Design system compartilhado não carregado na página principal")
+if 'type: "SKIP_WAITING"' not in (ROOT / "js/design-system.js").read_text(encoding="utf-8"):
+    errors.append("Fluxo de atualização do service worker ausente")
 
 print(f"Validação concluída: {len(errors)} erro(s), {len(warnings)} aviso(s).")
 for message in warnings[:100]:

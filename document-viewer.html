@@ -1,0 +1,100 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta name="color-scheme" content="dark light" />
+  <title>Visualizador de documento · HUB SI</title>
+  <style>
+    :root{color-scheme:dark;--bg:#071018;--panel:#0d1821;--soft:#142431;--text:#f4fbff;--muted:#9bb0bf;--line:rgba(255,255,255,.13);--accent:#087f98}
+    @media(prefers-color-scheme:light){:root{color-scheme:light;--bg:#eef5f7;--panel:#fff;--soft:#edf4f6;--text:#102630;--muted:#607783;--line:rgba(16,38,48,.16);--accent:#087f98}}
+    *{box-sizing:border-box}.sr-only{position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap;border:0}html,body{margin:0;min-height:100%;background:var(--bg);color:var(--text);font-family:Inter,ui-sans-serif,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif}button,a,input{font:inherit}.viewer{min-height:100vh;display:grid;grid-template-rows:auto 1fr}.toolbar{position:sticky;top:0;z-index:5;display:flex;align-items:center;justify-content:space-between;gap:.7rem;flex-wrap:wrap;padding:.65rem .8rem;border-bottom:1px solid var(--line);background:color-mix(in srgb,var(--panel) 94%,transparent);backdrop-filter:blur(16px)}.title{min-width:0;display:flex;align-items:center;gap:.55rem}.title span{font-size:1.35rem}.title div{min-width:0}.title strong{display:block;max-width:min(56vw,760px);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.title small{display:block;color:var(--muted);font-size:.73rem}.actions{display:flex;align-items:center;gap:.35rem;flex-wrap:wrap}.actions button,.actions a{min-height:36px;display:inline-flex;align-items:center;justify-content:center;gap:.3rem;padding:.42rem .62rem;border:1px solid var(--line);border-radius:10px;background:var(--soft);color:var(--text);text-decoration:none;cursor:pointer}.actions .primary{background:var(--accent);color:#fff;border-color:transparent}.page-input{width:64px;min-height:36px;padding:.35rem .45rem;border:1px solid var(--line);border-radius:10px;background:var(--panel);color:var(--text);text-align:center}.stage{display:grid;place-items:start center;padding:1rem;overflow:auto}.paper{position:relative;width:min(100%,1000px);min-height:240px;display:grid;place-items:center}.paper canvas{display:block;max-width:100%;height:auto;background:#fff;box-shadow:0 16px 44px rgba(0,0,0,.28)}.status{width:min(100%,720px);padding:1rem;border:1px solid var(--line);border-radius:14px;background:var(--panel);color:var(--muted);text-align:center}.status strong{display:block;color:var(--text);margin-bottom:.25rem}.status[hidden]{display:none}.error-actions{display:flex;justify-content:center;gap:.45rem;flex-wrap:wrap;margin-top:.75rem}@media(max-width:700px){.toolbar{align-items:flex-start}.title{width:100%}.title strong{max-width:78vw}.actions{width:100%}.actions button,.actions a{flex:1 1 auto}.stage{padding:.5rem}}
+  </style>
+</head>
+<body>
+  <main class="viewer">
+    <header class="toolbar">
+      <div class="title"><span aria-hidden="true">📄</span><div><strong id="docTitle">Documento</strong><small id="docMeta">HUB Arquivos IFBA</small></div></div>
+      <div class="actions" aria-label="Controles do documento">
+        <button id="prevPage" type="button" aria-label="Página anterior">←</button>
+        <label><span class="sr-only">Página</span><input id="pageNumber" class="page-input" type="number" min="1" value="1" aria-label="Número da página" /></label>
+        <span id="pageCount" aria-live="polite">/ —</span>
+        <button id="nextPage" type="button" aria-label="Próxima página">→</button>
+        <button id="zoomOut" type="button" aria-label="Diminuir zoom">−</button>
+        <button id="zoomIn" type="button" aria-label="Aumentar zoom">＋</button>
+        <a id="downloadLink" class="primary" href="#" download>Baixar</a>
+      </div>
+    </header>
+    <section class="stage" aria-live="polite">
+      <div id="status" class="status"><strong>Carregando documento…</strong><span>Aguarde enquanto o visualizador prepara o PDF.</span></div>
+      <div id="paper" class="paper" hidden><canvas id="pdfCanvas"></canvas></div>
+    </section>
+  </main>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
+  <script>
+    (()=>{
+      "use strict";
+      const params=new URLSearchParams(location.search);
+      const requested=params.get("file")||"";
+      const requestedTitle=params.get("title")||"Documento";
+      const initialPage=Math.max(1,Number(params.get("page")||1));
+      const titleEl=document.getElementById("docTitle");
+      const metaEl=document.getElementById("docMeta");
+      const status=document.getElementById("status");
+      const paper=document.getElementById("paper");
+      const canvas=document.getElementById("pdfCanvas");
+      const ctx=canvas.getContext("2d",{alpha:false});
+      const pageInput=document.getElementById("pageNumber");
+      const countEl=document.getElementById("pageCount");
+      const download=document.getElementById("downloadLink");
+      let pdf=null,page=initialPage,scale=1.25,renderTask=null;
+      titleEl.textContent=requestedTitle;
+      document.title=`${requestedTitle} · HUB SI`;
+      const safeFile=()=>{
+        try{
+          const url=new URL(requested,location.href);
+          if(url.origin!==location.origin) throw new Error("Arquivo externo não permitido.");
+          return url.href;
+        }catch(error){return ""}
+      };
+      const file=safeFile();
+      download.href=file||"#";
+      download.download=(file.split("/").pop()||"documento.pdf").split(/[?#]/)[0];
+      function showError(message){status.hidden=false;paper.hidden=true;status.innerHTML=`<strong>Não foi possível abrir o documento.</strong><span>${String(message||"Erro desconhecido.")}</span><div class="error-actions"><a href="${file||"#"}" target="_blank" rel="noopener">Tentar abrir o arquivo original</a></div>`}
+      async function render(){
+        if(!pdf)return;
+        page=Math.max(1,Math.min(pdf.numPages,Math.round(page||1)));
+        pageInput.value=String(page);countEl.textContent=`/ ${pdf.numPages}`;
+        document.getElementById("prevPage").disabled=page<=1;document.getElementById("nextPage").disabled=page>=pdf.numPages;
+        if(renderTask)try{renderTask.cancel()}catch(_){}
+        const pdfPage=await pdf.getPage(page);
+        const viewport=pdfPage.getViewport({scale});
+        const ratio=window.devicePixelRatio||1;
+        canvas.width=Math.floor(viewport.width*ratio);canvas.height=Math.floor(viewport.height*ratio);canvas.style.width=`${viewport.width}px`;canvas.style.height=`${viewport.height}px`;
+        const transform=ratio===1?null:[ratio,0,0,ratio,0,0];
+        renderTask=pdfPage.render({canvasContext:ctx,viewport,transform});
+        await renderTask.promise;
+        status.hidden=true;paper.hidden=false;
+      }
+      async function init(){
+        if(!file)return showError("O endereço do documento é inválido.");
+        if(!window.pdfjsLib)return showError("O componente de leitura de PDF não carregou.");
+        try{
+          pdfjsLib.GlobalWorkerOptions.workerSrc="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js";
+          pdf=await pdfjsLib.getDocument(file).promise;
+          metaEl.textContent=`${pdf.numPages} página${pdf.numPages===1?"":"s"}`;
+          await render();
+        }catch(error){showError(error?.message||error)}
+      }
+      document.getElementById("prevPage").addEventListener("click",()=>{page-=1;render()});
+      document.getElementById("nextPage").addEventListener("click",()=>{page+=1;render()});
+      document.getElementById("zoomOut").addEventListener("click",()=>{scale=Math.max(.55,scale-.15);render()});
+      document.getElementById("zoomIn").addEventListener("click",()=>{scale=Math.min(3,scale+.15);render()});
+      pageInput.addEventListener("change",()=>{page=Number(pageInput.value)||1;render()});
+      pageInput.addEventListener("keydown",event=>{if(event.key==="Enter"){event.preventDefault();page=Number(pageInput.value)||1;render()}});
+      document.addEventListener("keydown",event=>{if(event.target.matches("input,textarea,select"))return;if(event.key==="ArrowLeft"){page-=1;render()}if(event.key==="ArrowRight"){page+=1;render()}if(event.key==="+"){scale=Math.min(3,scale+.15);render()}if(event.key==="-"){scale=Math.max(.55,scale-.15);render()}});
+      init();
+    })();
+  </script>
+</body>
+</html>

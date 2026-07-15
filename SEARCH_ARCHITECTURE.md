@@ -64,3 +64,48 @@ Use Paperless-ngx como inspiração principalmente para:
 - filtros e busca.
 
 Não vale a pena copiar o código inteiro para este projeto, porque o escopo é diferente: Paperless-ngx é um gerenciador completo de documentos pessoais/administrativos; este hub é um buscador acadêmico público e verificado.
+
+## Independência dos campos de busca — v0.2.20
+
+A busca rápida da sidebar e a busca detalhada do Acervo não espelham texto durante a digitação. Cada campo mantém seu próprio valor. A consulta lateral só é transferida para o campo principal quando o usuário pressiona Enter, toca na lupa ou escolhe **Pesquisar no Acervo**. Depois da transferência, o campo lateral é limpo.
+
+## Busca rápida da sidebar (v0.2.19)
+
+A sidebar utiliza `js/sidebar-quick-search.js` como componente compartilhado entre a página principal, Calendário, Fluxogramas e Barema.
+
+Responsabilidades:
+
+- mostrar até três resultados instantâneos;
+- priorizar título, Apps, documentos, contatos/links e conteúdo documental;
+- carregar `documents/manifest.json` apenas após dois caracteres;
+- preservar a diferença entre `c` e `ç`;
+- aceitar aspas, `AND`, `OR`, `-termo` e os prefixos `doc:`, `app:`, `link:` e `contato:`;
+- exibir apenas pesquisas salvas quando o campo está vazio;
+- pesquisar em todas as categorias por padrão, sem seletor visual de escopo;
+- permitir escopos opcionais pelos prefixos `doc:`, `app:`, `link:` e `contato:`;
+- transferir a consulta para a busca detalhada por Enter, pela lupa ou por **Pesquisar no Acervo**;
+- manter navegação por teclado e painel flutuante na sidebar compactada;
+- manter o campo lateral independente do campo principal enquanto o usuário digita;
+- não exibir cabeçalho de contagem ou ajuda dentro do painel compacto.
+
+Chaves locais usadas:
+
+- `hubRecentSearchesV1`;
+- `hubSavedSearchesV1`;
+- `hubRecentItemsV1`;
+- `hubSidebarPendingSavedSearchV1`.
+
+
+## Faixas previsíveis de relevância — v0.2.19
+
+A busca detalhada ordena os resultados nesta sequência:
+
+1. título exatamente igual à consulta;
+2. expressão completa ou frase entre aspas no título;
+3. todas as palavras diretas no título;
+4. pelo menos uma palavra direta no título;
+5. categoria, tipo documental, correspondente ou outros metadados;
+6. trecho interno do documento;
+7. associação semântica.
+
+A intenção detectada e os bônus específicos atuam apenas dentro da mesma faixa. Resultados com mesmo tipo, título e destino são deduplicados. A interface diferencia “trecho do documento” de “conteúdo relacionado”.

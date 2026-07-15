@@ -17,7 +17,7 @@ html[data-theme="light"] .hub-shell-sidebar,html[data-theme="light"] .hub-shell-
 
 .hub-shell-reset{width:100%;min-height:36px;display:flex;align-items:center;gap:.45rem;padding:.42rem .55rem;border:1px solid rgba(255,255,255,.11);border-radius:12px;background:transparent;color:#91a4b8;font:inherit;font-size:.72rem;font-weight:800;text-align:left;box-shadow:none}.hub-shell-reset:hover,.hub-shell-reset:focus-visible{color:#f7fbff;background:rgba(255,255,255,.06)}html[data-theme="light"] .hub-shell-reset{color:#5d747e;border-color:rgba(25,56,67,.14)}html[data-theme="light"] .hub-shell-reset:hover{color:#102630;background:rgba(16,36,45,.055)}
 
-/* v0.2.4 — Atalhos navega para a seção e possui toggle separado; Favoritos por último. */
+/* Links navega para a seção e possui toggle separado; Favoritos por último. */
 .hub-shell-menu-row{display:grid;grid-template-columns:minmax(0,1fr) 38px;align-items:center;gap:.18rem}
 .hub-shell-section-link{min-height:42px;display:grid;grid-template-columns:2rem minmax(0,1fr);align-items:center;gap:.5rem;padding:.42rem .55rem;border-radius:13px;color:#91a4b8;text-decoration:none;font-size:.82rem;font-weight:800}
 .hub-shell-section-link:hover{color:#f7fbff;background:rgba(255,255,255,.075)}
@@ -111,3 +111,21 @@ html[data-theme="light"] .hub-shell-theme button.active,html[data-theme="light"]
 .hub-shell-icons-only .hub-shell-reset{display:grid;grid-template-columns:1fr;place-items:center;min-height:42px;padding:.25rem}.hub-shell-icons-only .hub-shell-reset-icon{width:2.25rem;height:2.25rem;font-size:1.42rem;margin:0 auto}.hub-shell-icons-only .hub-shell-external-links{grid-template-columns:1fr;gap:.32rem;width:100%}.hub-shell-icons-only .hub-shell-external-links .hub-shell-portal{grid-template-columns:1fr;place-items:center;padding:.25rem;min-height:40px}
 html[data-theme="light"] .hub-shell-reset-icon{background:rgba(16,36,45,.055)}
 @media(max-width:920px){.hub-shell-icons-only .hub-shell-external-links{grid-template-columns:repeat(2,minmax(0,1fr))}.hub-shell-icons-only .hub-shell-external-links .hub-shell-portal{grid-template-columns:2rem minmax(0,1fr);place-items:initial;padding:.4rem}}
+
+/* v0.2.15 — busca real na sidebar dos apps. */
+.hub-shell-search-form{display:grid;grid-template-columns:2.1rem minmax(0,1fr);align-items:center;gap:.28rem;width:100%;min-width:0;min-height:42px;padding:.27rem .4rem;border:1px solid rgba(255,255,255,.11);border-radius:13px;background:rgba(255,255,255,.045)}
+.hub-shell-search-form:focus-within{border-color:#35c8dc;box-shadow:0 0 0 3px rgba(53,200,220,.12)}
+.hub-shell-search-submit{width:2.1rem;height:2.1rem;min-width:2.1rem;display:grid;place-items:center;padding:0;border:0;border-radius:10px;background:transparent;color:inherit;font-size:1.1rem;line-height:1;cursor:pointer}
+.hub-shell-search-submit:hover,.hub-shell-search-submit:focus-visible{background:rgba(255,255,255,.07)}
+.hub-shell-search-form input{width:100%;min-width:0;height:2.05rem;padding:.28rem .32rem;border:0;outline:0;background:transparent;color:#f7fbff;font:inherit;font-size:.76rem}
+.hub-shell-search-form input::placeholder{color:#8095a6}
+html[data-theme="light"] .hub-shell-search-form{background:rgba(16,36,45,.04);border-color:rgba(25,56,67,.14)}
+html[data-theme="light"] .hub-shell-search-form input{color:#102630}
+html[data-theme="light"] .hub-shell-search-submit:hover,html[data-theme="light"] .hub-shell-search-submit:focus-visible{background:rgba(16,36,45,.07)}
+.hub-shell-icons-only .hub-shell-search-form{grid-template-columns:1fr;padding:.2rem;overflow:visible}
+.hub-shell-icons-only .hub-shell-search-form input{display:none}
+.hub-shell-icons-only .hub-shell-search-submit{margin:auto}
+.hub-shell-icons-only.hub-shell-search-expanded .hub-shell-search-form{position:fixed;z-index:2200;top:4.45rem;left:calc(var(--hub-shell-sidebar-w) + .55rem);width:min(320px,calc(100vw - var(--hub-shell-sidebar-w) - 1.1rem));grid-template-columns:2.1rem minmax(0,1fr);padding:.32rem .45rem;background:#0b1218;box-shadow:0 16px 38px rgba(0,0,0,.3)}
+.hub-shell-icons-only.hub-shell-search-expanded .hub-shell-search-form input{display:block}
+html[data-theme="light"] .hub-shell-icons-only.hub-shell-search-expanded .hub-shell-search-form{background:#f8fbfc}
+@media(max-width:920px){.hub-shell-icons-only .hub-shell-search-form{grid-template-columns:2.1rem minmax(0,1fr);padding:.27rem .4rem}.hub-shell-icons-only .hub-shell-search-form input{display:block}.hub-shell-icons-only.hub-shell-search-expanded .hub-shell-search-form{position:static;width:100%;box-shadow:none}}

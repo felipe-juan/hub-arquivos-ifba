@@ -1,0 +1,72 @@
+/* HUB Arquivos IFBA — design system compartilhado v0.2.20 */
+:root{
+  --hub-radius-xs:8px;
+  --hub-radius-sm:10px;
+  --hub-radius-md:14px;
+  --hub-radius-lg:18px;
+  --hub-control-h:2.5rem;
+  --hub-control-h-sm:2.15rem;
+  --hub-space-1:.25rem;
+  --hub-space-2:.5rem;
+  --hub-space-3:.75rem;
+  --hub-space-4:1rem;
+  --hub-focus:0 0 0 3px color-mix(in srgb,var(--cyan,#35c8dc) 32%,transparent);
+  --hub-primary:#077f6d;
+  --hub-primary-hover:#056b5c;
+  --hub-secondary:#097f98;
+  --hub-danger:#b42318;
+}
+
+.hub-button,
+:where(.primary-button,.secondary-button,.reset-preferences,.campus-portal,.hub-shell-reset,.hub-shell-portal,.report-issue-button){
+  min-height:var(--hub-control-h-sm);
+  min-width:0;
+  display:inline-flex;
+  align-items:center;
+  justify-content:center;
+  gap:var(--hub-space-2);
+  border-radius:var(--hub-radius-sm);
+  font:inherit;
+  font-weight:800;
+  line-height:1.1;
+  text-decoration:none;
+  cursor:pointer;
+}
+.hub-button--primary{border:1px solid transparent;background:var(--hub-primary);color:#fff}
+.hub-button--primary:hover{background:var(--hub-primary-hover)}
+.hub-button--secondary{border:1px solid transparent;background:var(--hub-secondary);color:#fff}
+.hub-button--ghost{border:1px solid var(--line,rgba(255,255,255,.12));background:var(--panel-soft,rgba(255,255,255,.045));color:var(--text,#f7fbff)}
+.hub-icon-button{width:var(--hub-control-h-sm);height:var(--hub-control-h-sm);min-width:var(--hub-control-h-sm);display:inline-grid;place-items:center;padding:0;border-radius:var(--hub-radius-sm)}
+.hub-card{min-width:0;border:1px solid var(--line,rgba(255,255,255,.12));border-radius:var(--hub-radius-lg);background:var(--panel,rgba(10,16,22,.92))}
+.hub-card--compact{padding:var(--hub-space-3)}
+.hub-field{min-width:0;min-height:var(--hub-control-h);border-radius:var(--hub-radius-sm);font:inherit}
+
+:where(button,a,input,select,textarea,[tabindex]):focus-visible{outline:none;box-shadow:var(--hub-focus)}
+
+.report-issue-button{width:100%;padding:.55rem .65rem;overflow:hidden}
+.report-issue-button .report-issue-icon{width:1.4rem;height:1.4rem;min-width:1.4rem;display:grid;place-items:center;font-size:1.05rem;line-height:1}
+
+.hub-update-toast-host{position:fixed;z-index:10000;right:1rem;bottom:1rem;width:min(390px,calc(100vw - 2rem));display:grid;gap:.5rem;pointer-events:none}
+.hub-update-toast{pointer-events:auto;display:grid;grid-template-columns:minmax(0,1fr) auto;align-items:center;gap:.75rem;padding:.8rem;border:1px solid var(--line,rgba(255,255,255,.14));border-radius:var(--hub-radius-md);background:var(--panel,#0b1218);color:var(--text,#f7fbff);box-shadow:0 18px 44px rgba(0,0,0,.34)}
+.hub-update-toast p{margin:0;font-size:.82rem;line-height:1.4}
+.hub-update-toast button{padding:.48rem .66rem;border:0;border-radius:var(--hub-radius-sm);background:var(--hub-primary);color:#fff;font:inherit;font-size:.75rem;font-weight:900;cursor:pointer}
+.hub-update-toast[data-tone="success"]{border-color:color-mix(in srgb,var(--hub-primary) 55%,transparent)}
+
+html[data-theme="light"] .hub-button--ghost,
+html[data-theme="light"] .report-issue-button{background:#f4f8f8;color:#17323d;border-color:rgba(23,50,61,.16)}
+html[data-theme="light"] .hub-card,
+html[data-theme="light"] .hub-update-toast{background:#fff;color:#17323d;border-color:rgba(23,50,61,.16);box-shadow:0 18px 44px rgba(30,52,62,.16)}
+
+body.sidebar-icons-only .report-issue-button,
+html.sidebar-icons-only-preload .report-issue-button,
+.hub-shell-icons-only .report-issue-button{width:2.45rem;height:2.45rem;min-width:2.45rem;padding:0}
+body.sidebar-icons-only .report-issue-button .sidebar-label,
+html.sidebar-icons-only-preload .report-issue-button .sidebar-label,
+.hub-shell-icons-only .report-issue-button .hub-shell-label{display:none}
+
+@media(max-width:920px){
+  .hub-update-toast-host{right:.75rem;bottom:.75rem;width:calc(100vw - 1.5rem)}
+  .hub-update-toast{grid-template-columns:1fr}
+  .hub-update-toast button{width:100%}
+}
+@media(prefers-reduced-motion:reduce){*{scroll-behavior:auto!important}}

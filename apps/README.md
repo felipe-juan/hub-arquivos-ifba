@@ -12,6 +12,6 @@ Cada app possui uma pasta `data/` com os dados acadêmicos separados da interfac
 
 ## Navegação compartilhada
 
-Os três apps carregam `apps/app-shell.css` e `apps/app-shell.js`. Essa camada reproduz a sidebar do HUB no desktop e o header compacto no celular, reutilizando as mesmas preferências do navegador para tema, largura/recolhimento da sidebar, menus, favoritos e ordem dos atalhos.
+Os três apps carregam `apps/app-shell.css` e `apps/app-shell.js`. Essa camada reproduz a sidebar do HUB no desktop e o header compacto no celular, reutilizando as mesmas preferências do navegador para tema, largura/recolhimento da sidebar, menus, favoritos e ordem dos links.
 
-Na navegação compartilhada, **Atalhos** possui duas ações distintas: o texto abre a seção correspondente na página inicial e a seta abre/fecha o submenu. A ordem exibida é a mesma configurada na seção Atalhos do HUB. O grupo **Favoritos** aparece por último.
+Na navegação compartilhada, **Links** possui duas ações distintas: o texto abre a seção correspondente na página inicial e a seta abre/fecha o submenu. A ordem exibida é a mesma configurada na seção Links do HUB. O grupo **Favoritos** aparece por último.

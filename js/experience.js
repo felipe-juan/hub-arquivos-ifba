@@ -42,6 +42,7 @@
     const next = [clean, ...readRecents().filter(entry => recentKey(entry) !== key)].slice(0, MAX_RECENTS);
     writeJson(RECENTS_KEY, next);
     renderRecents();
+    document.dispatchEvent(new CustomEvent("hub:recents-changed"));
   }
 
   window.HUB_RECENTS = { add: addRecent, list: readRecents, render: renderRecents };
@@ -141,18 +142,20 @@
 
   function commandItems() {
     const sections = [
-      ["Início e busca", "#buscar", "⌕", "Seção"],
+      ["Buscar", "#buscar", "🔍", "Seção"],
+      ["Início", "#inicio", "🏠", "Seção"],
       ["Acervo", "#acervo", "🗂️", "Seção"],
       ["Apps acadêmicos", "#apps", "🧰", "Seção"],
       ["Média e Prova Final", "#media-final", "🧮", "App"],
       ["Onde resolvo isso?", "#onde-resolvo", "🧭", "App"],
-      ["Atalhos", "#atalhos", "🔗", "Seção"]
+      ["Links", "#links", "🔗", "Seção"]
     ].map(([title, url, emoji, meta]) => ({ id: `section:${url}`, title, url, emoji, meta, kind: "section" }));
     const appItems = (typeof apps !== "undefined" ? apps : (window.HUB_DATA?.apps || [])).map(app => ({ id: app.id, title: app.title, url: app.url, emoji: "🧰", meta: app.category || "App", kind: "app" }));
     const links = (typeof usefulLinks !== "undefined" ? usefulLinks : (window.HUB_DATA?.usefulLinks || [])).map(link => ({ id: link.id, title: link.title, url: link.url, emoji: "🔗", meta: link.category || "Atalho", kind: "link" }));
     const docs = (typeof documents !== "undefined" ? documents : []).map(doc => ({ id: doc.id, title: doc.title, url: doc.pdfUrl || doc.sourceUrl || "#", emoji: "📄", meta: doc.group || doc.category || "Documento", kind: "document" }));
     const actions = [
       { id: "action:theme", title: "Alternar tema", emoji: "◐", meta: "Ação", action: "theme", kind: "action" },
+      { id: "action:report", title: "Reportar problema", emoji: "🐞", meta: "Ação", action: "report", kind: "action" },
       { id: "action:preferences", title: "Restaurar preferências", emoji: "↺", meta: "Ação", action: "preferences", kind: "action" }
     ];
     return [...actions, ...sections, ...appItems, ...links, ...docs];
@@ -210,6 +213,7 @@
       document.querySelector(`[data-theme-choice="${next}"]`)?.click();
       return;
     }
+    if (item.action === "report") { window.HUB_UI?.openIssue({ title: "Paleta de comandos" }); return; }
     if (item.action === "preferences") { qs("#resetPreferencesButton")?.click(); return; }
     addRecent(item);
     if ((item.url || "").startsWith("#")) {

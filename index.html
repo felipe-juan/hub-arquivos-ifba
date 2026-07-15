@@ -25,15 +25,17 @@
       } catch (_) {}
     })();
   </script>
-  <link rel="stylesheet" href="styles.css?v=0.2.13" />
-  <link rel="stylesheet" href="css/enhancements.css?v=0.2.13" />
+  <link rel="stylesheet" href="styles.css?v=0.2.20" />
+  <link rel="stylesheet" href="css/enhancements.css?v=0.2.20" />
+  <link rel="stylesheet" href="css/sidebar-quick-search.css?v=0.2.20" />
+  <link rel="stylesheet" href="css/design-system.css?v=0.2.20" />
 </head>
 <body>
   <a class="skip-link" href="#mainContent">Pular para o conteúdo</a>
   <div class="ambient" aria-hidden="true"></div>
 
   <header class="mobile-topbar">
-    <a class="brand" href="#buscar" aria-label="Ir para busca">
+    <a class="brand" href="#inicio" aria-label="Ir para o início">
       <span class="brand-mark"><img src="assets/logo-pixel.png" alt="Logo HUB SI" /></span>
       <span class="brand-text"><strong>HUB SI</strong><small>IFBA · VCA</small></span>
     </a>
@@ -50,7 +52,7 @@
 
   <aside id="siteSidebar" class="site-sidebar" aria-label="Menu principal">
     <div class="sidebar-head">
-      <a class="brand sidebar-brand" href="#buscar" aria-label="Ir para busca">
+      <a class="brand sidebar-brand" href="#inicio" aria-label="Ir para o início">
         <span class="brand-mark"><img src="assets/logo-pixel.png" alt="Logo HUB SI" /></span>
         <span class="brand-text sidebar-label"><strong>HUB SI</strong><small>IFBA · Vitória da Conquista</small></span>
       </a>
@@ -59,7 +61,11 @@
     </div>
 
     <nav class="sidebar-nav" aria-label="Navegação principal">
-      <a href="#buscar" class="active"><span class="nav-icon" aria-hidden="true">⌕</span><span class="sidebar-label">Início</span></a>
+      <form id="sidebarSearchForm" class="sidebar-search-form" role="search" aria-label="Buscar no HUB">
+        <button id="sidebarSearchButton" class="sidebar-search-submit" type="submit" aria-label="Buscar" title="Buscar"><span aria-hidden="true">🔍</span></button>
+        <input id="sidebarSearchInput" type="search" autocomplete="off" placeholder="Buscar no HUB..." aria-label="Buscar documentos, apps, links e contatos" />
+      </form>
+      <a href="#inicio"><span class="nav-icon" aria-hidden="true">🏠</span><span class="sidebar-label">Início</span></a>
       <a href="#acervo"><span class="nav-icon" aria-hidden="true">🗂️</span><span class="sidebar-label">Acervo</span></a>
 
       <div class="sidebar-menu-group" data-sidebar-group="apps">
@@ -76,25 +82,26 @@
 
       <div class="sidebar-menu-group sidebar-links-group" data-sidebar-group="links">
         <div class="sidebar-menu-row">
-          <a id="linksSectionLink" class="sidebar-menu-link" href="#atalhos">
-            <span class="nav-icon" aria-hidden="true">🔗</span><span class="sidebar-label">Atalhos</span>
+          <a id="linksSectionLink" class="sidebar-menu-link" href="#links">
+            <span class="nav-icon" aria-hidden="true">🔗</span><span class="sidebar-label">Links</span>
           </a>
-          <button id="linksMenuToggle" class="sidebar-submenu-toggle" type="button" aria-expanded="false" aria-controls="sidebarLinksList" aria-label="Mostrar ou ocultar atalhos">
+          <button id="linksMenuToggle" class="sidebar-submenu-toggle" type="button" aria-expanded="false" aria-controls="sidebarLinksList" aria-label="Mostrar ou ocultar links">
             <span class="sidebar-menu-chevron" aria-hidden="true">⌄</span>
           </button>
         </div>
-        <div id="sidebarLinksList" class="sidebar-submenu sidebar-links-list" aria-label="Atalhos externos"></div>
+        <div id="sidebarLinksList" class="sidebar-submenu sidebar-links-list" aria-label="Links externos"></div>
       </div>
 
       <div class="sidebar-menu-group" data-sidebar-group="favorites">
         <button id="favoritesMenuToggle" class="sidebar-menu-toggle" type="button" aria-expanded="true" aria-controls="sidebarFavoritesList">
-          <span class="nav-icon" aria-hidden="true">★</span><span class="sidebar-label">Favoritos</span><span id="sidebarFavoritesCount" class="sidebar-count" aria-label="0 favoritos">0</span><span class="sidebar-menu-chevron" aria-hidden="true">⌄</span>
+          <span class="nav-icon" aria-hidden="true">⭐</span><span class="sidebar-label">Favoritos</span><span id="sidebarFavoritesCount" class="sidebar-count" aria-label="0 favoritos">0</span><span class="sidebar-menu-chevron" aria-hidden="true">⌄</span>
         </button>
         <div id="sidebarFavoritesList" class="sidebar-submenu sidebar-favorites-list" aria-live="polite"></div>
       </div>
     </nav>
 
     <div class="sidebar-bottom">
+      <button id="reportIssueButton" class="report-issue-button hub-button hub-button--ghost" type="button" aria-label="Reportar problema" title="Reportar problema"><span class="report-issue-icon" aria-hidden="true">🐞</span><span class="sidebar-label">Reportar problema</span></button>
       <button id="resetPreferencesButton" class="reset-preferences" type="button" aria-label="Restaurar preferências" title="Restaurar preferências"><span class="reset-preferences-icon" aria-hidden="true">↺</span><span class="preference-label">Restaurar preferências</span></button>
       <div class="theme-panel">
         <span class="theme-label">Tema</span>
@@ -119,6 +126,7 @@
   <div id="sidebarOverlay" class="sidebar-overlay" aria-hidden="true"></div>
 
   <main id="mainContent" class="page-main" tabindex="-1">
+    <span id="inicio" class="page-start-anchor" aria-hidden="true"></span>
     <section id="buscar" class="search-home section" data-nav-section>
       <div class="search-recent-layout">
       <div class="search-shell search-first">
@@ -393,15 +401,16 @@
 
     </section>
 
-    <section id="atalhos" class="section content-section links-section" data-nav-section>
+    <section id="links" class="section content-section links-section" data-nav-section>
+      <span id="atalhos" class="legacy-anchor" aria-hidden="true"></span>
       <div class="section-heading links-heading">
         <div>
           <p class="eyebrow">Acesso rápido</p>
-          <h2>Atalhos</h2>
+          <h2>Links</h2>
           <p class="section-description">Links externos e ferramentas do HUB na ordem escolhida por você.</p>
         </div>
         <div class="links-controls">
-          <div class="view-toggle" role="group" aria-label="Visualização dos atalhos">
+          <div class="view-toggle" role="group" aria-label="Visualização dos links">
             <button type="button" data-links-view="quick">Rápida</button>
             <button type="button" data-links-view="cards">Detalhada</button>
           </div>
@@ -435,7 +444,7 @@
   <dialog id="commandPaletteDialog" class="command-palette-dialog" aria-labelledby="commandPaletteTitle">
     <div class="command-palette-card">
       <header><div><p class="eyebrow">Acesso rápido</p><h2 id="commandPaletteTitle">Paleta de comandos</h2></div><button type="button" class="command-palette-close" aria-label="Fechar">×</button></header>
-      <label class="command-palette-search"><span aria-hidden="true">⌕</span><input id="commandPaletteInput" type="search" autocomplete="off" placeholder="Buscar documento, app, atalho ou ação..." /></label>
+      <label class="command-palette-search"><span aria-hidden="true">⌕</span><input id="commandPaletteInput" type="search" autocomplete="off" placeholder="Buscar documento, app, link ou ação..." /></label>
       <div id="commandPaletteResults" class="command-palette-results" role="listbox" aria-live="polite"></div>
       <footer><span><kbd>↑</kbd><kbd>↓</kbd> navegar</span><span><kbd>Enter</kbd> abrir</span><span><kbd>Esc</kbd> fechar</span></footer>
     </div>
@@ -450,14 +459,16 @@
   </div>
 
   <footer class="footer">
-    <span>HUB SI · v0.2.13 · protótipo livre · sempre confira a fonte oficial.</span>
+    <span>HUB SI · v0.2.20 · protótipo livre · sempre confira a fonte oficial.</span>
   </footer>
 
-  <script src="data.js?v=0.2.13"></script>
-  <script src="js/storage.js?v=0.2.13"></script>
-  <script src="js/where-data.js?v=0.2.13"></script>
-  <script src="app.js?v=0.2.13"></script>
-  <script src="js/enhancements.js?v=0.2.13"></script>
-  <script src="js/experience.js?v=0.2.13"></script>
+  <script src="data.js?v=0.2.20"></script>
+  <script src="js/storage.js?v=0.2.20"></script>
+  <script src="js/design-system.js?v=0.2.20"></script>
+  <script src="js/where-data.js?v=0.2.20"></script>
+  <script src="app.js?v=0.2.20"></script>
+  <script src="js/enhancements.js?v=0.2.20"></script>
+  <script src="js/experience.js?v=0.2.20"></script>
+  <script src="js/sidebar-quick-search.js?v=0.2.20"></script>
 </body>
 </html>

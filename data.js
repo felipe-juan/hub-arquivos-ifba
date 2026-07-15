@@ -509,7 +509,7 @@ window.HUB_DATA = {
     {
       "id": "group-frequentes",
       "title": "Mais usados",
-      "description": "Atalhos principais do hub.",
+      "description": "Links principais do hub.",
       "items": [
         {
           "type": "app",
@@ -1162,9 +1162,9 @@ window.HUB_DATA = {
       "id": "answer-caens",
       "title": "CAENS — estágio e atendimento",
       "answer": "Use a página de estágios ou o WhatsApp do CAENS.",
-      "description": "Atalhos úteis: página CAENS Estágios e WhatsApp do CAENS.",
+      "description": "Links úteis: página CAENS Estágios e WhatsApp do CAENS.",
       "category": "Contato direto",
-      "sourceLabel": "Atalhos do hub",
+      "sourceLabel": "Links do hub",
       "url": "https://ifbaconquista.blogspot.com/?m=1",
       "tags": [
         "caens",

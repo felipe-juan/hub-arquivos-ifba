@@ -27,7 +27,7 @@
     document.querySelectorAll("[data-favorite-toggle]").forEach(button => {
       const active = keys.has(favoriteKey(snapshotFromButton(button)));
       button.classList.toggle("active", active);
-      const symbol = active ? "★" : "☆";
+      const symbol = active ? "⭐" : "☆";
       if (button.textContent !== symbol) button.textContent = symbol;
       button.setAttribute("aria-pressed", active ? "true" : "false");
       button.setAttribute("aria-label", active ? "Remover dos favoritos" : "Adicionar aos favoritos");
@@ -88,25 +88,6 @@
   const observer = new MutationObserver(() => syncFavoriteButtons());
   observer.observe(document.body, { childList: true, subtree: true });
 
-  const typeFilter = document.getElementById("typeFilter");
-  const scopeButtons = [...document.querySelectorAll("[data-search-scope]")];
-  const syncSearchScopes = () => {
-    const current = typeFilter?.value || "all";
-    scopeButtons.forEach(button => {
-      const active = button.dataset.searchScope === current;
-      button.classList.toggle("active", active);
-      button.setAttribute("aria-pressed", active ? "true" : "false");
-    });
-  };
-  scopeButtons.forEach(button => button.addEventListener("click", () => {
-    if (!typeFilter) return;
-    typeFilter.value = button.dataset.searchScope || "all";
-    typeFilter.dispatchEvent(new Event("change", { bubbles: true }));
-    syncSearchScopes();
-  }));
-  typeFilter?.addEventListener("change", syncSearchScopes);
-  document.getElementById("clearSearch")?.addEventListener("click", () => window.setTimeout(syncSearchScopes, 0));
-  syncSearchScopes();
 
   const searchHelp = document.getElementById("searchHelpDialog");
   document.getElementById("searchHelpButton")?.addEventListener("click", () => {

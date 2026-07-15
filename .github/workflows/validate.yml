@@ -1,4 +1,4 @@
-name: Validar site
+name: Validate HUB
 
 on:
   push:
@@ -12,23 +12,25 @@ jobs:
       - uses: actions/setup-python@v5
         with:
           python-version: "3.12"
-      - name: Validar estrutura, links internos e dados
-        run: python3 scripts/validate_site.py
-      - name: Verificar sintaxe JavaScript
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+      - name: Validate structure and content
+        run: |
+          python3 scripts/validate_site.py
+          python3 scripts/check_inline_scripts.py
+          python3 scripts/update_content.py --check-only --skip-inline
+      - name: Enforce CSS specificity budget
+        run: python3 scripts/audit_css.py
+      - name: Check JavaScript syntax
         run: |
           node --check app.js
           node --check data.js
+          node --check service-worker.js
+          node --check apps/app-shell.js
           node --check js/storage.js
+          node --check js/design-system.js
           node --check js/where-data.js
           node --check js/enhancements.js
-          node --check apps/barema/data/barema-data.js
-          node --check apps/calendario/data/calendar-data.js
-          node --check apps/fluxogramas/data/fluxogramas-data.js
-      - name: Verificar JavaScript inline dos apps
-        run: python3 scripts/check_inline_scripts.py
-      - name: Instalar navegador para teste responsivo
-        run: |
-          npm install --no-save playwright
-          npx playwright install --with-deps chromium
-      - name: Testar larguras de celular, tablet e desktop
-        run: node scripts/responsive_smoke_test.mjs
+          node --check js/experience.js
+          node --check js/sidebar-quick-search.js

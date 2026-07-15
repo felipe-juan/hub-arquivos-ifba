@@ -1646,9 +1646,28 @@ function scoreResource(resource, query = "", filters = getFilters(), intent = de
 
   if (!matched || score <= resource.scoreBase) return null;
 
+  // Faixas de relevância previsíveis. O tipo de item e a intenção ainda
+  // ajustam a pontuação dentro da faixa, mas nunca colocam uma associação
+  // semântica acima de uma correspondência direta de título.
+  const directTerms = terms.exact || [];
+  const quotedInTitle = parsed.exactPhrases.some(term => containsStrictTerm(titleRaw, term));
+  const titlePhrase = phrase.length > 2 && titleNorm.includes(phrase);
+  const allTermsInTitle = directTerms.length > 0 && directTerms.every(term => titleNorm.includes(term));
+  const anyTermInTitle = directTerms.some(term => titleNorm.includes(term));
+  const directMetadata = matchSources.tag || matchSources.meta;
+  const directText = matchSources.text;
+  let rankTier = 6;
+  if ((phrase && titleNorm === phrase) || parsed.exactPhrases.some(term => rawSearchText(titleRaw).trim() === rawSearchText(term).trim())) rankTier = 0;
+  else if (quotedInTitle || titlePhrase) rankTier = 1;
+  else if (allTermsInTitle) rankTier = 2;
+  else if (anyTermInTitle || matchSources.title) rankTier = 3;
+  else if (directMetadata) rankTier = 4;
+  else if (directText) rankTier = 5;
+
   return {
     ...resource,
     score,
+    rankTier,
     exactTerms: terms.exact,
     semanticTerms: terms.semantic,
     strictTerms: parsed.exactPhrases,
@@ -1713,7 +1732,7 @@ function groupDocumentResults(results = []) {
   });
 
   const docs = [...grouped.values()].map(matches => {
-    const sorted = [...matches].sort((a, b) => b.score - a.score);
+    const sorted = [...matches].sort((a, b) => (a.rankTier ?? 99) - (b.rankTier ?? 99) || b.score - a.score);
     const best = sorted[0];
     const doc = best.doc || best;
     const internalMatches = sorted.filter(item => item.matchSources?.text || item.matchSources?.semantic);
@@ -1735,6 +1754,7 @@ function groupDocumentResults(results = []) {
       ...bestEvidence,
       id: documentGroupKey(best),
       score: best.score + matchBoost,
+      rankTier: Math.min(...sorted.map(item => item.rankTier ?? 99)),
       subtitle: groupedDocumentSubtitle(doc, bestEvidence, sorted, internalMatches),
       matchCount: internalMatches.length,
       matchedPages: unique(evidenceMatches.map(item => item.chunk?.page).filter(Boolean)),
@@ -1747,23 +1767,33 @@ function groupDocumentResults(results = []) {
   return [...docs, ...others];
 }
 
+function dedupeSearchResults(results = []) {
+  const seen = new Set();
+  return results.filter(result => {
+    const url = result.url || result.doc?.pdfUrl || result.doc?.sourceUrl || result.pdfUrl || result.sourceUrl || result.id || "";
+    const key = `${result.type || "item"}:${normalize(result.title || "")}:${normalize(url)}`;
+    if (seen.has(key)) return false;
+    seen.add(key);
+    return true;
+  });
+}
+
 function searchResources(query, filters) {
   const parsed = parseSearchQuery(query);
   const intent = detectSearchIntent(parsed.flexQuery || query);
-  const titleNeedle = normalize(parsed.flexQuery || parsed.exactPhrases[0] || "").trim();
   const sourceResources = (query || "").trim() ? buildResources() : buildBrowseResources();
   const scored = sourceResources
     .map(resource => scoreResource(resource, query, filters, intent, parsed))
     .filter(Boolean);
 
-  return groupDocumentResults(scored)
+  const ordered = groupDocumentResults(scored)
     .sort((a, b) => {
-      const aTitle = titleNeedle && normalize(a.title || "").includes(titleNeedle) ? 1 : 0;
-      const bTitle = titleNeedle && normalize(b.title || "").includes(titleNeedle) ? 1 : 0;
-      if (aTitle !== bTitle) return bTitle - aTitle;
-      return b.score - a.score;
-    })
-    .slice(0, 24);
+      const tier = (a.rankTier ?? 99) - (b.rankTier ?? 99);
+      if (tier !== 0) return tier;
+      if (b.score !== a.score) return b.score - a.score;
+      return String(a.title || "").localeCompare(String(b.title || ""), "pt-BR");
+    });
+  return dedupeSearchResults(ordered).slice(0, 24);
 }
 
 function searchOperatorSummary(query = "") {
@@ -1782,7 +1812,8 @@ function matchSourceLabel(result = {}) {
   const labels = [];
   if (sources.strict) labels.push("termo exato");
   if (sources.title) labels.push("título");
-  if (sources.text || sources.semantic) labels.push(result.type === "document" ? "trecho do documento" : "conteúdo");
+  if (sources.text) labels.push(result.type === "document" ? "trecho do documento" : "conteúdo");
+  if (sources.semantic && !sources.text) labels.push("conteúdo relacionado");
   if (sources.tag) labels.push("tag");
   if (sources.meta) labels.push("metadados");
   const page = result.type === "document" && result.chunk?.page ? ` · página ${escapeHtml(result.chunk.page)}` : "";
@@ -1858,9 +1889,11 @@ function renderResults(results, query) {
 
 function openPdfAtPage(doc = {}, page = "") {
   const base = doc.pdfUrl || doc.sourceUrl || "#";
-  const cleanPage = String(page || "").match(/\d+/)?.[0];
-  if (cleanPage && /\.pdf($|[?#])/i.test(base)) return `${base}#page=${cleanPage}`;
-  return base;
+  if (!base || base === "#") return "#";
+  const cleanPage = String(page || "").match(/\d+/)?.[0] || "1";
+  const title = doc.title || documentDownloadName(doc) || "Documento";
+  const params = new URLSearchParams({ file: base, page: cleanPage, title });
+  return `document-viewer.html?${params.toString()}`;
 }
 
 function documentDownloadName(doc = {}) {
@@ -2066,7 +2099,7 @@ function renderSearchDirectory(results = state.lastResults || []) {
       <td><span class="directory-category">${escapeHtml(category)}</span></td>
       <td>${escapeHtml(doc.displayDate || doc.date || "—")}</td>
       <td>${escapeHtml(formatFileSize(directoryFileSize(doc)))}</td>
-      <td><div class="directory-actions"><button type="button" data-preview-index="${resultIndex}">Prévia</button><a class="secondary-button" href="${escapeHtml(openPdfAtPage(doc, result.chunk?.page))}" target="_blank" rel="noopener">Abrir</a>${documentDownloadLink(doc)}<button type="button" class="favorite-toggle" data-favorite-toggle data-favorite-id="${escapeHtml(doc.id)}" data-favorite-kind="document" data-favorite-title="${escapeHtml(doc.title || "Documento")}" data-favorite-url="${escapeHtml(fileUrl)}" data-favorite-meta="${escapeHtml(category)}" aria-label="Adicionar aos favoritos" title="Adicionar aos favoritos">☆</button></div></td>
+      <td><div class="directory-actions"><button type="button" data-preview-index="${resultIndex}">Prévia</button><a class="secondary-button" href="${escapeHtml(openPdfAtPage(doc, result.chunk?.page))}" target="_blank" rel="noopener">Abrir</a>${documentDownloadLink(doc)}<button type="button" class="favorite-toggle" data-favorite-toggle data-favorite-id="${escapeHtml(doc.id)}" data-favorite-kind="document" data-favorite-title="${escapeHtml(doc.title || "Documento")}" data-favorite-url="${escapeHtml(openPdfAtPage(doc))}" data-favorite-meta="${escapeHtml(category)}" aria-label="Adicionar aos favoritos" title="Adicionar aos favoritos">☆</button></div></td>
     </tr>`;
   }).join("") : `<tr><td colspan="6"><div class="empty-state"><strong>Nenhum documento entre os resultados.</strong><span>Use Cards para ver links, apps, contatos e respostas.</span></div></td></tr>`;
   renderSearchDirectoryPagination(docs.length, pageCount);
@@ -2253,6 +2286,7 @@ function loadSavedSearches() {
 
 function persistSavedSearches(items) {
   try { localStorage.setItem(SAVED_SEARCHES_STORAGE_KEY, JSON.stringify(items.slice(0, 10))); } catch (_) {}
+  document.dispatchEvent(new CustomEvent("hub:saved-searches-changed"));
 }
 
 function currentSearchSnapshot() {
@@ -2400,6 +2434,23 @@ function setupSearch() {
     });
   });
 
+  const urlParams = new URLSearchParams(window.location.search);
+  const focusSearchRequested = urlParams.get("focus") === "search";
+  const requestedQuery = String(urlParams.get("q") || "").trim();
+  if (requestedQuery) {
+    input.value = requestedQuery;
+    runSearch(requestedQuery);
+  }
+  if (focusSearchRequested || requestedQuery || window.location.hash === "#buscar") {
+    window.setTimeout(() => {
+      input.focus({ preventScroll: true });
+      if (focusSearchRequested || requestedQuery) {
+        const cleanUrl = `${window.location.pathname}${window.location.hash || "#buscar"}`;
+        window.history.replaceState(null, "", cleanUrl);
+      }
+    }, 260);
+  }
+
   document.getElementById("smartSuggestions")?.addEventListener("click", event => {
     const button = event.target.closest("[data-suggest]");
     if (!button) return;
@@ -2432,14 +2483,14 @@ function setupSearch() {
 
 function renderResourceCard(resource, kind) {
   const action = kind === "document"
-    ? `<button type="button" data-doc-preview="${escapeHtml(resource.id)}">Prévia</button><a class="secondary-button" href="${escapeHtml(resource.pdfUrl || resource.sourceUrl || '#')}" target="_blank" rel="noopener">Abrir</a>${documentDownloadLink(resource)}`
+    ? `<button type="button" data-doc-preview="${escapeHtml(resource.id)}">Prévia</button><a class="secondary-button" href="${escapeHtml(openPdfAtPage(resource))}" target="_blank" rel="noopener">Abrir</a>${documentDownloadLink(resource)}`
     : `<a class="small-action" href="${escapeHtml(resource.url)}"${linkTargetAttrs(resource)}>Abrir</a>`;
   const subtitle = kind === "document" ? documentInfoInline(resource) : (resource.category || "Atalho");
   const infoRow = kind === "document"
     ? documentInfoBadges(resource)
     : itemInfoBadges(kind, resource.category || inferFormat({ ...resource, type: kind }));
 
-  const favoriteUrl = kind === "document" ? (resource.pdfUrl || resource.sourceUrl || "#") : (resource.url || "#");
+  const favoriteUrl = kind === "document" ? openPdfAtPage(resource) : (resource.url || "#");
   const favoriteMeta = kind === "document" ? documentInfoInline(resource) : (resource.category || "Atalho");
   return `
     <article class="resource-card resource-${escapeHtml(kind)}" id="${escapeHtml(resource.id)}">
@@ -2575,7 +2626,7 @@ function renderDirectory() {
         <td><span class="directory-category">${escapeHtml(category || "Documentos")}</span></td>
         <td>${escapeHtml(createdDateText(doc))}</td>
         <td>${escapeHtml(formatFileSize(directoryFileSize(doc)))}</td>
-        <td><div class="directory-actions"><button type="button" data-directory-doc="${escapeHtml(doc.id)}">Prévia</button><a class="secondary-button" href="${escapeHtml(fileUrl)}" target="_blank" rel="noopener">Abrir</a>${documentDownloadLink(doc)}<button type="button" class="favorite-toggle" data-favorite-toggle data-favorite-id="${escapeHtml(doc.id)}" data-favorite-kind="document" data-favorite-title="${escapeHtml(doc.title || "Documento")}" data-favorite-url="${escapeHtml(fileUrl)}" data-favorite-meta="${escapeHtml(category || "Documentos")}" aria-label="Adicionar aos favoritos" title="Adicionar aos favoritos">☆</button></div></td>
+        <td><div class="directory-actions"><button type="button" data-directory-doc="${escapeHtml(doc.id)}">Prévia</button><a class="secondary-button" href="${escapeHtml(openPdfAtPage(doc))}" target="_blank" rel="noopener">Abrir</a>${documentDownloadLink(doc)}<button type="button" class="favorite-toggle" data-favorite-toggle data-favorite-id="${escapeHtml(doc.id)}" data-favorite-kind="document" data-favorite-title="${escapeHtml(doc.title || "Documento")}" data-favorite-url="${escapeHtml(openPdfAtPage(doc))}" data-favorite-meta="${escapeHtml(category || "Documentos")}" aria-label="Adicionar aos favoritos" title="Adicionar aos favoritos">☆</button></div></td>
       </tr>
     `;
   }).join("");
@@ -3310,7 +3361,8 @@ document.addEventListener("keydown", event => {
   const typing = target && /^(INPUT|TEXTAREA|SELECT)$/i.test(target.tagName || "") || target?.isContentEditable;
   if (!typing && !event.ctrlKey && !event.metaKey && !event.altKey && event.key === "/") {
     event.preventDefault();
-    const input = document.getElementById("searchInput");
+    const input = document.getElementById("sidebarSearchInput") || document.getElementById("searchInput");
+    window.HUB_SIDEBAR_SEARCH?.open?.();
     input?.focus();
     input?.select();
   }
@@ -4144,6 +4196,10 @@ function refreshCurrentSearchIfNeeded() {
 function setupPwa() {
   if (!("serviceWorker" in navigator)) return;
   window.addEventListener("load", () => {
+    if (window.HUB_UI?.registerServiceWorker) {
+      window.HUB_UI.registerServiceWorker({ url: "service-worker.js", scope: "./" });
+      return;
+    }
     navigator.serviceWorker.register("service-worker.js", { scope: "./" })
       .catch(error => console.warn("Service worker não registrado:", error));
   }, { once: true });
@@ -4176,6 +4232,7 @@ async function boot() {
   setupAppsMenu();
   setupTheme();
   setupSidebar();
+  window.HUB_UI?.setupReportButton(document.getElementById("reportIssueButton"), { title: "Página inicial" });
   setupNavigation();
   setupFixedHeader();
   setupDesktopColumnsControl();

@@ -3925,9 +3925,9 @@ body.directory-column-resizing .directory-column-resizer::after { background: va
 body.directory-column-resizing,
 body.directory-column-resizing * { cursor: col-resize !important; user-select: none !important; }
 
-/* A lista de personalização fica centralizada na seção atual (#atalhos). */
+/* A lista de personalização fica centralizada na seção atual (#links). */
 @media (min-width: 721px) {
-  #atalhos .links-edit-list {
+  #links .links-edit-list {
     width: min(100%, 820px);
     max-width: 820px;
     margin-inline: auto;
@@ -3935,7 +3935,7 @@ body.directory-column-resizing * { cursor: col-resize !important; user-select: n
   }
 }
 @media (min-width: 1180px) {
-  #atalhos .links-edit-list { width: min(100%, 760px); max-width: 760px; }
+  #links .links-edit-list { width: min(100%, 760px); max-width: 760px; }
 }
 
 /* Onde resolvo: quatro ou duas colunas; nunca três no desktop comprimido. */
@@ -4010,3 +4010,5 @@ body.directory-column-resizing * { cursor: col-resize !important; user-select: n
 .media-final-app>.section-heading{margin-bottom:.7rem}
 .media-final-grid .final-table-card{overflow:hidden}
 .media-final-grid .final-table-wrap{max-width:100%}
+
+.legacy-anchor{display:block;position:relative;top:calc(-1 * var(--header-offset,0px));visibility:hidden;height:0;overflow:hidden}
