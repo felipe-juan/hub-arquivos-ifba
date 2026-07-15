@@ -65,7 +65,7 @@ Use Paperless-ngx como inspiração principalmente para:
 
 Não vale a pena copiar o código inteiro para este projeto, porque o escopo é diferente: Paperless-ngx é um gerenciador completo de documentos pessoais/administrativos; este hub é um buscador acadêmico público e verificado.
 
-## Independência dos campos de busca — v0.2.20
+## Independência dos campos de busca — v0.2.22
 
 A busca rápida da sidebar e a busca detalhada do Acervo não espelham texto durante a digitação. Cada campo mantém seu próprio valor. A consulta lateral só é transferida para o campo principal quando o usuário pressiona Enter, toca na lupa ou escolhe **Pesquisar no Acervo**. Depois da transferência, o campo lateral é limpo.
 

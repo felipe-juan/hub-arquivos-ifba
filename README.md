@@ -9,9 +9,9 @@ O projeto deve ser tratado como uma ferramenta experimental de apoio. Para decis
 
 ## Versão atual
 
-**v0.2.20**
+**v0.2.22**
 
-Esta versão corrige a independência entre os dois campos de busca: digitar na busca principal do Acervo não preenche mais a busca da sidebar, e a consulta lateral só é transferida quando o usuário realmente a envia.
+Esta versão melhora a adaptação da sidebar redimensionável: o botão **Relatar problema** acompanha a largura disponível, reduz o texto quando necessário e mantém o ícone centralizado e legível no modo compacto.
 
 ## Sobre o projeto
 
@@ -113,6 +113,16 @@ O site utiliza um `service-worker.js` para armazenar recursos essenciais no cach
 
 O comportamento exato depende das políticas de cache e armazenamento do navegador.
 
+
+## Alterações da v0.2.22
+
+- O botão **Relatar problema** agora reutiliza exatamente a mesma estrutura visual e responsiva de **Restaurar preferências**, tanto na página principal quanto nos apps independentes. Apenas ícone, texto e ação são diferentes.
+
+- O botão **Relatar problema** passou a se adaptar à largura da sidebar da mesma forma que **Restaurar preferências**.
+- O texto reduz gradualmente, usa reticências quando necessário e não força a largura da navegação.
+- O ícone 🐞 mantém tamanho legível, alinhamento central e não encolhe no modo de sidebar somente com ícones.
+- O mesmo comportamento foi aplicado às sidebars do Calendário, Fluxogramas e Barema.
+- Atualizados `VERSION`, parâmetros de cache e `service-worker.js`.
 
 ## Alterações da v0.2.20
 
@@ -450,7 +460,7 @@ O HUB verifica atualizações do service worker e mostra **Uma nova versão do H
 
 ## Como atualizar usando o ZIP
 
-Exemplo para a v0.2.20:
+Exemplo para a v0.2.22:
 
 ```bash
 cd ~/Documents/hub-arquivos-ifba
@@ -458,7 +468,7 @@ cd ~/Documents/hub-arquivos-ifba
 mkdir -p /tmp/hub-update
 rm -rf /tmp/hub-update/*
 
-unzip ~/Downloads/hub-arquivos-ifba-v0.2.20.zip -d /tmp/hub-update
+unzip ~/Downloads/hub-arquivos-ifba-v0.2.22.zip -d /tmp/hub-update
 
 rsync -a --delete \
   --exclude ".git/" \
@@ -481,7 +491,7 @@ Em outro terminal:
 cd ~/Documents/hub-arquivos-ifba
 git status
 git add .
-git commit -m "Update to v0.2.20"
+git commit -m "Update to v0.2.22"
 git pull --rebase origin main
 git push
 ```

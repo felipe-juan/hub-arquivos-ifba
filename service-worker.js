@@ -1,16 +1,16 @@
-const VERSION = "hub-ifba-v0.2.20";
+const VERSION = "hub-ifba-v0.2.22";
 const STATIC_CACHE = `${VERSION}-static`;
 const RUNTIME_CACHE = `${VERSION}-runtime`;
 const CORE = [
   "./", "./index.html", "./offline.html", "./document-viewer.html",
-  "./styles.css?v=0.2.20", "./css/enhancements.css?v=0.2.20", "./css/sidebar-quick-search.css?v=0.2.20", "./css/design-system.css?v=0.2.20",
-  "./data.js?v=0.2.20", "./app.js?v=0.2.20", "./js/storage.js?v=0.2.20", "./js/design-system.js?v=0.2.20",
-  "./js/where-data.js?v=0.2.20", "./js/enhancements.js?v=0.2.20", "./js/experience.js?v=0.2.20", "./js/sidebar-quick-search.js?v=0.2.20",
+  "./styles.css?v=0.2.22", "./css/enhancements.css?v=0.2.22", "./css/sidebar-quick-search.css?v=0.2.22", "./css/design-system.css?v=0.2.22",
+  "./data.js?v=0.2.22", "./app.js?v=0.2.22", "./js/storage.js?v=0.2.22", "./js/design-system.js?v=0.2.22",
+  "./js/where-data.js?v=0.2.22", "./js/enhancements.js?v=0.2.22", "./js/experience.js?v=0.2.22", "./js/sidebar-quick-search.js?v=0.2.22",
   "./assets/logo-pixel.png", "./assets/logo-pixel-64.png", "./assets/apple-touch-icon.png", "./favicon.ico",
-  "./apps/app-shell.css?v=0.2.20", "./apps/app-shell.js?v=0.2.20", "./apps/catalog.json",
-  "./apps/calendario/", "./apps/calendario/index.html", "./apps/calendario/data/calendar-data.js?v=0.2.20", "./apps/calendario/data/source-metadata.json",
-  "./apps/fluxogramas/", "./apps/fluxogramas/index.html", "./apps/fluxogramas/data/fluxogramas-data.js?v=0.2.20", "./apps/fluxogramas/data/source-metadata.json",
-  "./apps/barema/", "./apps/barema/index.html", "./apps/barema/data/barema-data.js?v=0.2.20", "./apps/barema/data/source-metadata.json"
+  "./apps/app-shell.css?v=0.2.22", "./apps/app-shell.js?v=0.2.22", "./apps/catalog.json",
+  "./apps/calendario/", "./apps/calendario/index.html", "./apps/calendario/data/calendar-data.js?v=0.2.22", "./apps/calendario/data/source-metadata.json",
+  "./apps/fluxogramas/", "./apps/fluxogramas/index.html", "./apps/fluxogramas/data/fluxogramas-data.js?v=0.2.22", "./apps/fluxogramas/data/source-metadata.json",
+  "./apps/barema/", "./apps/barema/index.html", "./apps/barema/data/barema-data.js?v=0.2.22", "./apps/barema/data/source-metadata.json"
 ];
 
 self.addEventListener("install", event => {

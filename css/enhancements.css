@@ -107,20 +107,20 @@ html[data-theme="light"] .result-actions .favorite-toggle{background:rgba(255,25
 
 /* v0.2.7 — sidebar fluida em larguras intermediárias. */
 .site-sidebar{container-type:inline-size;container-name:hub-sidebar}
-.sidebar-bottom,.theme-panel,.theme-switch,.reset-preferences,.campus-portal{min-width:0;max-width:100%}
+.sidebar-bottom,.theme-panel,.theme-switch,.reset-preferences,.report-issue-button,.campus-portal{min-width:0;max-width:100%}
 .theme-switch{grid-template-columns:repeat(3,minmax(0,1fr))!important}
 .theme-switch button{min-width:0!important;width:100%!important;padding-inline:.18rem!important;overflow:hidden}
-.reset-preferences,.campus-portal{width:100%;min-width:0;overflow:hidden;padding-inline:clamp(.38rem,4cqi,.72rem)!important}
-.reset-preferences>span:last-child,.campus-portal .sidebar-label{min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.reset-preferences,.report-issue-button,.campus-portal{width:100%;min-width:0;overflow:hidden;padding-inline:clamp(.38rem,4cqi,.72rem)!important}
+.reset-preferences>span:last-child,.report-issue-button .sidebar-label,.campus-portal .sidebar-label{min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 @container hub-sidebar (max-width:220px){
   .theme-panel>span{font-size:.6rem;letter-spacing:.04em}
   .theme-switch{gap:.12rem;padding:.14rem}
   .theme-switch button{min-height:36px!important;font-size:1.12rem!important;padding:0!important}
-  .reset-preferences,.campus-portal{gap:.35rem!important;font-size:.72rem!important;padding:.42rem!important}
-  .reset-preferences>span:first-child,.campus-portal>span:first-child{width:1.85rem!important;height:1.85rem!important;font-size:.92rem!important}
+  .reset-preferences,.report-issue-button,.campus-portal{gap:.35rem!important;font-size:.72rem!important;padding:.42rem!important}
+  .reset-preferences>span:first-child,.report-issue-button>span:first-child,.campus-portal>span:first-child{width:1.85rem!important;height:1.85rem!important;font-size:.92rem!important}
 }
 @container hub-sidebar (max-width:165px){
-  .reset-preferences>span:last-child,.campus-portal .sidebar-label{font-size:.65rem}
+  .reset-preferences>span:last-child,.report-issue-button .sidebar-label,.campus-portal .sidebar-label{font-size:.65rem}
 }
 
 /* Ações de busca: todos os controles no topo direito; favorito ocupa o extremo direito. */

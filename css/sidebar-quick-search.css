@@ -1,4 +1,4 @@
-/* Sidebar quick search — v0.2.20 */
+/* Sidebar quick search — v0.2.22 */
 .sidebar-quick-search{position:relative;display:block;width:100%;min-width:0;z-index:90}
 .sidebar-search-form,.hub-shell-search-form{grid-template-columns:2.15rem minmax(0,1fr) 2rem!important;gap:.18rem!important;overflow:visible!important}
 .sidebar-quick-clear{width:2rem;height:2rem;min-width:2rem;display:grid;place-items:center;padding:0;border:0;border-radius:9px;background:transparent;color:inherit;font:inherit;font-size:1rem;line-height:1;cursor:pointer}
