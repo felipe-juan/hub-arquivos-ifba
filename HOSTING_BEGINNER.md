@@ -1,15 +1,6 @@
 # Publicação para iniciantes
 
-Este MVP é um site estático. Isso significa que ele usa apenas:
-
-- `index.html`
-- `styles.css`
-- `app.js`
-- `data.js`
-- `admin.html`
-- `admin.js`
-
-Não precisa banco de dados nem servidor nesta primeira versão.
+Este projeto é um site estático. Ele usa HTML, CSS, JavaScript, arquivos JSON, documentos e um service worker, sem banco de dados ou servidor de aplicação. Antes de publicar, mantenha também as pastas `assets/`, `apps/`, `documents/` e os arquivos gerados com hash.
 
 ## Opção mais fácil para testar: Netlify Drop
 
@@ -36,4 +27,8 @@ Boa quando o projeto crescer e você quiser usar domínio próprio, CDN e depois
 
 ## Atenção
 
-Este MVP usa dados em `data.js`. Para uma versão com login, upload, OCR automático e banco de dados, será preciso evoluir para uma arquitetura com backend.
+A exibição inicial usa `documents/manifest-summary.json`; a busca textual carrega `documents/search-index.json` sob demanda, e `documents/manifest.json` permanece como representação completa de compatibilidade. `data.js` mantém o conteúdo estático do HUB. Para upload por usuários, OCR em servidor ou banco de dados, será necessário um backend ou uma etapa externa de build.
+
+Antes da publicação, execute `python3 scripts/update_content.py` para regenerar índices, miniaturas e assets com hash.
+
+Para configurar Brotli, gzip, cache longo de assets e cache curto do manifesto, consulte `PERFORMANCE_HOSTING.md`. Em GitHub Pages, a compactação é administrada pelo CDN; em Netlify, Cloudflare, Nginx ou Apache, os cabeçalhos podem ser controlados diretamente.

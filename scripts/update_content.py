@@ -73,6 +73,7 @@ def main() -> int:
 
     if not args.check_only:
         run([sys.executable, "scripts/generate_documents_manifest.py"])
+        run([sys.executable, "scripts/build_production_assets.py"])
 
     entries = load_entries()
     report = summary(entries)

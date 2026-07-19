@@ -9,9 +9,9 @@ O projeto deve ser tratado como uma ferramenta experimental de apoio. Para decis
 
 ## Versão atual
 
-**v0.2.22**
+**v0.2.33**
 
-Esta versão melhora a adaptação da sidebar redimensionável: o botão **Relatar problema** acompanha a largura disponível, reduz o texto quando necessário e mantém o ícone centralizado e legível no modo compacto.
+Esta versão é uma revisão corretiva ampla. Ela repara imports do build de produção, links públicos de documentos, desempenho e ciclo de vida da busca, memória do PDF, cache do service worker, retorno do visualizador, atualização do site, segurança de mensagens de erro e estados responsivos dos Links e do DOOM.
 
 ## Sobre o projeto
 
@@ -31,6 +31,9 @@ A busca localiza documentos, links, contatos, apps e respostas rápidas. Ela tam
 - miniatura da primeira página quando há espaço suficiente;
 - download direto, prévia, abertura e favoritos;
 - pesquisas salvas;
+- URLs compartilháveis, como `?q=calendario+academico`;
+- restauração de consulta, filtros, visualização, página, prévia e rolagem pelos botões Voltar/Avançar;
+- sugestões contextuais quando nenhum resultado é encontrado;
 - navegação por teclado;
 - sintaxe de pesquisa com operadores simples;
 - ordenação previsível por faixas de relevância: título exato, expressão no título, palavras no título, metadados, texto e associação semântica;
@@ -38,22 +41,23 @@ A busca localiza documentos, links, contatos, apps e respostas rápidas. Ela tam
 
 Exemplos:
 
-- `matricula` — busca flexível, ignorando diferenças entre maiúsculas/minúsculas e acentos vocálicos;
-- `marco` e `março` — termos diferentes, porque a cedilha é preservada;
+- `matricula` e `matrícula` — busca flexível, ignorando diferenças entre maiúsculas/minúsculas e acentos vocálicos;
+- `matriclua` ou `matricul` — correção conservadora para **matrícula**, sempre declarada acima dos resultados;
+- `resolucao` e `resolução` — busca flexível equivalente, incluindo cedilha e acentos; expressões entre aspas continuam estritas;
 - `"matriz 2024"` — expressão exata;
 - `matricula AND ajuste` — exige os dois termos;
 - `matricula OR trancamento` — aceita qualquer um dos termos;
 - `matricula -janeiro` — exclui resultados contendo o termo indicado.
 
-Atalhos de teclado disponíveis na busca:
+Atalhos de teclado disponíveis na busca, em computadores:
 
-- `Enter` — abre o primeiro resultado;
-- `Ctrl + Enter` ou `Cmd + Enter` — abre o primeiro resultado em nova aba;
-- `↓` — move o foco para o primeiro card;
-- `↑`, `↓`, `←` e `→` — navegam entre resultados;
-- `Home` e `End` — vão ao primeiro ou ao último resultado;
-- `/` — direciona o foco para a busca;
-- `Esc` — limpa a pesquisa quando o campo está em foco.
+- `/` — direciona o foco para a busca principal;
+- `Ctrl + K` ou `Cmd + K` — abre a busca rápida;
+- `Esc` — fecha a prévia aberta ou limpa a consulta;
+- `↑` e `↓` — percorrem os resultados;
+- `Enter` — abre o resultado selecionado;
+- `Ctrl + Enter` ou `Cmd + Enter` — abre o resultado em nova aba;
+- `←`, `→`, `Home` e `End` — continuam disponíveis quando o foco está nos cards.
 
 ### Apps acadêmicos
 
@@ -113,6 +117,145 @@ O site utiliza um `service-worker.js` para armazenar recursos essenciais no cach
 
 O comportamento exato depende das políticas de cache e armazenamento do navegador.
 
+
+
+## Alterações da v0.2.33
+
+- Corrigidos os imports dinâmicos do `app.js` com hash: PDF.js sob demanda e fallback da busca agora resolvem a partir da pasta real do asset, sem duplicar `assets/build/` no endereço.
+- Links públicos com `?doc=` ou `?share=` passam a ser executados durante a inicialização; expiração, documento ausente e abertura da prévia têm tratamento explícito.
+- A normalização flexível passa a considerar também a cedilha, permitindo consultas como `resolucao`, `educacao` e suas formas acentuadas. Expressões entre aspas continuam estritas.
+- O mecanismo de busca foi otimizado com vocabulário e campos reutilizados, buckets de candidatos e Damerau–Levenshtein com memória linear. O pior caso do corpus sintético caiu de cerca de 200 ms para pouco mais de 20 ms neste ambiente.
+- O Web Worker de busca deixa de ser criado durante o carregamento inicial, possui timeout de inicialização, atualização e consulta, e é encerrado quando fica sem responder para que o fallback local não aguarde repetidamente.
+- Miniaturas PDF agora encerram a tarefa/documento do PDF.js após renderizar; falhas e timeouts do carregador permitem nova tentativa, e páginas extraídas são limpas após uso.
+- O visualizador rejeita parâmetros `file` e `returnTo` vazios, evitando tentar abrir o próprio HTML como PDF ou fazer o botão Voltar recarregar o visualizador. Páginas removidas da LRU também liberam recursos do PDF.js.
+- Corrigidas mensagens de erro montadas com HTML interpolado no visualizador, DOOM, Calendário e Fluxogramas; conteúdo variável agora usa `textContent` e nós DOM.
+- O service worker mantém viva a atualização `stale-while-revalidate` com `event.waitUntil` e atualiza a recência antes de limitar caches, tornando os limites de PDFs, imagens e metadados efetivamente LRU.
+- O aviso pós-atualização agora informa a versão nova carregada, não a versão antiga que exibiu o botão, e evita notificações duplicadas para o mesmo worker.
+- O DOOM ganhou timeout de CSS, verificação alternativa do bundle local em hosts que recusam `HEAD` e tratamento de BFCache para não destruir uma sessão preservada pelo navegador.
+- Preferências de visualização e colunas dos Links são reaplicadas quando a janela cruza o limite celular/desktop; o resize é agrupado em um único frame.
+- O monitor de desempenho só cria observers, coleta métricas e grava relatórios quando `?perf=1` ou o modo local foi explicitamente ativado.
+- O verificador do host publicado passa a reconhecer respostas HTML comprimidas por gzip/Brotli, usa a versão real de `VERSION` e testa revalidação também nas páginas dos apps.
+- Calendário, Fluxogramas, recentes e restauração de preferências toleram navegadores com armazenamento local bloqueado; a sincronização visual dos favoritos é agrupada por frame para evitar varreduras repetidas durante grandes atualizações do DOM.
+- A instalação do service worker diferencia o shell essencial dos recursos offline opcionais: uma falha isolada em um app não bloqueia toda a atualização do HUB.
+- O script de publicação e o CI também verificam sintaxe de todos os JavaScripts, scripts Python e fluxo Bash antes do push.
+- Todos os botões estáticos receberam `type` explícito; erros dos apps não usam mais handlers inline.
+- Adicionados testes de regressão para busca, segurança do markup, ciclo de vida do runtime, links públicos, resolução de assets de produção e preferências responsivas.
+- Atualizados `VERSION`, cache, assets com hash, documentação, CI e validações para v0.2.33.
+
+
+## Alterações da v0.2.32
+
+- A detecção móvel do DOOM agora considera `userAgentData.mobile`, user agents móveis, ponteiro coarse, ausência de hover, quantidade de pontos touch e largura efetiva do viewport; `?touch=1` e `?desktop=1` continuam disponíveis para testes.
+- O HUD touch aparece automaticamente assim que a sessão móvel é iniciada, inclusive durante o carregamento do emulador, sem depender de teclado virtual.
+- O joystick esquerdo passa a controlar avanço, recuo e deslocamento lateral; uma área touch à direita permite arrastar horizontalmente para olhar, seguindo o padrão de jogos móveis em primeira pessoa.
+- Botões virtuais de atirar, usar, correr, strafe, menu e troca de arma continuam disponíveis, com multitouch, opacidade, sensibilidade, modo canhoto e vibração configuráveis.
+- O player foi isolado abaixo do HUD por camada própria; mensagens de erro e a tela de retomada permanecem acima dos controles.
+- Corrigido o intervalo em que o canvas podia existir antes da interface de comandos do js-dos: eventos touch agora possuem fallback de teclado com códigos compatíveis com o navegador.
+- Corrigida a retomada após perda de foco: o painel de ajustes fecha e a camada “toque para retomar” fica acima do HUD.
+- A seção Links recebeu um seletor de colunas contextual. As quantidades das visualizações **Rápida** e **Detalhada** são armazenadas separadamente, também distinguindo preferências de celular e desktop.
+- A personalização de colunas é suspensa enquanto a ordem dos links está sendo editada e restaurada ao concluir.
+- Adicionados testes permanentes para detecção móvel, composição do HUD, fallback de entrada e persistência das colunas dos Links.
+- Atualizados `VERSION`, cache, assets com hash, documentação, CI e validações para v0.2.32.
+
+
+## Alterações da v0.2.31
+
+- Links internos iniciados por `#` nunca mais recebem `target="_blank"`, mesmo quando aparecem em listas que normalmente abrem recursos externos em nova aba.
+- Os itens **Média e Prova Final** e **Onde resolvo isso?** da sidebar passam a usar navegação interna real, sem abrir uma segunda aba e sem retornar ao topo durante a inicialização.
+- Criado um roteador leve para âncoras locais, compartilhado pela sidebar, cards, favoritos, busca rápida e paleta de comandos.
+- O estado do histórico agora inclui `routeHash`; Voltar/Avançar restaura tanto a busca quanto a seção interna correta, sem disputar com `scrollY`.
+- Pesquisas continuam usando `#buscar`, enquanto a atualização silenciosa da rolagem preserva âncoras como `#media-final`, `#onde-resolvo`, `#apps` e `#links`.
+- O destino legado inexistente `#resolver` foi redirecionado para `#onde-resolvo`.
+- Destinos internos receberam margem de rolagem apropriada no celular para não ficarem escondidos sob a barra superior.
+- A validação passa a conferir âncoras declaradas no catálogo, o roteador interno e a ausência do padrão antigo que forçava apps internos a abrir em nova aba.
+- Atualizados `VERSION`, cache, assets com hash, documentação e validações para v0.2.31.
+
+
+## Alterações da v0.2.30
+
+- O gerador passa a pré-calcular versões normalizadas de títulos, metadados, tokens e trechos. O navegador reutiliza esses campos em vez de repetir remoção de acentos, tokenização e preparação de vocabulário a cada consulta.
+- O acervo foi dividido em `documents/manifest-summary.json`, carregado para exibição inicial, e `documents/search-index.json`, baixado apenas na primeira pesquisa textual ou quando um trecho precisa ser aberto. O manifesto completo continua disponível para compatibilidade e manutenção.
+- A primeira consulta aguarda a sincronização do índice completo com o Web Worker; respostas antigas continuam descartadas por identificador, evitando resultados parciais ou fora de ordem.
+- Resultados e linhas extensas usam virtualização nativa por viewport a partir de 48 itens, com `content-visibility`, dimensões intrínsecas e contenção. Cards e linhas são atualizados por chave e assinatura, reaproveitando nós já existentes em vez de reconstruir toda a coleção.
+- O visualizador mostra primeiro uma renderização leve da página e a substitui pela versão nítida quando ela termina. Trocas de página ou escala cancelam tanto a prévia quanto o render final obsoletos; permanecem as LRU de cinco páginas/textos e três bitmaps.
+- `scripts/build_production_assets.py` gera nomes com hash de conteúdo para JavaScript e CSS em `assets/build/` e `apps/build/`, reescreve HTML, imports dinâmicos, Worker e precache e produz `assets/build-manifest.json`. O build é determinístico e pode ser executado novamente sem alterar arquivos quando as fontes não mudam.
+- Assets com hash recebem orientação de cache anual com `immutable`; HTML, `VERSION`, catálogo e índice textual continuam com revalidação. O service worker mantém estratégias distintas por classe de recurso e não inclui o índice pesado nem o runtime PDF no precache.
+- O painel local ativado por `?perf=1` registra FCP, LCP, CLS, INP quando suportado, TTFB, tarefas longas, latência de busca, transferência, nós DOM e memória exposta pelo navegador. `PERFORMANCE_DEVICE_TESTING.md` define o roteiro comparável para Android e iPhone.
+- `scripts/verify_production_host.py --url ...` testa no endereço publicado compressão Brotli/gzip, revalidação dos arquivos mutáveis e cache `immutable` dos assets com hash. A etapa depende de uma URL de produção real e não é simulada pela validação local.
+- O orçamento automatizado valida a divisão dos índices, campos normalizados, virtualização, reaproveitamento de DOM, renderização progressiva, hashes, recursos iniciais e benchmark sintético de 320 documentos e 2.240 trechos.
+- Atualizados `VERSION`, cache, documentação, CI e validações para v0.2.30.
+
+## Alterações da v0.2.28
+
+- Consultas simples recebem correção ortográfica conservadora por distância Damerau–Levenshtein, usando apenas vocabulário institucional confiável de títulos, tags, tipos, setores, apps e conceitos curados.
+- A correção não é silenciosa: a interface mostra **Resultados para “…”** e evita alterar expressões entre aspas, operadores `AND`/`OR` e termos excluídos.
+- Diferenças de acentuação continuam sendo normalizadas sem custo, enquanto a cedilha permanece significativa.
+- Todos os trechos reais de um mesmo PDF são consolidados em um único card; correspondências vindas apenas de título, tags ou metadados não inflam artificialmente a contagem.
+- Documentos com vários trechos exibem uma lista expansível com página, seção, contexto e ação direta **Abrir página**.
+- O estado expandido dos trechos passa a integrar `history.state` e é restaurado pelos botões Voltar/Avançar.
+- O visualizador recebe consulta, seção, documento e endereço de retorno; abre na página correta e destaca termos na camada de texto do PDF quando disponíveis.
+- O botão de retorno do visualizador leva novamente à busca compartilhável e tenta centralizar o documento de origem.
+- O visualizador lembra localmente a última página de cada PDF quando a abertura não indica uma página específica.
+- No celular, o visualizador ganhou toolbar inferior recolhível, swipe entre páginas no zoom ajustado, duplo toque, pinch-to-zoom e arraste do documento ampliado.
+- Skeletons ficaram restritos a operações com espera real: manifesto documental, miniatura PDF visível e página do visualizador em renderização. Apps e links embutidos deixam de receber placeholders artificiais.
+- Mantidos os mesmos limites de desempenho da v0.2.27; a nova versão permanece dentro do orçamento automatizado.
+- Atualizados `VERSION`, parâmetros de cache, documentação e validações para v0.2.28.
+
+## Alterações da v0.2.27
+
+- A busca principal mantém a consulta na URL por meio de `?q=...`; filtros ativos também são representados por parâmetros próprios e podem ser compartilhados.
+- Os botões Voltar e Avançar restauram consulta, filtros, modo Cards/Diretório, ordenação, quantidade de linhas, página, resultado selecionado, documento em prévia, página da prévia e posição de rolagem.
+- Consultas sem correspondência agora apresentam recomendações contextuais clicáveis; termos relacionados a RU, alimentação ou assistência sugerem **assistência estudantil**, **auxílio alimentação** e **CAENS**.
+- Consolidada a navegação global por teclado com `/`, `Esc`, `↑`, `↓`, `Enter` e `Ctrl/Cmd + K`, sem capturar teclas dentro de campos de edição.
+- Criado `performance-budget.json` com limites explícitos para JavaScript, CSS, requisições iniciais e dimensões de miniaturas.
+- Criado `scripts/check_performance_budget.py`, executado também no fluxo de validação do GitHub Actions.
+- Metadados documentais permanecem carregados depois da primeira pintura, e nenhum asset do emulador é carregado antes de **INICIAR DOOM**.
+- O DOOM registra localmente apenas se o segredo já foi descoberto e encurta a transição cinematográfica nas visitas seguintes, sem revelar o Easter Egg na interface comum.
+- O gamepad móvel ganhou ajustes persistentes de opacidade e sensibilidade, vibração opcional e disposição canhota.
+- A área do jogo bloqueia rolagem acidental durante a partida, mas mantém os controles do painel de ajustes utilizáveis.
+- O aviso para girar o aparelho aparece somente quando o modo retrato deixa a área de jogo realmente estreita.
+- Uma falha inesperada do emulador pode acionar uma única tentativa de recuperação, com mensagem discreta e preservação do cronômetro da sessão.
+- Atualizados `VERSION`, parâmetros de cache, documentação e validações para v0.2.27.
+
+## Orçamento de desempenho
+
+Os limites ficam em `performance-budget.json` e são verificados por `python3 scripts/check_performance_budget.py`:
+
+- JavaScript inicial: até 270.000 bytes brutos, 70.000 gzip e 58.000 Brotli;
+- CSS inicial: até 192 KiB brutos, 40.000 gzip e 34.000 Brotli;
+- primeira carga: até 15 requisições, incluindo o manifesto documental adiado;
+- busca sintética: mediana até 35 ms, p95 até 65 ms e pior caso até 120 ms;
+- miniaturas: WebP pré-gerados de 160, 320 e 520 px, com fallback limitado a canvas de 520 × 760 px;
+- visualizador PDF: cinco páginas/textos e três bitmaps na LRU, com cancelamento de renderizações antigas;
+- documentos: metadados fora de `data.js`, carregados depois da primeira pintura;
+- DOOM: zero requisições de engine antes de **INICIAR DOOM**.
+
+Para cabeçalhos de compressão e cache do servidor, consulte `PERFORMANCE_HOSTING.md`.
+
+## Alterações da v0.2.25
+
+- A consulta exata `doom` deixou de redirecionar imediatamente e agora exibe o resultado falso **DOOM — Documento Operacional Oculto do Ministério**.
+- Ao abrir o resultado, a busca simula uma falha de classificação, a tela escurece, surge **ANOMALIA DETECTADA NO ACERVO**, uma barra curta é executada e um som discreto é reproduzido após a interação do usuário.
+- Criada uma tela intermediária em estilo terminal com os dados do arquivo e as ações **INICIAR DOOM** e **VOLTAR AOS ESTUDOS**.
+- O emulador não é mais carregado automaticamente: rede, motor e bundle só são requisitados depois de **INICIAR DOOM**.
+- Adicionado botão visível para encerrar, tela cheia aplicada ao contêiner completo, captura de teclado somente após clique e liberação automática quando a janela ou aba perde o foco.
+- A sessão tenta pausar ao perder o foco e exige novo clique para retomar os controles.
+- Os controles passaram a usar teclas desenhadas com `<kbd>` e uma lista organizada, em vez de uma frase corrida.
+- Ao encerrar, o HUB mostra o tempo de procrastinação e oferece **Voltar para a busca**, **Jogar novamente** e **Fingir que isso nunca aconteceu**.
+- A consulta, os filtros e a posição aproximada da página são preservados em `sessionStorage` para restaurar a busca ao sair do jogo.
+- Mantido o carregamento em camadas: assets locais, js-dos v8.4.1, endereço `latest` e modo de compatibilidade 6.22.
+- Mantida a proteção do service worker contra respostas HTML no lugar de JavaScript, CSS, WASM, workers, `.data` ou `.jsdos`.
+- Atualizados `VERSION`, cache, documentação, testes responsivos e validações para v0.2.25.
+
+## Alterações da v0.2.23
+
+- Pesquisar exatamente `doom` na busca principal ou enviar essa consulta pela busca da sidebar abre automaticamente o Easter Egg.
+- Mantida somente uma opção: **DOOM clássico**. Não há seletor de jogos, alternativas de engine nem recomendação para instalar GZDoom.
+- Criada a página estável `apps/doom/`, reutilizando a sidebar, o header mobile, os temas, os botões, os cards e os espaçamentos compartilhados do HUB.
+- O jogo inicia automaticamente pelo js-dos v8 e começa com uma sessão limpa, sem reaproveitar configurações antigas do emulador.
+- **Reiniciar** encerra a instância atual, limpa o estado legado e inicia uma nova sessão.
+- O service worker usa rede primeiro para os recursos externos do js-dos, reduzindo o risco de reutilizar uma resposta externa quebrada, com fallback do cache quando disponível.
+- Atualizados `VERSION`, parâmetros de cache, documentação e validações para v0.2.23.
 
 ## Alterações da v0.2.22
 
@@ -258,6 +401,7 @@ hub-arquivos-ifba/
 │   ├── enhancements.js
 │   └── experience.js
 ├── apps/
+│   ├── doom/
 │   ├── app-shell.css
 │   ├── app-shell.js
 │   ├── catalog.json
@@ -296,6 +440,7 @@ Os arquivos HTML versionados que ainda existem diretamente em `apps/` servem ape
 apps/calendario/
 apps/fluxogramas/
 apps/barema/
+apps/doom/
 ```
 
 Esses endereços devem ser usados em novos links. A versão do app pode mudar sem alterar sua URL pública.
@@ -460,7 +605,7 @@ O HUB verifica atualizações do service worker e mostra **Uma nova versão do H
 
 ## Como atualizar usando o ZIP
 
-Exemplo para a v0.2.22:
+Exemplo para a v0.2.25:
 
 ```bash
 cd ~/Documents/hub-arquivos-ifba
@@ -468,7 +613,7 @@ cd ~/Documents/hub-arquivos-ifba
 mkdir -p /tmp/hub-update
 rm -rf /tmp/hub-update/*
 
-unzip ~/Downloads/hub-arquivos-ifba-v0.2.22.zip -d /tmp/hub-update
+unzip ~/Downloads/hub-arquivos-ifba-v0.2.25.zip -d /tmp/hub-update
 
 rsync -a --delete \
   --exclude ".git/" \
@@ -477,6 +622,15 @@ rsync -a --delete \
 ```
 
 O `--exclude "documents/"` preserva o Acervo principal já existente no repositório local.
+
+Opcionalmente, para hospedar também o emulador e o bundle no próprio HUB:
+
+```bash
+cd ~/Documents/hub-arquivos-ifba
+bash scripts/vendor_doom_assets.sh
+```
+
+Antes de publicar os arquivos baixados em um repositório público, confira os termos de redistribuição aplicáveis ao emulador e ao conteúdo do jogo.
 
 Depois teste e publique:
 
@@ -491,7 +645,7 @@ Em outro terminal:
 cd ~/Documents/hub-arquivos-ifba
 git status
 git add .
-git commit -m "Update to v0.2.22"
+git commit -m "Fix DOOM loading in v0.2.25"
 git pull --rebase origin main
 git push
 ```
@@ -534,7 +688,7 @@ Antes de tomar decisões sobre matrícula, trancamento, estágio, TCC, aproveita
 
 O código-fonte deste projeto é disponibilizado sob a Licença MIT.
 
-Importante: esta licença se aplica ao código do site/repositório. Documentos institucionais, PDFs, calendários acadêmicos, matrizes curriculares e outros materiais públicos ou de terceiros incluídos ou referenciados pelo projeto podem possuir regras próprias de uso e direitos autorais. Esses materiais não são automaticamente cobertos pela Licença MIT do código.
+Importante: esta licença se aplica ao código do site/repositório. Documentos institucionais, PDFs, calendários acadêmicos, matrizes curriculares e outros materiais públicos ou de terceiros incluídos ou referenciados pelo projeto podem possuir regras próprias de uso e direitos autorais. Esses materiais não são automaticamente cobertos pela Licença MIT do código. O Easter Egg do DOOM pode utilizar emulador e bundle locais ou externos; esses componentes e o conteúdo do jogo seguem suas próprias licenças e direitos.
 
 ## Créditos
 

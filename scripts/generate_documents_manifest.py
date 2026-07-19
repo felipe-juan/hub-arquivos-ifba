@@ -44,8 +44,12 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parents[1]
 DOCS_DIR = ROOT / "documents"
 MANIFEST_JSON = DOCS_DIR / "manifest.json"
+MANIFEST_SUMMARY_JSON = DOCS_DIR / "manifest-summary.json"
+SEARCH_INDEX_JSON = DOCS_DIR / "search-index.json"
 MANIFEST_CSV = DOCS_DIR / "manifest.csv"
 REPORT_DIR = DOCS_DIR / "_manifest_reports"
+THUMBNAIL_DIR = ROOT / "assets" / "document-thumbnails"
+THUMBNAIL_SIZES = (160, 320, 520)
 DUPLICATES_CSV = REPORT_DIR / "duplicates-ignored.csv"
 IGNORED_CSV = REPORT_DIR / "ignored-files.csv"
 
@@ -147,7 +151,57 @@ def strip_accents(text: str) -> str:
 
 
 def normalize_for_match(text: str) -> str:
-    return strip_accents(text).lower()
+    return "".join(
+        char for char in unicodedata.normalize("NFD", str(text or "").lower())
+        if unicodedata.category(char) != "Mn"
+    )
+
+
+SEARCH_STOP_WORDS = {
+    "para", "com", "das", "dos", "uma", "por", "que", "seu", "sua",
+    "de", "do", "da", "e", "o", "a", "as", "os", "em", "no", "na",
+    "nos", "nas", "ao", "aos", "à", "às", "the", "and", "for",
+}
+
+
+def search_tokens(text: str) -> list[str]:
+    normalized = re.sub(r"[^a-z0-9ç\s]", " ", normalize_for_match(text))
+    seen: set[str] = set()
+    tokens: list[str] = []
+    for token in normalized.split():
+        if len(token) <= 2 or token in SEARCH_STOP_WORDS or token in seen:
+            continue
+        seen.add(token)
+        tokens.append(token)
+    return tokens
+
+
+def normalized_document_fields(title: str, summary: str, tags: list[str], kind: str, correspondent: str, fmt: str, status: str = "verified") -> dict:
+    title_norm = normalize_for_match(title)
+    summary_norm = normalize_for_match(summary)
+    tags_norm = normalize_for_match(" ".join(tags))
+    meta_norm = normalize_for_match(f"{kind} {correspondent} {fmt} {status}")
+    return {
+        "title": title_norm,
+        "summary": summary_norm,
+        "tags": tags_norm,
+        "meta": meta_norm,
+        "all": " ".join(part for part in (title_norm, summary_norm, tags_norm, meta_norm) if part),
+        "tokens": search_tokens(f"{title} {summary} {' '.join(tags)} {kind} {correspondent} {fmt}"),
+    }
+
+
+def normalized_chunk_fields(heading: str, text: str, tags: list[str]) -> dict:
+    heading_norm = normalize_for_match(heading)
+    text_norm = normalize_for_match(text)
+    tags_norm = normalize_for_match(" ".join(tags))
+    return {
+        "heading": heading_norm,
+        "text": text_norm,
+        "tags": tags_norm,
+        "all": " ".join(part for part in (heading_norm, text_norm, tags_norm) if part),
+        "tokens": search_tokens(f"{heading} {text} {' '.join(tags)}"),
+    }
 
 
 def normalize_spaces(text: str) -> str:
@@ -697,12 +751,14 @@ def make_chunks(doc_id: str, title: str, pages: list[PageText], tags: list[str])
     chunks: list[dict] = []
     for page in pages:
         for idx, chunk_text in enumerate(split_text_into_chunks(page.text), start=1):
+            heading = title if idx == 1 else f"{title} — trecho {idx}"
             chunks.append({
                 "id": f"{doc_id}-p{slugify(str(page.page))}-{idx}",
                 "page": page.page,
-                "heading": title if idx == 1 else f"{title} — trecho {idx}",
+                "heading": heading,
                 "semanticTags": tags,
                 "text": chunk_text,
+                "normalized": normalized_chunk_fields(heading, chunk_text, tags),
             })
     return chunks
 
@@ -822,15 +878,19 @@ def build_document(candidate: Candidate, used_ids: set[str]) -> dict:
         chunks = make_chunks(doc_id, title, pages, tags)
     else:
         tags = list(dict.fromkeys([*tags, "sem texto extraível"]))
+        fallback_text = f"{title}. {kind} em {category}. Arquivo disponível em {rel}. Atenção: não foi possível extrair texto automaticamente deste arquivo; se for PDF escaneado, gere OCR ou adicione um .txt com o mesmo nome."
         chunks = [{
             "id": f"{doc_id}-arquivo",
             "page": "—",
             "heading": title,
             "semanticTags": tags,
-            "text": f"{title}. {kind} em {category}. Arquivo disponível em {rel}. Atenção: não foi possível extrair texto automaticamente deste arquivo; se for PDF escaneado, gere OCR ou adicione um .txt com o mesmo nome.",
+            "text": fallback_text,
+            "normalized": normalized_chunk_fields(title, fallback_text, tags),
         }]
 
     summary = first_summary(full_text, f"{kind} em {category}.")
+    thumbnail_meta = generate_pdf_thumbnails(path, doc_id)
+    normalized_fields = normalized_document_fields(title, summary, tags, kind, correspondent, fmt)
     return {
         "id": doc_id,
         "title": title,
@@ -848,6 +908,7 @@ def build_document(candidate: Candidate, used_ids: set[str]) -> dict:
         "supersededBy": "",
         "tags": tags,
         "summary": summary,
+        "normalized": normalized_fields,
         "pageCount": file_meta.get("pageCount") or "",
         "createdDate": file_meta.get("createdDate") or "",
         "contentLength": len(full_text),
@@ -855,9 +916,49 @@ def build_document(candidate: Candidate, used_ids: set[str]) -> dict:
         "extractionMethod": extraction_method,
         "sha256": candidate.sha256,
         "size": candidate.size,
+        **thumbnail_meta,
         "chunks": chunks,
     }
 
+
+
+def generate_pdf_thumbnails(path: Path, doc_id: str) -> dict:
+    """Generate responsive first-page WebP thumbnails when optional libraries exist."""
+    if path.suffix.lower() != ".pdf":
+        return {}
+    try:
+        import fitz
+        from PIL import Image
+        THUMBNAIL_DIR.mkdir(parents=True, exist_ok=True)
+        outputs = []
+        first_dimensions = None
+        with fitz.open(path) as pdf:
+            if len(pdf) < 1:
+                return {}
+            page = pdf[0]
+            rect = page.rect
+            for width in THUMBNAIL_SIZES:
+                scale = width / max(1.0, rect.width)
+                pix = page.get_pixmap(matrix=fitz.Matrix(scale, scale), alpha=False)
+                image = Image.frombytes("RGB", [pix.width, pix.height], pix.samples)
+                target = THUMBNAIL_DIR / f"{doc_id}-{width}.webp"
+                image.save(target, "WEBP", quality=76, method=6)
+                outputs.append((target.relative_to(ROOT).as_posix(), width))
+                if width == 320:
+                    first_dimensions = (pix.width, pix.height)
+        if not outputs:
+            return {}
+        preferred = next((path for path, width in outputs if width == 320), outputs[0][0])
+        width, height = first_dimensions or (320, 452)
+        return {
+            "thumbnailUrl": preferred,
+            "thumbnailSrcset": ", ".join(f"{path} {size}w" for path, size in outputs),
+            "thumbnailWidth": width,
+            "thumbnailHeight": height,
+        }
+    except Exception as exc:
+        print(f"Thumbnail skipped for {path.relative_to(ROOT)}: {exc}", file=sys.stderr)
+        return {}
 
 def write_csv(path: Path, rows: list[dict], fieldnames: list[str]) -> None:
     path.parent.mkdir(parents=True, exist_ok=True)
@@ -871,6 +972,11 @@ def write_csv(path: Path, rows: list[dict], fieldnames: list[str]) -> None:
 def main() -> None:
     DOCS_DIR.mkdir(parents=True, exist_ok=True)
     REPORT_DIR.mkdir(parents=True, exist_ok=True)
+    THUMBNAIL_DIR.mkdir(parents=True, exist_ok=True)
+    # Rebuild outputs from the current manifest source so removed/renamed PDFs
+    # cannot leave orphaned thumbnails in future releases.
+    for stale in THUMBNAIL_DIR.glob("*.webp"):
+        stale.unlink(missing_ok=True)
 
     candidates, ignored = collect_candidates()
     unique_candidates, duplicates = deduplicate_candidates(candidates)
@@ -879,16 +985,67 @@ def main() -> None:
     docs = [build_document(candidate, used_ids) for candidate in unique_candidates]
     indexed = sum(1 for doc in docs if doc.get("indexed"))
 
+    generated_at = datetime.now(timezone.utc).isoformat()
     manifest = {
-        "generatedAt": datetime.now(timezone.utc).isoformat(),
+        "generatedAt": generated_at,
         "count": len(docs),
         "indexedCount": indexed,
         "unindexedCount": len(docs) - indexed,
         "duplicateFilesIgnored": len(duplicates),
         "ignoredHelperFiles": len(ignored),
+        "summaryUrl": "documents/manifest-summary.json",
+        "searchIndexUrl": "documents/search-index.json",
         "documents": docs,
     }
     MANIFEST_JSON.write_text(json.dumps(manifest, ensure_ascii=False, indent=2), encoding="utf-8")
+
+    summary_documents = []
+    search_documents = []
+    vocabulary: dict[str, dict] = {}
+
+    def add_vocabulary(display: str, weight: int) -> None:
+        for word in re.findall(r"[A-Za-zÀ-ÖØ-öø-ÿÇç0-9]+", str(display or "")):
+            key = normalize_for_match(word)
+            if len(key) < 4 or key in SEARCH_STOP_WORDS or key.isdigit():
+                continue
+            current = vocabulary.setdefault(key, {"key": key, "display": word, "weight": 0})
+            current["weight"] += weight
+            if word != normalize_for_match(word) and current["display"] == normalize_for_match(current["display"]):
+                current["display"] = word
+
+    for doc in docs:
+        summary_doc = {key: value for key, value in doc.items() if key != "chunks"}
+        summary_doc["hasPassages"] = bool(doc.get("chunks"))
+        summary_doc["passageCount"] = len(doc.get("chunks", []))
+        summary_documents.append(summary_doc)
+        search_documents.append({
+            "id": doc["id"],
+            "normalized": doc.get("normalized", {}),
+            "chunks": doc.get("chunks", []),
+        })
+        add_vocabulary(doc.get("title", ""), 12)
+        add_vocabulary(" ".join(doc.get("tags", [])), 7)
+        add_vocabulary(f"{doc.get('kind', '')} {doc.get('correspondent', '')}", 5)
+        add_vocabulary(doc.get("summary", ""), 2)
+
+    summary_manifest = {
+        "generatedAt": generated_at,
+        "count": len(docs),
+        "indexedCount": indexed,
+        "unindexedCount": len(docs) - indexed,
+        "searchIndexUrl": "documents/search-index.json",
+        "documents": summary_documents,
+    }
+    search_index = {
+        "generatedAt": generated_at,
+        "version": 1,
+        "documentCount": len(search_documents),
+        "passageCount": sum(len(item["chunks"]) for item in search_documents),
+        "vocabulary": sorted(vocabulary.values(), key=lambda item: (-item["weight"], item["key"])),
+        "documents": search_documents,
+    }
+    MANIFEST_SUMMARY_JSON.write_text(json.dumps(summary_manifest, ensure_ascii=False, separators=(",", ":")), encoding="utf-8")
+    SEARCH_INDEX_JSON.write_text(json.dumps(search_index, ensure_ascii=False, separators=(",", ":")), encoding="utf-8")
 
     write_csv(MANIFEST_CSV, [
         {
@@ -899,6 +1056,8 @@ def main() -> None:
             "correspondent": doc["correspondent"],
             "fileFormat": doc["fileFormat"],
             "path": doc["pdfUrl"],
+            "thumbnailUrl": doc.get("thumbnailUrl", ""),
+            "thumbnailSrcset": doc.get("thumbnailSrcset", ""),
             "pageCount": doc.get("pageCount", ""),
             "createdDate": doc.get("createdDate", ""),
             "indexed": doc.get("indexed", False),
@@ -912,13 +1071,15 @@ def main() -> None:
         for doc in docs
     ], [
         "id", "title", "category", "kind", "correspondent", "fileFormat", "path",
-        "pageCount", "createdDate", "indexed", "contentLength", "extractionMethod", "chunks", "sha256", "tags", "summary",
+        "thumbnailUrl", "thumbnailSrcset", "pageCount", "createdDate", "indexed", "contentLength", "extractionMethod", "chunks", "sha256", "tags", "summary",
     ])
 
     write_csv(DUPLICATES_CSV, duplicates, ["duplicatePath", "keptPath", "sha256", "size"])
     write_csv(IGNORED_CSV, ignored, ["path", "reason"])
 
     print(f"Generated {MANIFEST_JSON.relative_to(ROOT)} with {len(docs)} document(s).")
+    print(f"Generated lightweight metadata: {MANIFEST_SUMMARY_JSON.relative_to(ROOT)}")
+    print(f"Generated deferred passage index: {SEARCH_INDEX_JSON.relative_to(ROOT)}")
     print(f"Indexed content in {indexed}/{len(docs)} document(s).")
     print(f"Ignored helper files: {len(ignored)}")
     print(f"Duplicate files ignored: {len(duplicates)}")

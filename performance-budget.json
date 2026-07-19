@@ -1,0 +1,79 @@
+{
+  "version": "0.2.33",
+  "initialPage": {
+    "maxJavaScriptBytes": 270000,
+    "maxJavaScriptGzipBytes": 70000,
+    "maxJavaScriptBrotliBytes": 58000,
+    "maxCssBytes": 196608,
+    "maxCssGzipBytes": 40000,
+    "maxCssBrotliBytes": 34000,
+    "maxFirstLoadRequests": 15,
+    "dynamicFirstLoadResources": [
+      "documents/manifest-summary.json"
+    ],
+    "mustNotLoadInitially": [
+      "documents/search-index.json",
+      "js/enhancements.js",
+      "js/experience.js",
+      "js/sidebar-quick-search.js",
+      "js/performance-monitor.js",
+      "js/pdf-runtime.js",
+      "js/search-engine.js",
+      "js/search-worker.js"
+    ]
+  },
+  "search": {
+    "worker": "js/search-worker.js",
+    "engine": "js/search-engine.js",
+    "summarySource": "documents/manifest-summary.json",
+    "passageSource": "documents/search-index.json",
+    "precomputedNormalizedFields": true,
+    "benchmarkScript": "scripts/benchmark_search.cjs",
+    "maxMedianMs": 35,
+    "maxP95Ms": 65,
+    "maxWorstMs": 120,
+    "benchmarkDocuments": 320,
+    "benchmarkChunks": 2240
+  },
+  "virtualization": {
+    "threshold": 48,
+    "browserNativeContentVisibility": true,
+    "keyedDomPatching": true
+  },
+  "productionAssets": {
+    "manifest": "assets/build-manifest.json",
+    "hashLength": 12,
+    "immutableDirectories": ["assets/build", "apps/build"]
+  },
+  "thumbnails": {
+    "generatedDirectory": "assets/document-thumbnails",
+    "generatedWidths": [160, 320, 520],
+    "maxCssWidth": 260,
+    "maxDevicePixelRatio": 2,
+    "maxCanvasWidth": 520,
+    "maxCanvasHeight": 760
+  },
+  "pdfViewer": {
+    "pageCacheEntries": 5,
+    "bitmapCacheEntries": 3,
+    "cancelStaleRenders": true,
+    "progressiveLowResolution": true
+  },
+  "documentMetadata": {
+    "source": "documents/manifest-summary.json",
+    "passageSource": "documents/search-index.json",
+    "loadAfterInitialPaint": true,
+    "passagesLoadOnFirstTextSearch": true,
+    "embeddedDocumentsMustBeEmpty": true
+  },
+  "diagnostics": {
+    "deviceGuide": "PERFORMANCE_DEVICE_TESTING.md",
+    "localMonitor": "js/performance-monitor.js",
+    "hostVerifier": "scripts/verify_production_host.py"
+  },
+  "doom": {
+    "maxEngineRequestsBeforeStart": 0,
+    "engineAssetsAllowedInInitialHtml": false,
+    "engineAssetsAllowedInServiceWorkerCore": false
+  }
+}

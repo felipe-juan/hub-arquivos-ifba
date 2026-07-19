@@ -14,6 +14,8 @@ const state = {
   archiveView: "grid",
   desktopColumns: "auto",
   linksView: null,
+  linksColumnsQuick: "auto",
+  linksColumnsCards: "auto",
   linksEditMode: false,
   linkDragId: null,
   archiveVisibleCount: null,
@@ -29,6 +31,12 @@ const state = {
   searchDirectoryRows: 10,
   searchDirectoryPage: 1,
   searchColumns: "auto",
+  selectedSearchIndex: -1,
+  previewDocId: "",
+  previewPage: "",
+  effectiveSearchQuery: "",
+  searchCorrection: null,
+  expandedSearchResults: [],
   sidebarWidth: 276,
   themeMode: "auto"
 };
@@ -43,6 +51,8 @@ const HUB_PREF_KEYS = {
   appsMenuOpen: "hubSidebarAppsOpen",
   favoritesMenuOpen: "hubSidebarFavoritesOpen",
   linksMenuOpen: "hubSidebarLinksOpen",
+  linksColumnsQuick: "hubLinksColumnsQuick",
+  linksColumnsCards: "hubLinksColumnsCards",
   searchResultsView: "hubSearchResultsView",
   searchDirectorySort: "hubSearchDirectorySort",
   searchDirectoryRows: "hubSearchDirectoryRows",
@@ -61,6 +71,36 @@ const HUB_PREF_KEYS = {
 
 const LINKS_ORDER_STORAGE_KEY = "hubLinksCustomOrderV1";
 const SAVED_SEARCHES_STORAGE_KEY = "hubSavedSearchesV1";
+const DOOM_RETURN_CONTEXT_KEY = "hubDoomReturnContextV1";
+const DOOM_DISCOVERED_KEY = "hubDoomDiscoveredV1";
+const SEARCH_HISTORY_MARKER = "hubSearchNavigationV1";
+const SEARCH_FILTER_IDS = Object.freeze({
+  type: "typeFilter",
+  docType: "docTypeFilter",
+  correspondent: "correspondentFilter",
+  format: "formatFilter"
+});
+const SEARCH_URL_FILTER_PARAMS = Object.freeze({
+  type: "type",
+  docType: "docType",
+  correspondent: "correspondent",
+  format: "format"
+});
+const PDF_THUMBNAIL_BUDGET = Object.freeze({
+  maxCssWidth: 260,
+  maxDevicePixelRatio: 2,
+  maxCanvasWidth: 520,
+  maxCanvasHeight: 760
+});
+let searchHistoryReady = false;
+let restoringSearchHistory = false;
+let liveSearchHistoryEntry = false;
+let searchScrollHistoryTimer = 0;
+let pendingFocusDocumentId = new URLSearchParams(location.search).get("focusDoc") || "";
+let searchIndexUrl = "documents/search-index.json";
+let deferredSearchIndex = null;
+let deferredSearchIndexPromise = null;
+let deferredSearchIndexLoaded = false;
 const DEFAULT_LINK_ORDER = [
   "link-protocolo",
   "link-fluxograma-atual",
@@ -144,6 +184,7 @@ const typeLabel = {
   app: "App",
   answer: "Resposta",
   workflow: "Guia",
+  doom: "Arquivo desconhecido",
 };
 
 const typeIcon = {
@@ -152,6 +193,7 @@ const typeIcon = {
   app: "🧮",
   answer: "💡",
   workflow: "🧭",
+  doom: "?",
 };
 
 const stopWords = new Set([
@@ -161,10 +203,8 @@ const stopWords = new Set([
 const normalize = (text = "") => text
   .toString()
   .toLowerCase()
-  .replace(/ç/g, "__cedilla__")
   .normalize("NFD")
-  .replace(/[\u0300-\u036f]/g, "")
-  .replace(/__cedilla__/g, "ç");
+  .replace(/[\u0300-\u036f]/g, "");
 
 const tokenize = (text = "") => normalize(text)
   .replace(/[^a-z0-9ç\s]/g, " ")
@@ -308,8 +348,10 @@ function enrichDocument(doc) {
 
 let documents = rawDocuments.map(enrichDocument);
 
+
 function refreshDocuments() {
   documents = rawDocuments.map(enrichDocument);
+  scheduleSearchWorkerUpdate();
 }
 
 function expandedTerms(query) {
@@ -327,6 +369,7 @@ function expandedTerms(query) {
     semantic: unique(extra.flatMap(item => tokenize(item)))
   };
 }
+
 
 
 function escapeRegExp(text = "") {
@@ -746,8 +789,13 @@ function documentInfoInline(resource = {}) {
 
 function linkTargetAttrs(resource = {}) {
   const url = resource.url || resource.sourceUrl || resource.pdfUrl || resource.fileUrl || "";
-  const webUrl = /^https?:\/\//i.test(url);
-  const mailOrPhone = /^(mailto:|tel:)/i.test(url);
+  const cleanUrl = String(url || "").trim();
+  // Same-page anchors must always stay in the current tab. Opening #media-final
+  // or #onde-resolvo in a new tab makes the initial history restoration fight
+  // the browser's native anchor scroll and sends the user back to the top.
+  if (cleanUrl.startsWith("#")) return "";
+  const webUrl = /^https?:\/\//i.test(cleanUrl);
+  const mailOrPhone = /^(mailto:|tel:)/i.test(cleanUrl);
   const newTab = resource.openMode === "new-tab" || resource.target === "_blank" || resource.newTab === true;
 
   if (mailOrPhone && !newTab) return "";
@@ -776,8 +824,13 @@ function thumbnailHtml(resource, type = "document", options = {}) {
   }
 
   if (image) {
+    const srcset = resource?.thumbnailSrcset ? ` srcset="${escapeHtml(resource.thumbnailSrcset)}" sizes="(max-width: 600px) 96px, 160px"` : "";
+    const width = Number(resource?.thumbnailWidth || 0);
+    const height = Number(resource?.thumbnailHeight || 0);
+    const dimensions = width && height ? ` width="${width}" height="${height}"` : "";
     return `
-      <div class="doc-thumb ${kindClass} thumb-image" style="background-image:url('${escapeHtml(image)}')" aria-label="Miniatura de ${escapeHtml(title)}">
+      <div class="doc-thumb ${kindClass} thumb-image" data-static-thumbnail="true" aria-label="Miniatura de ${escapeHtml(title)}">
+        <img src="${escapeHtml(image)}"${srcset}${dimensions} loading="lazy" decoding="async" alt="" aria-hidden="true" />
         <span class="doc-format">${escapeHtml(format)}</span>
         ${page}
       </div>
@@ -797,190 +850,30 @@ function thumbnailHtml(resource, type = "document", options = {}) {
   `;
 }
 
-let pdfJsLoadPromise = null;
-function ensurePdfJs() {
-  if (window.pdfjsLib) return Promise.resolve(true);
-  if (pdfJsLoadPromise) return pdfJsLoadPromise;
-  pdfJsLoadPromise = new Promise(resolve => {
-    const script = document.createElement("script");
-    script.src = "https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js";
-    script.referrerPolicy = "no-referrer";
-    script.async = true;
-    script.onload = () => resolve(Boolean(window.pdfjsLib));
-    script.onerror = () => { console.warn("PDF.js não carregou; miniaturas permanecerão no fallback visual."); resolve(false); };
-    document.head.appendChild(script);
-  });
-  return pdfJsLoadPromise;
-}
 
-function setupPdfJs() {
-  if (!window.pdfjsLib) return false;
-  if (!window.pdfjsLib.GlobalWorkerOptions.workerSrc) {
-    window.pdfjsLib.GlobalWorkerOptions.workerSrc = "https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js";
-  }
-  return true;
+let pdfRuntimePromise = null;
+function getPdfRuntime() {
+  if (!pdfRuntimePromise) pdfRuntimePromise = import("./js/pdf-runtime.js?v=0.2.33");
+  return pdfRuntimePromise;
 }
-
 async function renderSinglePdfThumbnail(el) {
-  if (!el || el.dataset.pdfRendered) return;
-  if (!(await ensurePdfJs()) || !setupPdfJs()) return;
-  const url = el.dataset.pdfUrl;
-  if (!url) return;
-  el.dataset.pdfRendered = "loading";
-  try {
-    const pdf = await window.pdfjsLib.getDocument(url).promise;
-    const page = await pdf.getPage(1);
-    const box = el.getBoundingClientRect();
-    const targetWidth = Math.max(110, Math.min(260, box.width || 160));
-    const viewport1 = page.getViewport({ scale: 1 });
-    const scale = targetWidth / viewport1.width;
-    const viewport = page.getViewport({ scale });
-    const canvas = document.createElement("canvas");
-    const ratio = Math.min(window.devicePixelRatio || 1, 2);
-    canvas.width = Math.floor(viewport.width * ratio);
-    canvas.height = Math.floor(viewport.height * ratio);
-    canvas.style.width = "100%";
-    canvas.style.height = "100%";
-    canvas.setAttribute("aria-hidden", "true");
-    const context = canvas.getContext("2d");
-    context.setTransform(ratio, 0, 0, ratio, 0, 0);
-    await page.render({ canvasContext: context, viewport }).promise;
-    el.classList.add("thumb-rendered");
-    el.prepend(canvas);
-    el.dataset.pdfRendered = "done";
-  } catch (error) {
-    el.dataset.pdfRendered = "error";
-    console.warn("Não foi possível gerar miniatura do PDF:", url, error);
-  }
+  const runtime = await getPdfRuntime();
+  return runtime.renderSinglePdfThumbnail(el, PDF_THUMBNAIL_BUDGET);
 }
-
-let pdfThumbObserver = null;
 function renderPdfThumbnails() {
-  const thumbs = [...document.querySelectorAll(".doc-thumb[data-pdf-url]:not([data-pdf-rendered])")];
-  if (!thumbs.length) return;
-
-  if ("IntersectionObserver" in window) {
-    if (!pdfThumbObserver) {
-      pdfThumbObserver = new IntersectionObserver(entries => {
-        entries.forEach(entry => {
-          if (!entry.isIntersecting) return;
-          pdfThumbObserver.unobserve(entry.target);
-          renderSinglePdfThumbnail(entry.target);
-        });
-      }, { rootMargin: "180px" });
-    }
-    thumbs.forEach(el => pdfThumbObserver.observe(el));
-    return;
-  }
-
-  thumbs.slice(0, 16).forEach(renderSinglePdfThumbnail);
+  getPdfRuntime().then(runtime => runtime.renderPdfThumbnails(PDF_THUMBNAIL_BUDGET)).catch(error => console.warn("Miniaturas indisponíveis:", error));
 }
-
 function schedulePdfThumbnailRender() {
-  const run = () => renderPdfThumbnails();
-  if ("requestIdleCallback" in window) requestIdleCallback(run, { timeout: 900 });
-  else window.setTimeout(run, 120);
+  getPdfRuntime().then(runtime => runtime.schedulePdfThumbnailRender(PDF_THUMBNAIL_BUDGET)).catch(error => console.warn("Miniaturas indisponíveis:", error));
 }
-
-
-function hasRealIndexedText(doc = {}) {
-  if (doc.indexed && Number(doc.contentLength || 0) > 80) return true;
-  const text = (doc.chunks || []).map(chunk => chunk.text || "").join(" ").trim();
-  if (text.length < 100) return false;
-  const normalized = normalize(text);
-  if (normalized.includes("arquivo disponivel em") && normalized.includes("nao foi possivel extrair texto")) return false;
-  return true;
+async function hasRealIndexedText(doc = {}) {
+  const runtime = await getPdfRuntime();
+  return runtime.hasRealIndexedText(doc);
 }
-
-function splitClientText(text = "", maxChars = 1600) {
-  const clean = text.toString().replace(/\s+/g, " ").trim();
-  if (!clean) return [];
-  const chunks = [];
-  for (let start = 0; start < clean.length; start += maxChars) {
-    chunks.push(clean.slice(start, start + maxChars).trim());
-  }
-  return chunks;
-}
-
-function pdfTextCacheKey(doc = {}) {
-  return `hub-pdf-text-v2:${doc.id}:${doc.pdfUrl || doc.sourceUrl || ""}`;
-}
-
-function readCachedPdfText(doc) {
-  try {
-    const raw = localStorage.getItem(pdfTextCacheKey(doc));
-    if (!raw) return null;
-    const parsed = JSON.parse(raw);
-    if (!Array.isArray(parsed?.chunks) || !parsed.chunks.length) return null;
-    return parsed;
-  } catch (error) {
-    return null;
-  }
-}
-
-function writeCachedPdfText(doc, payload) {
-  try {
-    const raw = JSON.stringify(payload);
-    // Avoid filling the browser cache with huge PDFs.
-    if (raw.length < 650000) localStorage.setItem(pdfTextCacheKey(doc), raw);
-  } catch (error) {
-    // localStorage may be full or unavailable. Search still works in memory.
-  }
-}
-
 async function extractPdfTextInBrowser(doc) {
-  if (!(await ensurePdfJs()) || !setupPdfJs()) return null;
-  const url = doc.pdfUrl || doc.sourceUrl;
-  if (!url || !/\.pdf($|[?#])/i.test(url)) return null;
-
-  const cached = readCachedPdfText(doc);
-  if (cached) return cached;
-
-  try {
-    const pdf = await window.pdfjsLib.getDocument(url).promise;
-    const chunks = [];
-    let allText = "";
-
-    for (let pageNumber = 1; pageNumber <= pdf.numPages; pageNumber += 1) {
-      const page = await pdf.getPage(pageNumber);
-      const content = await page.getTextContent();
-      const pageText = content.items
-        .map(item => item.str || "")
-        .join(" ")
-        .replace(/\s+/g, " ")
-        .trim();
-
-      if (!pageText) continue;
-      allText += ` ${pageText}`;
-      splitClientText(pageText).forEach((text, index) => {
-        chunks.push({
-          id: `${doc.id}-browser-p${pageNumber}-${index + 1}`,
-          page: String(pageNumber),
-          heading: index === 0 ? doc.title : `${doc.title} — trecho ${index + 1}`,
-          semanticTags: doc.tags || [],
-          text
-        });
-      });
-    }
-
-    const cleanText = allText.replace(/\s+/g, " ").trim();
-    if (!chunks.length || cleanText.length < 30) return null;
-
-    const payload = {
-      chunks,
-      summary: cleanText.slice(0, 360) + (cleanText.length > 360 ? "…" : ""),
-      contentLength: cleanText.length,
-      indexed: true,
-      extractionMethod: "browser-pdfjs"
-    };
-    writeCachedPdfText(doc, payload);
-    return payload;
-  } catch (error) {
-    console.warn("Não foi possível indexar o PDF no navegador:", url, error);
-    return null;
-  }
+  const runtime = await getPdfRuntime();
+  return runtime.extractPdfTextInBrowser(doc);
 }
-
 function applyExtractedPayload(docId, payload) {
   const update = doc => {
     if (!doc || doc.id !== docId) return doc;
@@ -991,43 +884,29 @@ function applyExtractedPayload(docId, payload) {
     doc.extractionMethod = payload.extractionMethod || doc.extractionMethod;
     return doc;
   };
-
   rawDocuments.forEach(update);
   documents.forEach(update);
+  scheduleSearchWorkerUpdate();
 }
-
 async function backgroundIndexMissingPdfText(maxDocuments = 3) {
-  const candidates = documents.filter(doc => {
-    const url = doc.pdfUrl || doc.sourceUrl || "";
-    return /\.pdf($|[?#])/i.test(url) && !hasRealIndexedText(doc);
-  });
-
+  const runtime = await getPdfRuntime();
+  const checks = await Promise.all(documents.map(async doc => ({ doc, indexed: await runtime.hasRealIndexedText(doc) })));
+  const candidates = checks.filter(item => {
+    const url = item.doc.pdfUrl || item.doc.sourceUrl || "";
+    return /\.pdf($|[?#])/i.test(url) && !item.indexed;
+  }).map(item => item.doc);
   if (!candidates.length) return;
-
   const summary = document.getElementById("resultsSummary");
-  if (summary && !state.lastQuery) {
-    summary.textContent = `Indexando até ${Math.min(candidates.length, Math.max(0, maxDocuments))} PDF(s) em segundo plano...`;
-  }
-
+  if (summary && !state.lastQuery) summary.textContent = `Indexando até ${Math.min(candidates.length, Math.max(0, maxDocuments))} PDF(s) em segundo plano...`;
   let changed = false;
   for (const doc of candidates.slice(0, Math.max(0, maxDocuments))) {
-    const payload = await extractPdfTextInBrowser(doc);
-    if (payload) {
-      applyExtractedPayload(doc.id, payload);
-      changed = true;
-    }
+    const payload = await runtime.extractPdfTextInBrowser(doc);
+    if (payload) { applyExtractedPayload(doc.id, payload); changed = true; }
   }
-
   if (changed) {
-    refreshDocuments();
-    populateFilters();
-    renderDocuments();
-    renderDirectory();
-    if (state.lastQuery) runSearch(state.lastQuery);
-    else renderResults([], "");
-  } else if (summary && !state.lastQuery) {
-    summary.textContent = "Documentos carregados. Alguns PDFs parecem escaneados ou sem texto extraível.";
-  }
+    refreshDocuments(); populateFilters(); renderDocuments(); renderDirectory();
+    if (state.lastQuery) runSearch(state.lastQuery); else renderResults([], "");
+  } else if (summary && !state.lastQuery) summary.textContent = "Documentos carregados. Alguns PDFs parecem escaneados ou sem texto extraível.";
 }
 
 function getAllTags() {
@@ -1173,13 +1052,19 @@ function normalizeManifestDocument(entry = {}, index = 0) {
     sourceUrl: normalizeManifestPath(entry.sourceUrl || entry.officialUrl || originalPath),
     pdfUrl: normalizeManifestPath(entry.pdfUrl || entry.path || originalPath),
     thumbnailUrl: entry.thumbnailUrl || entry.coverUrl || "",
+    thumbnailSrcset: entry.thumbnailSrcset || "",
+    thumbnailWidth: Number(entry.thumbnailWidth || 0),
+    thumbnailHeight: Number(entry.thumbnailHeight || 0),
     group: category,
     category,
     correspondent: entry.correspondent || inferCorrespondent({ title, kind, group: category, tags }),
     fileFormat: format,
     tags,
     summary,
-    chunks: Array.isArray(entry.chunks) && entry.chunks.length ? entry.chunks : [
+    normalized: entry.normalized || null,
+    hasPassages: Boolean(entry.hasPassages || entry.passageCount || (Array.isArray(entry.chunks) && entry.chunks.length)),
+    passageCount: Number(entry.passageCount || entry.chunks?.length || 0),
+    chunks: Array.isArray(entry.chunks) && entry.chunks.length ? entry.chunks : (entry.hasPassages || entry.passageCount ? [] : [
       {
         id: `${id}-manifesto`,
         page,
@@ -1187,7 +1072,7 @@ function normalizeManifestDocument(entry = {}, index = 0) {
         semanticTags: tags,
         text
       }
-    ]
+    ])
   };
 }
 
@@ -1251,7 +1136,10 @@ function parseManifestCsv(text = "") {
       createdDate: item.createddate || item.creationdate || item.created || item.docdate || item.data,
       pageCount: item.pagecount || item.pagescount || item.page_count || item.pages,
       fileFormat: item.fileformat || item.formato,
-      thumbnailUrl: item.thumbnailurl || item.thumbnail || item.coverurl || item.capa
+      thumbnailUrl: item.thumbnailurl || item.thumbnail || item.coverurl || item.capa,
+      thumbnailSrcset: item.thumbnailsrcset || item.srcset || "",
+      thumbnailWidth: item.thumbnailwidth || "",
+      thumbnailHeight: item.thumbnailheight || ""
     };
   }).filter(item => item.title || item.path || item.sourceUrl);
 }
@@ -1307,10 +1195,13 @@ async function loadManifestDocuments() {
     loadedFromJson = true;
   }
 
-  const jsonText = await fetchOptionalText("documents/manifest.json") || await fetchOptionalText("documents/documents-manifest.json");
+  const jsonText = await fetchOptionalText("documents/manifest-summary.json")
+    || await fetchOptionalText("documents/manifest.json")
+    || await fetchOptionalText("documents/documents-manifest.json");
   if (jsonText) {
     try {
       const parsed = JSON.parse(jsonText);
+      if (parsed?.searchIndexUrl) searchIndexUrl = parsed.searchIndexUrl;
       loaded.push(...(Array.isArray(parsed) ? parsed : (parsed.documents || [])));
       loadedFromJson = true;
     } catch (error) {
@@ -1522,279 +1413,256 @@ function filtersAreActive(filters = getFilters()) {
     .some(value => value && value !== "all");
 }
 
-function scoreResource(resource, query = "", filters = getFilters(), intent = detectSearchIntent(query), parsed = parseSearchQuery(query)) {
-  filters = filters || getFilters();
-  if (filters.type !== "all" && resource.type !== filters.type) return null;
-  if (filters.status !== "all" && resource.status !== filters.status) return null;
-  if (filters.docType !== "all" && resource.documentType !== filters.docType) return null;
-  if (filters.correspondent !== "all" && resource.correspondent !== filters.correspondent) return null;
-  if (filters.format !== "all" && resource.fileFormat !== filters.format) return null;
+function applySearchFilters(filters = {}) {
+  Object.entries(SEARCH_FILTER_IDS).forEach(([key, id]) => {
+    const element = document.getElementById(id);
+    const value = filters?.[key] || "all";
+    if (!element) return;
+    const valid = [...(element.options || [])].some(option => option.value === value);
+    element.value = valid ? value : "all";
+  });
+}
 
-  const rawQuery = (query || "").toString();
-  const trimmed = rawQuery.trim();
-  if (!trimmed) {
-    return {
-      ...resource,
-      score: resource.scoreBase,
-      exactTerms: [],
-      semanticTerms: [],
-      strictTerms: [],
-      queryMode: "normal",
-      matchSources: { browse: true }
+const LOCAL_HASH_ALIASES = Object.freeze({
+  "#resolver": "#onde-resolvo",
+});
+
+function normalizeLocalRouteHash(hash = location.hash) {
+  const raw = String(hash || "").trim();
+  if (!raw || raw === "#") return "";
+  const aliased = LOCAL_HASH_ALIASES[raw] || raw;
+  if (!aliased.startsWith("#")) return "";
+  let id = aliased.slice(1);
+  try { id = decodeURIComponent(id); } catch (_) {}
+  return document.getElementById(id) ? `#${id}` : "";
+}
+
+function localAnchorTarget(hash = location.hash) {
+  const normalized = normalizeLocalRouteHash(hash);
+  return normalized ? document.getElementById(normalized.slice(1)) : null;
+}
+
+function navigateToLocalAnchor(hash, { behavior = "smooth", focus = false, replace = false } = {}) {
+  const normalized = normalizeLocalRouteHash(hash);
+  const target = localAnchorTarget(normalized);
+  if (!normalized || !target) return false;
+
+  if (searchHistoryReady && history.state?.marker === SEARCH_HISTORY_MARKER) {
+    const currentState = {
+      ...history.state,
+      scrollY: Math.max(0, Math.round(window.scrollY || 0)),
+      routeHash: normalizeLocalRouteHash(location.hash),
     };
+    history.replaceState(currentState, "", location.href);
   }
 
-  const fields = resourceSearchFields(resource);
-  const titleRaw = fields.title;
-  const textRaw = fields.text;
-  const tagRaw = fields.tags;
-  const metaRaw = fields.meta;
-  const haystackRaw = fields.all;
-  const titleNorm = normalize(titleRaw);
-  const textNorm = normalize(textRaw);
-  const tagNorm = normalize(tagRaw);
-  const metaNorm = normalize(metaRaw);
-  const haystackNorm = `${titleNorm} ${textNorm} ${tagNorm} ${metaNorm}`;
+  const url = new URL(location.href);
+  url.hash = normalized;
+  const nextState = currentSearchNavigationSnapshot({
+    routeHash: normalized,
+    scrollY: Math.max(0, Math.round(target.offsetTop || 0)),
+  });
+  const nextUrl = `${url.pathname}${url.search}${url.hash}`;
+  if (replace || location.hash === normalized) history.replaceState(nextState, "", nextUrl);
+  else history.pushState(nextState, "", nextUrl);
 
-  if (parsed.excludeTerms.some(term => containsFlexibleTerm(haystackNorm, term))) return null;
-  if (parsed.exactPhrases.some(term => !containsStrictTerm(haystackRaw, term))) return null;
-  if (parsed.andTerms.length && parsed.andTerms.some(term => !containsFlexibleTerm(haystackNorm, term))) return null;
-  if (parsed.orTerms.length && !parsed.orTerms.some(term => containsFlexibleTerm(haystackNorm, term))) return null;
-
-  const terms = parsed.flexTerms;
-  const phrase = normalize(parsed.flexQuery || "").trim();
-
-  let score = resource.scoreBase;
-  let matched = false;
-  const matchSources = {
-    title: false,
-    text: false,
-    tag: false,
-    meta: false,
-    semantic: false,
-    strict: false,
-    browse: false
-  };
-
-  const mark = (source, points) => {
-    matchSources[source] = true;
-    matched = true;
-    score += points;
-  };
-
-  for (const term of parsed.exactPhrases) {
-    if (containsStrictTerm(titleRaw, term)) { mark("title", 84); matchSources.strict = true; }
-    if (containsStrictTerm(textRaw, term)) { mark("text", 34); matchSources.strict = true; }
-    if (containsStrictTerm(tagRaw, term)) { mark("tag", 18); matchSources.strict = true; }
-    if (containsStrictTerm(metaRaw, term)) { mark("meta", 18); matchSources.strict = true; }
+  target.scrollIntoView({ behavior, block: "start" });
+  if (focus) {
+    const hadTabIndex = target.hasAttribute("tabindex");
+    if (!hadTabIndex) target.setAttribute("tabindex", "-1");
+    target.focus({ preventScroll: true });
+    if (!hadTabIndex) target.addEventListener("blur", () => target.removeAttribute("tabindex"), { once: true });
   }
+  window.dispatchEvent(new CustomEvent("hub:route-changed", { detail: { hash: normalized, id: target.id } }));
+  return true;
+}
 
-  if (phrase.length > 2 && titleNorm.includes(phrase)) mark("title", 70);
-  if (phrase.length > 2 && textNorm.includes(phrase)) mark("text", 24);
-  if (phrase.length > 2 && (tagNorm.includes(phrase) || metaNorm.includes(phrase))) mark("meta", 12);
+function setupInternalAnchorNavigation() {
+  document.addEventListener("click", event => {
+    if (event.defaultPrevented || event.button !== 0 || event.metaKey || event.ctrlKey || event.shiftKey || event.altKey) return;
+    const anchor = event.target.closest('a[href^="#"]');
+    if (!anchor) return;
+    const href = anchor.getAttribute("href") || "";
+    if (!localAnchorTarget(href)) return;
+    event.preventDefault();
+    navigateToLocalAnchor(href, { focus: anchor.classList.contains("skip-link") });
+  });
+}
 
-  for (const term of terms.exact) {
-    if (titleNorm.includes(term)) mark("title", 28);
-    if (textNorm.includes(term)) mark("text", 10);
-    if (tagNorm.includes(term)) mark("tag", 6);
-    if (normalize(resource.correspondent || "").includes(term)) mark("meta", 4);
-    if (normalize(resource.documentType || "").includes(term)) mark("meta", 5);
-    if (normalize(resource.fileFormat || "").includes(term)) mark("meta", 4);
-  }
+window.HUB_NAVIGATE_TO_ANCHOR = navigateToLocalAnchor;
 
-  for (const term of terms.semantic) {
-    if (textNorm.includes(term)) mark("semantic", 4);
-    else if (haystackNorm.includes(term)) mark("semantic", 2);
-  }
-
-  // When a document title/metadata matches, every chunk of that same PDF would
-  // technically match because each chunk carries the document title. Keep only
-  // the first title-only/metadata-only chunk; internal text matches still stay
-  // available as real evidence for the preview modal.
-  if (resource.type === "document" && !matchSources.text && !matchSources.semantic && Number(resource.chunkIndex || 0) > 0) {
-    return null;
-  }
-
-  // Intent-aware ranking. This keeps the search general, but pushes tools and links up
-  // when the query sounds like an action instead of a formal document lookup.
-  if (resource.type === intent.primary) score += 26;
-  else if (intent.primary !== "mixed" && resource.type !== intent.primary) score -= 6;
-
-  if (resource.type === "app") score += intent.app;
-  if (resource.type === "link") score += intent.link;
-  if (resource.type === "document") score += intent.document;
-
-  if (resource.type === "document" && resource.status === "verified") score += 3;
-
-  // Extra precision for the app cards.
-  if (resource.type === "app") {
-    const title = normalize(resource.title);
-    if (terms.exact.some(term => ["calcular", "calculo", "cálculo", "calculadora", "simular"].includes(term))) score += 10;
-    if ((title.includes("media") || title.includes("média")) && terms.exact.some(term => ["media", "média", "nota", "final"].includes(term))) score += 14;
-    if (title.includes("barema") && terms.exact.some(term => ["barema", "horas", "complementares", "certificado", "certificados", "monitoria", "estagio", "estágio"].includes(term))) score += 18;
-    if (title.includes("preciso") && phrase.includes("preciso")) score += 18;
-  }
-
-  // Extra precision for common external shortcuts.
-  if (resource.type === "link") {
-    const title = normalize(resource.title);
-    if (title.includes("protocolo") && phrase.includes("protocolo")) score += 16;
-    if ((title.includes("horario") || title.includes("horários")) && terms.exact.some(term => ["horario", "horarios", "horário", "horários", "aulas"].includes(term))) score += 16;
-    if (title.includes("instagram") && phrase.includes("instagram")) score += 16;
-    if (title.includes("provas") && phrase.includes("prova")) score += 14;
-  }
-
-  if (!matched || score <= resource.scoreBase) return null;
-
-  // Faixas de relevância previsíveis. O tipo de item e a intenção ainda
-  // ajustam a pontuação dentro da faixa, mas nunca colocam uma associação
-  // semântica acima de uma correspondência direta de título.
-  const directTerms = terms.exact || [];
-  const quotedInTitle = parsed.exactPhrases.some(term => containsStrictTerm(titleRaw, term));
-  const titlePhrase = phrase.length > 2 && titleNorm.includes(phrase);
-  const allTermsInTitle = directTerms.length > 0 && directTerms.every(term => titleNorm.includes(term));
-  const anyTermInTitle = directTerms.some(term => titleNorm.includes(term));
-  const directMetadata = matchSources.tag || matchSources.meta;
-  const directText = matchSources.text;
-  let rankTier = 6;
-  if ((phrase && titleNorm === phrase) || parsed.exactPhrases.some(term => rawSearchText(titleRaw).trim() === rawSearchText(term).trim())) rankTier = 0;
-  else if (quotedInTitle || titlePhrase) rankTier = 1;
-  else if (allTermsInTitle) rankTier = 2;
-  else if (anyTermInTitle || matchSources.title) rankTier = 3;
-  else if (directMetadata) rankTier = 4;
-  else if (directText) rankTier = 5;
-
+function currentSearchNavigationSnapshot(overrides = {}) {
+  const input = document.getElementById("searchInput");
   return {
-    ...resource,
-    score,
-    rankTier,
-    exactTerms: terms.exact,
-    semanticTerms: terms.semantic,
-    strictTerms: parsed.exactPhrases,
-    excludeTerms: parsed.excludeTerms,
-    queryMode: parsed.exactPhrases.length ? "exact" : parsed.hasExplicitOr ? "or" : parsed.hasExplicitAnd ? "and" : "normal",
-    matchSources
+    marker: SEARCH_HISTORY_MARKER,
+    query: input?.value?.trim() || "",
+    filters: getFilters(),
+    resultsView: state.searchResultsView || "cards",
+    directorySort: state.searchDirectorySort || "relevance",
+    directoryRows: state.searchDirectoryRows || 10,
+    directoryPage: state.searchDirectoryPage || 1,
+    selectedResultIndex: Number.isFinite(state.selectedSearchIndex) ? state.selectedSearchIndex : -1,
+    previewDocId: state.previewDocId || "",
+    previewPage: state.previewPage || "",
+    expandedResults: [...(state.expandedSearchResults || [])],
+    scrollY: Math.max(0, Math.round(window.scrollY || 0)),
+    routeHash: normalizeLocalRouteHash(location.hash),
+    ...overrides,
   };
 }
 
-function documentGroupKey(result) {
-  const doc = result?.doc || result;
-  return doc?.id || doc?.pdfUrl || doc?.sourceUrl || result?.title || result?.id;
-}
-
-function summarizePages(pages = []) {
-  const nums = unique(pages.map(page => String(page || "").match(/\d+/)?.[0]).filter(Boolean))
-    .map(Number)
-    .filter(Number.isFinite)
-    .sort((a, b) => a - b);
-
-  if (!nums.length) return "";
-  if (nums.length <= 4) return nums.join(", ");
-  return `${nums.slice(0, 3).join(", ")} e mais ${nums.length - 3}`;
-}
-
-function groupedDocumentSubtitle(doc, best, matches, evidenceMatches = []) {
-  const kind = doc?.documentType || doc?.kind || best?.documentType || "Documento";
-  if (best?.matchSources?.browse) {
-    return [kind, doc?.correspondent || best?.correspondent].filter(Boolean).join(" · ");
-  }
-
-  const internalCount = evidenceMatches.length;
-  if (internalCount > 0) {
-    const pages = summarizePages(evidenceMatches.map(item => item.chunk?.page));
-    const matchText = internalCount > 1 ? `${internalCount} trechos encontrados` : "trecho encontrado";
-    const pageText = pages ? `páginas ${pages}` : (best?.chunk?.page ? `página ${best.chunk.page}` : "");
-    return [kind, matchText, pageText].filter(Boolean).join(" · ");
-  }
-
-  const reason = best?.matchSources?.title ? "encontrado pelo título" : "encontrado por metadados";
-  const pageText = best?.chunk?.page ? `página ${best.chunk.page}` : "";
-  return [kind, reason, pageText].filter(Boolean).join(" · ");
-}
-
-function chunkEvidenceKey(chunk = {}) {
-  return [chunk.id || "", chunk.page || "", compactText(chunk.text || "", 80)].join("::");
-}
-
-function groupDocumentResults(results = []) {
-  const grouped = new Map();
-  const others = [];
-
-  results.forEach(result => {
-    if (result.type !== "document") {
-      others.push(result);
-      return;
-    }
-
-    const key = documentGroupKey(result);
-    if (!grouped.has(key)) grouped.set(key, []);
-    grouped.get(key).push(result);
+function searchNavigationSnapshotFromLocation(candidate = history.state) {
+  const params = new URLSearchParams(location.search);
+  const stored = candidate?.marker === SEARCH_HISTORY_MARKER ? candidate : {};
+  const currentFilters = getFilters();
+  const hasUrlSearchState = params.has("q")
+    || params.has("scope")
+    || Object.values(SEARCH_URL_FILTER_PARAMS).some(parameter => params.has(parameter));
+  const filters = stored.filters
+    ? { ...currentFilters, ...stored.filters }
+    : (hasUrlSearchState
+      ? { type: "all", tag: "all", status: "all", docType: "all", correspondent: "all", format: "all" }
+      : { ...currentFilters });
+  Object.entries(SEARCH_URL_FILTER_PARAMS).forEach(([key, parameter]) => {
+    const fromStored = stored.filters?.[key];
+    const fromUrl = params.get(parameter);
+    filters[key] = fromStored || fromUrl || filters[key] || "all";
   });
-
-  const docs = [...grouped.values()].map(matches => {
-    const sorted = [...matches].sort((a, b) => (a.rankTier ?? 99) - (b.rankTier ?? 99) || b.score - a.score);
-    const best = sorted[0];
-    const doc = best.doc || best;
-    const internalMatches = sorted.filter(item => item.matchSources?.text || item.matchSources?.semantic);
-    const evidenceMatches = internalMatches.length ? internalMatches : sorted.slice(0, 1);
-    const matchBoost = Math.min(18, Math.max(0, internalMatches.length - 1) * 2);
-    const seenChunks = new Set();
-    const matchedChunks = evidenceMatches
-      .map(item => item.chunk)
-      .filter(Boolean)
-      .filter(chunk => {
-        const key = chunkEvidenceKey(chunk);
-        if (seenChunks.has(key)) return false;
-        seenChunks.add(key);
-        return true;
-      });
-    const bestEvidence = evidenceMatches[0] || best;
-
-    return {
-      ...bestEvidence,
-      id: documentGroupKey(best),
-      score: best.score + matchBoost,
-      rankTier: Math.min(...sorted.map(item => item.rankTier ?? 99)),
-      subtitle: groupedDocumentSubtitle(doc, bestEvidence, sorted, internalMatches),
-      matchCount: internalMatches.length,
-      matchedPages: unique(evidenceMatches.map(item => item.chunk?.page).filter(Boolean)),
-      matchedChunks,
-      groupedMatches: sorted,
-      text: bestEvidence.text || bestEvidence.chunk?.text || doc.summary || doc.title
+  if (!stored.filters?.type && !params.get(SEARCH_URL_FILTER_PARAMS.type)) {
+    const legacyScope = params.get("scope");
+    const scopeTypes = {
+      document: "document", documents: "document",
+      app: "app", apps: "app",
+      link: "link", links: "link",
+      contact: "answer", contacts: "answer",
     };
-  });
-
-  return [...docs, ...others];
+    if (scopeTypes[legacyScope]) filters.type = scopeTypes[legacyScope];
+  }
+  return {
+    marker: SEARCH_HISTORY_MARKER,
+    query: typeof stored.query === "string"
+      ? stored.query
+      : String(params.get("q") || document.getElementById("searchInput")?.value || "").trim(),
+    filters,
+    resultsView: stored.resultsView || state.searchResultsView || "cards",
+    directorySort: stored.directorySort || state.searchDirectorySort || "relevance",
+    directoryRows: Math.max(1, Number(stored.directoryRows) || state.searchDirectoryRows || 10),
+    directoryPage: Math.max(1, Number(stored.directoryPage) || 1),
+    selectedResultIndex: Number.isFinite(Number(stored.selectedResultIndex)) ? Number(stored.selectedResultIndex) : -1,
+    previewDocId: stored.previewDocId || "",
+    previewPage: stored.previewPage || "",
+    expandedResults: Array.isArray(stored.expandedResults) ? stored.expandedResults : [],
+    scrollY: Math.max(0, Number(stored.scrollY) || 0),
+    routeHash: normalizeLocalRouteHash(location.hash || stored.routeHash || ""),
+  };
 }
 
-function dedupeSearchResults(results = []) {
-  const seen = new Set();
-  return results.filter(result => {
-    const url = result.url || result.doc?.pdfUrl || result.doc?.sourceUrl || result.pdfUrl || result.sourceUrl || result.id || "";
-    const key = `${result.type || "item"}:${normalize(result.title || "")}:${normalize(url)}`;
-    if (seen.has(key)) return false;
-    seen.add(key);
-    return true;
+function buildShareableSearchUrl(snapshot = currentSearchNavigationSnapshot()) {
+  const url = new URL(location.href);
+  url.searchParams.delete("focus");
+  url.searchParams.delete("doomReturn");
+  url.searchParams.delete("scope");
+  url.searchParams.delete("share");
+  url.searchParams.delete("doc");
+  url.searchParams.delete("expires");
+  url.searchParams.delete("focusDoc");
+  url.searchParams.delete("focusPage");
+  if (snapshot.query) url.searchParams.set("q", snapshot.query);
+  else url.searchParams.delete("q");
+  Object.entries(SEARCH_URL_FILTER_PARAMS).forEach(([key, parameter]) => {
+    const value = snapshot.filters?.[key] || "all";
+    if (value && value !== "all") url.searchParams.set(parameter, value);
+    else url.searchParams.delete(parameter);
   });
+  const routeHash = normalizeLocalRouteHash(snapshot.routeHash || "");
+  if (routeHash) url.hash = routeHash;
+  else if (snapshot.query || filtersAreActive(snapshot.filters)) url.hash = "buscar";
+  else url.hash = "";
+  return `${url.pathname}${url.search}${url.hash}`;
 }
 
-function searchResources(query, filters) {
-  const parsed = parseSearchQuery(query);
-  const intent = detectSearchIntent(parsed.flexQuery || query);
-  const sourceResources = (query || "").trim() ? buildResources() : buildBrowseResources();
-  const scored = sourceResources
-    .map(resource => scoreResource(resource, query, filters, intent, parsed))
-    .filter(Boolean);
+function syncSearchHistory(mode = "replace", overrides = {}) {
+  if (!searchHistoryReady || restoringSearchHistory || mode === "none") return;
+  const snapshot = currentSearchNavigationSnapshot(overrides);
+  const url = buildShareableSearchUrl(snapshot);
+  if (mode === "push") history.pushState(snapshot, "", url);
+  else history.replaceState(snapshot, "", url);
+}
 
-  const ordered = groupDocumentResults(scored)
-    .sort((a, b) => {
-      const tier = (a.rankTier ?? 99) - (b.rankTier ?? 99);
-      if (tier !== 0) return tier;
-      if (b.score !== a.score) return b.score - a.score;
-      return String(a.title || "").localeCompare(String(b.title || ""), "pt-BR");
+function scheduleSearchScrollHistoryUpdate() {
+  if (!searchHistoryReady || restoringSearchHistory) return;
+  window.clearTimeout(searchScrollHistoryTimer);
+  searchScrollHistoryTimer = window.setTimeout(() => syncSearchHistory("replace"), 160);
+}
+
+function applySearchNavigationSnapshot(snapshot, { replaceEntry = false } = {}) {
+  const input = document.getElementById("searchInput");
+  if (!input) return false;
+  restoringSearchHistory = true;
+  applySearchFilters(snapshot.filters || {});
+  input.value = snapshot.query || "";
+  state.searchResultsView = snapshot.resultsView === "directory" ? "directory" : "cards";
+  state.searchDirectorySort = snapshot.directorySort || state.searchDirectorySort || "relevance";
+  state.searchDirectoryRows = Math.max(1, Number(snapshot.directoryRows) || state.searchDirectoryRows || 10);
+  const desiredDirectoryPage = Math.max(1, Number(snapshot.directoryPage) || 1);
+  state.searchDirectoryPage = desiredDirectoryPage;
+  state.selectedSearchIndex = Number.isFinite(Number(snapshot.selectedResultIndex)) ? Number(snapshot.selectedResultIndex) : -1;
+  state.previewDocId = "";
+  state.previewPage = "";
+  state.expandedSearchResults = Array.isArray(snapshot.expandedResults) ? [...snapshot.expandedResults] : [];
+  const restorePromise = runSearch(input.value, { historyMode: "none" });
+
+  const finishRestore = () => {
+    state.searchDirectoryPage = desiredDirectoryPage;
+    applySearchResultsView(state.searchResultsView, { persist: false });
+    renderSearchDirectory();
+    const doc = snapshot.previewDocId ? documents.find(item => item.id === snapshot.previewDocId) : null;
+    if (doc) {
+      const chunk = (doc.chunks || []).find(item => String(item.page || "") === String(snapshot.previewPage || ""));
+      openPreviewFromDoc(doc, { chunk, historyMode: "none", restorePage: snapshot.previewPage || "" });
+    } else {
+      state.previewDocId = "";
+      state.previewPage = "";
+      setPreviewModalOpen(false);
+    }
+    document.querySelectorAll("details[data-result-passages]").forEach(details => {
+      details.open = state.expandedSearchResults.includes(details.dataset.resultPassages || "");
     });
-  return dedupeSearchResults(ordered).slice(0, 24);
+    if (snapshot.selectedResultIndex >= 0 && state.lastResults?.length) {
+      state.selectedSearchIndex = Math.min(state.lastResults.length - 1, snapshot.selectedResultIndex);
+      if (!doc) document.querySelector(`.result-card[data-result-index="${state.selectedSearchIndex}"]`)?.focus?.({ preventScroll: true });
+    }
+    const routeTarget = snapshot.routeHash && snapshot.routeHash !== "#buscar"
+      ? localAnchorTarget(snapshot.routeHash)
+      : null;
+    if (routeTarget) routeTarget.scrollIntoView({ block: "start", behavior: "auto" });
+    else window.scrollTo({ top: Math.max(0, Number(snapshot.scrollY) || 0), behavior: "auto" });
+    restoringSearchHistory = false;
+    if (replaceEntry) syncSearchHistory("replace");
+  };
+  return Promise.resolve(restorePromise).then(() => new Promise(resolve => {
+    requestAnimationFrame(() => requestAnimationFrame(() => {
+      finishRestore();
+      resolve(true);
+    }));
+  }));
 }
+
+function initializeSearchHistoryNavigation() {
+  const snapshot = searchNavigationSnapshotFromLocation(history.state);
+  searchHistoryReady = true;
+  return applySearchNavigationSnapshot(snapshot, { replaceEntry: true });
+}
+
+function setupSearchHistoryNavigation() {
+  window.addEventListener("popstate", event => {
+    if (!searchHistoryReady) return;
+    liveSearchHistoryEntry = false;
+    applySearchNavigationSnapshot(searchNavigationSnapshotFromLocation(event.state));
+  });
+  window.addEventListener("scroll", scheduleSearchScrollHistoryUpdate, { passive: true });
+}
+
 
 function searchOperatorSummary(query = "") {
   const parsed = parseSearchQuery(query);
@@ -1830,7 +1698,148 @@ function renderMatchLine(result = {}) {
   return `<p class="result-match-line">${escapeHtml(label)}${exact}</p>`;
 }
 
-function renderResults(results, query) {
+const EMPTY_SEARCH_RECOMMENDATION_RULES = [
+  {
+    terms: ["ru", "restaurante universitario", "auxilio alimentacao", "alimentacao estudantil"],
+    suggestions: ["assistência estudantil", "auxílio alimentação", "CAENS"],
+  },
+  {
+    terms: ["matricula", "rematricula", "renovacao de matricula"],
+    suggestions: ["calendário acadêmico", "registro acadêmico", "CORES"],
+  },
+  {
+    terms: ["estagio", "estagiario"],
+    suggestions: ["estágio supervisionado", "documentos de estágio", "coordenação de estágio"],
+  },
+  {
+    terms: ["tcc", "trabalho de conclusao"],
+    suggestions: ["Trabalho de Conclusão de Curso", "regulamento de TCC", "barema"],
+  },
+  {
+    terms: ["prova final", "media final", "recuperacao"],
+    suggestions: ["calculadora de média", "tabela da final", "regulamento acadêmico"],
+  },
+  {
+    terms: ["calendario", "feriado", "inicio das aulas"],
+    suggestions: ["calendário acadêmico", "calendário letivo", "datas acadêmicas"],
+  },
+];
+
+function emptySearchSuggestions(query = "") {
+  const clean = normalize(query);
+  const matched = EMPTY_SEARCH_RECOMMENDATION_RULES.find(rule => rule.terms.some(term => clean.includes(normalize(term))));
+  if (matched) return matched.suggestions;
+  const queryTokens = new Set(clean.split(/\s+/).filter(token => token.length > 2));
+  const scored = CURATED_SEARCH_SUGGESTIONS.map(term => {
+    const normalizedTerm = normalize(term);
+    const tokens = normalizedTerm.split(/\s+/).filter(Boolean);
+    const overlap = tokens.filter(token => queryTokens.has(token)).length;
+    const partial = [...queryTokens].some(token => normalizedTerm.includes(token)) ? 1 : 0;
+    return { term, score: overlap * 10 + partial };
+  }).sort((a, b) => b.score - a.score || a.term.localeCompare(b.term, "pt-BR"));
+  const relevant = scored.filter(item => item.score > 0).map(item => item.term);
+  return unique([...relevant, "calendário acadêmico", "assistência estudantil", "CAENS"]).slice(0, 3);
+}
+
+function searchEmptyStateHtml(query = "") {
+  const cleanQuery = String(query || "").trim();
+  if (!cleanQuery) return emptyStateHtml("Nenhum item corresponde aos filtros selecionados.", "Remova um ou mais filtros para ampliar a busca.");
+  const suggestions = emptySearchSuggestions(cleanQuery);
+  return `
+    <article class="empty-state search-empty-state">
+      <strong>Nenhum documento encontrado para “${escapeHtml(cleanQuery)}”.</strong>
+      <span>Talvez você esteja procurando:</span>
+      <ul class="search-empty-suggestions">
+        ${suggestions.map(term => `<li><button type="button" data-empty-suggest="${escapeHtml(term)}">${escapeHtml(term)}</button></li>`).join("")}
+      </ul>
+    </article>
+  `;
+}
+
+function focusPendingDocumentResult() {
+  if (!pendingFocusDocumentId || !state.lastResults?.length) return;
+  const index = state.lastResults.findIndex(result => result.type === "document" && (result.doc?.id || result.id) === pendingFocusDocumentId);
+  if (index < 0) return;
+  state.selectedSearchIndex = index;
+  const docId = pendingFocusDocumentId;
+  pendingFocusDocumentId = "";
+  requestAnimationFrame(() => requestAnimationFrame(() => {
+    const target = state.searchResultsView === "directory"
+      ? document.querySelector(`[data-directory-doc="${CSS.escape(docId)}"]`)?.closest("tr")
+      : document.querySelector(`.result-card[data-result-index="${index}"]`);
+    target?.scrollIntoView({ behavior: "smooth", block: "center" });
+    target?.focus?.({ preventScroll: true });
+  }));
+}
+
+const VIEWPORT_VIRTUALIZATION_THRESHOLD = 48;
+
+function nodeFromHtml(html = "") {
+  const template = document.createElement("template");
+  template.innerHTML = String(html).trim();
+  return template.content.firstElementChild;
+}
+
+function resultRenderKey(result = {}, index = 0) {
+  return `${result.type || "item"}:${result.id || result.docId || result.title || index}`;
+}
+
+function resultRenderSignature(result = {}, index = 0) {
+  const passageKey = (result.matchedChunks || []).map(chunk => `${chunk.id || ""}:${chunk.page || ""}`).join("|");
+  const expanded = (state.expandedSearchResults || []).includes(String(result.id || result.doc?.id || index));
+  return JSON.stringify([index, result.type, result.id, result.title, result.subtitle, result.score, result.matchCount, passageKey, expanded, state.effectiveSearchQuery]);
+}
+
+function patchResultCards(container, results = []) {
+  const existing = new Map([...container.children].filter(node => node.matches?.(".result-card[data-render-key]")).map(node => [node.dataset.renderKey, node]));
+  const fragment = document.createDocumentFragment();
+  results.forEach((result, index) => {
+    const key = resultRenderKey(result, index);
+    const signature = resultRenderSignature(result, index);
+    let node = existing.get(key);
+    if (!node || node.dataset.renderSignature !== signature) node = nodeFromHtml(renderResultCard(result, index));
+    if (!node) return;
+    node.dataset.renderKey = key;
+    node.dataset.renderSignature = signature;
+    fragment.appendChild(node);
+  });
+  container.replaceChildren(fragment);
+  container.classList.toggle("virtualized-collection", results.length >= VIEWPORT_VIRTUALIZATION_THRESHOLD);
+}
+
+function patchDirectoryRows(tbody, rows = []) {
+  const existing = new Map([...tbody.children].filter(node => node.dataset?.renderKey).map(node => [node.dataset.renderKey, node]));
+  const fragment = document.createDocumentFragment();
+  rows.forEach(({ key, signature, html }) => {
+    let node = existing.get(key);
+    if (!node || node.dataset.renderSignature !== signature) node = nodeFromHtml(html);
+    if (!node) return;
+    node.dataset.renderKey = key;
+    node.dataset.renderSignature = signature;
+    fragment.appendChild(node);
+  });
+  tbody.replaceChildren(fragment);
+  tbody.classList.toggle("virtualized-table-body", rows.length >= 40);
+}
+
+function patchResourceCards(container, docs = []) {
+  const existing = new Map([...container.children].filter(node => node.dataset?.renderKey).map(node => [node.dataset.renderKey, node]));
+  const fragment = document.createDocumentFragment();
+  docs.forEach(doc => {
+    const key = `document:${doc.id}`;
+    const signature = JSON.stringify([doc.id, doc.title, doc.thumbnailUrl, doc.createdDate, doc.pageCount, doc.fileSize, doc.validityStatus]);
+    let node = existing.get(key);
+    if (!node || node.dataset.renderSignature !== signature) node = nodeFromHtml(renderResourceCard(doc, "document"));
+    if (!node) return;
+    node.dataset.renderKey = key;
+    node.dataset.renderSignature = signature;
+    fragment.appendChild(node);
+  });
+  container.replaceChildren(fragment);
+  container.classList.toggle("virtualized-collection", docs.length >= VIEWPORT_VIRTUALIZATION_THRESHOLD);
+}
+
+function renderResults(results, query, { effectiveQuery = query, correction = null } = {}) {
   updateSavedSearchControls();
   const container = document.getElementById("searchResults");
   const summary = document.getElementById("resultsSummary");
@@ -1838,10 +1847,30 @@ function renderResults(results, query) {
   const activeFilter = filtersAreActive(getFilters());
   state.lastResults = (cleanQuery || activeFilter) ? results : [];
   state.lastQuery = query;
+  state.effectiveSearchQuery = effectiveQuery || query || "";
+  state.searchCorrection = correction?.changed ? correction : null;
+  if (!state.lastResults.length) state.selectedSearchIndex = -1;
+  else if (state.selectedSearchIndex >= state.lastResults.length) state.selectedSearchIndex = state.lastResults.length - 1;
 
   const viewToggle = document.getElementById("searchResultsViewToggle");
   const directory = document.getElementById("searchDirectory");
   const columnsControl = document.getElementById("searchColumnsControl");
+  const doomOnly = results.length === 1 && results[0]?.type === "doom";
+
+  if (doomOnly) {
+    summary.textContent = "1 resultado anômalo encontrado. A classificação do arquivo falhou.";
+    container.hidden = false;
+    container.style.display = "";
+    patchResultCards(container, results);
+    if (directory) {
+      directory.hidden = true;
+      directory.style.display = "none";
+    }
+    if (viewToggle) viewToggle.hidden = true;
+    if (columnsControl) columnsControl.hidden = true;
+    schedulePdfThumbnailRender();
+    return;
+  }
 
   if (!cleanQuery && !activeFilter) {
     summary.textContent = "Pesquise documentos, regulamentos, contatos, links ou ferramentas.";
@@ -1854,9 +1883,12 @@ function renderResults(results, query) {
   }
 
   if (!results.length) {
-    summary.textContent = "Não encontrei isso no acervo.";
+    summary.textContent = cleanQuery
+      ? `Nenhum documento encontrado para “${cleanQuery}”.`
+      : "Nenhum item corresponde aos filtros selecionados.";
     container.hidden = false;
-    container.innerHTML = emptyStateHtml("Não encontrei isso no acervo", "Tente procurar por: estágio, TCC, protocolo, matriz, final ou coordenador.");
+    container.innerHTML = searchEmptyStateHtml(cleanQuery);
+    state.selectedSearchIndex = -1;
     if (directory) directory.hidden = true;
     if (viewToggle) viewToggle.hidden = true;
     if (columnsControl) columnsControl.hidden = true;
@@ -1873,26 +1905,47 @@ function renderResults(results, query) {
       return `${count} ${label}${count > 1 ? "s" : ""}`;
     })
     .join(" · ");
-  const operatorSummary = searchOperatorSummary(cleanQuery);
-  summary.textContent = cleanQuery
+  const operatorSummary = searchOperatorSummary(effectiveQuery || cleanQuery);
+  const resultSummaryText = cleanQuery
     ? `${results.length} resultado(s): ${countText}. Ordenado por relevância.${operatorSummary ? ` ${operatorSummary}.` : ""}`
     : `${results.length} item(ns) encontrado(s) com os filtros selecionados: ${countText}.`;
+  if (correction?.changed) {
+    summary.innerHTML = `<span class="search-correction">Resultados para <strong>“${escapeHtml(correction.effective)}”</strong>.</span> ${escapeHtml(resultSummaryText)}`;
+  } else {
+    summary.textContent = resultSummaryText;
+  }
 
-  container.innerHTML = results.map((result, index) => renderResultCard(result, index)).join("");
+  patchResultCards(container, results);
   if (viewToggle) viewToggle.hidden = false;
   if (columnsControl) columnsControl.hidden = state.searchResultsView !== "cards";
   renderSearchDirectory(results);
   applySearchResultsView(state.searchResultsView, { persist: false });
+  focusPendingDocumentResult();
   schedulePdfThumbnailRender();
 }
 
 
-function openPdfAtPage(doc = {}, page = "") {
+function viewerReturnUrl(doc = {}, page = "") {
+  const relative = buildShareableSearchUrl(currentSearchNavigationSnapshot({ previewDocId: "", previewPage: "" }));
+  const target = new URL(relative, location.href);
+  if (doc.id) target.searchParams.set("focusDoc", doc.id);
+  const cleanPage = String(page || "").match(/\d+/)?.[0];
+  if (cleanPage) target.searchParams.set("focusPage", cleanPage);
+  return `${target.pathname}${target.search}${target.hash}`;
+}
+
+function openPdfAtPage(doc = {}, page = "", options = {}) {
   const base = doc.pdfUrl || doc.sourceUrl || "#";
   if (!base || base === "#") return "#";
-  const cleanPage = String(page || "").match(/\d+/)?.[0] || "1";
+  const cleanPage = String(page || "").match(/\d+/)?.[0] || "";
   const title = doc.title || documentDownloadName(doc) || "Documento";
-  const params = new URLSearchParams({ file: base, page: cleanPage, title });
+  const params = new URLSearchParams({ file: base, title });
+  if (cleanPage) params.set("page", cleanPage);
+  const query = String(options.query ?? state.effectiveSearchQuery ?? state.lastQuery ?? "").trim();
+  if (query) params.set("q", query);
+  if (options.section) params.set("section", options.section);
+  if (doc.id) params.set("doc", doc.id);
+  params.set("returnTo", viewerReturnUrl(doc, cleanPage));
   return `document-viewer.html?${params.toString()}`;
 }
 
@@ -1907,7 +1960,60 @@ function documentDownloadLink(doc = {}, label = "Baixar", className = "secondary
   return `<a class="${className}" href="${escapeHtml(url)}" download="${escapeHtml(documentDownloadName(doc))}">${escapeHtml(label)}</a>`;
 }
 
+function renderDoomResultCard(result, index) {
+  return `
+    <article class="result-card result-doom doom-secret-result" tabindex="0" data-result-index="${index}" aria-label="Resultado anômalo: ${escapeHtml(result.title)}">
+      <div class="result-thumb">
+        <div class="doom-secret-thumb" aria-hidden="true"><span>?</span><small>???</small></div>
+      </div>
+      <div class="result-meta-actions">
+        <div class="result-head">
+          <span class="badge doom-secret-badge">Tipo desconhecido</span>
+        </div>
+        <div class="result-actions">
+          <button type="button" class="small-action doom-secret-open" data-doom-launch>Examinar arquivo</button>
+        </div>
+      </div>
+      <div class="result-body">
+        <h3>${highlight(result.title, ["doom"], [], ["doom"])}</h3>
+        <p class="result-subtitle">${escapeHtml(result.subtitle)}</p>
+      </div>
+      <div class="result-details">
+        <p class="result-match-line">Encontrado em: setor não indexado</p>
+        <p class="snippet result-snippet">Tipo de arquivo desconhecido. <strong>Abrir por sua conta e risco.</strong></p>
+      </div>
+    </article>
+  `;
+}
+
+function resultPassagesHtml(result, index) {
+  if (result.type !== "document") return "";
+  const chunks = (result.matchedChunks || []).filter(Boolean);
+  if (chunks.length < 2) return "";
+  const resultKey = String(result.id || result.doc?.id || index);
+  const open = (state.expandedSearchResults || []).includes(resultKey) ? " open" : "";
+  return `
+    <details class="result-passages" data-result-passages="${escapeHtml(resultKey)}"${open}>
+      <summary><span>${chunks.length} trechos encontrados</span><small>Expandir páginas</small></summary>
+      <ol>
+        ${chunks.map((chunk, chunkIndex) => {
+          const heading = compactText(chunk.heading || `Página ${chunk.page || "—"}`, 74);
+          const text = compactText(chunk.text || "Trecho indexado do documento.", 170);
+          const pdfUrl = openPdfAtPage(result.doc, chunk.page, { query: state.effectiveSearchQuery, section: chunk.heading || "" });
+          return `<li>
+            <button type="button" data-preview-index="${index}" data-preview-match="${chunkIndex}">
+              <strong>p. ${escapeHtml(chunk.page || "—")} · ${escapeHtml(heading)}</strong>
+              <span>${highlight(text, result.exactTerms || [], [], result.strictTerms || [])}</span>
+            </button>
+            <a href="${escapeHtml(pdfUrl)}" target="_blank" rel="noopener" aria-label="Abrir página ${escapeHtml(chunk.page || "")} no PDF">Abrir página</a>
+          </li>`;
+        }).join("")}
+      </ol>
+    </details>`;
+}
+
 function renderResultCard(result, index) {
+  if (result.type === "doom") return renderDoomResultCard(result, index);
   const openLabel = result.type === "document" ? "Prévia" : result.type === "workflow" ? "Ver passos" : "Abrir";
   const subtitle = highlight(result.subtitle || "", result.exactTerms || [], [], result.strictTerms || []);
   const thumbResource = result.type === "document" ? result.doc : result;
@@ -1926,7 +2032,7 @@ function renderResultCard(result, index) {
   }
 
   const secondaryAction = result.type === "document"
-    ? `<a class="secondary-button" href="${escapeHtml(openPdfAtPage(result.doc, result.chunk?.page))}" target="_blank" rel="noopener">Abrir</a>${documentDownloadLink(result.doc)}`
+    ? `<a class="secondary-button" href="${escapeHtml(openPdfAtPage(result.doc, result.chunk?.page, { query: state.effectiveSearchQuery, section: result.chunk?.heading || "" }))}" target="_blank" rel="noopener">Abrir</a>${documentDownloadLink(result.doc)}`
     : `<button type="button" class="secondary-button" data-copy-resource="${index}">Copiar</button>`;
 
   const titleHtml = highlight(result.title, result.exactTerms || [], [], result.strictTerms || []);
@@ -1935,7 +2041,7 @@ function renderResultCard(result, index) {
     ? `<strong>${highlight(result.answer?.answer || result.title, result.exactTerms || [], result.strictTerms || [])}</strong><br>${resultSnippet(result)}`
     : resultSnippet(result);
   const resultId = result.type === "document" ? (result.doc?.id || result.id) : result.id;
-  const resultUrl = result.type === "document" ? openPdfAtPage(result.doc, result.chunk?.page) : (result.url || "#");
+  const resultUrl = result.type === "document" ? openPdfAtPage(result.doc, result.chunk?.page, { query: state.effectiveSearchQuery, section: result.chunk?.heading || "" }) : (result.url || "#");
 
   return `
     <article class="result-card result-${escapeHtml(result.type)}" tabindex="0" data-result-index="${index}" aria-label="Resultado ${index + 1}: ${escapeHtml(result.title || "Item")}">
@@ -1955,6 +2061,7 @@ function renderResultCard(result, index) {
       <div class="result-details">
         ${matchLine}
         <p class="snippet result-snippet">${snippetHtml}</p>
+        ${resultPassagesHtml(result, index)}
       </div>
     </article>
   `;
@@ -2011,7 +2118,10 @@ function applySearchResultsView(value = "cards", { persist = true } = {}) {
     if (showDirectory) requestAnimationFrame(() => renderSearchDirectory(state.lastResults || []));
   }
   if (columnsControl) columnsControl.hidden = !hasSearch || clean !== "cards";
-  if (persist) prefSet(HUB_PREF_KEYS.searchResultsView, clean);
+  if (persist) {
+    prefSet(HUB_PREF_KEYS.searchResultsView, clean);
+    syncSearchHistory("replace");
+  }
 }
 
 function sortedSearchDocumentResults(results = state.lastResults || []) {
@@ -2089,19 +2199,26 @@ function renderSearchDirectory(results = state.lastResults || []) {
   const pageDocs = docs.slice(start, start + state.searchDirectoryRows);
   if (note) note.textContent = `${docs.length} documento(s) entre ${results.length} resultado(s). Esta visualização mostra exclusivamente documentos.`;
 
-  tbody.innerHTML = pageDocs.length ? pageDocs.map(({ result, resultIndex, doc }) => {
-    const fileUrl = doc.pdfUrl || doc.sourceUrl || "#";
-    const category = doc.documentType || doc.category || "Documentos";
-    const snippet = resultSnippet(result);
-    return `<tr>
-      <td class="directory-thumb-cell">${thumbnailHtml(doc, "document", { page: result.chunk?.page })}</td>
-      <td class="directory-name-cell"><strong>${highlight(doc.title || "Documento", result.exactTerms || [], result.semanticTerms || [], result.strictTerms || [])}</strong><small class="search-directory-snippet">${snippet}</small></td>
-      <td><span class="directory-category">${escapeHtml(category)}</span></td>
-      <td>${escapeHtml(doc.displayDate || doc.date || "—")}</td>
-      <td>${escapeHtml(formatFileSize(directoryFileSize(doc)))}</td>
-      <td><div class="directory-actions"><button type="button" data-preview-index="${resultIndex}">Prévia</button><a class="secondary-button" href="${escapeHtml(openPdfAtPage(doc, result.chunk?.page))}" target="_blank" rel="noopener">Abrir</a>${documentDownloadLink(doc)}<button type="button" class="favorite-toggle" data-favorite-toggle data-favorite-id="${escapeHtml(doc.id)}" data-favorite-kind="document" data-favorite-title="${escapeHtml(doc.title || "Documento")}" data-favorite-url="${escapeHtml(openPdfAtPage(doc))}" data-favorite-meta="${escapeHtml(category)}" aria-label="Adicionar aos favoritos" title="Adicionar aos favoritos">☆</button></div></td>
-    </tr>`;
-  }).join("") : `<tr><td colspan="6"><div class="empty-state"><strong>Nenhum documento entre os resultados.</strong><span>Use Cards para ver links, apps, contatos e respostas.</span></div></td></tr>`;
+  if (pageDocs.length) {
+    patchDirectoryRows(tbody, pageDocs.map(({ result, resultIndex, doc }) => {
+      const category = doc.documentType || doc.category || "Documentos";
+      const snippet = resultSnippet(result);
+      return {
+        key: `search-directory:${doc.id}`,
+        signature: JSON.stringify([doc.id, resultIndex, result.score, result.chunk?.page, snippet, state.effectiveSearchQuery]),
+        html: `<tr>
+          <td class="directory-thumb-cell">${thumbnailHtml(doc, "document", { page: result.chunk?.page })}</td>
+          <td class="directory-name-cell"><strong>${highlight(doc.title || "Documento", result.exactTerms || [], result.semanticTerms || [], result.strictTerms || [])}</strong><small class="search-directory-snippet">${snippet}</small></td>
+          <td><span class="directory-category">${escapeHtml(category)}</span></td>
+          <td>${escapeHtml(doc.displayDate || doc.date || "—")}</td>
+          <td>${escapeHtml(formatFileSize(directoryFileSize(doc)))}</td>
+          <td><div class="directory-actions"><button type="button" data-preview-index="${resultIndex}">Prévia</button><a class="secondary-button" href="${escapeHtml(openPdfAtPage(doc, result.chunk?.page))}" target="_blank" rel="noopener">Abrir</a>${documentDownloadLink(doc)}<button type="button" class="favorite-toggle" data-favorite-toggle data-favorite-id="${escapeHtml(doc.id)}" data-favorite-kind="document" data-favorite-title="${escapeHtml(doc.title || "Documento")}" data-favorite-url="${escapeHtml(openPdfAtPage(doc))}" data-favorite-meta="${escapeHtml(category)}" aria-label="Adicionar aos favoritos" title="Adicionar aos favoritos">☆</button></div></td>
+        </tr>`
+      };
+    }));
+  } else {
+    tbody.innerHTML = `<tr><td colspan="6"><div class="empty-state"><strong>Nenhum documento entre os resultados.</strong><span>Use Cards para ver links, apps, contatos e respostas.</span></div></td></tr>`;
+  }
   renderSearchDirectoryPagination(docs.length, pageCount);
   schedulePdfThumbnailRender();
 }
@@ -2118,6 +2235,7 @@ function setupSearchResultsView() {
     prefSet(HUB_PREF_KEYS.searchDirectorySort, state.searchDirectorySort);
     prefSet(HUB_PREF_KEYS.searchDirectoryPage, "1");
     renderSearchDirectory();
+    syncSearchHistory("replace");
   });
   document.querySelector(".search-directory-table thead")?.addEventListener("click", event => {
     const button = event.target.closest("[data-search-directory-sort-field]");
@@ -2127,6 +2245,7 @@ function setupSearchResultsView() {
     prefSet(HUB_PREF_KEYS.searchDirectorySort, state.searchDirectorySort);
     prefSet(HUB_PREF_KEYS.searchDirectoryPage, "1");
     renderSearchDirectory();
+    syncSearchHistory("replace");
   });
   document.getElementById("searchDirectoryRowsSelect")?.addEventListener("change", event => {
     state.searchDirectoryRows = Number(event.target.value) || 10;
@@ -2134,6 +2253,7 @@ function setupSearchResultsView() {
     prefSet(HUB_PREF_KEYS.searchDirectoryRows, String(state.searchDirectoryRows));
     prefSet(HUB_PREF_KEYS.searchDirectoryPage, "1");
     renderSearchDirectory();
+    syncSearchHistory("replace");
   });
   document.getElementById("searchDirectoryPagination")?.addEventListener("click", event => {
     const button = event.target.closest("[data-search-directory-page]");
@@ -2148,20 +2268,274 @@ function setupSearchResultsView() {
     else state.searchDirectoryPage = Math.min(pageCount, Math.max(1, Number(action) || 1));
     prefSet(HUB_PREF_KEYS.searchDirectoryPage, String(state.searchDirectoryPage));
     renderSearchDirectory();
+    syncSearchHistory("replace");
     document.getElementById("searchDirectory")?.scrollIntoView({ behavior: "smooth", block: "start" });
   });
   applySearchResultsView(state.searchResultsView, { persist: false });
 }
 
-function runSearch(query = document.getElementById("searchInput").value) {
+function isDoomEasterEggQuery(query = "") {
+  const clean = String(query || "").trim().replace(/^(["'])doom\1$/i, "doom");
+  return clean.toLowerCase() === "doom";
+}
+
+function doomSearchResult() {
+  return {
+    type: "doom",
+    id: "doom-easter-egg",
+    title: "DOOM — Documento Operacional Oculto do Ministério",
+    subtitle: "Tipo de arquivo desconhecido",
+    text: "Abrir por sua conta e risco.",
+    fileFormat: "???",
+    url: "apps/doom/",
+    exactTerms: ["doom"],
+    strictTerms: ["doom"],
+    matchSources: { title: true, strict: true },
+  };
+}
+
+
+let searchWorker = null;
+let searchWorkerAllowed = false;
+let searchWorkerReady = false;
+let searchWorkerInitPromise = null;
+let searchRequestId = 0;
+let latestSearchRequestId = 0;
+const searchPending = new Map();
+let mainThreadSearchEngine = null;
+let searchWorkerUpdateTimer = 0;
+
+function searchWorkerPayload() {
+  const indexedById = new Map((deferredSearchIndex?.documents || []).map(item => [item.id, item]));
+  return {
+    documents: documents.map(doc => {
+      const indexed = indexedById.get(doc.id) || null;
+      return {
+        id: doc.id, title: doc.title, summary: doc.summary, tags: doc.tags || [], status: doc.status,
+        documentType: doc.documentType || doc.kind, kind: doc.kind, correspondent: doc.correspondent,
+        fileFormat: doc.fileFormat, sourceUrl: doc.sourceUrl, pdfUrl: doc.pdfUrl,
+        normalized: indexed?.normalized || doc.normalized || null,
+        chunks: indexed?.chunks || doc.chunks || []
+      };
+    }),
+    vocabulary: deferredSearchIndex?.vocabulary || [],
+    links: usefulLinks,
+    apps,
+    answers: answerCards,
+    conceptMap
+  };
+}
+
+async function ensureDeferredSearchIndex() {
+  if (deferredSearchIndexLoaded) return deferredSearchIndex;
+  if (deferredSearchIndexPromise) return deferredSearchIndexPromise;
+  deferredSearchIndexPromise = (async () => {
+    const text = await fetchOptionalText(searchIndexUrl || "documents/search-index.json");
+    if (!text) {
+      deferredSearchIndexLoaded = true;
+      deferredSearchIndex = { documents: [], vocabulary: [] };
+      return deferredSearchIndex;
+    }
+    const parsed = JSON.parse(text);
+    deferredSearchIndex = {
+      documents: Array.isArray(parsed) ? parsed : (parsed.documents || []),
+      vocabulary: Array.isArray(parsed?.vocabulary) ? parsed.vocabulary : []
+    };
+    deferredSearchIndexLoaded = true;
+    const chunksById = new Map(deferredSearchIndex.documents.map(item => [item.id, item]));
+    documents.forEach(doc => {
+      const indexed = chunksById.get(doc.id);
+      if (!indexed) return;
+      doc.normalized = indexed.normalized || doc.normalized || null;
+      doc.passageCount = Number(doc.passageCount || indexed.chunks?.length || 0);
+    });
+    await updateSearchWorkerNow();
+    return deferredSearchIndex;
+  })().catch(error => {
+    deferredSearchIndexPromise = null;
+    console.warn("Índice completo de trechos indisponível:", error);
+    return { documents: [], vocabulary: [] };
+  });
+  return deferredSearchIndexPromise;
+}
+
+async function hydrateDocumentPassages(doc = {}) {
+  if (!doc?.id || (doc.chunks || []).length) return doc;
+  const index = await ensureDeferredSearchIndex();
+  const indexed = (index?.documents || []).find(item => item.id === doc.id);
+  if (indexed?.chunks?.length) {
+    doc.chunks = indexed.chunks;
+    doc.normalized = indexed.normalized || doc.normalized || null;
+  }
+  return doc;
+}
+
+function resetSearchWorker(error = new Error("O mecanismo de busca foi reiniciado.")) {
+  const worker = searchWorker;
+  searchWorker = null;
+  searchWorkerReady = false;
+  searchWorkerInitPromise = null;
+  try { worker?.terminate?.(); } catch (_) {}
+  searchPending.forEach(pending => {
+    try { pending.reject?.(error); } catch (_) {}
+  });
+  searchPending.clear();
+}
+
+function ensureSearchWorker() {
+  if (searchWorkerReady && searchWorker) return Promise.resolve(searchWorker);
+  if (searchWorkerInitPromise) return searchWorkerInitPromise;
+  if (!("Worker" in window)) return Promise.reject(new Error("Web Worker indisponível"));
+
+  searchWorkerInitPromise = new Promise((resolve, reject) => {
+    const worker = new Worker("js/search-worker.js?v=0.2.33");
+    searchWorker = worker;
+    const initId = ++searchRequestId;
+    let settled = false;
+    const finishInit = (handler, value) => {
+      if (settled) return;
+      settled = true;
+      window.clearTimeout(timeout);
+      handler(value);
+    };
+    const timeout = window.setTimeout(() => finishInit(reject, new Error("Tempo esgotado ao iniciar a busca")), 7000);
+
+    worker.addEventListener("message", event => {
+      const message = event.data || {};
+      if (message.type === "ready") {
+        searchWorkerReady = true;
+        finishInit(resolve, worker);
+        const readyPending = searchPending.get(message.id);
+        if (readyPending) { searchPending.delete(message.id); readyPending.resolve(message); }
+        return;
+      }
+      if (message.type === "error" && message.id === initId && !settled) {
+        const error = new Error(message.message || "Falha ao iniciar a busca");
+        finishInit(reject, error);
+        resetSearchWorker(error);
+        return;
+      }
+      const pending = searchPending.get(message.id);
+      if (!pending) return;
+      searchPending.delete(message.id);
+      if (message.type === "error") pending.reject(new Error(message.message || "Falha na busca"));
+      else pending.resolve(message);
+    });
+    worker.addEventListener("error", event => {
+      const error = event?.error || new Error(event?.message || "O Web Worker de busca falhou.");
+      finishInit(reject, error);
+      resetSearchWorker(error);
+    });
+    worker.postMessage({ type: "init", id: initId, payload: searchWorkerPayload() });
+  }).catch(error => {
+    if (searchWorker) resetSearchWorker(error);
+    console.warn("Busca em Web Worker indisponível:", error);
+    throw error;
+  });
+  return searchWorkerInitPromise;
+}
+
+async function updateSearchWorkerNow() {
+  if (!searchWorker) return null;
+  try {
+    const worker = await ensureSearchWorker();
+    const id = ++searchRequestId;
+    return await new Promise((resolve, reject) => {
+      const timer = window.setTimeout(() => {
+        searchPending.delete(id);
+        const error = new Error("Tempo esgotado ao atualizar o índice");
+        resetSearchWorker(error);
+        reject(error);
+      }, 7000);
+      searchPending.set(id, {
+        resolve: value => { window.clearTimeout(timer); resolve(value); },
+        reject: error => { window.clearTimeout(timer); reject(error); }
+      });
+      worker.postMessage({ type: "update", id, payload: searchWorkerPayload() });
+    });
+  } catch (error) {
+    console.warn("Índice do Worker não pôde ser atualizado:", error);
+    return null;
+  }
+}
+
+function scheduleSearchWorkerUpdate() {
+  window.clearTimeout(searchWorkerUpdateTimer);
+  searchWorkerUpdateTimer = window.setTimeout(() => { updateSearchWorkerNow(); }, 40);
+}
+
+function hydrateSearchResult(result = {}) {
+  if (result.type === "document") return { ...result, doc: documents.find(doc => doc.id === result.docId || doc.id === result.id) || null };
+  if (result.type === "link") return { ...result, link: usefulLinks.find(item => item.id === result.id) || null };
+  if (result.type === "app") return { ...result, app: apps.find(item => item.id === result.id) || null };
+  if (result.type === "answer") return { ...result, answer: answerCards.find(item => item.id === result.id) || null };
+  return result;
+}
+
+async function searchInWorker(query, filters) {
+  if (String(query || "").trim()) await ensureDeferredSearchIndex();
+  try {
+    const worker = await ensureSearchWorker();
+    const id = ++searchRequestId;
+    latestSearchRequestId = id;
+    return await new Promise((resolve, reject) => {
+      const timer = window.setTimeout(() => {
+        searchPending.delete(id);
+        const error = new Error("Tempo esgotado ao executar a busca");
+        resetSearchWorker(error);
+        reject(error);
+      }, 10000);
+      searchPending.set(id, {
+        resolve: value => { window.clearTimeout(timer); resolve(value); },
+        reject: error => { window.clearTimeout(timer); reject(error); }
+      });
+      worker.postMessage({ type: "search", id, query, filters });
+    });
+  } catch (workerError) {
+    if (!window.HubSearchEngine) await import("./js/search-engine.js?v=0.2.33");
+    if (!mainThreadSearchEngine) mainThreadSearchEngine = new window.HubSearchEngine(searchWorkerPayload());
+    else mainThreadSearchEngine.update(searchWorkerPayload());
+    const id = ++searchRequestId;
+    latestSearchRequestId = id;
+    const started = performance.now();
+    const payload = mainThreadSearchEngine.search(query, filters);
+    return { type: "result", id, elapsedMs: performance.now() - started, ...payload, fallback: true };
+  }
+}
+
+
+async function runSearch(query = document.getElementById("searchInput").value, { historyMode = "replace" } = {}) {
   const normalizedQuery = String(query || "").trim();
-  if (normalizedQuery !== String(state.lastQuery || "").trim()) {
-    state.searchDirectoryPage = 1;
+  const queryChanged = normalizedQuery !== String(state.lastQuery || "").trim();
+  if (queryChanged) {
+    state.searchDirectoryPage = 1; state.selectedSearchIndex = -1;
+    if (!restoringSearchHistory) state.expandedSearchResults = [];
     prefSet(HUB_PREF_KEYS.searchDirectoryPage, "1");
   }
-  const results = searchResources(query, getFilters());
-  renderResults(results, query);
-  updateSuggestions(query);
+  if (isDoomEasterEggQuery(normalizedQuery)) {
+    renderResults([doomSearchResult()], normalizedQuery); updateSuggestions(normalizedQuery); syncSearchHistory(historyMode, { routeHash: "#buscar" }); return;
+  }
+  if (!searchWorkerAllowed && !normalizedQuery && !filtersAreActive(getFilters())) {
+    renderResults(buildBrowseResources().slice(0, 24), normalizedQuery);
+    updateSuggestions(normalizedQuery);
+    if (historyMode !== "none") syncSearchHistory(historyMode, { routeHash: "#buscar" });
+    return;
+  }
+  const requestMarker = searchRequestId + 1;
+  try {
+    const response = await searchInWorker(normalizedQuery, getFilters());
+    if (response.id !== latestSearchRequestId || response.id < requestMarker) return;
+    const results = (response.results || []).map(hydrateSearchResult);
+    renderResults(results, normalizedQuery, { effectiveQuery: response.effectiveQuery || normalizedQuery, correction: response.correction || null });
+    updateSuggestions(response.effectiveQuery || normalizedQuery);
+    syncSearchHistory(historyMode, { routeHash: "#buscar" });
+    window.dispatchEvent(new CustomEvent("hub:search-performance", { detail: { elapsedMs: response.elapsedMs || 0, query: normalizedQuery } }));
+  } catch (error) {
+    console.warn("Falha no mecanismo de busca:", error);
+    renderResults([], normalizedQuery, { effectiveQuery: normalizedQuery, correction: null });
+    updateSuggestions(normalizedQuery);
+    syncSearchHistory(historyMode, { routeHash: "#buscar" });
+  }
 }
 
 function populateSelect(id, values) {
@@ -2356,7 +2730,8 @@ function setupSavedSearches() {
       const el = document.getElementById(id);
       if (el) el.value = item.filters?.[key] || "all";
     });
-    runSearch(item.query || "");
+    liveSearchHistoryEntry = false;
+    runSearch(item.query || "", { historyMode: "push" });
     document.getElementById("buscar")?.scrollIntoView({ behavior: "smooth", block: "start" });
   });
   document.getElementById("searchInput")?.addEventListener("input", updateSavedSearchControls);
@@ -2364,17 +2739,25 @@ function setupSavedSearches() {
 }
 
 function openSearchResultByIndex(index = 0, { newTab = false } = {}) {
-  const result = state.lastResults?.[Number(index)];
+  const numericIndex = Number(index);
+  const result = state.lastResults?.[numericIndex];
   if (!result) return false;
+  state.selectedSearchIndex = numericIndex;
+  syncSearchHistory("replace", { selectedResultIndex: numericIndex });
+  if (result.type === "doom") {
+    const trigger = document.querySelector(`.result-card[data-result-index="${Number(index)}"] [data-doom-launch]`);
+    trigger?.click();
+    return Boolean(trigger);
+  }
   if (newTab) {
     const url = result.type === "document"
-      ? openPdfAtPage(result.doc, result.chunk?.page)
+      ? openPdfAtPage(result.doc, result.chunk?.page, { query: state.effectiveSearchQuery, section: result.chunk?.heading || "" })
       : (result.url || result.app?.url || result.link?.url || "");
     if (url && url !== "#") window.open(url, "_blank", "noopener");
     return Boolean(url && url !== "#");
   }
   const card = document.querySelector(`.result-card[data-result-index="${Number(index)}"]`);
-  const target = card?.querySelector("[data-preview-index], [data-workflow-open], a.small-action");
+  const target = card?.querySelector("[data-doom-launch], [data-preview-index], [data-workflow-open], a.small-action");
   if (target) {
     target.click();
     return true;
@@ -2386,98 +2769,279 @@ function focusSearchResult(index = 0) {
   const cards = [...document.querySelectorAll(".result-card[data-result-index]")];
   if (!cards.length) return false;
   const safe = Math.max(0, Math.min(cards.length - 1, Number(index) || 0));
+  state.selectedSearchIndex = safe;
   cards[safe].focus({ preventScroll: true });
   cards[safe].scrollIntoView({ behavior: "smooth", block: "nearest" });
+  syncSearchHistory("replace", { selectedResultIndex: safe });
   return true;
+}
+
+function readDoomReturnContext() {
+  try {
+    const raw = sessionStorage.getItem(DOOM_RETURN_CONTEXT_KEY);
+    if (!raw) return null;
+    const context = JSON.parse(raw);
+    if (!context || typeof context !== "object") return null;
+    return context;
+  } catch (_) {
+    return null;
+  }
+}
+
+function saveDoomReturnContext() {
+  const context = {
+    ...currentSearchNavigationSnapshot({ previewDocId: "", previewPage: "" }),
+    query: document.getElementById("searchInput")?.value || "doom",
+    createdAt: Date.now(),
+  };
+  try { sessionStorage.setItem(DOOM_RETURN_CONTEXT_KEY, JSON.stringify(context)); } catch (_) {}
+}
+
+function playDoomAnomalySound() {
+  try {
+    const AudioContext = window.AudioContext || window.webkitAudioContext;
+    if (!AudioContext) return;
+    const context = new AudioContext();
+    const gain = context.createGain();
+    const oscillator = context.createOscillator();
+    const overtone = context.createOscillator();
+    const now = context.currentTime;
+    oscillator.type = "sine";
+    overtone.type = "triangle";
+    oscillator.frequency.setValueAtTime(118, now);
+    oscillator.frequency.exponentialRampToValueAtTime(76, now + .34);
+    overtone.frequency.setValueAtTime(236, now + .08);
+    overtone.frequency.exponentialRampToValueAtTime(152, now + .34);
+    gain.gain.setValueAtTime(.0001, now);
+    gain.gain.exponentialRampToValueAtTime(.035, now + .025);
+    gain.gain.exponentialRampToValueAtTime(.0001, now + .38);
+    oscillator.connect(gain);
+    overtone.connect(gain);
+    gain.connect(context.destination);
+    oscillator.start(now);
+    overtone.start(now + .08);
+    oscillator.stop(now + .38);
+    overtone.stop(now + .38);
+    window.setTimeout(() => context.close().catch(() => {}), 600);
+  } catch (_) {}
+}
+
+function doomAnomalyOverlay() {
+  let overlay = document.getElementById("doomAnomalyOverlay");
+  if (overlay) return overlay;
+  overlay = document.createElement("div");
+  overlay.id = "doomAnomalyOverlay";
+  overlay.className = "doom-anomaly-overlay";
+  overlay.hidden = true;
+  overlay.setAttribute("role", "dialog");
+  overlay.setAttribute("aria-modal", "true");
+  overlay.setAttribute("aria-labelledby", "doomAnomalyTitle");
+  overlay.innerHTML = `
+    <div class="doom-anomaly-panel">
+      <p class="doom-anomaly-source">HUB ARQUIVOS IFBA · BUSCA INTERNA</p>
+      <h2 id="doomAnomalyTitle">ANOMALIA DETECTADA NO ACERVO</h2>
+      <p id="doomAnomalyStatus">Falha ao classificar o documento solicitado.</p>
+      <div class="doom-anomaly-progress" aria-hidden="true"><span></span></div>
+      <small>Isolando subsistema experimental…</small>
+    </div>
+  `;
+  document.body.append(overlay);
+  return overlay;
+}
+
+let doomLaunchInProgress = false;
+function launchDoomEasterEgg(trigger = null) {
+  if (doomLaunchInProgress) return;
+  doomLaunchInProgress = true;
+  saveDoomReturnContext();
+  let discoveredBefore = false;
+  try {
+    discoveredBefore = localStorage.getItem(DOOM_DISCOVERED_KEY) === "1";
+    localStorage.setItem(DOOM_DISCOVERED_KEY, "1");
+  } catch (_) {}
+  playDoomAnomalySound();
+
+  const card = trigger?.closest?.(".doom-secret-result");
+  card?.classList.add("is-corrupted");
+  const summary = document.getElementById("resultsSummary");
+  if (summary) summary.textContent = discoveredBefore
+    ? "Subsistema experimental reconhecido."
+    : "Falha de leitura: o item não corresponde a nenhum formato acadêmico conhecido.";
+
+  const reducedMotion = matchMedia("(prefers-reduced-motion: reduce)").matches;
+  const overlayDelay = reducedMotion ? 30 : (discoveredBefore ? 80 : 260);
+  const navigationDelay = reducedMotion ? 360 : (discoveredBefore ? 720 : 1650);
+  const statusDelay = reducedMotion ? 140 : (discoveredBefore ? 300 : 980);
+  const overlay = doomAnomalyOverlay();
+  overlay.classList.toggle("is-returning", discoveredBefore);
+
+  window.setTimeout(() => {
+    overlay.hidden = false;
+    requestAnimationFrame(() => overlay.classList.add("is-visible"));
+    document.body.classList.add("doom-anomaly-open");
+  }, overlayDelay);
+
+  window.setTimeout(() => {
+    const status = document.getElementById("doomAnomalyStatus");
+    if (status) status.textContent = discoveredBefore
+      ? "Subsistema reconhecido. Transferindo controle…"
+      : "Subsistema localizado. Transferindo controle…";
+  }, statusDelay);
+
+  window.setTimeout(() => window.location.assign("apps/doom/?from=hub"), navigationDelay);
+}
+
+function setupDoomEasterEgg() {
+  document.body.addEventListener("click", event => {
+    const trigger = event.target.closest("[data-doom-launch]");
+    if (!trigger) return;
+    event.preventDefault();
+    launchDoomEasterEgg(trigger);
+  });
+}
+
+function restoreDoomSearchContext() {
+  const params = new URLSearchParams(location.search);
+  if (params.get("doomReturn") !== "1") return false;
+  const context = readDoomReturnContext() || { query: "doom", filters: {} };
+  const input = document.getElementById("searchInput");
+  if (input) input.value = context.query || "doom";
+  applySearchFilters(context.filters || {});
+  state.searchResultsView = context.resultsView === "directory" ? "directory" : "cards";
+  state.searchDirectorySort = context.directorySort || state.searchDirectorySort || "relevance";
+  state.searchDirectoryRows = Math.max(1, Number(context.directoryRows) || state.searchDirectoryRows || 10);
+  const restoredDirectoryPage = Math.max(1, Number(context.directoryPage) || 1);
+  state.searchDirectoryPage = restoredDirectoryPage;
+  state.selectedSearchIndex = Number.isFinite(Number(context.selectedResultIndex)) ? Number(context.selectedResultIndex) : -1;
+  const restorePromise = runSearch(input?.value || "doom", { historyMode: "none" });
+  searchHistoryReady = true;
+  const snapshot = currentSearchNavigationSnapshot({
+    scrollY: Math.max(0, Number(context.scrollY) || 0),
+    previewDocId: "",
+    previewPage: "",
+  });
+  history.replaceState(snapshot, "", buildShareableSearchUrl(snapshot));
+  Promise.resolve(restorePromise).finally(() => requestAnimationFrame(() => requestAnimationFrame(() => {
+    state.searchDirectoryPage = restoredDirectoryPage;
+    applySearchResultsView(state.searchResultsView, { persist: false });
+    renderSearchDirectory();
+    const fallback = document.getElementById("buscar");
+    if (snapshot.scrollY > 0) window.scrollTo({ top: snapshot.scrollY, behavior: "auto" });
+    else fallback?.scrollIntoView({ block: "start" });
+  })));
+  return true;
+}
+
+function clearSearchAndFilters({ historyMode = "push", focus = true } = {}) {
+  const input = document.getElementById("searchInput");
+  if (!input) return;
+  input.value = "";
+  applySearchFilters({ type: "all", docType: "all", correspondent: "all", format: "all" });
+  prefRemove(HUB_PREF_KEYS.searchFilters);
+  liveSearchHistoryEntry = false;
+  runSearch("", { historyMode });
+  if (focus) input.focus();
 }
 
 function setupSearch() {
   const form = document.getElementById("searchForm");
   const input = document.getElementById("searchInput");
   if (!form || !input) return;
+  document.getElementById("searchResults")?.addEventListener("toggle", event => {
+    const details = event.target.closest?.("details[data-result-passages]");
+    if (!details) return;
+    const key = details.dataset.resultPassages || "";
+    const expanded = new Set(state.expandedSearchResults || []);
+    if (details.open) expanded.add(key); else expanded.delete(key);
+    state.expandedSearchResults = [...expanded];
+    syncSearchHistory("replace", { expandedResults: state.expandedSearchResults });
+  }, true);
+  setupSearchHistoryNavigation();
 
   form.addEventListener("submit", event => {
     event.preventDefault();
-    runSearch(input.value);
+    const mode = liveSearchHistoryEntry ? "replace" : "push";
+    runSearch(input.value, { historyMode: mode });
+    liveSearchHistoryEntry = false;
   });
 
-  input.addEventListener("keydown", event => {
+  input.addEventListener("keydown", async event => {
     if (event.key === "ArrowDown" && state.lastResults?.length) {
       event.preventDefault();
-      focusSearchResult(0);
+      focusSearchResult(state.selectedSearchIndex >= 0 ? state.selectedSearchIndex : 0);
       return;
     }
     if (event.key === "Enter") {
       event.preventDefault();
-      if (String(state.lastQuery || "").trim() !== input.value.trim()) runSearch(input.value);
-      if (state.lastResults?.length) openSearchResultByIndex(0, { newTab: event.ctrlKey || event.metaKey });
-      else runSearch(input.value);
+      const queryChanged = String(state.lastQuery || "").trim() !== input.value.trim();
+      if (queryChanged) {
+        const mode = liveSearchHistoryEntry ? "replace" : "push";
+        await runSearch(input.value, { historyMode: mode });
+        liveSearchHistoryEntry = false;
+        if (isDoomEasterEggQuery(input.value)) return;
+      }
+      if (state.lastResults?.length) openSearchResultByIndex(state.selectedSearchIndex >= 0 ? state.selectedSearchIndex : 0, { newTab: event.ctrlKey || event.metaKey });
+      else runSearch(input.value, { historyMode: "replace" });
       return;
     }
-    if (event.key === "Escape" && input.value) {
+    if (event.key === "Escape" && (input.value || filtersAreActive(getFilters()))) {
       event.preventDefault();
-      input.value = "";
-      runSearch("");
+      clearSearchAndFilters({ historyMode: "push" });
     }
   });
 
   input.addEventListener("input", () => {
     window.clearTimeout(input._timer);
-    input._timer = window.setTimeout(() => runSearch(input.value), 120);
+    input._timer = window.setTimeout(() => {
+      const mode = liveSearchHistoryEntry ? "replace" : "push";
+      runSearch(input.value, { historyMode: mode });
+      liveSearchHistoryEntry = true;
+    }, 120);
   });
 
   document.querySelectorAll("[data-example]").forEach(button => {
     button.addEventListener("click", () => {
       input.value = button.dataset.example;
-      runSearch(input.value);
+      liveSearchHistoryEntry = false;
+      runSearch(input.value, { historyMode: "push" });
       input.focus();
     });
   });
 
   const urlParams = new URLSearchParams(window.location.search);
   const focusSearchRequested = urlParams.get("focus") === "search";
-  const requestedQuery = String(urlParams.get("q") || "").trim();
-  if (requestedQuery) {
-    input.value = requestedQuery;
-    runSearch(requestedQuery);
-  }
-  if (focusSearchRequested || requestedQuery || window.location.hash === "#buscar") {
-    window.setTimeout(() => {
-      input.focus({ preventScroll: true });
-      if (focusSearchRequested || requestedQuery) {
-        const cleanUrl = `${window.location.pathname}${window.location.hash || "#buscar"}`;
-        window.history.replaceState(null, "", cleanUrl);
-      }
-    }, 260);
+  if (focusSearchRequested || urlParams.has("q") || window.location.hash === "#buscar") {
+    window.setTimeout(() => input.focus({ preventScroll: true }), 260);
   }
 
   document.getElementById("smartSuggestions")?.addEventListener("click", event => {
     const button = event.target.closest("[data-suggest]");
     if (!button) return;
     input.value = button.dataset.suggest;
-    runSearch(input.value);
+    liveSearchHistoryEntry = false;
+    runSearch(input.value, { historyMode: "push" });
     input.focus();
   });
 
-  ["typeFilter", "docTypeFilter", "correspondentFilter", "formatFilter"].forEach(id => {
+  document.getElementById("searchResults")?.addEventListener("click", event => {
+    const button = event.target.closest("[data-empty-suggest]");
+    if (!button) return;
+    input.value = button.dataset.emptySuggest;
+    liveSearchHistoryEntry = false;
+    runSearch(input.value, { historyMode: "push" });
+    input.focus();
+  });
+
+  Object.values(SEARCH_FILTER_IDS).forEach(id => {
     document.getElementById(id)?.addEventListener("change", () => {
       saveSearchFiltersPreference();
-      runSearch(input.value);
+      liveSearchHistoryEntry = false;
+      runSearch(input.value, { historyMode: "push" });
     });
   });
 
-  document.getElementById("clearSearch")?.addEventListener("click", () => {
-    input.value = "";
-    ["typeFilter", "docTypeFilter", "correspondentFilter", "formatFilter"].forEach(id => {
-      const el = document.getElementById(id);
-      if (el) el.value = "all";
-    });
-    prefRemove(HUB_PREF_KEYS.searchFilters);
-    runSearch("");
-    input.focus();
-  });
-
-  runSearch("");
+  document.getElementById("clearSearch")?.addEventListener("click", () => clearSearchAndFilters({ historyMode: "push" }));
+  runSearch("", { historyMode: "none" });
 }
 
 
@@ -2616,20 +3180,24 @@ function renderDirectory() {
   const start = (state.directoryPage - 1) * state.directoryRows;
   const pageDocs = sorted.slice(start, start + state.directoryRows);
 
-  tbody.innerHTML = pageDocs.map(doc => {
+  patchDirectoryRows(tbody, pageDocs.map(doc => {
     const fileUrl = doc.pdfUrl || doc.sourceUrl || "#";
     const category = doc.group || doc.category || categoryFromPath(fileUrl);
-    return `
-      <tr>
-        <td class="directory-thumb-cell">${thumbnailHtml(doc, "document")}</td>
-        <td class="directory-name-cell"><strong>${escapeHtml(doc.title || "Documento")}</strong><small>${escapeHtml((fileUrl.split("/").pop() || "arquivo").replace(/%20/g, " "))}</small></td>
-        <td><span class="directory-category">${escapeHtml(category || "Documentos")}</span></td>
-        <td>${escapeHtml(createdDateText(doc))}</td>
-        <td>${escapeHtml(formatFileSize(directoryFileSize(doc)))}</td>
-        <td><div class="directory-actions"><button type="button" data-directory-doc="${escapeHtml(doc.id)}">Prévia</button><a class="secondary-button" href="${escapeHtml(openPdfAtPage(doc))}" target="_blank" rel="noopener">Abrir</a>${documentDownloadLink(doc)}<button type="button" class="favorite-toggle" data-favorite-toggle data-favorite-id="${escapeHtml(doc.id)}" data-favorite-kind="document" data-favorite-title="${escapeHtml(doc.title || "Documento")}" data-favorite-url="${escapeHtml(openPdfAtPage(doc))}" data-favorite-meta="${escapeHtml(category || "Documentos")}" aria-label="Adicionar aos favoritos" title="Adicionar aos favoritos">☆</button></div></td>
-      </tr>
-    `;
-  }).join("");
+    return {
+      key: `directory:${doc.id}`,
+      signature: JSON.stringify([doc.id, doc.title, category, createdDateText(doc), directoryFileSize(doc), doc.thumbnailUrl]),
+      html: `
+        <tr>
+          <td class="directory-thumb-cell">${thumbnailHtml(doc, "document")}</td>
+          <td class="directory-name-cell"><strong>${escapeHtml(doc.title || "Documento")}</strong><small>${escapeHtml((fileUrl.split("/").pop() || "arquivo").replace(/%20/g, " "))}</small></td>
+          <td><span class="directory-category">${escapeHtml(category || "Documentos")}</span></td>
+          <td>${escapeHtml(createdDateText(doc))}</td>
+          <td>${escapeHtml(formatFileSize(directoryFileSize(doc)))}</td>
+          <td><div class="directory-actions"><button type="button" data-directory-doc="${escapeHtml(doc.id)}">Prévia</button><a class="secondary-button" href="${escapeHtml(openPdfAtPage(doc))}" target="_blank" rel="noopener">Abrir</a>${documentDownloadLink(doc)}<button type="button" class="favorite-toggle" data-favorite-toggle data-favorite-id="${escapeHtml(doc.id)}" data-favorite-kind="document" data-favorite-title="${escapeHtml(doc.title || "Documento")}" data-favorite-url="${escapeHtml(openPdfAtPage(doc))}" data-favorite-meta="${escapeHtml(category || "Documentos")}" aria-label="Adicionar aos favoritos" title="Adicionar aos favoritos">☆</button></div></td>
+        </tr>
+      `
+    };
+  }));
 
   renderDirectoryPagination(sorted.length, pageCount);
   schedulePdfThumbnailRender();
@@ -2683,9 +3251,78 @@ function renderDocuments() {
 
   const limit = Math.min(ensureArchiveLimit(), documents.length);
   const visibleDocs = documents.slice(0, limit);
-  grid.innerHTML = visibleDocs.map(doc => renderResourceCard(doc, "document")).join("");
+  patchResourceCards(grid, visibleDocs);
   renderArchiveLoadMore(documents.length, limit);
   schedulePdfThumbnailRender();
+}
+
+function linksColumnsMaximum() {
+  if (window.matchMedia?.("(max-width: 520px)")?.matches) return 2;
+  if (window.matchMedia?.("(max-width: 920px)")?.matches) return 3;
+  return 8;
+}
+
+function linksColumnsPreferenceKey(view = state.linksView || defaultLinksView()) {
+  const device = isMobileViewport() ? "Mobile" : "Desktop";
+  const suffix = view === "cards" ? "Cards" : "Quick";
+  return `${HUB_PREF_KEYS[`linksColumns${suffix}`]}${device}`;
+}
+
+function sanitizeLinksColumns(value) {
+  if (value === "auto") return "auto";
+  const number = Math.round(Number(value));
+  return Number.isFinite(number) ? String(Math.min(linksColumnsMaximum(), Math.max(1, number))) : "auto";
+}
+
+function currentLinksColumns(view = state.linksView || defaultLinksView()) {
+  return view === "cards" ? state.linksColumnsCards : state.linksColumnsQuick;
+}
+
+function setCurrentLinksColumns(value, view = state.linksView || defaultLinksView()) {
+  const clean = sanitizeLinksColumns(value);
+  if (view === "cards") state.linksColumnsCards = clean;
+  else state.linksColumnsQuick = clean;
+  return clean;
+}
+
+function populateLinksColumnsSelect() {
+  const select = document.getElementById("linksColumnsSelect");
+  const label = document.getElementById("linksColumnsLabel");
+  if (!select) return;
+  const view = state.linksView || defaultLinksView();
+  const maximum = linksColumnsMaximum();
+  const preferred = sanitizeLinksColumns(currentLinksColumns(view));
+  const options = ['<option value="auto">Automático</option>'];
+  for (let columns = 1; columns <= maximum; columns += 1) {
+    options.push(`<option value="${columns}">${columns}</option>`);
+  }
+  select.innerHTML = options.join("");
+  select.value = preferred;
+  select.disabled = state.linksEditMode;
+  if (label) label.textContent = view === "cards"
+    ? "Colunas da visualização detalhada"
+    : "Colunas da visualização rápida";
+}
+
+function applyLinksColumns({ persist = false } = {}) {
+  const grid = document.getElementById("linksGrid");
+  if (!grid) return;
+  const view = state.linksView || defaultLinksView();
+  const clean = setCurrentLinksColumns(currentLinksColumns(view), view);
+  grid.style.removeProperty("grid-template-columns");
+  if (!state.linksEditMode && clean !== "auto") {
+    grid.style.gridTemplateColumns = `repeat(${clean}, minmax(0, 1fr))`;
+  }
+  grid.dataset.linksColumns = clean;
+  if (persist) prefSet(linksColumnsPreferenceKey(view), clean);
+  populateLinksColumnsSelect();
+}
+
+function loadLinksColumnPreferences() {
+  for (const view of ["quick", "cards"]) {
+    const stored = prefGet(linksColumnsPreferenceKey(view), "auto");
+    setCurrentLinksColumns(stored, view);
+  }
 }
 
 function defaultLinksView() {
@@ -2707,6 +3344,8 @@ function applyLinksView(value, { persist = true } = {}) {
     grid.classList.toggle("links-edit-list", state.linksEditMode);
     grid.dataset.view = state.linksEditMode ? "edit" : clean;
   }
+
+  applyLinksColumns({ persist: false });
 
   if (persist) {
     try { localStorage.setItem(linksViewStorageKey(), clean); } catch (_) {}
@@ -2856,6 +3495,7 @@ function renderLinks() {
   document.querySelectorAll("[data-links-view]").forEach(button => {
     button.disabled = state.linksEditMode;
   });
+  applyLinksColumns({ persist: false });
 
   if (!links.length) {
     grid.innerHTML = emptyStateHtml("Nenhum link cadastrado ainda", "Quando você adicionar links reais em data.js, eles aparecerão aqui.");
@@ -2875,10 +3515,22 @@ function linksViewStorageKey() {
 }
 
 function setupLinksViewToggle() {
+  let linksDeviceBucket = isMobileViewport() ? "mobile" : "desktop";
+  let linksResizeFrame = 0;
   const saved = (() => {
     try { return localStorage.getItem(linksViewStorageKey()); } catch (_) { return null; }
   })();
-  applyLinksView(saved === "cards" || saved === "quick" ? saved : defaultLinksView(), { persist: false });
+  state.linksView = saved === "cards" || saved === "quick" ? saved : defaultLinksView();
+  loadLinksColumnPreferences();
+  applyLinksView(state.linksView, { persist: false });
+
+  document.getElementById("linksColumnsSelect")?.addEventListener("change", event => {
+    setCurrentLinksColumns(event.currentTarget.value);
+    applyLinksColumns({ persist: true });
+    state.linksExpanded = false;
+    prefSet(linksExpandedStorageKey(), "0");
+    requestAnimationFrame(applyLinksLimit);
+  });
 
   document.querySelectorAll("[data-links-view]").forEach(button => {
     button.addEventListener("click", () => {
@@ -2957,7 +3609,25 @@ function setupLinksViewToggle() {
     prefSet(linksExpandedStorageKey(), state.linksExpanded ? "1" : "0");
     applyLinksLimit();
   });
-  window.addEventListener("resize", () => requestAnimationFrame(applyLinksLimit));
+  window.addEventListener("resize", () => {
+    cancelAnimationFrame(linksResizeFrame);
+    linksResizeFrame = requestAnimationFrame(() => {
+      const nextBucket = isMobileViewport() ? "mobile" : "desktop";
+      if (nextBucket !== linksDeviceBucket) {
+        linksDeviceBucket = nextBucket;
+        const storedView = (() => {
+          try { return localStorage.getItem(linksViewStorageKey()); } catch (_) { return null; }
+        })();
+        state.linksView = storedView === "cards" || storedView === "quick" ? storedView : defaultLinksView();
+        loadLinksColumnPreferences();
+        renderLinks();
+        return;
+      }
+      loadLinksColumnPreferences();
+      applyLinksColumns({ persist: false });
+      applyLinksLimit();
+    });
+  }, { passive: true });
 }
 
 
@@ -3097,7 +3767,7 @@ function renderWorkflowDetail(id, shouldScroll = true) {
 }
 
 function openWorkflow(id) {
-  location.hash = "resolver";
+  navigateToLocalAnchor("#onde-resolvo", { behavior: "smooth" });
   renderWorkflowDetail(id, true);
 }
 
@@ -3200,31 +3870,47 @@ function setPreviewModalOpen(open) {
   document.body.classList.toggle("modal-open", Boolean(open));
 }
 
-function closePreviewModal() {
+function closePreviewModal({ historyMode = "back" } = {}) {
+  const modal = document.getElementById("previewModal");
+  const wasOpen = modal?.getAttribute("aria-hidden") === "false";
   setPreviewModalOpen(false);
+  state.previewDocId = "";
+  state.previewPage = "";
+  if (!wasOpen || restoringSearchHistory || historyMode === "none") return;
+  if (historyMode === "back" && history.state?.marker === SEARCH_HISTORY_MARKER && history.state?.previewDocId) {
+    history.back();
+    return;
+  }
+  syncSearchHistory("replace", { previewDocId: "", previewPage: "" });
 }
 
-function openPreviewFromDoc(doc, options = {}) {
+async function openPreviewFromDoc(doc, options = {}) {
   if (!doc) return;
+  await hydrateDocumentPassages(doc);
   const queryTerms = expandedTerms(state.lastQuery || "");
   const exactTerms = options.exactTerms || queryTerms.exact || [];
   const semanticTerms = options.semanticTerms || queryTerms.semantic || [];
   const chunk = options.chunk || bestChunksForDoc(doc, exactTerms, semanticTerms)[0] || doc.chunks?.[0] || { page: "—", heading: "Prévia", text: doc.summary || doc.title || "" };
-  openPreview({ type: "document", doc, chunk, exactTerms, semanticTerms });
+  openPreview({ type: "document", doc, chunk, exactTerms, semanticTerms }, options);
 }
 
-function openPreview(result) {
+async function openPreview(result, { historyMode = "push", restorePage = "" } = {}) {
   const modal = document.getElementById("previewModal");
   const modalContent = document.getElementById("modalContent");
   if (!modal || !modalContent || !result || result.type !== "document") return;
   const doc = result.doc;
+  await hydrateDocumentPassages(doc);
   const exactTerms = result.exactTerms || [];
   const semanticTerms = result.semanticTerms || [];
   const chunks = (result.matchedChunks || []).length
     ? result.matchedChunks
     : bestChunksForDoc(doc, exactTerms, semanticTerms);
   const shownChunks = chunks.length ? chunks : [{ page: "—", heading: "Prévia", text: doc.summary || doc.title || "Texto não indexado para este documento." }];
-  const firstPage = shownChunks.find(chunk => String(chunk.page || "").match(/\d+/))?.page || result.chunk?.page || "";
+  const requestedPage = String(restorePage || result.chunk?.page || "");
+  const firstPage = shownChunks.find(chunk => String(chunk.page || "") === requestedPage)?.page
+    || shownChunks.find(chunk => String(chunk.page || "").match(/\d+/))?.page
+    || result.chunk?.page
+    || "";
   const citationText = buildCitation({ type: "document", doc, chunk: shownChunks[0] || result.chunk || {} });
   const titleHtml = highlight(doc.title, exactTerms, semanticTerms);
   const infoHtml = `${escapeHtml(documentInfoInline(doc))}`;
@@ -3251,7 +3937,7 @@ function openPreview(result) {
           ${thumbnailHtml(doc, "document")}
           <div class="preview-page-list" aria-label="Páginas encontradas">
             ${shownChunks.map((chunk, i) => `
-              <button type="button" data-preview-scroll="preview-chunk-${i}">
+              <button type="button" data-preview-scroll="preview-chunk-${i}" data-preview-page="${escapeHtml(chunk.page || "")}">
                 <strong>p. ${escapeHtml(chunk.page || "—")}</strong>
                 <span>${escapeHtml(compactText(chunk.heading || "Trecho encontrado", 46))}</span>
               </button>
@@ -3274,6 +3960,7 @@ function openPreview(result) {
                 <div class="result-head">
                   <span class="badge">p. ${escapeHtml(chunk.page || "—")}</span>
                   <span class="badge">${highlight(chunk.heading || "Trecho", exactTerms, semanticTerms)}</span>
+                  <a class="preview-passage-open" href="${escapeHtml(openPdfAtPage(doc, chunk.page, { query: state.effectiveSearchQuery, section: chunk.heading || "" }))}" target="_blank" rel="noopener">Abrir nesta página</a>
                 </div>
                 <p>${finalText}</p>
               </article>
@@ -3283,13 +3970,20 @@ function openPreview(result) {
       </section>
 
       <footer class="verified-preview-actions">
-        <a class="small-action" href="${escapeHtml(openPdfAtPage(doc, firstPage))}" target="_blank" rel="noopener">Abrir PDF</a>
+        <a class="small-action" href="${escapeHtml(openPdfAtPage(doc, firstPage, { query: state.effectiveSearchQuery, section: shownChunks.find(chunk => String(chunk.page || "") === String(firstPage || ""))?.heading || "" }))}" target="_blank" rel="noopener">Abrir PDF</a>
         <button class="secondary-button" type="button" data-copy-reference="${escapeHtml(citationText)}">Copiar referência</button>
         <button class="secondary-button" type="button" data-close-modal>Fechar</button>
       </footer>
     </div>
   `;
   setPreviewModalOpen(true);
+  state.previewDocId = doc.id || "";
+  state.previewPage = String(firstPage || "");
+  syncSearchHistory(historyMode, { previewDocId: state.previewDocId, previewPage: state.previewPage });
+  if (restorePage) {
+    const restoreIndex = shownChunks.findIndex(chunk => String(chunk.page || "") === String(restorePage));
+    if (restoreIndex >= 0) requestAnimationFrame(() => document.getElementById(`preview-chunk-${restoreIndex}`)?.scrollIntoView({ block: "start", behavior: "auto" }));
+  }
   schedulePdfThumbnailRender();
 }
 
@@ -3299,7 +3993,17 @@ function setupModal() {
 
   document.body.addEventListener("click", event => {
     const previewButton = event.target.closest("[data-preview-index]");
-    if (previewButton) openPreview(state.lastResults[Number(previewButton.dataset.previewIndex)]);
+    if (previewButton) {
+      state.selectedSearchIndex = Number(previewButton.dataset.previewIndex);
+      const result = state.lastResults[state.selectedSearchIndex];
+      const matchIndex = Number(previewButton.dataset.previewMatch);
+      if (result?.type === "document" && Number.isFinite(matchIndex) && matchIndex >= 0) {
+        const selectedChunk = (result.matchedChunks || [])[matchIndex];
+        openPreview({ ...result, chunk: selectedChunk || result.chunk }, { restorePage: selectedChunk?.page || "" });
+      } else {
+        openPreview(result);
+      }
+    }
 
     const directoryDoc = event.target.closest("[data-directory-doc]");
     if (directoryDoc) {
@@ -3340,6 +4044,8 @@ function setupModal() {
     const scrollPreview = event.target.closest("[data-preview-scroll]");
     if (scrollPreview) {
       const target = document.getElementById(scrollPreview.dataset.previewScroll);
+      state.previewPage = scrollPreview.dataset.previewPage || state.previewPage || "";
+      syncSearchHistory("replace", { previewDocId: state.previewDocId, previewPage: state.previewPage });
       target?.scrollIntoView({ behavior: "smooth", block: "start" });
     }
 
@@ -3351,20 +4057,52 @@ function setupModal() {
     if (event.target.closest("[data-close-modal]")) closePreviewModal();
   });
 
-  document.addEventListener("keydown", event => {
-    if (event.key === "Escape") closePreviewModal();
-  });
 }
 
 document.addEventListener("keydown", event => {
+  if (event.defaultPrevented) return;
   const target = event.target;
   const typing = target && /^(INPUT|TEXTAREA|SELECT)$/i.test(target.tagName || "") || target?.isContentEditable;
+  const modalOpen = document.getElementById("previewModal")?.getAttribute("aria-hidden") === "false";
+
+  if ((event.ctrlKey || event.metaKey) && !event.altKey && event.key.toLowerCase() === "k") {
+    event.preventDefault();
+    window.HUB_SIDEBAR_SEARCH?.open?.();
+    return;
+  }
+
   if (!typing && !event.ctrlKey && !event.metaKey && !event.altKey && event.key === "/") {
     event.preventDefault();
-    const input = document.getElementById("sidebarSearchInput") || document.getElementById("searchInput");
-    window.HUB_SIDEBAR_SEARCH?.open?.();
-    input?.focus();
+    const input = document.getElementById("searchInput");
+    navigateToLocalAnchor("#buscar", { behavior: "smooth" });
+    input?.focus({ preventScroll: true });
     input?.select();
+    return;
+  }
+
+  if (event.key === "Escape" && modalOpen) {
+    event.preventDefault();
+    closePreviewModal();
+    return;
+  }
+
+  if (!typing && event.key === "Escape" && (document.getElementById("searchInput")?.value || filtersAreActive(getFilters()))) {
+    event.preventDefault();
+    clearSearchAndFilters({ historyMode: "push" });
+    return;
+  }
+
+  const onResultCard = target?.closest?.(".result-card[data-result-index]");
+  const interactive = target?.closest?.("button, a, [role='button'], [contenteditable='true']");
+  if (typing || onResultCard || interactive || event.ctrlKey || event.metaKey || event.altKey || !state.lastResults?.length) return;
+
+  if (event.key === "ArrowDown" || event.key === "ArrowUp") {
+    event.preventDefault();
+    const current = state.selectedSearchIndex >= 0 ? state.selectedSearchIndex : (event.key === "ArrowDown" ? -1 : state.lastResults.length);
+    focusSearchResult(current + (event.key === "ArrowDown" ? 1 : -1));
+  } else if (event.key === "Enter" && state.selectedSearchIndex >= 0) {
+    event.preventDefault();
+    openSearchResultByIndex(state.selectedSearchIndex);
   }
 });
 
@@ -3851,9 +4589,9 @@ function setupAppsMenu() {
   const appsMenu = document.getElementById("appsMenu");
   const linksMenu = document.getElementById("sidebarLinksList");
   if (appsMenu) {
-    const items = apps.map(app => ({ title: app.title, url: app.url || "#apps", emoji: emojiForResource(app, "app") }));
+    const items = apps.map(app => ({ ...app, url: app.url || "#apps", emoji: emojiForResource(app, "app") }));
     appsMenu.innerHTML = items.map(item => {
-      const attrs = linkTargetAttrs({ url: item.url, newTab: true });
+      const attrs = linkTargetAttrs(item);
       return `<a href="${escapeHtml(item.url)}"${attrs}><span aria-hidden="true">${escapeHtml(item.emoji)}</span><span class="sidebar-label">${escapeHtml(item.title)}</span></a>`;
     }).join("");
   }
@@ -3931,6 +4669,7 @@ function setupNavigation() {
   window.addEventListener("scroll", requestUpdate, { passive: true });
   window.addEventListener("resize", requestUpdate);
   window.addEventListener("hashchange", requestUpdate);
+  window.addEventListener("hub:route-changed", requestUpdate);
   requestUpdate();
 }
 
@@ -4139,28 +4878,35 @@ function setupFilterToggle() {
   toggle.addEventListener("click", () => setOpen(!card.classList.contains("open")));
 }
 
-function handleSharedLink() {
+function sharedLinkRequestFromLocation() {
   const params = new URLSearchParams(window.location.search);
   const docId = params.get("share") || params.get("doc");
-  if (!docId) return;
-  const expires = params.get("expires");
-  if (expires) {
-    const today = new Date();
-    today.setHours(0, 0, 0, 0);
-    const expiryDate = new Date(`${expires}T00:00:00`);
-    if (!Number.isNaN(expiryDate.getTime()) && expiryDate < today) {
-      document.getElementById("resultsSummary").textContent = "O link público expirou.";
-      location.hash = "#buscar";
-      return;
-    }
-  }
-  const doc = documents.find(item => item.id === docId);
-  if (doc) {
-    location.hash = "#buscar";
-    window.setTimeout(() => openPreviewFromDoc(doc), 100);
-  }
+  if (!docId) return null;
+  return { docId, expires: params.get("expires") || "" };
 }
 
+function handleSharedLink(request = sharedLinkRequestFromLocation()) {
+  if (!request?.docId) return false;
+  const summary = document.getElementById("resultsSummary");
+  if (request.expires) {
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+    const expiryDate = new Date(`${request.expires}T00:00:00`);
+    if (!Number.isNaN(expiryDate.getTime()) && expiryDate < today) {
+      if (summary) summary.textContent = "O link público expirou.";
+      navigateToLocalAnchor("#buscar", { behavior: "auto", replace: true });
+      return true;
+    }
+  }
+  const doc = documents.find(item => item.id === request.docId);
+  navigateToLocalAnchor("#buscar", { behavior: "auto", replace: true });
+  if (!doc) {
+    if (summary) summary.textContent = "O documento compartilhado não foi encontrado ou não está mais disponível.";
+    return true;
+  }
+  openPreviewFromDoc(doc, { historyMode: "replace" });
+  return true;
+}
 
 function skeletonCards(count = 8, label = "Carregando...") {
   return Array.from({ length: count }, (_, index) => `
@@ -4177,12 +4923,10 @@ function skeletonCards(count = 8, label = "Carregando...") {
 function renderInitialLoadingPlaceholders() {
   const docs = document.getElementById("documentGrid");
   const dir = document.getElementById("directoryGrid");
-  const appsGrid = document.getElementById("appsGrid");
-  const linksGrid = document.getElementById("linksGrid");
+  // Only asynchronous document metadata receives placeholders. Apps and links
+  // are already embedded and render immediately, so skeletons would add fake delay.
   if (docs && !docs.children.length) docs.innerHTML = skeletonCards(10, "Carregando documentos");
   if (dir && !dir.children.length) dir.innerHTML = skeletonCards(4, "Carregando diretório");
-  if (appsGrid && !appsGrid.children.length) appsGrid.innerHTML = skeletonCards(4, "Carregando apps");
-  if (linksGrid && !linksGrid.children.length) linksGrid.innerHTML = skeletonCards(6, "Carregando links");
 }
 
 function refreshCurrentSearchIfNeeded() {
@@ -4206,6 +4950,29 @@ function setupPwa() {
 }
 
 
+function waitForInitialPaint() {
+  return new Promise(resolve => requestAnimationFrame(() => requestAnimationFrame(resolve)));
+}
+
+
+function loadDeferredFeatureScripts() {
+  const scripts = [
+    "js/enhancements.js?v=0.2.33",
+    "js/experience.js?v=0.2.33",
+    "js/sidebar-quick-search.js?v=0.2.33",
+    "js/performance-monitor.js?v=0.2.33"
+  ];
+  const load = src => new Promise(resolve => {
+    if (document.querySelector(`script[src="${src}"]`)) { resolve(); return; }
+    const script = document.createElement("script"); script.src = src; script.defer = true;
+    script.onload = resolve; script.onerror = () => { console.warn("Módulo adiado não carregou:", src); resolve(); };
+    document.head.appendChild(script);
+  });
+  const run = () => Promise.all(scripts.map(load));
+  if ("requestIdleCallback" in window) requestIdleCallback(run, { timeout: 1800 });
+  else window.setTimeout(run, 250);
+}
+
 async function boot() {
   renderInitialLoadingPlaceholders();
   setupPwa();
@@ -4221,6 +4988,7 @@ async function boot() {
   setupSearchResultsView();
   setupSearchColumns();
   setupSearch();
+  setupDoomEasterEgg();
   setupSavedSearches();
   setupModal();
   setupArchiveViews();
@@ -4232,11 +5000,17 @@ async function boot() {
   setupAppsMenu();
   setupTheme();
   setupSidebar();
+  setupInternalAnchorNavigation();
   window.HUB_UI?.setupReportButton(document.getElementById("reportIssueButton"), { title: "Página inicial" });
   setupNavigation();
   setupFixedHeader();
   setupDesktopColumnsControl();
 
+  // O manifesto de documentos fica fora do JavaScript inicial e só é solicitado
+  // após a primeira pintura da interface, preservando o orçamento de carregamento.
+  await waitForInitialPaint();
+  searchWorkerAllowed = true;
+  loadDeferredFeatureScripts();
   setLoadingStatus("Carregando documentos...");
   await loadManifestDocuments();
 
@@ -4246,7 +5020,10 @@ async function boot() {
   renderDirectory();
   resetArchiveLimit();
   renderDocuments();
-  refreshCurrentSearchIfNeeded();
+  const sharedLinkRequest = sharedLinkRequestFromLocation();
+  const restoredDoomSearch = restoreDoomSearchContext();
+  if (!restoredDoomSearch) await initializeSearchHistoryNavigation();
+  if (!restoredDoomSearch && sharedLinkRequest) handleSharedLink(sharedLinkRequest);
 
   setLoadingStatus("Gerando prévias dos documentos...");
   schedulePdfThumbnailRender();

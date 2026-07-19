@@ -1,0 +1,46 @@
+/
+  Cache-Control: no-cache
+/index.html
+  Cache-Control: no-cache
+/offline.html
+  Cache-Control: no-cache
+/document-viewer.html
+  Cache-Control: no-cache
+/apps/calendario/
+  Cache-Control: no-cache
+/apps/calendario/index.html
+  Cache-Control: no-cache
+/apps/fluxogramas/
+  Cache-Control: no-cache
+/apps/fluxogramas/index.html
+  Cache-Control: no-cache
+/apps/barema/
+  Cache-Control: no-cache
+/apps/barema/index.html
+  Cache-Control: no-cache
+/apps/doom/
+  Cache-Control: no-cache
+/apps/doom/index.html
+  Cache-Control: no-cache
+/VERSION
+  Cache-Control: no-cache
+/documents/manifest.json
+  Cache-Control: no-cache
+/documents/manifest.csv
+  Cache-Control: no-cache
+/*.js
+  Cache-Control: public, max-age=2592000
+/*.css
+  Cache-Control: public, max-age=2592000
+/assets/*
+  Cache-Control: public, max-age=2592000
+/assets/document-thumbnails/*
+  Cache-Control: public, max-age=31536000, immutable
+/documents/manifest-summary.json
+  Cache-Control: no-cache
+/documents/search-index.json
+  Cache-Control: no-cache
+/assets/build/*
+  Cache-Control: public, max-age=31536000, immutable
+/apps/build/*
+  Cache-Control: public, max-age=31536000, immutable

@@ -1,0 +1,27 @@
+{
+  "generatedAt": "2026-07-19T23:10:18.611068+00:00",
+  "documentCount": 55,
+  "categories": {
+    "07 Atos Institucionais Do Curso": 15,
+    "05 Normas Ifba": 9,
+    "03 Regulamentos Do Curso": 7,
+    "02 Matrizes Curriculares": 5,
+    "06 Diretrizes Cne": 4,
+    "08 Comunicados E Resultados": 4,
+    "01 Ppc": 3,
+    "04 Portarias": 3,
+    "09 Calendarios E Horarios": 2,
+    "10 Dasi Representacao Discente": 2,
+    "11 Documentos Academicos Operacionais": 1
+  },
+  "formats": {
+    "PDF": 55
+  },
+  "missingMetadata": {
+    "title": 0,
+    "path": 0,
+    "date": 55,
+    "size": 0,
+    "status": 0
+  }
+}

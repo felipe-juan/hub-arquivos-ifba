@@ -15,11 +15,22 @@ jobs:
       - uses: actions/setup-node@v4
         with:
           node-version: "22"
+      - name: Rebuild production assets deterministically
+        run: |
+          python3 scripts/build_production_assets.py
+          git diff --exit-code
       - name: Validate structure and content
         run: |
           python3 scripts/validate_site.py
           python3 scripts/check_inline_scripts.py
+          python3 scripts/test_markup_safety.py
+          python3 scripts/test_production_asset_resolution.py
+          python3 scripts/test_host_verifier.py
           python3 scripts/update_content.py --check-only --skip-inline
+      - name: Enforce performance budget
+        run: |
+          python3 -m pip install brotli
+          python3 scripts/check_performance_budget.py
       - name: Enforce CSS specificity budget
         run: python3 scripts/audit_css.py
       - name: Check JavaScript syntax
@@ -34,3 +45,23 @@ jobs:
           node --check js/enhancements.js
           node --check js/experience.js
           node --check js/sidebar-quick-search.js
+          node --check js/search-engine.js
+          node --check js/search-worker.js
+          node --check js/pdf-runtime.js
+          node --check js/performance-monitor.js
+          node --check scripts/benchmark_search.cjs
+          node --check scripts/test_internal_navigation.cjs
+          node scripts/test_internal_navigation.cjs
+          node --check scripts/test_doom_mobile_controls.cjs
+          node scripts/test_doom_mobile_controls.cjs
+          node --check scripts/test_links_columns.cjs
+          node scripts/test_links_columns.cjs
+          node --check scripts/test_search_engine.cjs
+          node scripts/test_search_engine.cjs
+          node --check scripts/test_runtime_regressions.cjs
+          node scripts/test_runtime_regressions.cjs
+          node --check apps/doom/doom.js
+      - name: Check Python and release script syntax
+        run: |
+          python3 -m compileall -q scripts
+          bash -n scripts/update_documents_and_publish.sh

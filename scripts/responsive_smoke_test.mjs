@@ -12,6 +12,7 @@ const pages = [
   { path: "/apps/calendario/", name: "Calendário" },
   { path: "/apps/fluxogramas/", name: "Fluxogramas" },
   { path: "/apps/barema/", name: "Barema" },
+  { path: "/apps/doom/", name: "DOOM — terminal" },
 ];
 const viewports = [
   { width: 390, height: 844, label: "celular" },
@@ -48,14 +49,30 @@ try {
       await page.setViewportSize({ width: viewport.width, height: viewport.height });
       const pageErrors = [];
       page.on("pageerror", error => pageErrors.push(error.message));
-      await page.goto(`${BASE_URL}${target.path}`, { waitUntil: "domcontentloaded" });
+      const forceTouch = target.path === "/apps/doom/" && viewport.width <= 768;
+      const path = forceTouch ? `${target.path}?touch=1` : target.path;
+      await page.goto(`${BASE_URL}${path}`, { waitUntil: "domcontentloaded" });
       await page.waitForTimeout(500);
+
+      if (forceTouch) {
+        await page.evaluate(() => {
+          const terminal = document.getElementById("doomTerminal");
+          const game = document.getElementById("doomGameShell");
+          const controls = document.getElementById("doomTouchControls");
+          if (terminal) terminal.hidden = true;
+          if (game) game.hidden = false;
+          if (controls) controls.hidden = false;
+        });
+        await page.waitForTimeout(80);
+      }
 
       const metrics = await page.evaluate(() => ({
         documentWidth: document.documentElement.scrollWidth,
         bodyWidth: document.body.scrollWidth,
         viewportWidth: window.innerWidth,
         title: document.title,
+        inputMode: document.documentElement.dataset.doomInput || "",
+        hasJoystick: Boolean(document.getElementById("doomJoystick")),
       }));
       const overflow = Math.max(metrics.documentWidth, metrics.bodyWidth) - metrics.viewportWidth;
       if (overflow > 4) {
@@ -63,6 +80,9 @@ try {
       }
       if (!metrics.title.trim()) {
         failures.push(`${target.name} em ${viewport.label}: página sem título.`);
+      }
+      if (forceTouch && (metrics.inputMode !== "touch" || !metrics.hasJoystick)) {
+        failures.push(`${target.name} em ${viewport.label}: gamepad touch não foi ativado.`);
       }
       for (const message of pageErrors) {
         failures.push(`${target.name} em ${viewport.label}: erro JavaScript — ${message}`);

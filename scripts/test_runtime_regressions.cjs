@@ -1,0 +1,65 @@
+#!/usr/bin/env node
+"use strict";
+const fs = require("node:fs");
+const failures = [];
+const assert = (condition, message) => { if (!condition) failures.push(message); };
+const app = fs.readFileSync("app.js", "utf8");
+const pdf = fs.readFileSync("js/pdf-runtime.js", "utf8");
+const viewer = fs.readFileSync("document-viewer.html", "utf8");
+const sw = fs.readFileSync("service-worker.js", "utf8");
+const doom = fs.readFileSync("apps/doom/doom.js", "utf8");
+const calendar = fs.readFileSync("apps/calendario/index.html", "utf8");
+const design = fs.readFileSync("js/design-system.js", "utf8");
+const performanceMonitor = fs.readFileSync("js/performance-monitor.js", "utf8");
+const appShell = fs.readFileSync("apps/app-shell.js", "utf8");
+const flux = fs.readFileSync("apps/fluxogramas/index.html", "utf8");
+const enhancements = fs.readFileSync("js/enhancements.js", "utf8");
+const experience = fs.readFileSync("js/experience.js", "utf8");
+
+assert(app.includes("sharedLinkRequestFromLocation"), "Leitura de ?doc=/?share= ausente.");
+assert(app.includes("if (!restoredDoomSearch && sharedLinkRequest) handleSharedLink(sharedLinkRequest);"), "Link público não é executado no boot.");
+assert(app.includes("resetSearchWorker"), "Worker de busca não possui limpeza central.");
+assert(app.includes("Tempo esgotado ao executar a busca"), "Busca no Worker não possui timeout.");
+assert(app.includes('message.type === "error" && message.id === initId'), "Erro de inicialização do Worker só seria percebido após o timeout.");
+const boot = app.slice(app.indexOf("async function boot()"), app.indexOf("boot();"));
+assert(!boot.includes("ensureSearchWorker()"), "Worker pesado ainda é criado durante o boot.");
+assert(pdf.includes("await active.loadingTask?.destroy()"), "Miniatura PDF não libera loadingTask.");
+assert(pdf.includes("page.cleanup?.()"), "Extração PDF não libera páginas processadas.");
+assert(pdf.includes("pdfJsLoadPromise = null"), "Falha de PDF.js não permite nova tentativa.");
+assert(viewer.includes("status.replaceChildren"), "Erro do visualizador ainda é montado por HTML inseguro.");
+assert(viewer.includes("textRenderTask"), "Renderização de texto PDF não é cancelável.");
+assert(viewer.includes("if(!ctx)return showError"), "Visualizador não trata canvas 2D indisponível.");
+assert(viewer.includes("if(!sharpCtx)throw new Error"), "Renderização nítida não valida o contexto 2D temporário.");
+assert(sw.includes("event.waitUntil(network.then(() => undefined))"), "Atualização stale-while-revalidate não está ligada ao evento.");
+assert(sw.includes("Promise.allSettled(CORE.map"), "Instalação do service worker ainda falha inteira quando um recurso offline opcional está indisponível.");
+assert(sw.includes("const REQUIRED_CORE = new Set"), "Service worker não diferencia shell essencial de recursos offline opcionais.");
+assert(sw.includes("await cache.delete(request)"), "Cache limitado não atualiza recência antes do trim.");
+assert(doom.includes("status.replaceChildren"), "Status do DOOM ainda usa HTML interpolado.");
+assert(doom.includes("headers: { Range: \"bytes=0-0\" }"), "Teste do bundle local não possui fallback para servidores sem HEAD.");
+assert(doom.includes("if (event.persisted)"), "DOOM não trata BFCache/pagehide preservado.");
+assert(!calendar.includes("onclick="), "Calendário ainda contém onclick inline.");
+assert(design.includes('sessionStorage.setItem("hubUpdateNotice", "pending")'), "Aviso de atualização ainda grava a versão antiga da página.");
+assert(design.includes('HUB atualizado para v${HUB_VERSION}.'), "Mensagem pós-atualização não usa a versão nova carregada.");
+assert(design.includes("promptedWorker === worker"), "Mesmo service worker pode gerar avisos duplicados.");
+assert(performanceMonitor.includes("if (!enabled)"), "Monitor de desempenho roda mesmo sem ativação explícita.");
+assert(performanceMonitor.indexOf("if (!enabled)") < performanceMonitor.indexOf('observe("paint"'), "Observers de desempenho são criados antes da verificação de ativação.");
+assert(appShell.includes('aria-controls="hubShellSidebar" aria-expanded="false"'), "Botão móvel dos apps não expõe estado acessível.");
+assert(appShell.includes('const setMobileOpen = open =>'), "Sidebar móvel dos apps não centraliza abertura/fechamento.");
+assert(appShell.includes('event.key !== "Escape"'), "Sidebar móvel dos apps não fecha com Escape.");
+assert(!flux.includes("insertAdjacentHTML('afterbegin',`<div class=\"flux-load-error\""), "Erro do Fluxograma ainda injeta mensagem por HTML.");
+assert(enhancements.includes("const queueFavoriteSync = () =>"), "Sincronização de favoritos ainda executa a cada mutação sem agrupar por frame.");
+assert(enhancements.includes("try {\n      const keys = [];"), "Restauração de preferências não tolera armazenamento bloqueado.");
+assert(experience.includes('try { localStorage.removeItem(RECENTS_KEY); } catch (_) {}'), "Limpeza de recentes não tolera armazenamento bloqueado.");
+
+assert(calendar.includes("function getSharedThemeMode()"), "Calendário não protege a leitura do tema compartilhado.");
+assert(!calendar.includes('if((localStorage.getItem("hubThemeMode")||"auto")==="auto")'), "Calendário lê localStorage sem proteção no listener do tema.");
+assert(flux.includes("function saveDone(set){try{"), "Fluxograma não protege a gravação de disciplinas concluídas.");
+assert(flux.includes("function getSharedThemeMode()"), "Fluxograma não protege a leitura do tema compartilhado.");
+assert(!flux.includes("if((localStorage.getItem('hubThemeMode')||'auto')==='auto')"), "Fluxograma lê localStorage sem proteção no listener do tema.");
+
+if (failures.length) {
+  console.error(`Runtime regression test failed with ${failures.length} issue(s):`);
+  failures.forEach(item => console.error(`- ${item}`));
+  process.exit(1);
+}
+console.log("Runtime regression test: OK");

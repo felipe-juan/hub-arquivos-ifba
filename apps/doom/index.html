@@ -1,0 +1,203 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+  <title>DOOM clássico — HUB Arquivos IFBA</title>
+  <meta name="description" content="Easter egg do HUB Arquivos IFBA: DOOM clássico executado diretamente no navegador." />
+  <meta name="theme-color" content="#05090d" />
+  <link rel="icon" href="../../favicon.ico" sizes="any" />
+  <link rel="apple-touch-icon" href="../../assets/apple-touch-icon.png" />
+  <script>
+    (() => {
+      try {
+        const mode = localStorage.getItem("hubThemeMode") || "auto";
+        const resolved = mode === "auto"
+          ? (matchMedia("(prefers-color-scheme: light)").matches ? "light" : "dark")
+          : mode;
+        document.documentElement.dataset.theme = resolved;
+        document.documentElement.dataset.themeMode = mode;
+      } catch (_) {}
+    })();
+  </script>
+  <link rel="stylesheet" href="../../assets/build/design-system.afe11aadcef7.css" />
+  <link rel="stylesheet" href="../build/app-shell.f5dcd9311598.css" />
+  <link rel="stylesheet" href="../../assets/build/sidebar-quick-search.ea5032187b1e.css" />
+  <link rel="stylesheet" href="../build/doom.2fa2668a07ca.css" />
+  <script defer src="../../assets/build/data.d5d624533d89.js"></script>
+  <script defer src="../../assets/build/design-system.207b345af7d9.js"></script>
+  <script defer src="../build/app-shell.e4d3759152fc.js"></script>
+  <script defer src="../../assets/build/sidebar-quick-search.ad3450d48011.js"></script>
+  <script defer src="../build/doom.1846854009c5.js"></script>
+</head>
+<body class="doom-app-page">
+  <main id="mainContent" class="doom-main" tabindex="-1">
+    <section id="doomExperience" class="doom-page-card hub-card" aria-labelledby="doomTitle">
+      <section id="doomTerminal" class="doom-terminal" aria-labelledby="doomTerminalTitle">
+        <div class="doom-terminal-scan" aria-hidden="true"></div>
+        <div class="doom-terminal-heading">
+          <img src="../../assets/logo-pixel-64.png" width="56" height="56" alt="" />
+          <div>
+            <p>HUB ARQUIVOS IFBA</p>
+            <h1 id="doomTerminalTitle">SUBSISTEMA EXPERIMENTAL</h1>
+          </div>
+        </div>
+
+        <dl class="doom-terminal-record">
+          <div><dt>Documento solicitado</dt><dd>DOOM</dd></div>
+          <div><dt>Tipo</dt><dd>Executável não acadêmico</dd></div>
+          <div><dt>Status</dt><dd>Definitivamente não é um PDF</dd></div>
+        </dl>
+
+        <p class="doom-terminal-warning">A execução ocorrerá em uma sessão temporária. <span id="doomInputPreview">Clique no jogo para autorizar a captura do teclado.</span></p>
+
+        <div class="doom-terminal-actions">
+          <button id="doomStart" class="hub-button hub-button--secondary" type="button">INICIAR DOOM</button>
+          <button id="doomStudyReturn" class="hub-button hub-button--ghost" type="button">VOLTAR AOS ESTUDOS</button>
+        </div>
+      </section>
+
+      <section id="doomGameShell" class="doom-game-shell" hidden aria-labelledby="doomTitle">
+        <header class="doom-toolbar">
+          <div class="doom-title-block">
+            <p class="doom-eyebrow">Subsistema experimental</p>
+            <h1 id="doomTitle">DOOM clássico</h1>
+            <p id="doomKeyboardStatus">O teclado permanece livre até você clicar na área do jogo.</p>
+          </div>
+          <div class="doom-toolbar-actions" aria-label="Ações do jogo">
+            <button id="doomRestart" class="hub-button hub-button--ghost" type="button">↻ Reiniciar</button>
+            <button id="doomTouchSettingsButton" class="hub-button hub-button--ghost doom-touch-settings-button" type="button" hidden aria-expanded="false" aria-controls="doomTouchSettings">⚙ Controle</button>
+            <button id="doomFullscreen" class="hub-button hub-button--secondary" type="button" aria-pressed="false">⛶ Tela cheia</button>
+            <button id="doomExit" class="hub-button hub-button--danger doom-exit-button" type="button">✕ Encerrar</button>
+          </div>
+        </header>
+
+        <div id="doomStage" class="doom-stage" tabindex="-1" aria-describedby="doomKeyboardStatus">
+          <div id="doomStatus" class="doom-status" role="status" aria-live="polite">
+            <span class="doom-spinner" aria-hidden="true"></span>
+            <strong>Preparando DOOM clássico…</strong>
+            <small>Procurando o melhor motor disponível.</small>
+          </div>
+          <div id="doomPlayer" class="doom-player" aria-label="DOOM clássico"></div>
+          <button id="doomKeyboardGate" class="doom-keyboard-gate" type="button" hidden>
+            <span id="doomControlGateIcon" class="doom-keyboard-gate-icon" aria-hidden="true">⌨</span>
+            <strong>Clique para ativar o teclado</strong>
+            <small>O jogo só recebe comandos enquanto esta área estiver ativa.</small>
+          </button>
+
+          <aside id="doomTouchSettings" class="doom-touch-settings" hidden aria-labelledby="doomTouchSettingsTitle">
+            <header>
+              <strong id="doomTouchSettingsTitle">Ajustes do controle</strong>
+              <button id="doomTouchSettingsClose" type="button" aria-label="Fechar ajustes">×</button>
+            </header>
+            <label class="doom-touch-setting">
+              <span>Opacidade <output id="doomTouchOpacityValue">88%</output></span>
+              <input id="doomTouchOpacity" type="range" min="35" max="100" step="5" value="88" />
+            </label>
+            <label class="doom-touch-setting">
+              <span>Sensibilidade <output id="doomTouchSensitivityValue">100%</output></span>
+              <input id="doomTouchSensitivity" type="range" min="60" max="160" step="5" value="100" />
+            </label>
+            <label class="doom-touch-check">
+              <input id="doomLeftHanded" type="checkbox" />
+              <span>Modo canhoto: ações à esquerda e joystick à direita</span>
+            </label>
+            <label class="doom-touch-check">
+              <input id="doomVibration" type="checkbox" checked />
+              <span>Vibração do controle</span>
+            </label>
+          </aside>
+
+          <div id="doomRecoveryToast" class="doom-recovery-toast" role="status" aria-live="polite" hidden>Sessão do DOOM recuperada.</div>
+
+          <div id="doomTouchControls" class="doom-touch-controls" hidden data-ready="false" aria-label="Controles virtuais móveis do DOOM">
+            <div id="doomLookZone" class="doom-look-zone" role="application" aria-label="Área de visão: arraste horizontalmente para olhar para os lados">
+              <span aria-hidden="true">ARRASTE PARA OLHAR</span>
+            </div>
+            <div class="doom-touch-hud-state" aria-hidden="true"><span></span><strong>CONTROLE TOUCH</strong></div>
+            <div class="doom-touch-left">
+              <div id="doomJoystick" class="doom-joystick" role="application" aria-label="Joystick de movimento">
+                <span class="doom-joystick-mark doom-joystick-mark--up" aria-hidden="true">▲</span>
+                <span class="doom-joystick-mark doom-joystick-mark--right" aria-hidden="true">▶</span>
+                <span class="doom-joystick-mark doom-joystick-mark--down" aria-hidden="true">▼</span>
+                <span class="doom-joystick-mark doom-joystick-mark--left" aria-hidden="true">◀</span>
+                <span id="doomJoystickKnob" class="doom-joystick-knob" aria-hidden="true"></span>
+              </div>
+              <div class="doom-touch-utility" aria-label="Ações auxiliares">
+                <button class="doom-touch-button doom-touch-button--small" type="button" data-doom-tap="menu" aria-label="Abrir menu do jogo">
+                  <span aria-hidden="true">☰</span><small>MENU</small>
+                </button>
+                <button id="doomWeapon" class="doom-touch-button doom-touch-button--small" type="button" aria-label="Trocar para a próxima arma">
+                  <span id="doomWeaponNumber" aria-hidden="true">2</span><small>ARMA</small>
+                </button>
+              </div>
+            </div>
+
+            <div class="doom-touch-actions" aria-label="Ações do jogador">
+              <button class="doom-touch-button doom-touch-button--modifier" type="button" data-doom-hold="run">
+                <span aria-hidden="true">»</span><small>CORRER</small>
+              </button>
+              <button class="doom-touch-button doom-touch-button--modifier" type="button" data-doom-hold="strafe">
+                <span aria-hidden="true">↔</span><small>STRAFE</small>
+              </button>
+              <button class="doom-touch-button doom-touch-button--use" type="button" data-doom-hold="use">
+                <span aria-hidden="true">✋</span><small>USAR</small>
+              </button>
+              <button class="doom-touch-button doom-touch-button--fire" type="button" data-doom-hold="fire">
+                <span aria-hidden="true">●</span><small>ATIRAR</small>
+              </button>
+            </div>
+            <p id="doomTouchStatus" class="sr-only" aria-live="polite">Controle touch aguardando o emulador.</p>
+          </div>
+
+          <aside id="doomLandscapeHint" class="doom-landscape-hint" hidden aria-label="Sugestão de orientação">
+            <span>Para jogar melhor, use o celular na horizontal.</span>
+            <button id="doomLandscape" type="button">Tela cheia horizontal</button>
+            <button id="doomLandscapeDismiss" type="button" aria-label="Fechar sugestão">×</button>
+          </aside>
+        </div>
+
+        <div class="doom-foot-grid">
+          <article class="doom-help-card doom-desktop-help hub-card hub-card--compact">
+            <strong>Controles</strong>
+            <ul class="doom-controls-list" aria-label="Lista de controles do DOOM">
+              <li>
+                <span class="doom-key-group" aria-label="Teclas direcionais">
+                  <kbd>↑</kbd><kbd>←</kbd><kbd>↓</kbd><kbd>→</kbd>
+                </span>
+                <span>Mover</span>
+              </li>
+              <li><span class="doom-key-group"><kbd>Ctrl</kbd></span><span>Atirar</span></li>
+              <li><span class="doom-key-group"><kbd>Espaço</kbd></span><span>Usar ou abrir</span></li>
+              <li><span class="doom-key-group"><kbd>Alt</kbd><b>+</b><kbd>←</kbd><kbd>→</kbd></span><span>Movimento lateral</span></li>
+              <li><span class="doom-key-group"><kbd>Esc</kbd></span><span>Menu do jogo</span></li>
+            </ul>
+          </article>
+          <article class="doom-help-card doom-mobile-help hub-card hub-card--compact" hidden>
+            <strong>Controle móvel</strong>
+            <span>Use o joystick para andar e virar. Segure CORRER ou STRAFE junto com o joystick; ATIRAR pode ser mantido pressionado.</span>
+            <span>O controle aceita vários dedos ao mesmo tempo, pausa em segundo plano e pode ser ajustado em ⚙ Controle.</span>
+          </article>
+          <article class="doom-help-card doom-session-card hub-card hub-card--compact">
+            <strong>Sessão controlada</strong>
+            <span>A sessão pausa quando a aba perde o foco. Para retomar, volte à página e clique novamente no jogo.</span>
+            <span>Ao encerrar, o HUB informa o tempo da sessão e restaura a pesquisa anterior.</span>
+          </article>
+        </div>
+      </section>
+
+      <section id="doomProductivity" class="doom-productivity" hidden aria-labelledby="doomProductivityTitle">
+        <p class="doom-eyebrow">Relatório de produtividade</p>
+        <h1 id="doomProductivityTitle">Sessão encerrada.</h1>
+        <p class="doom-productivity-time">Tempo de procrastinação: <strong id="doomSessionDuration">00:00</strong>.</p>
+        <p>Nenhum documento acadêmico foi consultado nesse período.</p>
+        <div class="doom-productivity-actions">
+          <button id="doomBackToSearch" class="hub-button hub-button--secondary" type="button">Voltar para a busca</button>
+          <button id="doomPlayAgain" class="hub-button hub-button--ghost" type="button">Jogar novamente</button>
+          <button id="doomForget" class="hub-button hub-button--ghost" type="button">Fingir que isso nunca aconteceu</button>
+        </div>
+      </section>
+    </section>
+  </main>
+</body>
+</html>

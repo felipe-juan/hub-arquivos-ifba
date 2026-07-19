@@ -66,3 +66,14 @@ No `manifest.csv`, confira as colunas:
 - `contentLength`: deve ser maior que 0;
 - `extractionMethod`: mostra como o texto foi extraído;
 - `chunks`: quantidade de trechos pesquisáveis.
+
+## Metadados de confiança
+
+O HUB aceita campos opcionais no `manifest.json` para informar a situação de cada documento:
+
+- `sourceLabel`: nome da fonte oficial;
+- `reviewedDate`: data da última conferência humana;
+- `validityStatus`: por exemplo `Vigente`, `Histórico` ou `A conferir`;
+- `supersededBy`: título do documento que substituiu o arquivo antigo.
+
+O gerador preenche apenas valores conservadores. A indicação de vigência e a data de conferência devem ser revisadas manualmente antes da publicação.

@@ -1,0 +1,1473 @@
+window.HUB_DATA = {
+  "documents": [],
+  "usefulLinks": [
+    {
+      "id": "link-protocolo",
+      "title": "Protocolo",
+      "description": "Formulário de protocolo para solicitações acadêmicas.",
+      "url": "https://docs.google.com/forms/d/e/1FAIpQLSfLEx2SPGF76TRT7I31dQ8ZR3N8k038rKTqti36rOpWCVjynQ/viewform?pli=1",
+      "category": "Formulário",
+      "tags": [
+        "protocolo",
+        "formulário",
+        "solicitação",
+        "requerimento"
+      ]
+    },
+    {
+      "id": "link-fluxograma-atual",
+      "title": "Fluxograma atual",
+      "description": "Fluxograma interativo da matriz 2024 de Sistemas de Informação.",
+      "url": "apps/fluxogramas/#sistemas-de-informacao/matriz-2024",
+      "category": "Fluxograma",
+      "tags": [
+        "fluxograma",
+        "matriz atual",
+        "grade atual",
+        "PPC 2024",
+        "currículo",
+        "disciplinas",
+        "pré-requisitos",
+        "guia do universitário"
+      ]
+    },
+    {
+      "id": "link-fluxograma-antigo",
+      "title": "Fluxograma antigo",
+      "description": "Fluxograma interativo da matriz 2017 de Sistemas de Informação.",
+      "url": "apps/fluxogramas/#sistemas-de-informacao/matriz-2017",
+      "category": "Fluxograma",
+      "tags": [
+        "fluxograma",
+        "matriz antiga",
+        "grade antiga",
+        "PPC 2017",
+        "currículo",
+        "disciplinas",
+        "pré-requisitos"
+      ]
+    },
+    {
+      "id": "link-quadro-horario-2026-2",
+      "title": "Quadro de horário 2026.2",
+      "description": "Planilha oficial compartilhada com o quadro de horários do semestre 2026.2.",
+      "url": "https://ifbaedubr-my.sharepoint.com/:x:/g/personal/rodrigobonfim_ifba_edu_br/IQCsaQq5LEbpRbrN4aQdTsRLAYgmR5gmpZ1PZu_wD9dlFmg?rtime=Qo_J-yvO3kg",
+      "category": "Horários",
+      "tags": [
+        "quadro de horário",
+        "quadro de horarios",
+        "horário",
+        "horario",
+        "2026.2",
+        "aulas",
+        "disciplinas",
+        "planilha",
+        "sharepoint",
+        "semestre"
+      ]
+    },
+    {
+      "id": "link-calendario-app",
+      "title": "Calendário Acadêmico 2026",
+      "description": "Atalho direto para o app de calendário acadêmico do HUB, com busca, visualização mensal/anual e eventos do calendário IFBA VCA 2026.",
+      "url": "apps/calendario/",
+      "category": "App",
+      "openMode": "new-tab",
+      "tags": [
+        "calendário",
+        "calendario",
+        "acadêmico",
+        "academico",
+        "2026",
+        "datas",
+        "eventos",
+        "app",
+        "ferramenta",
+        "IFBA",
+        "VCA"
+      ]
+    },
+    {
+      "id": "link-calculadora-media-app",
+      "title": "Média e Prova Final",
+      "description": "Atalho direto para a calculadora de média parcial, prova final e média final do HUB.",
+      "url": "#media-final",
+      "category": "App",
+      "tags": [
+        "calculadora",
+        "média",
+        "media",
+        "nota",
+        "notas",
+        "prova final",
+        "média final",
+        "MP",
+        "PF",
+        "MF",
+        "app",
+        "ferramenta"
+      ]
+    },
+    {
+      "id": "link-barema-app",
+      "title": "Barema Explorer",
+      "description": "App do HUB para consultar e simular atividades complementares nas versões Barema PPC 2024 e PPC 2010-2017, com visualização interativa e planilha.",
+      "url": "apps/barema/",
+      "category": "App",
+      "openMode": "new-tab",
+      "tags": [
+        "barema",
+        "barema explorer",
+        "atividades complementares",
+        "horas complementares",
+        "certificados",
+        "PPC 2024",
+        "PPC 2010",
+        "PPC 2017",
+        "planilha",
+        "simulador",
+        "app",
+        "ferramenta"
+      ]
+    },
+    {
+      "id": "link-barema-atual-planilha",
+      "title": "Planilha do Barema atual",
+      "description": "Arquivo XLSX do Barema de Atividades Complementares aplicável ao PPC 2024.",
+      "url": "apps/barema/docs/barema-ppc-2024.xlsx",
+      "category": "Planilha",
+      "tags": [
+        "barema",
+        "barema atual",
+        "atividades complementares",
+        "horas complementares",
+        "certificados",
+        "PPC 2024",
+        "planilha",
+        "google sheets"
+      ]
+    },
+    {
+      "id": "link-barema-antigo-planilha",
+      "title": "Planilha do Barema antigo",
+      "description": "Arquivo XLSX do Barema de Atividades Complementares aplicável aos PPCs 2010-2017.",
+      "url": "apps/barema/docs/barema-ppc-2010-2017.xlsx",
+      "category": "Planilha",
+      "tags": [
+        "barema",
+        "barema antigo",
+        "atividades complementares",
+        "horas complementares",
+        "certificados",
+        "PPC antigo",
+        "PPC 2017",
+        "planilha",
+        "google sheets"
+      ]
+    },
+    {
+      "id": "link-email-coordenacao",
+      "title": "E-mail da Coordenação",
+      "description": "Contato oficial da Coordenação do curso: csi.vdc@ifba.edu.br. Telefone: 0800 077 0084, ramal 1261.",
+      "url": "mailto:csi.vdc@ifba.edu.br",
+      "category": "Contato",
+      "tags": [
+        "coordenação",
+        "contato",
+        "e-mail",
+        "curso",
+        "SI"
+      ]
+    },
+    {
+      "id": "link-instagram-bsi",
+      "title": "Instagram do curso: @bsi.vdc",
+      "description": "Perfil do Bacharelado em Sistemas de Informação do IFBA Vitória da Conquista.",
+      "url": "https://www.instagram.com/bsi.vdc/",
+      "category": "Rede social",
+      "tags": [
+        "instagram",
+        "curso",
+        "SI",
+        "notícias",
+        "comunicação"
+      ]
+    },
+    {
+      "id": "link-instagram-dasi",
+      "title": "Instagram DASI",
+      "description": "Diretório Acadêmico de Sistemas de Informação.",
+      "url": "https://www.instagram.com/dasi.ifba/",
+      "category": "Rede social",
+      "tags": [
+        "instagram",
+        "DASI",
+        "diretório acadêmico",
+        "estudantes"
+      ]
+    },
+    {
+      "id": "link-instagram-btech",
+      "title": "Instagram BTECH",
+      "description": "Empresa Júnior do curso.",
+      "url": "https://www.instagram.com/btechjr/",
+      "category": "Rede social",
+      "tags": [
+        "instagram",
+        "BTECH",
+        "empresa júnior",
+        "estudantes"
+      ]
+    },
+    {
+      "id": "link-instagram-sinistra",
+      "title": "Instagram SINISTRA",
+      "description": "Atlética Acadêmica.",
+      "url": "https://www.instagram.com/sinistraifba/",
+      "category": "Rede social",
+      "tags": [
+        "instagram",
+        "SINISTRA",
+        "atlética",
+        "esportes",
+        "estudantes"
+      ]
+    },
+    {
+      "id": "link-caens-estagios",
+      "title": "CAENS — Estágios",
+      "description": "Página com informações e atualizações relacionadas a estágios.",
+      "url": "https://ifbaconquista.blogspot.com/?m=1",
+      "category": "Estágios",
+      "tags": [
+        "CAENS",
+        "estágio",
+        "estágios",
+        "blog",
+        "setor"
+      ]
+    },
+    {
+      "id": "link-whatsapp-capne",
+      "title": "WhatsApp do CAPNE",
+      "description": "Contato por WhatsApp do CAPNE.",
+      "url": "https://wa.me/5577998447168",
+      "category": "WhatsApp",
+      "tags": [
+        "CAPNE",
+        "whatsapp",
+        "acessibilidade",
+        "inclusão",
+        "contato"
+      ]
+    },
+    {
+      "id": "link-whatsapp-caens",
+      "title": "WhatsApp do CAENS",
+      "description": "Contato por WhatsApp do CAENS.",
+      "url": "https://wa.me/5577991318174",
+      "category": "WhatsApp",
+      "tags": [
+        "CAENS",
+        "whatsapp",
+        "estágio",
+        "contato"
+      ]
+    },
+    {
+      "id": "link-whatsapp-cores",
+      "title": "WhatsApp da CORES",
+      "description": "Contato por WhatsApp da CORES.",
+      "url": "https://wa.me/5577999299331",
+      "category": "WhatsApp",
+      "tags": [
+        "CORES",
+        "whatsapp",
+        "contato"
+      ]
+    },
+    {
+      "id": "link-whatsapp-servicos-sociais",
+      "title": "WhatsApp de Serviços Sociais",
+      "description": "Contato por WhatsApp de Serviços Sociais.",
+      "url": "https://wa.me/5577991318185",
+      "category": "WhatsApp",
+      "tags": [
+        "serviços sociais",
+        "assistência estudantil",
+        "whatsapp",
+        "contato"
+      ]
+    },
+    {
+      "id": "link-linktree-dasi",
+      "title": "Linktree DASI",
+      "description": "Página com links úteis do Diretório Acadêmico de Sistemas de Informação.",
+      "url": "https://linktr.ee/dasi.ifba",
+      "category": "Linktree",
+      "tags": [
+        "DASI",
+        "diretório acadêmico",
+        "linktree",
+        "estudantes",
+        "instagram"
+      ]
+    },
+    {
+      "id": "link-linktree-btech",
+      "title": "Linktree BTECH",
+      "description": "Página com links úteis da Empresa Júnior BTECH.",
+      "url": "https://linktr.ee/btechjr",
+      "category": "Linktree",
+      "tags": [
+        "BTECH",
+        "empresa júnior",
+        "linktree",
+        "estudantes",
+        "instagram"
+      ]
+    },
+    {
+      "id": "link-linktree-sinistra",
+      "title": "LinkMe SINISTRA",
+      "description": "Página com links úteis da Atlética Acadêmica SINISTRA.",
+      "url": "https://linkme.bio/Sinistra",
+      "category": "Linktree",
+      "tags": [
+        "SINISTRA",
+        "atlética",
+        "linktree",
+        "esportes",
+        "instagram"
+      ]
+    },
+    {
+      "id": "link-ensalamento-professores",
+      "title": "Ensalamento dos Professores",
+      "description": "Painel do Power BI para consultar ensalamento/horários de professores.",
+      "url": "https://app.powerbi.com/view?r=eyJrIjoiN2JhMWNmYjMtOWRiNy00OTFlLTg5ODItMWU1ZWZhYzVhNWFjIiwidCI6IjZmZjM3NGY1LWUzZWItNGM2Zi1iN2I1LTUwOTE2NDA5MzdmOCJ9",
+      "category": "Power BI",
+      "tags": [
+        "ensalamento",
+        "professores",
+        "horários",
+        "horario",
+        "aulas",
+        "power bi",
+        "painel",
+        "salas"
+      ]
+    },
+    {
+      "id": "link-provas-atividades-passadas",
+      "title": "Provas e Atividades Passadas",
+      "description": "Pasta no Google Drive com provas, listas e atividades antigas compartilhadas para consulta estudantil.",
+      "url": "https://drive.google.com/drive/folders/1WC7rQ6et4OiSq_4eZ9rLbKqGNeUm37dA",
+      "category": "Drive",
+      "tags": [
+        "provas passadas",
+        "atividades passadas",
+        "listas",
+        "exercícios",
+        "drive",
+        "google drive",
+        "materiais",
+        "estudo",
+        "prova"
+      ]
+    }
+  ],
+  "apps": [
+    {
+      "id": "app-media-final",
+      "title": "Média e Prova Final",
+      "description": "Um único app com calculadora de média parcial e final, além da tabela rápida para consultar quanto é necessário tirar na prova final.",
+      "url": "#media-final",
+      "category": "Calculadora e tabela",
+      "tags": [
+        "média", "média final", "nota", "notas", "prova final", "tabela da final",
+        "quanto preciso tirar", "calculadora", "consulta rápida", "app", "ferramenta", "MP", "PF", "MF"
+      ]
+    },
+    {
+      "id": "app-onde-resolvo",
+      "title": "Onde resolvo isso?",
+      "description": "Ajuda o estudante a descobrir qual setor, link, contato ou documento usar para problemas comuns: protocolo, estágio, segunda chamada, TCC, matriz, atendimento e documentos comprobatórios.",
+      "url": "#onde-resolvo",
+      "category": "Assistente",
+      "tags": [
+        "onde resolvo",
+        "resolver",
+        "setor",
+        "problema",
+        "protocolo",
+        "segunda chamada",
+        "perdi prova",
+        "estágio",
+        "tcc",
+        "matriz",
+        "coordenação",
+        "caens",
+        "capne",
+        "cores",
+        "serviços sociais",
+        "documento comprova",
+        "whatsapp",
+        "contato"
+      ]
+    },
+    {
+      "id": "app-barema",
+      "title": "Barema de Atividades Complementares",
+      "description": "Explorador e simulador das versões do Barema de Atividades Complementares, com consulta compacta, modo planilha e cálculo de limites por categoria.",
+      "url": "apps/barema/",
+      "category": "Barema",
+      "openMode": "new-tab",
+      "tags": [
+        "barema",
+        "atividades complementares",
+        "horas complementares",
+        "certificados",
+        "PPC 2024",
+        "estágio",
+        "monitoria",
+        "curso de idioma",
+        "artigo",
+        "evento",
+        "doação de sangue",
+        "DCE",
+        "colegiado",
+        "simulador",
+        "app",
+        "ferramenta"
+      ]
+    },
+    {
+      "id": "app-calendario",
+      "title": "Calendário Acadêmico 2026",
+      "description": "App independente para consultar o calendário acadêmico IFBA VCA 2026 por busca, tipo de curso, cards, linha do tempo, mês, ano completo e exportação .ics.",
+      "url": "apps/calendario/",
+      "category": "Calendário",
+      "openMode": "new-tab",
+      "tags": [
+        "calendário",
+        "calendario",
+        "acadêmico",
+        "academico",
+        "datas",
+        "2026",
+        "graduação",
+        "graduacao",
+        "subsequente",
+        "integrado",
+        "matrícula",
+        "matricula",
+        "trancamento",
+        "provas finais",
+        "feriado",
+        "feriados",
+        "SUAP",
+        "notas",
+        "colação",
+        "colacao",
+        "jornada pedagógica",
+        "são joão",
+        "sao joao",
+        "app",
+        "ferramenta"
+      ]
+    },
+    {
+      "id": "app-fluxogramas",
+      "title": "Fluxogramas Curriculares",
+      "description": "App independente para navegar pelos fluxogramas curriculares dos cursos do IFBA VCA em modo interativo e também conferir os PDFs originais.",
+      "url": "apps/fluxogramas/",
+      "category": "Fluxogramas",
+      "openMode": "new-tab",
+      "tags": [
+        "fluxograma",
+        "fluxogramas",
+        "grade curricular",
+        "matriz curricular",
+        "disciplinas",
+        "pré-requisitos",
+        "pre requisitos",
+        "curso",
+        "sistemas de informação",
+        "engenharia elétrica",
+        "engenharia mecânica",
+        "engenharia civil",
+        "engenharia ambiental",
+        "licenciatura em química",
+        "app",
+        "ferramenta"
+      ]
+    }
+  ],
+  "guides": [],
+  "directoryGroups": [
+    {
+      "id": "group-frequentes",
+      "title": "Mais usados",
+      "description": "Links principais do hub.",
+      "items": [
+        {
+          "type": "app",
+          "id": "app-media-final"
+        },
+        {
+          "type": "app",
+          "id": "app-onde-resolvo"
+        },
+        {
+          "type": "app",
+          "id": "app-barema"
+        },
+        {
+          "type": "app",
+          "id": "app-calendario"
+        },
+        {
+          "type": "app",
+          "id": "app-fluxogramas"
+        },
+        {
+          "type": "link",
+          "id": "link-protocolo"
+        },
+        {
+          "type": "link",
+          "id": "link-email-coordenacao"
+        },
+        {
+          "type": "link",
+          "id": "link-instagram-bsi"
+        },
+        {
+          "type": "link",
+          "id": "link-instagram-dasi"
+        },
+        {
+          "type": "link",
+          "id": "link-caens-estagios"
+        },
+        {
+          "type": "link",
+          "id": "link-whatsapp-caens"
+        },
+        {
+          "type": "link",
+          "id": "link-ensalamento-professores"
+        },
+        {
+          "type": "link",
+          "id": "link-fluxograma-atual"
+        },
+        {
+          "type": "link",
+          "id": "link-barema-atual-planilha"
+        },
+        {
+          "type": "link",
+          "id": "link-provas-atividades-passadas"
+        }
+      ]
+    },
+    {
+      "id": "group-ppc-atual",
+      "title": "PPC 2024.1 - Atual",
+      "description": "Adicione aqui PPC, matriz, optativas, migração curricular, ementário e resolução vigente.",
+      "items": [
+        {
+          "type": "link",
+          "id": "link-fluxograma-atual"
+        },
+        {
+          "type": "link",
+          "id": "link-barema-atual-planilha"
+        }
+      ]
+    },
+    {
+      "id": "group-ppc-antigos",
+      "title": "PPCs anteriores",
+      "description": "Adicione aqui os PPCs e matrizes 2017.2–2023.2 e 2010.2–2017.1.",
+      "items": [
+        {
+          "type": "link",
+          "id": "link-fluxograma-antigo"
+        },
+        {
+          "type": "link",
+          "id": "link-barema-antigo-planilha"
+        }
+      ]
+    },
+    {
+      "id": "group-diretrizes-nacionais",
+      "title": "Diretrizes e regulamentos nacionais",
+      "description": "Adicione aqui LDB, SINAES, PNE, diretrizes de Computação, estágio, extensão, TEA e Libras.",
+      "items": []
+    },
+    {
+      "id": "group-regulamentos-ifba",
+      "title": "Regulamentos institucionais",
+      "description": "Adicione aqui NAES, extensão, assistência estudantil, inclusão, nome social, guarda religiosa e aproveitamento.",
+      "items": []
+    },
+    {
+      "id": "group-regulamentos-especificos",
+      "title": "Regulamentações específicas",
+      "description": "Adicione aqui atividades complementares, extensão, estágio e TCC.",
+      "items": []
+    },
+    {
+      "id": "group-infraestrutura",
+      "title": "Infraestrutura",
+      "description": "Adicione aqui laboratórios, ambientes e biblioteca.",
+      "items": []
+    },
+    {
+      "id": "group-gestao",
+      "title": "Coordenação, Colegiado e NDE",
+      "description": "Adicione aqui portarias, regimentos, planos e relatórios.",
+      "items": []
+    }
+  ],
+  "conceptMap": {
+    "protocolo": [
+      "requerimento",
+      "solicitação",
+      "formulário",
+      "processo"
+    ],
+    "horario": [
+      "horários",
+      "aulas",
+      "quadro",
+      "semestre"
+    ],
+    "horários": [
+      "horario",
+      "aulas",
+      "quadro",
+      "semestre"
+    ],
+    "fluxograma": [
+      "matriz",
+      "disciplinas",
+      "grade",
+      "pré-requisitos"
+    ],
+    "grade": [
+      "matriz",
+      "currículo",
+      "fluxograma",
+      "disciplinas"
+    ],
+    "matriz": [
+      "currículo",
+      "grade",
+      "disciplinas",
+      "PPC"
+    ],
+    "curriculo": [
+      "currículo",
+      "matriz",
+      "PPC",
+      "disciplinas"
+    ],
+    "currículo": [
+      "matriz",
+      "PPC",
+      "disciplinas"
+    ],
+    "ppc": [
+      "projeto pedagógico",
+      "matriz",
+      "ementário",
+      "currículo"
+    ],
+    "ementa": [
+      "ementário",
+      "bibliografia",
+      "disciplina"
+    ],
+    "bibliografia": [
+      "ementário",
+      "ementa",
+      "disciplina"
+    ],
+    "migracao": [
+      "migração",
+      "equivalência",
+      "matriz"
+    ],
+    "migração": [
+      "equivalência",
+      "matriz",
+      "curricular"
+    ],
+    "equivalencia": [
+      "equivalência",
+      "aproveitamento",
+      "matriz"
+    ],
+    "media": [
+      "média",
+      "nota",
+      "calculadora",
+      "média final"
+    ],
+    "média": [
+      "nota",
+      "calculadora",
+      "média final"
+    ],
+    "nota": [
+      "média",
+      "prova",
+      "avaliação",
+      "resultado"
+    ],
+    "prova": [
+      "avaliação",
+      "nota",
+      "atividades",
+      "provas passadas"
+    ],
+    "horas": [
+      "atividades complementares",
+      "barema",
+      "certificados",
+      "carga horária"
+    ],
+    "complementares": [
+      "atividades complementares",
+      "barema",
+      "certificados",
+      "horas"
+    ],
+    "certificado": [
+      "atividades complementares",
+      "comprovação",
+      "horas"
+    ],
+    "tcc": [
+      "trabalho de conclusão",
+      "orientação",
+      "banca",
+      "monografia"
+    ],
+    "estagio": [
+      "estágio",
+      "supervisionado",
+      "termo",
+      "relatório"
+    ],
+    "estágio": [
+      "supervisionado",
+      "termo",
+      "relatório"
+    ],
+    "extensao": [
+      "extensão",
+      "curricularização",
+      "ACE",
+      "atividades curriculares"
+    ],
+    "extensão": [
+      "curricularização",
+      "ACE",
+      "atividades curriculares"
+    ],
+    "coordenacao": [
+      "coordenação",
+      "coordenador",
+      "email",
+      "ramal"
+    ],
+    "coordenação": [
+      "coordenador",
+      "email",
+      "ramal"
+    ],
+    "colegiado": [
+      "portaria",
+      "regimento",
+      "eleição",
+      "CONCAM",
+      "barema",
+      "atividade política",
+      "representação discente"
+    ],
+    "nde": [
+      "núcleo docente estruturante",
+      "portaria",
+      "regimento"
+    ],
+    "laboratorio": [
+      "laboratório",
+      "infraestrutura",
+      "salas",
+      "H401",
+      "LabSHS"
+    ],
+    "laboratório": [
+      "infraestrutura",
+      "salas",
+      "H401",
+      "LabSHS"
+    ],
+    "libras": [
+      "acessibilidade",
+      "inclusão"
+    ],
+    "tea": [
+      "autismo",
+      "inclusão",
+      "direitos"
+    ],
+    "pcd": [
+      "inclusão",
+      "acessibilidade",
+      "necessidades específicas"
+    ],
+    "nome": [
+      "nome social",
+      "identidade"
+    ],
+    "dasi": [
+      "diretório acadêmico",
+      "instagram",
+      "estudantes"
+    ],
+    "instagram": [
+      "DASI",
+      "BSI",
+      "comunicação"
+    ],
+    "btech": [
+      "empresa júnior",
+      "instagram",
+      "estudantes"
+    ],
+    "sinistra": [
+      "atlética",
+      "instagram",
+      "esportes"
+    ],
+    "capne": [
+      "acessibilidade",
+      "inclusão",
+      "whatsapp"
+    ],
+    "caens": [
+      "estágio",
+      "estágios",
+      "whatsapp"
+    ],
+    "cores": [
+      "whatsapp",
+      "contato"
+    ],
+    "assistencia": [
+      "assistência estudantil",
+      "serviços sociais",
+      "whatsapp"
+    ],
+    "assistência": [
+      "assistência estudantil",
+      "serviços sociais",
+      "whatsapp"
+    ],
+    "whatsapp": [
+      "contato",
+      "CAENS",
+      "CAPNE",
+      "CORES",
+      "serviços sociais"
+    ],
+    "tabela": [
+      "prova final",
+      "final",
+      "nota necessária",
+      "quanto preciso tirar",
+      "média parcial"
+    ],
+    "barema": [
+      "atividades complementares",
+      "horas complementares",
+      "certificados",
+      "simulador",
+      "PPC 2024"
+    ],
+    "atividades": [
+      "atividades complementares",
+      "barema",
+      "certificados",
+      "horas"
+    ],
+    "monitoria": [
+      "barema",
+      "atividade complementar",
+      "ensino",
+      "tutoria"
+    ],
+    "sangue": [
+      "doação de sangue",
+      "barema",
+      "atividade social",
+      "hemoba"
+    ],
+    "dce": [
+      "diretório acadêmico",
+      "política",
+      "barema",
+      "atividade complementar"
+    ],
+    "idioma": [
+      "curso de idioma",
+      "inglês",
+      "proficiência",
+      "barema"
+    ],
+    "certificados": [
+      "barema",
+      "atividades complementares",
+      "comprovação",
+      "PDF comprobatório"
+    ],
+    "segunda chamada": [
+      "avaliação em segunda chamada",
+      "prova perdida",
+      "perdi prova",
+      "atestado",
+      "protocolo",
+      "NAES"
+    ],
+    "atestado": [
+      "segunda chamada",
+      "prova perdida",
+      "protocolo",
+      "solicitação",
+      "requerimento"
+    ],
+    "perdi": [
+      "segunda chamada",
+      "avaliação em segunda chamada",
+      "atestado",
+      "protocolo"
+    ],
+    "perdi prova": [
+      "segunda chamada",
+      "avaliação em segunda chamada",
+      "atestado",
+      "protocolo"
+    ],
+    "nota final": [
+      "média final",
+      "prova final",
+      "calculadora",
+      "quanto preciso tirar"
+    ],
+    "zap": [
+      "whatsapp",
+      "contato",
+      "CAENS",
+      "CAPNE",
+      "CORES",
+      "serviços sociais"
+    ],
+    "zap do estágio": [
+      "WhatsApp do CAENS",
+      "CAENS",
+      "estágio",
+      "contato"
+    ],
+    "coordenador": [
+      "coordenação",
+      "Cláudio Rodolfo Sousa de Oliveira",
+      "email",
+      "ramal"
+    ],
+    "claudio": [
+      "coordenador",
+      "coordenação",
+      "Cláudio Rodolfo Sousa de Oliveira"
+    ],
+    "atlética": [
+      "SINISTRA",
+      "instagram",
+      "linktree",
+      "esportes"
+    ],
+    "atletica": [
+      "SINISTRA",
+      "instagram",
+      "linktree",
+      "esportes"
+    ],
+    "instagram atletica": [
+      "SINISTRA",
+      "Instagram SINISTRA",
+      "LinkMe SINISTRA"
+    ],
+    "grade antiga": [
+      "matriz curricular",
+      "PPC 2017",
+      "PPC 2010",
+      "quadro de equivalência"
+    ],
+    "materias optativas": [
+      "matriz curricular optativa",
+      "optativas",
+      "disciplinas optativas",
+      "PPC"
+    ],
+    "matérias optativas": [
+      "matriz curricular optativa",
+      "optativas",
+      "disciplinas optativas",
+      "PPC"
+    ],
+    "resolver": [
+      "onde resolvo",
+      "setor",
+      "contato",
+      "protocolo"
+    ],
+    "fazer estágio": [
+      "estágio curricular supervisionado",
+      "CAENS",
+      "termo de estágio",
+      "relatório"
+    ],
+    "fazer estagio": [
+      "estágio curricular supervisionado",
+      "CAENS",
+      "termo de estágio",
+      "relatório"
+    ],
+    "ensalamento": [
+      "professores",
+      "horários",
+      "salas",
+      "aulas",
+      "power bi"
+    ],
+    "professores": [
+      "ensalamento",
+      "horários",
+      "salas",
+      "aulas"
+    ],
+    "horario professor": [
+      "ensalamento",
+      "professores",
+      "salas",
+      "aulas"
+    ],
+    "horário professor": [
+      "ensalamento",
+      "professores",
+      "salas",
+      "aulas"
+    ],
+    "fluxograma antigo": [
+      "grade antiga",
+      "matriz antiga",
+      "PPC 2017",
+      "disciplinas"
+    ],
+    "fluxograma atual": [
+      "grade atual",
+      "matriz atual",
+      "PPC 2024",
+      "disciplinas"
+    ],
+    "grade atual": [
+      "fluxograma atual",
+      "matriz atual",
+      "PPC 2024"
+    ],
+    "barema atual": [
+      "atividades complementares",
+      "PPC 2024",
+      "planilha",
+      "horas complementares"
+    ],
+    "barema antigo": [
+      "atividades complementares",
+      "PPC antigo",
+      "PPC 2017",
+      "planilha"
+    ],
+    "provas passadas": [
+      "atividades passadas",
+      "listas",
+      "drive",
+      "materiais de estudo"
+    ],
+    "atividades passadas": [
+      "provas passadas",
+      "listas",
+      "drive",
+      "materiais de estudo"
+    ],
+    "provas antigas": [
+      "provas passadas",
+      "atividades passadas",
+      "drive"
+    ],
+    "calendário": [
+      "calendario academico",
+      "datas academicas",
+      "semestre",
+      "matricula",
+      "provas finais",
+      "feriados"
+    ],
+    "calendario": [
+      "calendário acadêmico",
+      "datas acadêmicas",
+      "semestre",
+      "matrícula",
+      "provas finais",
+      "feriados"
+    ]
+  },
+  "answers": [
+    {
+      "id": "answer-coordenador",
+      "title": "Coordenador do curso",
+      "answer": "Cláudio Rodolfo Sousa de Oliveira",
+      "description": "Coordenação do Bacharelado em Sistemas de Informação. Contato: csi.vdc@ifba.edu.br · ramal 1261.",
+      "category": "Contato direto",
+      "sourceLabel": "Página do curso / Coordenação",
+      "url": "mailto:csi.vdc@ifba.edu.br",
+      "tags": [
+        "coordenador",
+        "coordenação",
+        "coordenacao",
+        "claudio",
+        "cláudio",
+        "contato",
+        "email",
+        "ramal",
+        "curso"
+      ]
+    },
+    {
+      "id": "answer-caens",
+      "title": "CAENS — estágio e atendimento",
+      "answer": "Use a página de estágios ou o WhatsApp do CAENS.",
+      "description": "Links úteis: página CAENS Estágios e WhatsApp do CAENS.",
+      "category": "Contato direto",
+      "sourceLabel": "Links do hub",
+      "url": "https://ifbaconquista.blogspot.com/?m=1",
+      "tags": [
+        "caens",
+        "estagio",
+        "estágio",
+        "zap do estágio",
+        "whatsapp caens",
+        "setor",
+        "contato"
+      ]
+    },
+    {
+      "id": "answer-final",
+      "title": "Prova final e média final",
+      "answer": "Use o app Média e Prova Final.",
+      "description": "A calculadora informa se você passou, se vai para final e quanto precisa tirar na PF.",
+      "category": "Ferramenta",
+      "sourceLabel": "Regra de média final usada no hub",
+      "url": "#media-final",
+      "tags": [
+        "media final",
+        "média final",
+        "nota final",
+        "prova final",
+        "quanto preciso tirar",
+        "calcular média",
+        "calculadora"
+      ]
+    }
+  ],
+  "workflows": [
+    {
+      "id": "workflow-final",
+      "emoji": "🧮",
+      "title": "Quero saber se vou para final",
+      "summary": "Calcule a média parcial e veja se foi aprovado, se precisa de prova final ou se não tem direito à final.",
+      "steps": [
+        "Informe todas as notas parciais lançadas no diário.",
+        "Clique em calcular situação.",
+        "Se a MP ficar entre 2,5 e 6,9, veja a PF mínima necessária.",
+        "Use a tabela da final para conferir rapidamente sem digitar."
+      ],
+      "documents": [
+        "Normas Acadêmicas de Ensino Superior",
+        "NAES",
+        "Regulamento discente"
+      ],
+      "links": [
+        "app-media-final"
+      ],
+      "checklist": [
+        "Todas as notas parciais foram lançadas?",
+        "A média parcial está correta?",
+        "Você já tem a nota da PF ou quer saber quanto precisa?"
+      ]
+    },
+    {
+      "id": "workflow-protocolo",
+      "emoji": "📝",
+      "title": "Quero protocolar uma solicitação",
+      "summary": "Acesse o formulário de protocolo e confira qual documento/regra justifica o pedido.",
+      "steps": [
+        "Abra o link de Protocolo.",
+        "Separe documento comprobatório, se existir.",
+        "Descreva o pedido de forma objetiva.",
+        "Guarde o comprovante de envio."
+      ],
+      "documents": [
+        "NAES",
+        "segunda chamada",
+        "aproveitamento",
+        "nome social",
+        "guarda religiosa"
+      ],
+      "links": [
+        "link-protocolo",
+        "link-email-coordenacao"
+      ],
+      "checklist": [
+        "Tenho meus dados acadêmicos?",
+        "Tenho o documento comprobatório?",
+        "Sei qual setor deve receber?"
+      ]
+    },
+    {
+      "id": "workflow-quebra-requisito",
+      "emoji": "🧩",
+      "title": "Quero pedir quebra de pré-requisito",
+      "summary": "Pedido excepcional para cursar uma disciplina sem cumprir o pré-requisito normal. Não é automático: precisa de justificativa, análise do colegiado do curso e homologação da Diretoria de Ensino.",
+      "steps": [
+        "Confira no Fluxograma ou no ementário qual é o pré-requisito oficial da disciplina.",
+        "Fale primeiro com a Coordenação do curso para confirmar se o caso faz sentido.",
+        "Abra solicitação pelo SUAP, Protocolo ou CORES, conforme orientação do campus.",
+        "Explique a justificativa: provável formando, estágio, co-requisito, ajuste de oferta ou outro caso excepcional.",
+        "Aguarde a análise do Colegiado e a homologação da Diretoria de Ensino antes de assumir que a matrícula foi aceita."
+      ],
+      "documents": [
+        "pré-requisito",
+        "pre requisito",
+        "quebra de requisito",
+        "fluxograma",
+        "ementário",
+        "matriz curricular",
+        "Normas Acadêmicas",
+        "Regulamento Discente"
+      ],
+      "links": [
+        "app-fluxogramas",
+        "link-protocolo",
+        "link-email-coordenacao"
+      ],
+      "checklist": [
+        "Sei qual disciplina quero cursar?",
+        "Sei qual pré-requisito não foi cumprido?",
+        "Tenho uma justificativa objetiva?",
+        "Conferi com a Coordenação antes de depender dessa matrícula?"
+      ]
+    },
+    {
+      "id": "workflow-tcc",
+      "emoji": "🎓",
+      "title": "Quero entender TCC",
+      "summary": "Encontre regulamento, etapas, orientação, banca e documentos relacionados ao Trabalho de Conclusão de Curso.",
+      "steps": [
+        "Leia o regulamento de TCC aplicável ao seu PPC.",
+        "Confira pré-requisitos e prazos com a coordenação.",
+        "Procure modelo de projeto/ata, se estiver no acervo.",
+        "Fale com orientador ou coordenação em caso de dúvida."
+      ],
+      "documents": [
+        "Trabalho de Conclusão de Curso",
+        "TCC",
+        "PPC 2024",
+        "NAES"
+      ],
+      "links": [
+        "link-email-coordenacao"
+      ],
+      "checklist": [
+        "Já sei qual PPC/matriz se aplica a mim?",
+        "Tenho orientador?",
+        "Tenho modelo/ata/documentos exigidos?"
+      ]
+    },
+    {
+      "id": "workflow-estagio",
+      "emoji": "🧭",
+      "title": "Quero fazer estágio",
+      "summary": "Veja documentos de estágio, contatos do CAENS e passos básicos para regularizar o estágio.",
+      "steps": [
+        "Leia o regulamento de estágio aplicável.",
+        "Acesse a página CAENS Estágios.",
+        "Fale com o CAENS pelo WhatsApp se precisar de orientação.",
+        "Separe termo/plano/relatório conforme o caso."
+      ],
+      "documents": [
+        "Estágio Curricular Supervisionado",
+        "Estágio Supervisionado",
+        "PPC 2024"
+      ],
+      "links": [
+        "link-caens-estagios",
+        "link-whatsapp-caens",
+        "link-email-coordenacao"
+      ],
+      "checklist": [
+        "Tenho empresa/concedente?",
+        "Tenho professor orientador/supervisor?",
+        "Tenho termo/plano antes de iniciar?"
+      ]
+    },
+    {
+      "id": "workflow-migracao",
+      "emoji": "🔁",
+      "title": "Quero migrar de matriz",
+      "summary": "Compare PPC/matriz antiga e atual, veja equivalências e regulamento de migração curricular.",
+      "steps": [
+        "Identifique sua matriz de origem.",
+        "Abra o regulamento de migração curricular.",
+        "Confira quadro de equivalência, se disponível.",
+        "Procure a coordenação antes de protocolar."
+      ],
+      "documents": [
+        "Regulamento de Migração Curricular",
+        "Quadro de Equivalência Curricular",
+        "Matriz Curricular",
+        "PPC 2024",
+        "PPC 2017"
+      ],
+      "links": [
+        "link-email-coordenacao",
+        "link-protocolo"
+      ],
+      "checklist": [
+        "Sei minha matriz atual?",
+        "Conferi equivalências?",
+        "Tenho dúvida que precisa de atendimento da coordenação?"
+      ]
+    },
+    {
+      "id": "workflow-complementares",
+      "emoji": "🎓",
+      "title": "Quero saber regras de atividades complementares",
+      "summary": "Use o app do barema para escolher a versão correta, buscar atividades, entender limites por categoria e simular horas complementares.",
+      "steps": [
+        "Abra o Barema de Atividades Complementares.",
+        "Selecione sua versão: PPC 2024 ou PPC 2010-2017.",
+        "Busque a atividade pelo nome comum do certificado.",
+        "Confira limites por atividade/categoria e guarde os comprovantes."
+      ],
+      "documents": [
+        "Barema das Atividades Complementares",
+        "Regulamento das Atividades Complementares",
+        "PPC 2024"
+      ],
+      "links": [
+        "app-barema"
+      ],
+      "checklist": [
+        "Meu certificado tem carga horária?",
+        "A atividade entra em qual categoria?",
+        "Estou cumprindo o mínimo de categorias?"
+      ]
+    },
+    {
+      "id": "workflow-resolucao",
+      "emoji": "📜",
+      "title": "Quero achar uma resolução/portaria",
+      "summary": "Filtre o acervo por tipo de documento ou pesquise pelo número, ano, órgão ou assunto.",
+      "steps": [
+        "Pesquise pelo número ou órgão, como CONSEPE, CONSUP, CONCAM ou DG.",
+        "Use o Acervo em modo Diretório.",
+        "Abra a prévia e confira data e páginas.",
+        "Copie a referência no modal, se precisar citar."
+      ],
+      "documents": [
+        "Resolução",
+        "Portaria",
+        "CONSEPE",
+        "CONSUP",
+        "CONCAM",
+        "DG"
+      ],
+      "links": [],
+      "checklist": [
+        "Tenho o número/ano?",
+        "Sei o órgão emissor?",
+        "Preciso da versão vigente ou histórica?"
+      ]
+    },
+    {
+      "id": "workflow-contato",
+      "emoji": "💬",
+      "title": "Quero falar com setor X",
+      "summary": "Encontre rapidamente e-mail, WhatsApp, Instagram ou páginas de setores e entidades estudantis.",
+      "steps": [
+        "Pesquise pelo setor: coordenação, CAENS, CAPNE, CORES, DASI, BTECH ou SINISTRA.",
+        "Escolha WhatsApp, e-mail, Instagram ou Linktree.",
+        "Use mensagem objetiva e anexe comprovantes se necessário."
+      ],
+      "documents": [],
+      "links": [
+        "link-email-coordenacao",
+        "link-whatsapp-caens",
+        "link-whatsapp-capne",
+        "link-whatsapp-cores",
+        "link-whatsapp-servicos-sociais",
+        "link-linktree-dasi",
+        "link-linktree-btech",
+        "link-linktree-sinistra"
+      ],
+      "checklist": [
+        "Sei qual setor resolve meu problema?",
+        "Tenho matrícula/dados prontos?",
+        "Preciso anexar comprovante?"
+      ]
+    },
+    {
+      "id": "workflow-comprova",
+      "emoji": "🔎",
+      "title": "Quero saber qual documento comprova isso",
+      "summary": "Use a busca com palavras simples; o hub tenta apontar o documento oficial, página e trecho relacionado.",
+      "steps": [
+        "Pesquise como você falaria naturalmente.",
+        "Abra a prévia do documento.",
+        "Confira o trecho destacado e a página.",
+        "Abra o PDF na página indicada e copie a referência se precisar."
+      ],
+      "documents": [
+        "PPC",
+        "NAES",
+        "Regulamento",
+        "Resolução",
+        "Portaria"
+      ],
+      "links": [
+        "link-email-coordenacao"
+      ],
+      "checklist": [
+        "O trecho está destacado?",
+        "A data do documento parece correta?",
+        "O documento é o vigente para meu caso?"
+      ]
+    }
+  ]
+};

@@ -317,9 +317,9 @@ html[data-theme="light"] .event-sheet-actions .primary {
 }
 
 </style>
-  <link rel="stylesheet" href="../app-shell.css?v=0.2.22" />
-  <link rel="stylesheet" href="../../css/sidebar-quick-search.css?v=0.2.22" />
-  <link rel="stylesheet" href="../../css/design-system.css?v=0.2.22" />
+  <link rel="stylesheet" href="../build/app-shell.f5dcd9311598.css" />
+  <link rel="stylesheet" href="../../assets/build/sidebar-quick-search.ea5032187b1e.css" />
+  <link rel="stylesheet" href="../../assets/build/design-system.afe11aadcef7.css" />
 </head>
 <body>
   <header class="topbar"><a class="brand" href="../../index.html#apps" aria-label="Voltar para o HUB SI"><span class="brand-mark"><img src="../../assets/logo-pixel.png" alt="Logo HUB SI" /></span><span class="brand-text"><strong>Calendário</strong><small>IFBA · VCA · 2026</small></span></a><div class="top-actions"><a class="ghost-btn" href="../../index.html#apps">← HUB</a><button class="primary-btn" id="downloadIcsBtn" type="button">Exportar .ics</button></div></header>
@@ -354,12 +354,12 @@ html[data-theme="light"] .event-sheet-actions .primary {
     </section></section>
   </main>
 <div class="event-sheet" id="eventSheet" aria-hidden="true"><div class="event-sheet-panel" role="dialog" aria-modal="true" aria-labelledby="eventSheetTitle"><button class="event-sheet-close" id="eventSheetClose" type="button" aria-label="Fechar">×</button><div class="event-sheet-kicker" id="eventSheetKicker">Data acadêmica</div><h3 id="eventSheetTitle">Evento</h3><p id="eventSheetDesc"></p><div class="event-sheet-meta" id="eventSheetMeta"></div><div class="event-sheet-actions"><button class="primary" id="eventSheetCalendar" type="button">Ver no calendário</button><button id="eventSheetClose2" type="button">Fechar</button></div></div></div>
-<script src="data/calendar-data.js?v=0.2.22"></script>
+<script src="../build/calendar-data.84ae485c16ae.js"></script>
 <script>
 
 const CALENDAR_DATA = window.CALENDAR_DATA;
 if (!CALENDAR_DATA || !Array.isArray(CALENDAR_DATA.EVENTS)) {
-  document.body.insertAdjacentHTML("afterbegin", '<div class="calendar-load-error" role="alert"><strong>Não foi possível carregar os dados do calendário.</strong><span>Atualize a página com Ctrl + Shift + R. Se o erro continuar, confirme se <code>data/calendar-data.js</code> está disponível.</span></div>');
+  document.body.insertAdjacentHTML("afterbegin", '<div class="calendar-load-error" role="alert"><strong>Não foi possível carregar os dados do calendário.</strong><span>Atualize a página com Ctrl + Shift + R. Se o erro continuar, confirme se <code>../build/calendar-data.84ae485c16ae.js</code> está disponível.</span></div>');
   throw new Error("CALENDAR_DATA indisponível ou inválido");
 }
 const { CATEGORIES, TRACKS, EVENTS, DAY_STATUS, DAY_STATUS_META, STATS } = CALENDAR_DATA;
@@ -489,9 +489,7 @@ function eventMatchesDate(ev, date){
 }
 function normalize(str){
   return (str || "").toString().toLowerCase()
-    .replace(/ç/g, "__cedilla__")
-    .normalize("NFD").replace(/[\u0300-\u036f]/g, "")
-    .replace(/__cedilla__/g, "ç");
+    .normalize("NFD").replace(/[\u0300-\u036f]/g, "");
 }
 function categoryStyle(cat){
   const map = {
@@ -1344,15 +1342,17 @@ function bindEvents(){
 }
 
 
+function getSharedThemeMode(){
+  try{return localStorage.getItem("hubThemeMode")||"auto";}catch{return "auto";}
+}
 function syncSharedTheme(){
-  let mode="auto";
-  try{mode=localStorage.getItem("hubThemeMode")||"auto";}catch{}
+  const mode=getSharedThemeMode();
   const resolved=mode==="auto"?(matchMedia("(prefers-color-scheme: light)").matches?"light":"dark"):mode;
   document.documentElement.dataset.theme=resolved;
   document.documentElement.dataset.themeMode=mode;
 }
 syncSharedTheme();
-matchMedia("(prefers-color-scheme: light)").addEventListener?.("change",()=>{if((localStorage.getItem("hubThemeMode")||"auto")==="auto")syncSharedTheme();});
+matchMedia("(prefers-color-scheme: light)").addEventListener?.("change",()=>{if(getSharedThemeMode()==="auto")syncSharedTheme();});
 window.addEventListener("storage",e=>{if(e.key==="hubThemeMode")syncSharedTheme();});
 
 try {
@@ -1364,13 +1364,30 @@ try {
 } catch (error) {
   console.error("Falha ao iniciar o Calendário:", error);
   const app = document.querySelector("main.app");
-  if (app && !document.querySelector(".calendar-load-error")) app.insertAdjacentHTML("afterbegin", `<div class="calendar-load-error" role="alert"><strong>O Calendário não conseguiu iniciar.</strong><span>${String(error?.message || error)}</span><button type="button" onclick="localStorage.removeItem('${PREF_KEY}');location.reload()">Restaurar preferências do Calendário</button></div>`);
+  if (app && !document.querySelector(".calendar-load-error")) {
+    const box = document.createElement("div");
+    const title = document.createElement("strong");
+    const detail = document.createElement("span");
+    const restore = document.createElement("button");
+    box.className = "calendar-load-error";
+    box.setAttribute("role", "alert");
+    title.textContent = "O Calendário não conseguiu iniciar.";
+    detail.textContent = String(error?.message || error || "Erro desconhecido.");
+    restore.type = "button";
+    restore.textContent = "Restaurar preferências do Calendário";
+    restore.addEventListener("click", () => {
+      try { localStorage.removeItem(PREF_KEY); } catch (_) {}
+      location.reload();
+    });
+    box.append(title, detail, restore);
+    app.prepend(box);
+  }
 }
 
 </script>
-<script src="../../data.js?v=0.2.22"></script>
-<script src="../../js/design-system.js?v=0.2.22"></script>
-<script src="../app-shell.js?v=0.2.22"></script>
-<script src="../../js/sidebar-quick-search.js?v=0.2.22"></script>
+<script src="../../assets/build/data.d5d624533d89.js"></script>
+<script src="../../assets/build/design-system.207b345af7d9.js"></script>
+<script src="../build/app-shell.e4d3759152fc.js"></script>
+<script src="../../assets/build/sidebar-quick-search.ad3450d48011.js"></script>
 </body>
 </html>

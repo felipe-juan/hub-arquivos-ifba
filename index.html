@@ -25,10 +25,10 @@
       } catch (_) {}
     })();
   </script>
-  <link rel="stylesheet" href="styles.css?v=0.2.22" />
-  <link rel="stylesheet" href="css/enhancements.css?v=0.2.22" />
-  <link rel="stylesheet" href="css/sidebar-quick-search.css?v=0.2.22" />
-  <link rel="stylesheet" href="css/design-system.css?v=0.2.22" />
+  <link rel="stylesheet" href="assets/build/styles.cfcabf51a064.css" />
+  <link rel="stylesheet" href="assets/build/enhancements.254c728974fb.css" />
+  <link rel="stylesheet" href="assets/build/sidebar-quick-search.ea5032187b1e.css" />
+  <link rel="stylesheet" href="assets/build/design-system.afe11aadcef7.css" />
 </head>
 <body>
   <a class="skip-link" href="#mainContent">Pular para o conteúdo</a>
@@ -147,12 +147,12 @@
         <div id="loadingStatus" class="loading-status" role="status" aria-live="polite">Carregando documentos...</div>
 
         <div class="quick-chips" aria-label="Buscas rápidas">
-          <button data-example="calendário acadêmico">calendário</button>
-          <button data-example="PPC 2024">PPC 2024</button>
-          <button data-example="TCC">TCC</button>
-          <button data-example="estágio">estágio</button>
-          <button data-example="protocolo">protocolo</button>
-          <button data-example="média final">média final</button>
+          <button type="button" data-example="calendário acadêmico">calendário</button>
+          <button type="button" data-example="PPC 2024">PPC 2024</button>
+          <button type="button" data-example="TCC">TCC</button>
+          <button type="button" data-example="estágio">estágio</button>
+          <button type="button" data-example="protocolo">protocolo</button>
+          <button type="button" data-example="média final">média final</button>
         </div>
 
         <div class="saved-searches" id="savedSearchesPanel" aria-label="Pesquisas salvas">
@@ -414,6 +414,10 @@
             <button type="button" data-links-view="quick">Rápida</button>
             <button type="button" data-links-view="cards">Detalhada</button>
           </div>
+          <label class="links-columns-control" for="linksColumnsSelect">
+            <span id="linksColumnsLabel">Colunas da visualização rápida</span>
+            <select id="linksColumnsSelect" aria-labelledby="linksColumnsLabel"></select>
+          </label>
           <button type="button" class="secondary-button" data-links-edit-toggle aria-pressed="false">Personalizar ordem</button>
           <button type="button" class="secondary-button" data-links-reset-order hidden>Restaurar padrão</button>
         </div>
@@ -427,7 +431,7 @@
 
   <dialog id="searchHelpDialog" class="search-help-dialog" aria-labelledby="searchHelpTitle">
     <form method="dialog" class="search-help-card">
-      <button class="modal-close" value="close" aria-label="Fechar ajuda">×</button>
+      <button type="button" class="modal-close" value="close" aria-label="Fechar ajuda">×</button>
       <p class="eyebrow">Busca avançada</p>
       <h2 id="searchHelpTitle">Como pesquisar</h2>
       <div class="search-help-examples">
@@ -437,7 +441,7 @@
         <code>matrícula OR ajuste</code><span>aceita qualquer termo</span>
         <code>calendário -2025</code><span>exclui um termo</span>
       </div>
-      <button class="small-action" value="close">Entendi</button>
+      <button type="button" class="small-action" value="close">Entendi</button>
     </form>
   </dialog>
 
@@ -453,22 +457,19 @@
   <div id="previewModal" class="modal" aria-hidden="true" role="dialog" aria-modal="true" aria-labelledby="previewTitle">
     <div class="modal-backdrop" data-close-modal></div>
     <article class="modal-card paperless-modal">
-      <button class="modal-close" data-close-modal aria-label="Fechar prévia">×</button>
+      <button type="button" class="modal-close" data-close-modal aria-label="Fechar prévia">×</button>
       <div id="modalContent"></div>
     </article>
   </div>
 
   <footer class="footer">
-    <span>HUB SI · v0.2.22 · protótipo livre · sempre confira a fonte oficial.</span>
+    <span>HUB SI · v0.2.33 · protótipo livre · sempre confira a fonte oficial.</span>
   </footer>
 
-  <script src="data.js?v=0.2.22"></script>
-  <script src="js/storage.js?v=0.2.22"></script>
-  <script src="js/design-system.js?v=0.2.22"></script>
-  <script src="js/where-data.js?v=0.2.22"></script>
-  <script src="app.js?v=0.2.22"></script>
-  <script src="js/enhancements.js?v=0.2.22"></script>
-  <script src="js/experience.js?v=0.2.22"></script>
-  <script src="js/sidebar-quick-search.js?v=0.2.22"></script>
+  <script src="assets/build/data.d5d624533d89.js"></script>
+  <script src="assets/build/storage.aade70adc118.js"></script>
+  <script src="assets/build/design-system.207b345af7d9.js"></script>
+  <script src="assets/build/where-data.2815ed20f527.js"></script>
+  <script src="assets/build/app.6557047fb3b9.js"></script>
 </body>
 </html>

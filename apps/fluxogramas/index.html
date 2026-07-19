@@ -437,9 +437,9 @@ html[data-theme="light"] .btn.primary,html[data-theme="light"] .view-toggle butt
 html[data-theme="light"] .pdf-frame{background:#e7edf1}
 
 </style>
-  <link rel="stylesheet" href="../app-shell.css?v=0.2.22" />
-  <link rel="stylesheet" href="../../css/sidebar-quick-search.css?v=0.2.22" />
-  <link rel="stylesheet" href="../../css/design-system.css?v=0.2.22" />
+  <link rel="stylesheet" href="../build/app-shell.f5dcd9311598.css" />
+  <link rel="stylesheet" href="../../assets/build/sidebar-quick-search.ea5032187b1e.css" />
+  <link rel="stylesheet" href="../../assets/build/design-system.afe11aadcef7.css" />
 </head>
 <body>
 <div class="app">
@@ -457,7 +457,7 @@ html[data-theme="light"] .pdf-frame{background:#e7edf1}
       <div class="field"><label for="versionSelect">Matriz / versão</label><select id="versionSelect"></select></div>
       <div class="field"><label for="kindFilter">Tipo</label><select id="kindFilter"><option value="all">Todos</option><option value="regular">Disciplinas regulares</option><option value="optativa">Optativas</option><option value="extensao">Extensão / ACEX</option><option value="tcc">TCC / Estágio / ACC</option></select></div>
       <div class="field flux-search-field"><label for="fluxSearchInput">Buscar</label><div class="inline-search"><span aria-hidden="true">🔍</span><input id="fluxSearchInput" placeholder="Disciplina..." autocomplete="off" /><button id="fluxSearchClear" type="button" aria-label="Limpar busca">×</button></div></div>
-      <div class="field view-field"><div class="field-title">Modo</div><div class="view-toggle"><button id="interactiveBtn" class="active">Interativo</button><button id="documentBtn">Documento</button></div></div>
+      <div class="field view-field"><div class="field-title">Modo</div><div class="view-toggle"><button id="interactiveBtn" class="active" type="button">Interativo</button><button id="documentBtn" type="button">Documento</button></div></div>
       <div class="matrix-summary compact-matrix-summary" id="matrixSummary"></div>
     </div>
     <div class="semester-pills mobile-semester-nav" id="semesterPills" aria-label="Seleção rápida do semestre"></div>
@@ -465,16 +465,16 @@ html[data-theme="light"] .pdf-frame{background:#e7edf1}
       <div class="board-wrap"><div class="board" id="board"></div></div><div class="panel matrix-legend" id="matrixLegend"></div>
     </section>
     <section id="documentView" class="hide">
-      <div class="docs-layout"><aside class="panel"><div class="doc-list" id="docList"></div></aside><section class="panel"><div class="doc-actions"><a class="btn primary" id="openPdf" target="_blank" rel="noopener">Abrir PDF original</a><a class="btn" id="downloadPdf" download>Baixar PDF</a><button class="btn" id="backInteractive">Voltar ao interativo</button><button class="btn" id="fitDoc" type="button">Carregar visualização</button><span class="doc-page-hint" id="pageHint">Página recomendada: Fluxograma</span></div><div class="pdf-frame" id="pdfFrame"><div class="pdf-placeholder" id="pdfPlaceholder">A visualização do documento será carregada automaticamente. Se o navegador bloquear a incorporação, use <strong>Abrir PDF original</strong>.</div><div id="pdfEmbedHost" class="pdf-embed-host" hidden></div></div><div class="notice">Esta aba mostra o documento original enviado. Para decisões acadêmicas, use sempre esta fonte oficial quando houver dúvida.</div></section></div>
+      <div class="docs-layout"><aside class="panel"><div class="doc-list" id="docList"></div></aside><section class="panel"><div class="doc-actions"><a class="btn primary" id="openPdf" target="_blank" rel="noopener">Abrir PDF original</a><a class="btn" id="downloadPdf" download>Baixar PDF</a><button class="btn" id="backInteractive" type="button">Voltar ao interativo</button><button class="btn" id="fitDoc" type="button">Carregar visualização</button><span class="doc-page-hint" id="pageHint">Página recomendada: Fluxograma</span></div><div class="pdf-frame" id="pdfFrame"><div class="pdf-placeholder" id="pdfPlaceholder">A visualização do documento será carregada automaticamente. Se o navegador bloquear a incorporação, use <strong>Abrir PDF original</strong>.</div><div id="pdfEmbedHost" class="pdf-embed-host" hidden></div></div><div class="notice">Esta aba mostra o documento original enviado. Para decisões acadêmicas, use sempre esta fonte oficial quando houver dúvida.</div></section></div>
     </section>
   </main>
 </section>
 </div><div class="toast" id="toast"></div>
-<script src="data/fluxogramas-data.js?v=0.2.22"></script>
+<script src="../build/fluxogramas-data.a37b87063d78.js"></script>
 <script>
 const FLUXOGRAMA_DATA = window.FLUXOGRAMA_DATA;
 if (!FLUXOGRAMA_DATA || !Array.isArray(FLUXOGRAMA_DATA.COURSES) || !FLUXOGRAMA_DATA.DATA) {
-  document.body.insertAdjacentHTML("afterbegin", '<div class="flux-load-error" role="alert"><strong>Não foi possível carregar os dados dos fluxogramas.</strong><span>Atualize com Ctrl + Shift + R e confirme se <code>data/fluxogramas-data.js</code> está disponível.</span></div>');
+  document.body.insertAdjacentHTML("afterbegin", '<div class="flux-load-error" role="alert"><strong>Não foi possível carregar os dados dos fluxogramas.</strong><span>Atualize com Ctrl + Shift + R e confirme se <code>../build/fluxogramas-data.a37b87063d78.js</code> está disponível.</span></div>');
   throw new Error("FLUXOGRAMA_DATA indisponível ou inválido");
 }
 const { COURSES, DOCS, DOC_PAGE_HINTS, DATA, MATRIX_TOTALS } = FLUXOGRAMA_DATA;
@@ -1017,7 +1017,7 @@ function loadPrefs(){
 }
 function key(){return 'fluxapp:'+state.version}
 function loadDone(){try{return new Set(JSON.parse(localStorage.getItem(key())||'[]'))}catch{return new Set()}}
-function saveDone(set){localStorage.setItem(key(),JSON.stringify([...set]))}
+function saveDone(set){try{localStorage.setItem(key(),JSON.stringify([...set]))}catch{}}
 function discId(sem,i,d){return `${state.version}:s${sem}:d${i}:${norm(d.name).replace(/[^a-z0-9]+/g,'-').slice(0,40)}`}
 function currentData(){return DATA[state.version]}
 function currentCourse(){return COURSES.find(c=>c.id===state.course)}
@@ -1136,7 +1136,7 @@ function renderCourses(){
 function renderVersionSelect(){const sel=$('#versionSelect');sel.innerHTML=currentCourse().versions.map(v=>`<option value="${v}">${DATA[v].title}</option>`).join('');sel.value=state.version;sel.onchange=e=>{state.version=e.target.value;state.course=(courseForVersion(state.version)||currentCourse()).id;state.semester=0;state.docIndex=0;selectedDisc=null;pathMode=false;clearPdfPreview();safeSavePrefs();renderAll()}}
 function scrollToSemester(i){const el=document.getElementById(`sem-${i}`); if(el) el.scrollIntoView({behavior:'smooth',block:'center',inline:'nearest'});}
 function scrollToSelectedDisc(){if(!selectedDisc) return; const el=$$('.disc-card').find(card=>card.dataset.id===selectedDisc.id); if(el) el.scrollIntoView({behavior:'smooth',block:'center',inline:'center'});}
-function renderPills(){const data=currentData();$('#semesterPills').innerHTML=data.semesters.map((_,i)=>`<button class="${i===state.semester?'active':''}" data-sem="${i}">${i+1}º</button>`).join('');$$('#semesterPills button').forEach(b=>b.onclick=()=>{state.semester=Number(b.dataset.sem);safeSavePrefs();renderBoard();setTimeout(()=>scrollToSemester(state.semester),30)})}
+function renderPills(){const data=currentData();$('#semesterPills').innerHTML=data.semesters.map((_,i)=>`<button type="button" class="${i===state.semester?'active':''}" data-sem="${i}">${i+1}º</button>`).join('');$$('#semesterPills button').forEach(b=>b.onclick=()=>{state.semester=Number(b.dataset.sem);safeSavePrefs();renderBoard();setTimeout(()=>scrollToSemester(state.semester),30)})}
 function renderStats(){}
 function matrixTotals(){return MATRIX_TOTALS[state.version]||{};}
 function formatNum(n){return Number(n||0).toLocaleString('pt-BR');}
@@ -1234,7 +1234,7 @@ function renderDocs(){
   const docs=currentDocs();const list=$('#docList');
   if(!docs.length){list.innerHTML='<div class="empty">Nenhum PDF vinculado.</div>';clearPdfPreview();return}
   if(state.docIndex>=docs.length) state.docIndex=0;
-  list.innerHTML=docs.map((d,i)=>`<button class="doc-btn ${i===state.docIndex?'active':''}" data-doc="${i}"><strong>${d[0]}</strong><small>${d[1].split('/').pop()}</small></button>`).join('');
+  list.innerHTML=docs.map((d,i)=>`<button type="button" class="doc-btn ${i===state.docIndex?'active':''}" data-doc="${i}"><strong>${d[0]}</strong><small>${d[1].split('/').pop()}</small></button>`).join('');
   $$('.doc-btn').forEach(b=>b.onclick=()=>{state.docIndex=Number(b.dataset.doc);clearPdfPreview();safeSavePrefs();renderDocs();requestAnimationFrame(loadPdfPreview)});
   const doc=docs[state.docIndex]||docs[0];const page=recommendedPage();const src=pdfSrc(doc[1],page);
   $('#openPdf').href=src;$('#downloadPdf').href=absoluteDocUrl(doc[1]);$('#downloadPdf').setAttribute('download',doc[1].split('/').pop());
@@ -1244,8 +1244,9 @@ function renderDocs(){
 }
 function renderAll(){renderCourses();renderVersionSelect();renderMatrixSummary();if(state.query&&state.query.trim())focusSearchResult(false);renderToolbar();renderBoard();renderDetail();if(state.view==='document')renderDocs();else clearPdfPreview();$('#kindFilter').value=state.kind;const s=$('#fluxSearchInput');if(s)s.value=state.query||''}
 $('#fluxSearchInput').addEventListener('input',e=>setFluxQuery(e.target.value,true));$('#fluxSearchInput').addEventListener('keydown',e=>{if(e.key==='Enter')setFluxQuery(e.target.value,true)});$('#fluxSearchClear').onclick=()=>{state.query='';safeSavePrefs();$('#fluxSearchInput').value='';renderBoard()};$('#kindFilter').onchange=e=>{state.kind=e.target.value;safeSavePrefs();renderBoard()};$('#interactiveBtn').onclick=()=>{state.view='interactive';safeSavePrefs();renderToolbar();renderBoard()};$('#documentBtn').onclick=()=>{state.view='document';clearPdfPreview();safeSavePrefs();renderToolbar();renderDocs();requestAnimationFrame(loadPdfPreview)};
-function syncSharedTheme(){let mode='auto';try{mode=localStorage.getItem('hubThemeMode')||'auto'}catch{}const resolved=mode==='auto'?(matchMedia('(prefers-color-scheme: light)').matches?'light':'dark'):mode;document.documentElement.dataset.theme=resolved;document.documentElement.dataset.themeMode=mode}
-syncSharedTheme();matchMedia('(prefers-color-scheme: light)').addEventListener?.('change',()=>{if((localStorage.getItem('hubThemeMode')||'auto')==='auto')syncSharedTheme()});window.addEventListener('storage',e=>{if(e.key==='hubThemeMode')syncSharedTheme()});
+function getSharedThemeMode(){try{return localStorage.getItem('hubThemeMode')||'auto'}catch{return 'auto'}}
+function syncSharedTheme(){const mode=getSharedThemeMode();const resolved=mode==='auto'?(matchMedia('(prefers-color-scheme: light)').matches?'light':'dark'):mode;document.documentElement.dataset.theme=resolved;document.documentElement.dataset.themeMode=mode}
+syncSharedTheme();matchMedia('(prefers-color-scheme: light)').addEventListener?.('change',()=>{if(getSharedThemeMode()==='auto')syncSharedTheme()});window.addEventListener('storage',e=>{if(e.key==='hubThemeMode')syncSharedTheme()});
 try {
   loadPrefs();
   renderAll();
@@ -1256,12 +1257,22 @@ try {
 } catch(error) {
   console.error('Falha ao iniciar Fluxogramas:', error);
   const main=document.querySelector('main.content');
-  if(main && !document.querySelector('.flux-load-error')) main.insertAdjacentHTML('afterbegin',`<div class="flux-load-error" role="alert"><strong>O app de Fluxogramas não conseguiu iniciar.</strong><span>${String(error?.message||error)}</span></div>`);
+  if(main && !document.querySelector('.flux-load-error')) {
+    const box=document.createElement('div');
+    const title=document.createElement('strong');
+    const detail=document.createElement('span');
+    box.className='flux-load-error';
+    box.setAttribute('role','alert');
+    title.textContent='O app de Fluxogramas não conseguiu iniciar.';
+    detail.textContent=String(error?.message||error||'Erro desconhecido.');
+    box.append(title,detail);
+    main.prepend(box);
+  }
 }
 </script>
-<script src="../../data.js?v=0.2.22"></script>
-<script src="../../js/design-system.js?v=0.2.22"></script>
-<script src="../app-shell.js?v=0.2.22"></script>
-<script src="../../js/sidebar-quick-search.js?v=0.2.22"></script>
+<script src="../../assets/build/data.d5d624533d89.js"></script>
+<script src="../../assets/build/design-system.207b345af7d9.js"></script>
+<script src="../build/app-shell.e4d3759152fc.js"></script>
+<script src="../../assets/build/sidebar-quick-search.ad3450d48011.js"></script>
 </body>
 </html>

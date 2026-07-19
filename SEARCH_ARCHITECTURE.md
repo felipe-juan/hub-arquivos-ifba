@@ -2,6 +2,93 @@
 
 O objetivo não é copiar o Paperless-ngx inteiro. O ideal é aproveitar as ideias certas e construir um fluxo menor, voltado para universidade.
 
+## Easter Egg do DOOM — v0.2.25
+
+A consulta exata `doom` é interceptada antes da busca comum e renderiza um único resultado anômalo dentro da grade. Consultas maiores, como `doom pdf`, continuam passando pela busca normal. A mesma regra vale quando a consulta da sidebar é enviada à busca principal.
+
+O clique no resultado salva a consulta, filtros e posição da página em `sessionStorage`, simula uma falha de classificação e abre a transição **ANOMALIA DETECTADA NO ACERVO**. Depois disso, `apps/doom/` apresenta um terminal de confirmação. O motor só é carregado após **INICIAR DOOM**.
+
+A página tenta os recursos nesta ordem:
+
+1. assets locais em `apps/doom/vendor/` e `apps/doom/game/`;
+2. js-dos v8.4.1 fixado e bundle público pela rede;
+3. endereço `latest` para os arquivos do motor v8;
+4. modo de compatibilidade js-dos 6.22.
+
+A área do jogo bloqueia os comandos até receber um clique explícito. Ao perder foco, a sessão libera o teclado, tenta pausar o motor e exige novo clique para retomar. O encerramento mostra o tempo da sessão e pode restaurar a busca anterior.
+
+O service worker nunca usa `offline.html` como substituto para `.js`, `.css`, `.wasm`, `.worker`, `.data` ou `.jsdos`. Requisições externas do emulador não são interceptadas pelo service worker do HUB. Os assets locais podem ser preparados com `bash scripts/vendor_doom_assets.sh`.
+
+Na v0.2.27, a descoberta fica registrada localmente apenas para reduzir a duração da animação em visitas seguintes. O gamepad touch mantém preferências de opacidade, sensibilidade, vibração e lateralidade, impede rolagem acidental durante o jogo e tenta recuperar uma falha inesperada uma única vez. O HTML inicial continua sem scripts, estilos ou bundles do js-dos; esses recursos só são injetados após **INICIAR DOOM**.
+
+
+## Tolerância, agrupamento e abertura direta — v0.2.28
+
+A busca simples normaliza acentos e pode corrigir um erro de digitação apenas quando há uma alternativa institucional claramente dominante. O vocabulário é montado com títulos, tags, tipos documentais, setores, apps, respostas curadas e `conceptMap`; texto bruto de páginas não domina a correção. Transposições contam como uma edição, permitindo casos como `matriclua` → `matrícula`. Consultas avançadas com aspas, exclusões ou operadores explícitos não são reescritas.
+
+A consulta digitada permanece na URL. Quando há correção, o motor usa a forma corrigida para pontuar e destacar, mas a interface anuncia **Resultados para “…”**, evitando uma mudança silenciosa.
+
+Cada PDF produz no máximo um resultado. O agrupamento conserva somente trechos que tiveram correspondência interna real; título, tags ou metadados podem localizar o documento, mas não criam páginas fictícias. Cards com dois ou mais trechos apresentam um `<details>` expansível e o estado aberto fica em `history.state`.
+
+Os links para `document-viewer.html` recebem `file`, `page`, `q`, `section`, `doc` e `returnTo`. O visualizador abre na página indicada, cria uma camada textual selecionável, destaca termos quando o PDF fornece texto e oferece retorno à busca com `focusDoc`. No celular, swipe muda a página somente no zoom ajustado; quando ampliado, o mesmo gesto desloca o documento. Pinch, duplo toque e toolbar inferior complementam a navegação.
+
+Skeletons são reservados a três esperas assíncronas perceptíveis: manifesto, miniatura PDF que entrou no viewport e página em renderização. Conteúdo estático embutido é exibido imediatamente.
+
+## Pipeline de desempenho — v0.2.33
+
+O build gera três representações complementares do acervo:
+
+- `documents/manifest-summary.json`: catálogo leve, sem o texto integral dos trechos, usado para cards, Diretório, filtros e metadados iniciais;
+- `documents/search-index.json`: campos normalizados, vocabulário e trechos completos, carregados somente na primeira busca textual ou quando uma passagem precisa ser hidratada;
+- `documents/manifest.json`: representação completa preservada para compatibilidade, inspeção e rotinas de manutenção.
+
+Títulos, metadados e chunks já recebem formas normalizadas e tokens durante `scripts/generate_documents_manifest.py`. `js/search-engine.js` consome esses campos prontos e só usa a normalização em tempo de execução como fallback para dados antigos.
+
+A busca principal usa `js/search-worker.js`. Antes da primeira consulta textual, o índice completo é carregado e confirmado pelo Worker. O motor executa correção, pontuação e agrupamento fora do thread principal, devolve até 160 resultados e identifica cada requisição; respostas anteriores à consulta mais recente são descartadas.
+
+A página inicial mantém somente o núcleo de navegação no carregamento imediato. Recursos de experiência, favoritos, busca lateral, monitor de desempenho, runtime PDF, Worker e índice de trechos entram após a primeira pintura ou sob demanda.
+
+Coleções com 48 itens ou mais recebem virtualização nativa por viewport com `content-visibility`, contenção e tamanho intrínseco. A renderização de Cards, linhas de busca, Diretório e acervo usa chaves e assinaturas: nós equivalentes são movidos/reutilizados, e apenas os itens cujo conteúdo mudou são substituídos.
+
+O gerador cria `thumbnailUrl` e `thumbnailSrcset` para PDFs quando PyMuPDF e Pillow estão disponíveis. São geradas larguras de 160, 320 e 520 px em WebP; a primeira página via PDF.js permanece como fallback cancelável quando a miniatura deixa o viewport.
+
+O visualizador PDF faz uma renderização de baixa resolução para resposta rápida e depois a troca por um canvas nítido produzido fora da tela. Mudança de página ou zoom cancela as duas tarefas obsoletas. LRU separadas guardam até cinco objetos de página/texto e três bitmaps renderizados, liberados ao sair.
+
+`scripts/build_production_assets.py` cria cópias de JavaScript e CSS com hash de conteúdo em `assets/build/` e `apps/build/`, reescreve referências em HTML, imports dinâmicos, Worker e `service-worker.js`, e registra o mapeamento em `assets/build-manifest.json`. Arquivos com hash podem usar cache anual `immutable`; HTML, `VERSION` e os índices continuam revalidados.
+
+O service worker separa caches de shell, metadados, imagens, documentos e runtime. Metadados usam stale-while-revalidate; navegações e PDFs usam network-first com fallback; assets executáveis com hash e miniaturas usam cache-first. O índice pesado, runtime PDF e recursos do emulador não pertencem ao precache inicial.
+
+`performance-budget.json` fixa tamanhos bruto/gzip/Brotli, quantidade de requisições, arquitetura dos índices, limiares de virtualização, caches e tempos de busca. `scripts/benchmark_search.cjs` mede 320 documentos e 2.240 trechos. O CI reconstrói os assets com hash, verifica determinismo e falha quando qualquer orçamento é ultrapassado.
+
+Para medições reais, `?perf=1` ativa um painel local descrito em `PERFORMANCE_DEVICE_TESTING.md`. Para hospedagem, `scripts/verify_production_host.py --url https://...` valida compressão e cabeçalhos no endereço efetivamente publicado.
+
+## URL compartilhável e histórico de busca — v0.2.27
+
+A consulta principal permanece no endereço, por exemplo `?q=calendario+academico`. Filtros diferentes de `all` também recebem parâmetros próprios. A URL contém apenas o estado que faz sentido compartilhar; detalhes transitórios permanecem em `history.state`.
+
+Cada entrada de navegação pode restaurar:
+
+- consulta e filtros;
+- visualização Cards ou Diretório;
+- ordenação, quantidade de linhas e página do Diretório;
+- índice do resultado selecionado;
+- documento e página abertos na prévia;
+- posição vertical da página.
+
+Digitação contínua cria uma única entrada de busca e passa a atualizá-la com `replaceState`; submissões, sugestões e pesquisas salvas criam entradas deliberadas com `pushState`. O evento `popstate` recalcula a lista a partir da fonte atual e reabre a prévia quando necessário, em vez de armazenar HTML de resultados no histórico.
+
+## Estado vazio contextual — v0.2.27
+
+Quando a busca não encontra correspondências, a interface repete a consulta de modo seguro e oferece até três pesquisas relacionadas. Regras institucionais específicas são priorizadas e, na ausência delas, o sistema utiliza sugestões curadas por proximidade lexical. Cada sugestão executa uma nova busca navegável e compartilhável.
+
+## Atalhos globais — v0.2.27
+
+Em desktop, `/` foca a busca principal; `Ctrl/Cmd + K` abre a busca rápida da sidebar; `Esc` fecha a prévia ou limpa a consulta; `↑` e `↓` selecionam resultados; `Enter` abre o selecionado. Os atalhos não interferem em `input`, `textarea`, `select` ou elementos editáveis.
+
+## Orçamento de desempenho — v0.2.33
+
+`performance-budget.json` é a fonte dos limites da página inicial. `scripts/check_performance_budget.py` mede tamanhos bruto, gzip e Brotli, estima requisições, valida a divisão de módulos, miniaturas, caches do visualizador e isolamento do emulador, e executa o benchmark de busca. A validação falha quando um limite é ultrapassado.
+
 ## Princípio
 
 A IA não deve ser a autoridade. A autoridade é o documento oficial.
@@ -65,7 +152,7 @@ Use Paperless-ngx como inspiração principalmente para:
 
 Não vale a pena copiar o código inteiro para este projeto, porque o escopo é diferente: Paperless-ngx é um gerenciador completo de documentos pessoais/administrativos; este hub é um buscador acadêmico público e verificado.
 
-## Independência dos campos de busca — v0.2.22
+## Independência dos campos de busca — v0.2.23
 
 A busca rápida da sidebar e a busca detalhada do Acervo não espelham texto durante a digitação. Cada campo mantém seu próprio valor. A consulta lateral só é transferida para o campo principal quando o usuário pressiona Enter, toca na lupa ou escolhe **Pesquisar no Acervo**. Depois da transferência, o campo lateral é limpo.
 
