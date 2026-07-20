@@ -73,7 +73,7 @@ const HUB_PREF_KEYS = {
 const LINKS_ORDER_STORAGE_KEY = "hubLinksCustomOrderV1";
 const SAVED_SEARCHES_STORAGE_KEY = "hubSavedSearchesV1";
 const DOOM_RETURN_CONTEXT_KEY = "hubDoomReturnContextV1";
-const DOOM_DISCOVERED_KEY = "hubDoomDiscoveredV1";
+const DOOM_LAUNCH_GRANT_KEY = "hubDoomLaunchGrantV1";
 const SEARCH_HISTORY_MARKER = "hubSearchNavigationV1";
 const SEARCH_FILTER_IDS = Object.freeze({
   type: "typeFilter",
@@ -2899,31 +2899,39 @@ function doomAnomalyOverlay() {
   return overlay;
 }
 
+function issueDoomLaunchGrant() {
+  const issuedAt = Date.now();
+  const randomPart = globalThis.crypto?.getRandomValues
+    ? [...globalThis.crypto.getRandomValues(new Uint32Array(2))].map(value => value.toString(36)).join("")
+    : Math.random().toString(36).slice(2);
+  const token = `${issuedAt.toString(36)}-${randomPart}`;
+  const grant = {
+    source: "search-result",
+    issuedAt,
+    token,
+  };
+  try { sessionStorage.setItem(DOOM_LAUNCH_GRANT_KEY, JSON.stringify(grant)); } catch (_) {}
+  return token;
+}
+
 let doomLaunchInProgress = false;
 function launchDoomEasterEgg(trigger = null) {
   if (doomLaunchInProgress) return;
   doomLaunchInProgress = true;
   saveDoomReturnContext();
-  let discoveredBefore = false;
-  try {
-    discoveredBefore = localStorage.getItem(DOOM_DISCOVERED_KEY) === "1";
-    localStorage.setItem(DOOM_DISCOVERED_KEY, "1");
-  } catch (_) {}
+  const launchGrant = issueDoomLaunchGrant();
   playDoomAnomalySound();
 
   const card = trigger?.closest?.(".doom-secret-result");
   card?.classList.add("is-corrupted");
   const summary = document.getElementById("resultsSummary");
-  if (summary) summary.textContent = discoveredBefore
-    ? "Subsistema experimental reconhecido."
-    : "Falha de leitura: o item não corresponde a nenhum formato acadêmico conhecido.";
+  if (summary) summary.textContent = "Falha de leitura: o item não corresponde a nenhum formato acadêmico conhecido.";
 
   const reducedMotion = matchMedia("(prefers-reduced-motion: reduce)").matches;
-  const overlayDelay = reducedMotion ? 30 : (discoveredBefore ? 80 : 260);
-  const navigationDelay = reducedMotion ? 360 : (discoveredBefore ? 720 : 1650);
-  const statusDelay = reducedMotion ? 140 : (discoveredBefore ? 300 : 980);
+  const overlayDelay = reducedMotion ? 30 : 260;
+  const navigationDelay = reducedMotion ? 360 : 1650;
+  const statusDelay = reducedMotion ? 140 : 980;
   const overlay = doomAnomalyOverlay();
-  overlay.classList.toggle("is-returning", discoveredBefore);
 
   window.setTimeout(() => {
     overlay.hidden = false;
@@ -2933,12 +2941,15 @@ function launchDoomEasterEgg(trigger = null) {
 
   window.setTimeout(() => {
     const status = document.getElementById("doomAnomalyStatus");
-    if (status) status.textContent = discoveredBefore
-      ? "Subsistema reconhecido. Transferindo controle…"
-      : "Subsistema localizado. Transferindo controle…";
+    if (status) status.textContent = "Subsistema localizado. Transferindo controle…";
   }, statusDelay);
 
-  window.setTimeout(() => window.location.assign("apps/doom/?from=hub"), navigationDelay);
+  window.setTimeout(() => {
+    const target = new URL("apps/doom/", location.href);
+    target.searchParams.set("from", "hub");
+    target.searchParams.set("grant", launchGrant);
+    window.location.assign(target.href);
+  }, navigationDelay);
 }
 
 function setupDoomEasterEgg() {
@@ -5069,7 +5080,7 @@ function loadDeferredFeatureScripts() {
     "assets/build/enhancements.9aaad1d9bf82.js",
     "assets/build/experience.63cf70eebb8d.js",
     "assets/build/sidebar-quick-search.f0e1ed1ead1c.js",
-    "assets/build/performance-monitor.6d332267abb1.js"
+    "assets/build/performance-monitor.b8ff8c13a974.js"
   ];
   const load = src => new Promise(resolve => {
     if (document.querySelector(`script[src="${src}"]`)) { resolve(); return; }

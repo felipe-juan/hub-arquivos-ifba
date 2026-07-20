@@ -4172,8 +4172,6 @@ body.doom-anomaly-open{overflow:hidden}
 .search-empty-suggestions{display:flex;flex-wrap:wrap;gap:.5rem;margin:0;padding:0;list-style:none}
 .search-empty-suggestions button{min-height:36px;padding:.48rem .75rem;border:1px solid rgba(53,230,168,.28);border-radius:999px;background:rgba(53,230,168,.08);color:var(--text);font-weight:750}
 .search-empty-suggestions button:hover,.search-empty-suggestions button:focus-visible{border-color:rgba(53,230,168,.58);background:rgba(53,230,168,.15)}
-.doom-anomaly-overlay.is-returning .doom-anomaly-progress span{animation-duration:.48s;animation-delay:.04s}
-.doom-anomaly-overlay.is-returning .doom-anomaly-panel>small{display:none}
 
 /* v0.2.31 — destinos internos do sidebar não ficam sob a barra móvel. */
 .media-final-app,

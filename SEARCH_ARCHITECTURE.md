@@ -34,7 +34,7 @@ Os links para `document-viewer.html` recebem `file`, `page`, `q`, `section`, `do
 
 Skeletons são reservados a três esperas assíncronas perceptíveis: manifesto, miniatura PDF que entrou no viewport e página em renderização. Conteúdo estático embutido é exibido imediatamente.
 
-## Pipeline de desempenho — v0.2.36
+## Pipeline de desempenho — v0.2.37
 
 O build gera três representações complementares do acervo:
 
@@ -85,7 +85,7 @@ Quando a busca não encontra correspondências, a interface repete a consulta de
 
 Em desktop, `/` foca a busca principal; `Ctrl/Cmd + K` abre a busca rápida da sidebar; `Esc` fecha a prévia ou limpa a consulta; `↑` e `↓` selecionam resultados; `Enter` abre o selecionado. Os atalhos não interferem em `input`, `textarea`, `select` ou elementos editáveis.
 
-## Orçamento de desempenho — v0.2.36
+## Orçamento de desempenho — v0.2.37
 
 `performance-budget.json` é a fonte dos limites da página inicial. `scripts/check_performance_budget.py` mede tamanhos bruto, gzip e Brotli, estima requisições, valida a divisão de módulos, miniaturas, caches do visualizador e isolamento do emulador, e executa o benchmark de busca. A validação falha quando um limite é ultrapassado.
 

@@ -1,5 +1,5 @@
 "use strict";
-importScripts("search-engine.js?v=0.2.36");
+importScripts("search-engine.js?v=0.2.37");
 let engine = new self.HubSearchEngine();
 self.onmessage = event => {
   const message = event.data || {};

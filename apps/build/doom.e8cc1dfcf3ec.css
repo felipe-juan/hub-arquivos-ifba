@@ -149,6 +149,7 @@ html[data-doom-input="touch"] .doom-stage{touch-action:none;overscroll-behavior:
 .doom-touch-controls[data-ready="true"] .doom-touch-hud-state span{background:#35e6a8;box-shadow:0 0 0 3px rgba(53,230,168,.14)}
 .doom-touch-controls[data-ready="false"] .doom-touch-left,.doom-touch-controls[data-ready="false"] .doom-touch-actions,.doom-touch-controls[data-ready="false"] .doom-look-zone{opacity:.58}
 .doom-touch-controls[data-ready="false"] .doom-touch-hud-state strong::after{content:" · CARREGANDO"}
+html[data-doom-input="touch"] #doomPlayer [class*="nipple"],html[data-doom-input="touch"] #doomPlayer [class*="joystick"],html[data-doom-input="touch"] #doomPlayer [class*="mobile-control"],html[data-doom-input="touch"] #doomPlayer [class*="virtual-control"]{display:none!important}
 
 .doom-touch-left{display:grid;justify-items:start;align-items:end;gap:10px;width:min-content}
 .doom-joystick{position:relative;width:clamp(126px,24vw,180px);aspect-ratio:1;border:1px solid rgba(255,255,255,.24);border-radius:50%;background:radial-gradient(circle,rgba(255,255,255,.12) 0 27%,rgba(0,0,0,.22) 28% 53%,rgba(255,255,255,.07) 54% 56%,rgba(0,0,0,.38) 57%);box-shadow:inset 0 0 28px rgba(0,0,0,.5),0 12px 30px rgba(0,0,0,.28);touch-action:none;backdrop-filter:blur(4px)}
@@ -163,7 +164,7 @@ html[data-doom-input="touch"] .doom-stage{touch-action:none;overscroll-behavior:
 .doom-joystick-mark--left{left:8%;top:50%;transform:translateY(-50%)}
 
 .doom-touch-utility{display:flex;justify-content:center;gap:8px;width:100%}
-.doom-touch-actions{justify-self:end;display:grid;grid-template-columns:minmax(68px,.82fr) minmax(82px,1fr);grid-template-rows:repeat(2,minmax(64px,1fr));gap:10px;width:min(42vw,260px)}
+.doom-touch-actions{justify-self:end;display:grid;grid-template-columns:repeat(3,minmax(62px,1fr));grid-template-rows:repeat(2,minmax(64px,1fr));gap:10px;width:min(48vw,310px)}
 .doom-touch-button{display:grid;place-content:center;justify-items:center;gap:3px;min-width:64px;min-height:64px;padding:8px;border:1px solid rgba(255,255,255,.27);border-radius:22px;background:linear-gradient(180deg,rgba(37,52,65,.88),rgba(9,17,25,.9));color:#fff;box-shadow:inset 0 1px rgba(255,255,255,.13),0 7px 0 rgba(0,0,0,.34),0 12px 22px rgba(0,0,0,.3);font:800 .82rem/1 Inter,ui-sans-serif,system-ui,sans-serif;touch-action:none;-webkit-tap-highlight-color:transparent;-webkit-user-select:none;user-select:none}
 .doom-touch-button span{font-size:clamp(1.05rem,4vw,1.55rem);line-height:1}
 .doom-touch-button small{font:900 clamp(.56rem,1.8vw,.72rem)/1 Inter,ui-sans-serif,system-ui,sans-serif;letter-spacing:.055em}
@@ -171,8 +172,10 @@ html[data-doom-input="touch"] .doom-stage{touch-action:none;overscroll-behavior:
 .doom-touch-button--small{min-width:54px;min-height:42px;padding:6px 10px;border-radius:14px;box-shadow:inset 0 1px rgba(255,255,255,.12),0 4px 0 rgba(0,0,0,.34),0 8px 16px rgba(0,0,0,.22)}
 .doom-touch-button--small span{font-size:1rem}
 .doom-touch-button--modifier{min-height:56px;border-radius:17px;background:linear-gradient(180deg,rgba(48,59,73,.82),rgba(17,24,33,.88))}
+.doom-touch-button--confirm{border-color:rgba(53,230,168,.58);background:linear-gradient(180deg,rgba(28,130,100,.95),rgba(8,70,57,.96))}
 .doom-touch-button--use{background:linear-gradient(180deg,rgba(117,83,34,.92),rgba(55,37,16,.94))}
 .doom-touch-button--fire{border-color:rgba(255,130,112,.58);background:radial-gradient(circle at 45% 35%,rgba(255,138,118,.96),rgba(164,35,27,.96) 52%,rgba(74,12,10,.98));box-shadow:inset 0 1px rgba(255,255,255,.22),0 7px 0 rgba(64,5,5,.72),0 12px 28px rgba(0,0,0,.38)}
+.doom-touch-button--fire{grid-column:2 / span 2}
 .doom-touch-button--fire span{font-size:clamp(1.3rem,5vw,2rem)}
 
 .doom-landscape-hint{position:absolute;top:max(10px,env(safe-area-inset-top));left:50%;z-index:35;display:flex;align-items:center;gap:8px;max-width:min(92%,560px);padding:8px 9px 8px 13px;border:1px solid rgba(255,255,255,.19);border-radius:999px;background:rgba(5,12,18,.9);color:#eaf5fb;box-shadow:0 12px 28px rgba(0,0,0,.3);font-size:.76rem;transform:translateX(-50%);backdrop-filter:blur(8px)}
@@ -217,8 +220,9 @@ html[data-doom-input="touch"] .doom-page-card.is-soft-fullscreen #doomExit::befo
   html[data-doom-input="touch"] .doom-touch-controls{grid-template-columns:minmax(122px,1fr) minmax(148px,1fr);gap:8px;padding:10px;padding-right:max(10px,env(safe-area-inset-right));padding-bottom:max(10px,env(safe-area-inset-bottom));padding-left:max(10px,env(safe-area-inset-left))}
   html[data-doom-input="touch"] .doom-joystick{width:clamp(120px,37vw,158px)}
   html[data-doom-input="touch"] .doom-look-zone{left:36%;top:5%}
+  html[data-doom-handedness="left"] .doom-look-zone{left:0;right:36%}
   html[data-doom-input="touch"] .doom-touch-hud-state{bottom:max(5px,env(safe-area-inset-bottom))}
-  html[data-doom-input="touch"] .doom-touch-actions{grid-template-columns:minmax(60px,.82fr) minmax(70px,1fr);grid-template-rows:repeat(2,minmax(58px,1fr));gap:8px;width:min(42vw,210px)}
+  html[data-doom-input="touch"] .doom-touch-actions{grid-template-columns:repeat(3,minmax(54px,1fr));grid-template-rows:repeat(2,minmax(58px,1fr));gap:8px;width:min(52vw,250px)}
   html[data-doom-input="touch"] .doom-touch-button{min-width:58px;min-height:58px;border-radius:19px}
   html[data-doom-input="touch"] .doom-touch-button--modifier{min-height:52px}
   html[data-doom-input="touch"] .doom-landscape-hint{top:8px;max-width:calc(100% - 16px);border-radius:14px}
@@ -240,6 +244,8 @@ html[data-doom-input="touch"] .doom-page-card.is-soft-fullscreen #doomExit::befo
   html[data-doom-input="touch"] .doom-look-zone{left:43%;top:0}
   html[data-doom-input="touch"] .doom-touch-hud-state{display:none}
   html[data-doom-input="touch"] .doom-touch-utility{position:absolute;left:calc(100% + 8px);bottom:0;width:auto;flex-direction:column}
+  html[data-doom-handedness="left"] .doom-touch-utility{left:auto;right:calc(100% + 8px)}
+  html[data-doom-handedness="left"] .doom-look-zone{left:0;right:43%}
   html[data-doom-input="touch"] .doom-touch-button--small{min-width:46px;min-height:36px;padding:5px 8px}
   html[data-doom-input="touch"] .doom-touch-actions{width:min(34vw,220px);grid-template-rows:repeat(2,minmax(52px,1fr))}
   html[data-doom-input="touch"] .doom-touch-button{min-height:52px}
@@ -257,6 +263,7 @@ html[data-doom-input="touch"] body{overscroll-behavior:none}
 html[data-doom-handedness="left"] .doom-touch-left{grid-column:2;grid-row:1;justify-self:end;justify-items:end}
 html[data-doom-handedness="left"] .doom-touch-actions{grid-column:1;grid-row:1;justify-self:start}
 html[data-doom-handedness="left"] .doom-touch-utility{justify-content:flex-end}
+html[data-doom-handedness="left"] .doom-look-zone{left:0;right:42%}
 
 .doom-touch-settings{position:absolute;top:max(12px,env(safe-area-inset-top));right:max(12px,env(safe-area-inset-right));z-index:55;display:grid;gap:14px;width:min(360px,calc(100% - 24px));padding:15px;border:1px solid rgba(255,255,255,.2);border-radius:16px;background:rgba(5,12,18,.96);color:#eef9ff;box-shadow:0 18px 48px rgba(0,0,0,.5);backdrop-filter:blur(12px);touch-action:pan-y}
 .doom-touch-settings header{display:flex;align-items:center;justify-content:space-between;gap:12px}

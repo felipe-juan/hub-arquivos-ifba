@@ -9,9 +9,9 @@ O projeto deve ser tratado como uma ferramenta experimental de apoio. Para decis
 
 ## Versão atual
 
-**v0.2.36**
+**v0.2.37**
 
-Esta versão corrige a largura do seletor **Rápida / Detalhada** na seção Links. No desktop, o contêiner acompanha apenas a largura real dos dois botões, sem criar espaço vazio quando a janela está muito ampla ou o navegador usa zoom reduzido. Os demais controles continuam alinhados na mesma fileira.
+Esta versão revisa integralmente os controles móveis do DOOM. O HUD customizado passa a ser o único controle virtual exibido, recebe um botão **OK** para confirmar opções dos menus, só é liberado quando a interface de comandos do emulador está pronta e limpa corretamente toques interrompidos. O Easter Egg volta a exigir, em toda nova abertura, a pesquisa por `doom` e a seleção do resultado oculto.
 
 ## Sobre o projeto
 
@@ -119,6 +119,20 @@ O comportamento exato depende das políticas de cache e armazenamento do navegad
 
 
 
+
+## Alterações da v0.2.37
+
+- Desativados os controles virtuais nativos presentes no bundle do js-dos, evitando joystick e botões duplicados sob o HUD do HUB.
+- O player v8 agora usa modo kiosk, escala nativa de controles zerada e configuração de camadas móveis vazia.
+- O HUD customizado só entra no estado pronto após o evento `ci-ready`, quando a `CommandInterface` realmente pode receber teclas.
+- Adicionado botão **OK**, mapeado para Enter, para abrir o menu inicial e confirmar opções dentro do DOOM.
+- O joystick continua usando cima/baixo para navegar nos menus; **MENU** envia Esc para voltar.
+- Corrigida a limpeza de ponteiros dos botões mantidos pressionados quando a aba perde foco, evitando botões visualmente presos.
+- Corrigido o posicionamento de MENU/ARMA e da área de visão no modo canhoto em orientação horizontal.
+- O WASD exibido no painel desktop agora é funcional: W/A/S/D são convertidos para os comandos direcionais do DOOM.
+- Removida a memória permanente de descoberta do Easter Egg. Cada nova abertura exige pesquisar `doom`, selecionar o resultado oculto e passar pela transição.
+- A página do jogo aceita apenas uma autorização temporária emitida pelo resultado da busca; acesso direto ou recarga posterior volta para a pesquisa.
+- Atualizados testes de regressão, validação estrutural, versão, cache e assets com hash.
 
 ## Alterações da v0.2.36
 

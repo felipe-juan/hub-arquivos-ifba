@@ -173,8 +173,16 @@ if "data-doom-launch" not in index_text and "data-doom-launch" not in (ROOT / "a
     errors.append("Resultado falso do DOOM não possui ação de abertura")
 if 'data-doom-hold="fire"' not in doom_index or 'data-doom-hold="strafe"' not in doom_index:
     errors.append("Botões multitouch essenciais do DOOM ausentes")
-if 'kiosk: mobileInput' not in doom_js:
-    errors.append("Modo kiosk móvel do js-dos ausente")
+if 'data-doom-tap="confirm"' not in doom_index or 'confirm: 257' not in doom_js:
+    errors.append("Botão OK/Enter do menu móvel do DOOM ausente")
+if doom_index.count('id="doomJoystick"') != 1:
+    errors.append("O DOOM deve declarar exatamente um joystick customizado")
+if 'kiosk: true' not in doom_js or 'layers: []' not in doom_js or 'scaleControls: 0' not in doom_js:
+    errors.append("Controles virtuais nativos do js-dos não foram desativados")
+if 'hubDoomLaunchGrantV1' not in doom_js or 'hubDoomLaunchGrantV1' not in (ROOT / "app.js").read_text(encoding="utf-8"):
+    errors.append("Fluxo obrigatório busca → resultado → DOOM está ausente")
+if 'hubDoomDiscoveredV1' in (ROOT / "app.js").read_text(encoding="utf-8"):
+    errors.append("O DOOM não deve lembrar descoberta anterior para encurtar o acesso")
 for token in (
     "hubDoomReturnContextV1", "visibilitychange", "requestFullscreen", "showProductivitySummary",
     "sendKeyEvent", "simulateKeyEvent", "maxTouchPoints", "screen.orientation", "releaseAllTouchControls",
@@ -193,7 +201,7 @@ if release_version and f'**v{release_version}**' not in (ROOT / "README.md").rea
 for token in (
     "buildShareableSearchUrl", "SEARCH_HISTORY_MARKER", "popstate", "selectedResultIndex",
     "previewDocId", "scrollY", "routeHash", "setupInternalAnchorNavigation", "navigateToLocalAnchor",
-    "emptySearchSuggestions", "data-empty-suggest", "hubDoomDiscoveredV1",
+    "emptySearchSuggestions", "data-empty-suggest", "hubDoomLaunchGrantV1",
     'event.key === "/"', 'event.key === "Escape"', 'event.key === "ArrowDown"',
 ):
     if token not in app_text:

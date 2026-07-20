@@ -24,6 +24,8 @@
   };
 
   const RETURN_CONTEXT_KEY = "hubDoomReturnContextV1";
+  const LAUNCH_GRANT_KEY = "hubDoomLaunchGrantV1";
+  const LAUNCH_GRANT_TTL_MS = 60_000;
   const TOUCH_PREFS_KEY = "hubDoomTouchPreferencesV1";
   const LEGACY_PATTERN = /doom|js-?dos|dosbox|emulators-ui/i;
   const DEFAULT_TOUCH_PREFS = Object.freeze({
@@ -59,10 +61,13 @@
   let recoveryInProgress = false;
   let currentStartRecovery = false;
   let recoveryToastTimer = 0;
+  const desktopMappedKeys = new Map();
 
   const actionSources = new Map();
+  const holdButtonSources = new Map();
   const V8_KEY_CODES = Object.freeze({
     menu: 256,
+    confirm: 257,
     right: 262,
     left: 263,
     down: 264,
@@ -74,6 +79,7 @@
   });
   const V6_KEY_CODES = Object.freeze({
     menu: 27,
+    confirm: 13,
     right: 39,
     left: 37,
     down: 40,
@@ -85,6 +91,7 @@
   });
   const BROWSER_KEY_CODES = Object.freeze({
     [V8_KEY_CODES.menu]: V6_KEY_CODES.menu,
+    [V8_KEY_CODES.confirm]: V6_KEY_CODES.confirm,
     [V8_KEY_CODES.right]: V6_KEY_CODES.right,
     [V8_KEY_CODES.left]: V6_KEY_CODES.left,
     [V8_KEY_CODES.down]: V6_KEY_CODES.down,
@@ -98,6 +105,7 @@
     16: ["Shift", "ShiftLeft"],
     17: ["Control", "ControlLeft"],
     18: ["Alt", "AltLeft"],
+    13: ["Enter", "Enter"],
     27: ["Escape", "Escape"],
     32: [" ", "Space"],
     37: ["ArrowLeft", "ArrowLeft"],
@@ -108,6 +116,50 @@
 
   const byId = id => document.getElementById(id);
   const clamp = (value, min, max) => Math.min(max, Math.max(min, Number(value) || min));
+  const DESKTOP_KEY_ACTIONS = Object.freeze({
+    KeyW: "up",
+    KeyA: "left",
+    KeyS: "down",
+    KeyD: "right",
+  });
+
+  function consumeHubLaunchGrant() {
+    const params = new URLSearchParams(location.search);
+    const token = String(params.get("grant") || "");
+    if (params.get("from") !== "hub" || !/^[a-z0-9]+-[a-z0-9]+$/i.test(token)) return false;
+
+    let storedGrant = null;
+    try {
+      const raw = sessionStorage.getItem(LAUNCH_GRANT_KEY);
+      sessionStorage.removeItem(LAUNCH_GRANT_KEY);
+      storedGrant = JSON.parse(raw || "null");
+    } catch (_) {}
+
+    const issuedAtFromToken = Number.parseInt(token.split("-", 1)[0], 36);
+    const issuedAt = Number(storedGrant?.issuedAt || issuedAtFromToken || 0);
+    const age = Date.now() - issuedAt;
+    const storageMatches = !storedGrant || (
+      storedGrant.source === "search-result"
+      && storedGrant.token === token
+    );
+    return storageMatches && age >= 0 && age <= LAUNCH_GRANT_TTL_MS;
+  }
+
+  function returnToDoomSearch() {
+    const url = new URL("../../", location.href);
+    url.searchParams.set("q", "doom");
+    url.hash = "buscar";
+    location.replace(url.href);
+  }
+
+  function clearLaunchParameters() {
+    try {
+      const url = new URL(location.href);
+      url.searchParams.delete("from");
+      url.searchParams.delete("grant");
+      history.replaceState(history.state, "", `${url.pathname}${url.search}${url.hash}`);
+    } catch (_) {}
+  }
 
   function loadTouchPreferences() {
     try {
@@ -379,7 +431,7 @@
   }
 
   function markPlayerReady(generation = runGeneration) {
-    if (generation !== runGeneration || playerReady) return;
+    if (generation !== runGeneration || playerReady || !commandInterface) return;
     window.clearTimeout(startupTimer);
     playerReady = true;
     controlsActive = mobileInput;
@@ -560,6 +612,7 @@
     stoppingPlayer = true;
     window.clearTimeout(startupTimer);
     releaseAllTouchControls();
+    releaseDesktopMappedKeys();
     const cancel = startupCancel;
     startupCancel = null;
     try {
@@ -638,6 +691,7 @@
         return true;
       }
     } catch (_) {}
+    if (mobileInput) return false;
     return fallbackKeyboardEvent(keyCode, pressed);
   }
 
@@ -680,11 +734,37 @@
     }
   }
 
+  function releaseDesktopMappedKeys() {
+    for (const [code, action] of desktopMappedKeys) {
+      sendActionEvent(action, false);
+      desktopMappedKeys.delete(code);
+    }
+  }
+
+  function handleDesktopMappedKey(event) {
+    if (mobileInput || !playerReady || !controlsActive || event.metaKey || event.ctrlKey || event.altKey) return false;
+    const action = DESKTOP_KEY_ACTIONS[event.code];
+    if (!action) return false;
+    event.preventDefault();
+    event.stopImmediatePropagation();
+    if (event.type === "keydown") {
+      if (!event.repeat && !desktopMappedKeys.has(event.code)) {
+        desktopMappedKeys.set(event.code, action);
+        sendActionEvent(action, true);
+      }
+    } else if (desktopMappedKeys.has(event.code)) {
+      desktopMappedKeys.delete(event.code);
+      sendActionEvent(action, false);
+    }
+    return true;
+  }
+
   function releaseAllTouchControls() {
     for (const action of [...actionSources.keys()]) {
       sendActionEvent(action, false);
     }
     actionSources.clear();
+    for (const sources of holdButtonSources.values()) sources.clear();
     joystickActions.clear();
     joystickPointerId = null;
     if (lookAction) releaseAction(lookAction, "look-zone");
@@ -795,6 +875,7 @@
     document.querySelectorAll("[data-doom-hold]").forEach(button => {
       const action = button.dataset.doomHold;
       const sources = new Map();
+      holdButtonSources.set(button, sources);
       button.addEventListener("pointerdown", event => {
         if (!mobileInput || !playerReady || !controlsActive) return;
         event.preventDefault();
@@ -980,6 +1061,7 @@
     if (!playerReady) return;
     setTouchSettingsOpen(false);
     releaseAllTouchControls();
+    releaseDesktopMappedKeys();
     controlsActive = false;
     pauseSessionClock();
     byId("doomStage")?.classList.remove("is-keyboard-active", "is-touch-active");
@@ -1014,67 +1096,81 @@
       { url: REMOTE_LATEST.script, pathPrefix: REMOTE_LATEST.emulators, local: false },
     ]);
     if (generation !== runGeneration) throw cancelledError();
-
     if (typeof window.Dos !== "function") throw new Error("O emulador v8 não foi carregado.");
 
     const player = byId("doomPlayer");
     activeEngine = "v8";
-    playerProps = window.Dos(player, {
-      url: bundleUrl,
-      pathPrefix: engine.pathPrefix,
-      autoStart: true,
-      autoSave: false,
-      kiosk: mobileInput,
-      thinSidebar: mobileInput,
-      imageRendering: "pixelated",
-      renderAspect: "Fit",
-      onEvent: (event, ci) => {
-        const eventName = typeof event === "string" ? event : String(event?.type || event?.name || "");
-        if (eventName === "ci-ready" && generation === runGeneration) {
-          commandInterface = ci || null;
-          markPlayerReady(generation);
-          return;
-        }
-        if (/^(?:error|crash)$/i.test(eventName) && generation === runGeneration && playerReady && !stoppingPlayer) {
-          recoverDoomSession(`Evento do player: ${eventName}`);
-        }
-      },
-    });
-    playerProps?.setNoCloud?.(true);
-    playerProps?.setAutoStart?.(true);
-    playerProps?.setKiosk?.(mobileInput);
-    playerProps?.setThinSidebar?.(mobileInput);
-
-    await new Promise((resolve, reject) => {
+    let attemptActive = true;
+    let completeReady = null;
+    let failReady = null;
+    const readyPromise = new Promise((resolve, reject) => {
       let settled = false;
-      let observer = null;
       const finish = (handler, value) => {
         if (settled) return;
         settled = true;
+        attemptActive = false;
         window.clearTimeout(startupTimer);
-        observer?.disconnect();
         if (startupCancel === cancel) startupCancel = null;
         handler(value);
       };
       const cancel = () => finish(reject, cancelledError());
       startupCancel = cancel;
+      completeReady = ci => {
+        if (!attemptActive || generation !== runGeneration || activeEngine !== "v8" || !ci) return;
+        commandInterface = ci;
+        markPlayerReady(generation);
+        finish(resolve);
+      };
+      failReady = error => finish(reject, error);
       startupTimer = window.setTimeout(() => {
-        const canvas = player?.querySelector("canvas");
-        if (canvas && generation === runGeneration) {
-          markPlayerReady(generation);
-          finish(resolve);
-        } else {
-          finish(reject, new Error("O player v8 não concluiu a inicialização."));
-        }
+        failReady(new Error("O player v8 abriu a tela, mas não entregou a interface de controles."));
       }, 35000);
-      observer = new MutationObserver(() => {
-        if (player?.querySelector("canvas") && generation === runGeneration) {
-          markPlayerReady(generation);
-          finish(resolve);
-        }
-      });
-      observer.observe(player, { childList: true, subtree: true });
     });
+
+    try {
+      playerProps = window.Dos(player, {
+        url: bundleUrl,
+        pathPrefix: engine.pathPrefix,
+        autoStart: true,
+        autoSave: false,
+        kiosk: true,
+        thinSidebar: true,
+        scaleControls: 0,
+        softKeyboardLayout: [],
+        jsdosConf: {
+          layersConfig: {
+            version: 2,
+            layers: [],
+          },
+        },
+        imageRendering: "pixelated",
+        renderAspect: "Fit",
+        onEvent: (event, ci) => {
+          const eventName = typeof event === "string" ? event : String(event?.type || event?.name || "");
+          if (eventName === "ci-ready") {
+            completeReady?.(ci || null);
+            return;
+          }
+          if (eventName === "emu-ready" && attemptActive) {
+            showLoading("Tela do emulador pronta; conectando os controles do jogo.");
+            return;
+          }
+          if (/^(?:error|crash)$/i.test(eventName) && generation === runGeneration && playerReady && !stoppingPlayer) {
+            recoverDoomSession(`Evento do player: ${eventName}`);
+          }
+        },
+      });
+      playerProps?.setNoCloud?.(true);
+      playerProps?.setAutoStart?.(true);
+      playerProps?.setKiosk?.(true);
+      playerProps?.setThinSidebar?.(true);
+      playerProps?.setScaleControls?.(0);
+      playerProps?.setSoftKeyboardLayout?.([]);
+    } catch (error) {
+      failReady?.(error);
+    }
+
+    await readyPromise;
   }
 
   async function startV6(bundleUrl, generation) {
@@ -1299,7 +1395,11 @@
   function guardInactiveKeyboard(event) {
     if (mobileInput) return;
     const gameVisible = byId("doomGameShell") && !byId("doomGameShell").hidden;
-    if (!gameVisible || !playerReady || controlsActive) return;
+    if (!gameVisible || !playerReady) return;
+    if (controlsActive) {
+      handleDesktopMappedKey(event);
+      return;
+    }
     const interactive = event.target?.closest?.("button, a, input, select, textarea, [contenteditable='true']");
     if (event.key === "Tab" || event.metaKey) return;
     if ((event.ctrlKey || event.altKey) && !["Control", "Alt", "AltGraph"].includes(event.key)) return;
@@ -1397,6 +1497,11 @@
   }
 
   window.addEventListener("DOMContentLoaded", () => {
+    if (!consumeHubLaunchGrant()) {
+      returnToDoomSearch();
+      return;
+    }
+    clearLaunchParameters();
     setupTouchPreferences();
     applyInputMode();
     setView("terminal");
