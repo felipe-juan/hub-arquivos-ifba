@@ -9,9 +9,9 @@ O projeto deve ser tratado como uma ferramenta experimental de apoio. Para decis
 
 ## Versão atual
 
-**v0.2.33**
+**v0.2.36**
 
-Esta versão é uma revisão corretiva ampla. Ela repara imports do build de produção, links públicos de documentos, desempenho e ciclo de vida da busca, memória do PDF, cache do service worker, retorno do visualizador, atualização do site, segurança de mensagens de erro e estados responsivos dos Links e do DOOM.
+Esta versão corrige a largura do seletor **Rápida / Detalhada** na seção Links. No desktop, o contêiner acompanha apenas a largura real dos dois botões, sem criar espaço vazio quando a janela está muito ampla ou o navegador usa zoom reduzido. Os demais controles continuam alinhados na mesma fileira.
 
 ## Sobre o projeto
 
@@ -118,6 +118,47 @@ O site utiliza um `service-worker.js` para armazenar recursos essenciais no cach
 O comportamento exato depende das políticas de cache e armazenamento do navegador.
 
 
+
+
+## Alterações da v0.2.36
+
+- O painel de controles do DOOM apresenta o movimento em layout WASD, com W acima de A/S/D.
+
+- O seletor **Rápida / Detalhada** passou de uma coluna flexível para uma coluna `max-content`.
+- O pill usa `width: fit-content`, impedindo expansão artificial em telas muito largas ou com zoom reduzido.
+- **Colunas**, **Personalizar ordem** e **Restaurar padrão** continuam na mesma fileira no desktop.
+- O rótulo inicial foi reduzido para **Colunas**, inclusive antes da inicialização do JavaScript.
+- Adicionado teste de regressão para impedir que o seletor volte a usar largura fracionária.
+- Atualizados `VERSION`, cache, assets com hash, documentação e validação contínua para v0.2.36.
+
+## Alterações da v0.2.34
+
+- Os controles de Links permanecem em uma única fileira no desktop; o rótulo contextual foi simplificado para **Colunas**.
+- Os cinco Apps da página inicial permanecem em uma única linha no desktop, sem ocultar o quinto item atrás de “Ver mais”.
+- O visualizador PDF recebeu o modo **Contínuo**, que organiza todas as páginas em uma única coluna navegável por rolagem do mouse ou gesto vertical.
+- O modo contínuo mantém página atual, campo numérico, Voltar/Avançar, URL compartilhável, destaques e preferência local sincronizados com a rolagem.
+- Páginas do modo contínuo são renderizadas progressivamente perto do viewport, com concorrência limitada e descarte LRU para evitar uso ilimitado de memória.
+- Corrigida uma condição de corrida que podia iniciar duas renderizações da mesma página contínua durante mudanças rápidas de viewport.
+- O fallback sem `IntersectionObserver` agenda apenas páginas próximas à posição atual, e a LRU não perde o rastreamento de páginas ainda visíveis.
+- Adicionados testes de regressão para a fileira dos controles, os cinco Apps e o ciclo de vida do modo contínuo.
+- Buscas assíncronas agora usam uma geração própria: respostas antigas não podem substituir uma consulta mais recente, o resultado secreto do DOOM ou uma restauração posterior do histórico.
+- Restaurações rápidas pelos botões Voltar/Avançar descartam operações obsoletas e mantêm consulta, filtros, página, prévia, expansão e rolagem coerentes.
+- Aberturas concorrentes de documentos recebem uma geração independente; um carregamento lento não pode abrir por cima do documento selecionado depois.
+- A prévia distingue entradas criadas com `pushState` de aberturas compartilhadas por substituição, evitando que Fechar abandone o HUB.
+- O modal de prévia recebeu foco inicial, retorno de foco, contenção de `Tab`, bloqueio dos atalhos globais enquanto aberto e descarte seguro de hidratações antigas.
+- A renderização incremental por chaves passou a considerar conteúdo, trechos, URLs e metadados completos, evitando cards reutilizados com dados desatualizados.
+- O visualizador remove promessas rejeitadas das LRUs, limpa o segundo ponteiro fantasma após pinch e restaura o estado visual ao entrar ou sair do BFCache.
+- Botões touch do DOOM capturam o ponteiro, evitando ações presas quando o dedo desliza para fora do botão.
+- O índice completo de busca volta a ser tentado após falhas transitórias; timeout de inicialização encerra o Worker defeituoso e permite uma nova criação posterior.
+- Requisições opcionais e instalação do shell receberam timeout. Metadados não mantêm uma navegação indefinidamente pendente em rede instável.
+- Navegações offline com parâmetros compartilháveis usam o shell correto; visualizador e apps recebem seus próprios fallbacks.
+- Estratégias do service worker consultam caches específicos, mantêm a recência dos limites e não recuperam o fallback de uma versão antiga por busca global.
+- A solicitação `SKIP_WAITING` permanece viva por `event.waitUntil`, tornando a troca de versão mais confiável.
+- A busca rápida lateral tenta primeiro o catálogo resumido, evitando carregar o manifesto completo quando o índice principal não está disponível.
+- Falhas fatais da inicialização principal agora aparecem como estado controlado, em vez de deixarem skeletons permanentes.
+- Adicionados testes de regressão para concorrência da busca, histórico, preview, pinch, BFCache, lifecycle do Worker, cache offline, ponteiros touch e atualização incremental do DOM.
+- Corrigida a auditoria de especificidade CSS, que confundia cores hexadecimais com seletores por ID e podia bloquear uma publicação sem regressão visual real.
+- Atualizados `VERSION`, cache, assets com hash, documentação e orçamentos para v0.2.34.
 
 ## Alterações da v0.2.33
 

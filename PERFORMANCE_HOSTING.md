@@ -1,6 +1,6 @@
 # Hospedagem orientada a desempenho
 
-A v0.2.33 mede os tamanhos bruto, gzip e Brotli dos recursos iniciais. A compactação é responsabilidade do servidor/CDN; PDF, WebP, AVIF, WASM e ZIP já são formatos comprimidos e não devem ser recomprimidos.
+A v0.2.36 mede os tamanhos bruto, gzip e Brotli dos recursos iniciais. A compactação é responsabilidade do servidor/CDN; PDF, WebP, AVIF, WASM e ZIP já são formatos comprimidos e não devem ser recomprimidos.
 
 ## Arquivos publicados
 

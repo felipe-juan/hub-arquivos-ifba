@@ -1,7 +1,7 @@
 {
-  "version": "0.2.33",
+  "version": "0.2.36",
   "initialPage": {
-    "maxJavaScriptBytes": 270000,
+    "maxJavaScriptBytes": 274000,
     "maxJavaScriptGzipBytes": 70000,
     "maxJavaScriptBrotliBytes": 58000,
     "maxCssBytes": 196608,

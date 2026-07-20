@@ -12,6 +12,11 @@
     @media(max-width:760px){:root{--toolbar-h:72px}.viewer{display:block}.toolbar{position:fixed;top:auto;right:0;bottom:0;left:0;min-height:var(--toolbar-h);padding:.42rem max(.45rem,env(safe-area-inset-right)) max(.42rem,env(safe-area-inset-bottom)) max(.45rem,env(safe-area-inset-left));border-top:1px solid var(--line);border-bottom:0;align-items:center;flex-wrap:nowrap}.viewer.controls-hidden .toolbar{transform:translateY(calc(100% + env(safe-area-inset-bottom)));opacity:.15;pointer-events:none}.title{flex:0 1 auto;max-width:34vw}.title-copy small{display:none}.title strong{max-width:24vw;font-size:.72rem}.back-link{min-width:42px;min-height:42px}.actions{flex:1;justify-content:flex-end;gap:.22rem;flex-wrap:nowrap}.actions button,.actions a{min-width:42px;min-height:42px;padding:.35rem .45rem}.actions .label{display:none}.page-input{width:50px;min-height:42px}.zoom-secondary{display:none}.stage{height:100vh;padding:.5rem .5rem calc(var(--toolbar-h) + env(safe-area-inset-bottom) + .7rem)}.paper canvas{box-shadow:0 8px 24px rgba(0,0,0,.28)}.page-skeleton{width:min(94vw,620px)}.match-note{right:.55rem;bottom:calc(var(--toolbar-h) + env(safe-area-inset-bottom) + .55rem);max-width:calc(100vw - 1.1rem);border-radius:12px}.gesture-help{display:block;position:fixed;left:50%;bottom:calc(var(--toolbar-h) + env(safe-area-inset-bottom) + .55rem);z-index:12;transform:translateX(-50%);padding:.35rem .55rem;border-radius:999px;background:rgba(0,0,0,.58);color:#fff;font-size:.66rem;pointer-events:none;opacity:0;transition:opacity .2s ease}.gesture-help.visible{opacity:1}}
     @media(max-width:430px){.title-copy{display:none}.title{max-width:none}.actions{justify-content:space-between}.actions .download-action{display:none}.page-input{width:46px}.actions button,.actions a{min-width:39px;min-height:39px;padding:.25rem .35rem}}
     @media(prefers-reduced-motion:reduce){.toolbar,.paper,.match-note,.gesture-help{transition:none}.page-skeleton::after{animation:none;transform:none;background:rgba(255,255,255,.06)}}
+
+    .view-mode-toggle[aria-pressed="true"]{border-color:color-mix(in srgb,var(--accent) 72%,var(--line));background:color-mix(in srgb,var(--accent) 26%,var(--soft));color:var(--text)}
+    .continuous-stack{display:grid;justify-items:center;align-content:start;gap:1.15rem;min-width:100%;width:max-content;padding:.15rem 0 1.25rem}.continuous-stack[hidden]{display:none}.continuous-page{position:relative;display:grid;place-items:center;min-width:180px;min-height:240px;background:#fff;box-shadow:0 16px 44px rgba(0,0,0,.28);overflow:hidden}.continuous-page canvas{display:block;background:#fff}.continuous-page .textLayer{inset:0}.continuous-page-number{position:absolute;right:.5rem;top:.5rem;z-index:4;display:grid;place-items:center;min-width:2rem;height:1.65rem;padding:0 .45rem;border-radius:999px;background:rgba(7,16,24,.72);color:#fff;font-size:.7rem;font-weight:850;pointer-events:none}.continuous-page-skeleton{position:absolute;inset:0;z-index:1;overflow:hidden;background:color-mix(in srgb,var(--soft) 82%,#fff 18%)}.continuous-page-skeleton::after{content:"";position:absolute;inset:0;transform:translateX(-100%);background:linear-gradient(90deg,transparent,rgba(255,255,255,.2),transparent);animation:viewer-shimmer 1.2s infinite}.continuous-page-skeleton[hidden]{display:none}.viewer.continuous-mode .stage{display:block;overflow:auto;touch-action:pan-y pinch-zoom;scroll-behavior:smooth}.viewer.continuous-mode .paper,.viewer.continuous-mode>.stage>.page-skeleton{display:none!important}.viewer.continuous-mode .gesture-help{display:none!important}
+    @media(max-width:760px){.continuous-stack{gap:.72rem;padding-top:.1rem}.continuous-page{box-shadow:0 8px 24px rgba(0,0,0,.28)}.view-mode-toggle .mode-label{display:none}}
+    @media(prefers-reduced-motion:reduce){.continuous-page-skeleton::after{animation:none;transform:none;background:rgba(255,255,255,.06)}.viewer.continuous-mode .stage{scroll-behavior:auto}}
   </style>
 </head>
 <body>
@@ -28,6 +33,7 @@
         <button id="nextPage" type="button" aria-label="Próxima página">→</button>
         <button id="zoomOut" class="zoom-secondary" type="button" aria-label="Diminuir zoom">−</button>
         <button id="fitPage" type="button" aria-label="Ajustar à largura">↔</button>
+        <button id="viewMode" class="view-mode-toggle" type="button" aria-pressed="false" aria-label="Exibir todas as páginas em uma coluna"><span class="mode-label">Contínuo</span><span aria-hidden="true">☷</span></button>
         <button id="zoomIn" type="button" aria-label="Aumentar zoom">＋</button>
         <a id="downloadLink" class="primary download-action" href="#" download><span class="label">Baixar</span><span aria-hidden="true">↓</span></a>
       </div>
@@ -39,74 +45,1005 @@
         <canvas id="pdfCanvas"></canvas>
         <div id="textLayer" class="textLayer" aria-label="Texto selecionável do PDF"></div>
       </div>
+      <div id="continuousStack" class="continuous-stack" hidden aria-label="Todas as páginas do PDF em uma coluna"></div>
     </section>
     <div id="matchNote" class="match-note" hidden></div>
     <div id="gestureHelp" class="gesture-help" aria-hidden="true">Deslize para mudar de página · toque duas vezes para ampliar</div>
   </main>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js" referrerpolicy="no-referrer"></script>
   <script>
-    (()=>{
+    (() => {
       "use strict";
-      const params=new URLSearchParams(location.search);
-      const requested=params.get("file")||"";
-      const requestedTitle=params.get("title")||"Documento";
-      const requestedSection=params.get("section")||"";
-      const requestedQuery=params.get("q")||"";
-      const explicitPage=params.has("page")?Math.max(1,Number(params.get("page")||1)):0;
-      const viewer=document.getElementById("viewer"),stage=document.getElementById("stage"),toolbar=document.getElementById("toolbar");
-      const titleEl=document.getElementById("docTitle"),metaEl=document.getElementById("docMeta"),status=document.getElementById("status"),paper=document.getElementById("paper"),skeleton=document.getElementById("pageSkeleton");
-      const canvas=document.getElementById("pdfCanvas"),ctx=canvas.getContext("2d",{alpha:false}),textLayer=document.getElementById("textLayer");
-      const pageInput=document.getElementById("pageNumber"),countEl=document.getElementById("pageCount"),download=document.getElementById("downloadLink"),returnLink=document.getElementById("returnLink");
-      const matchNote=document.getElementById("matchNote"),gestureHelp=document.getElementById("gestureHelp");
-      const mobileQuery=matchMedia("(max-width:760px) and (pointer:coarse)");
-      let pdf=null,pdfLoadingTask=null,page=1,scale=1.2,fitScale=1.2,renderTask=null,previewRenderTask=null,textRenderTask=null,renderSerial=0,scaleInitialized=false,firstHighlightScroll=true,pendingHighlight=null,hideTimer=0,gestureTimer=0,matchNoteTimer=0;
-      const pageCache=new Map(),textContentCache=new Map(),bitmapCache=new Map();
-      const PAGE_CACHE_LIMIT=5,BITMAP_CACHE_LIMIT=3;
-      const pointers=new Map();
-      let gesture=null,pinchPreviewScale=0,lastTap={time:0,x:0,y:0};
-      titleEl.textContent=requestedTitle;document.title=`${requestedTitle} · HUB SI`;
-      const normalize=text=>String(text||"").toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g,"");
-      const viewerStopWords=new Set(["para","como","com","das","dos","uma","documento","pagina","página"]);const queryTerms=[...new Set(normalize(`${requestedQuery} ${requestedSection}`).replace(/[^a-z0-9ç\s]/g," ").split(/\s+/).filter(term=>term.length>=4&&!viewerStopWords.has(term)))];
-      const safeLocal=value=>{const clean=String(value||"").trim();if(!clean)return null;try{const url=new URL(clean,location.href);if(url.origin!==location.origin)throw new Error("Origem externa");return url}catch(_){return null}};
-      const fileUrl=safeLocal(requested);
-      const returnUrl=safeLocal(params.get("returnTo")||"");
-      if(returnUrl)returnLink.href=`${returnUrl.pathname}${returnUrl.search}${returnUrl.hash}`;
-      else returnLink.addEventListener("click",event=>{if(document.referrer&&safeLocal(document.referrer)&&history.length>1){event.preventDefault();history.back()}});
-      const file=fileUrl?.href||"";
-      download.href=file||"#";download.download=(file.split("/").pop()||"documento.pdf").split(/[?#]/)[0];
-      const storageKey=`hubPdfLastPage:${normalize(fileUrl?.pathname||requestedTitle).slice(-160)}`;
-      const savedPage=()=>{try{return Math.max(1,Number(localStorage.getItem(storageKey)||1))}catch(_){return 1}};
-      page=explicitPage||savedPage();
-      const clamp=(value,min,max)=>Math.min(max,Math.max(min,value));
-      function lruGet(cache,key){if(!cache.has(key))return null;const value=cache.get(key);cache.delete(key);cache.set(key,value);return value}
-      function lruSet(cache,key,value,limit,onEvict=()=>{}){if(cache.has(key))cache.delete(key);cache.set(key,value);while(cache.size>limit){const oldest=cache.keys().next().value;const removed=cache.get(oldest);cache.delete(oldest);onEvict(removed)}}
-      function cleanupPdfPage(entry){Promise.resolve(entry).then(pdfPage=>{try{pdfPage?.cleanup?.()}catch(_){}}).catch(()=>{})}
-      function getPdfPage(number){const cached=lruGet(pageCache,number);if(cached)return cached;const promise=pdf.getPage(number);lruSet(pageCache,number,promise,PAGE_CACHE_LIMIT,cleanupPdfPage);return promise}
-      function getTextContent(pdfPage,number){const cached=lruGet(textContentCache,number);if(cached)return cached;const promise=pdfPage.getTextContent();lruSet(textContentCache,number,promise,PAGE_CACHE_LIMIT);return promise}
-      function showError(message){status.hidden=false;skeleton.hidden=true;paper.hidden=true;const title=document.createElement("strong"),detail=document.createElement("span");title.textContent="Não foi possível abrir o documento.";detail.textContent=String(message||"Erro desconhecido.");status.replaceChildren(title,detail);if(file){const actions=document.createElement("div"),link=document.createElement("a");actions.className="error-actions";link.href=file;link.target="_blank";link.rel="noopener";link.textContent="Tentar abrir o arquivo original";actions.append(link);status.append(actions)}}
-      function setLoading(active){skeleton.hidden=!active;if(active){status.hidden=true;paper.hidden=true}else{skeleton.hidden=true;paper.hidden=false}}
-      function showControls(){viewer.classList.remove("controls-hidden");clearTimeout(hideTimer);if(mobileQuery.matches)hideTimer=setTimeout(()=>{if(!toolbar.matches(":focus-within"))viewer.classList.add("controls-hidden")},2600)}
-      function showGestureHelp(){if(!mobileQuery.matches)return;gestureHelp.classList.add("visible");clearTimeout(gestureTimer);gestureTimer=setTimeout(()=>gestureHelp.classList.remove("visible"),2200)}
-      function fitForPage(baseViewport){const horizontalPadding=mobileQuery.matches?12:32;const verticalReserve=mobileQuery.matches?90:28;const width=Math.max(180,stage.clientWidth-horizontalPadding);const height=Math.max(220,stage.clientHeight-verticalReserve);return clamp(Math.min(width/baseViewport.width,height/baseViewport.height),.45,2.1)}
-      function updateLocation(){const next=new URL(location.href);next.searchParams.set("page",String(page));history.replaceState(history.state,"",`${next.pathname}${next.search}${next.hash}`)}
-      function savePage(){try{localStorage.setItem(storageKey,String(page))}catch(_){}}
-      function highlightText(){let count=0,first=null;if(!queryTerms.length)return 0;textLayer.querySelectorAll("span").forEach(span=>{const text=normalize(span.textContent);const hit=queryTerms.some(term=>text.includes(term)||(text.length>=4&&term.includes(text)));if(hit){span.classList.add("search-hit");count+=1;if(!first)first=span}});if(first&&firstHighlightScroll)pendingHighlight=first;return count}
-      function showMatchNote(hits){window.clearTimeout(matchNoteTimer);matchNote.replaceChildren();if(hits){const strong=document.createElement("strong");strong.textContent=String(hits);matchNote.append(strong,document.createTextNode(` destaque${hits===1?"":"s"} nesta página${requestedSection?` · ${requestedSection}`:""}`))}else matchNote.textContent=`Nenhum destaque literal nesta página${requestedSection?` · trecho: ${requestedSection}`:""}`;matchNote.hidden=false;matchNoteTimer=window.setTimeout(()=>{matchNote.hidden=true},4200)}
-      async function renderText(pdfPage,viewport,serial,pageNumber){try{textRenderTask?.cancel?.()}catch(_){}textRenderTask=null;textLayer.replaceChildren();textLayer.style.width=`${viewport.width}px`;textLayer.style.height=`${viewport.height}px`;try{const content=await getTextContent(pdfPage,pageNumber);if(serial!==renderSerial)return;const nextLayer=document.createElement("div");const task=pdfjsLib.renderTextLayer({textContentSource:content,container:nextLayer,viewport,textDivs:[]});textRenderTask=task;await task.promise;if(textRenderTask===task)textRenderTask=null;if(serial!==renderSerial)return;textLayer.replaceChildren(...nextLayer.childNodes);const hits=highlightText();if(queryTerms.length)showMatchNote(hits)}catch(error){if(error?.name!=="RenderingCancelledException"&&serial===renderSerial)console.warn("Camada de texto indisponível:",error)}}
-      function cancelRenderTasks(){for(const task of [previewRenderTask,renderTask,textRenderTask]){try{task?.cancel()}catch(_){}}previewRenderTask=null;renderTask=null;textRenderTask=null}
-      async function render({preservePoint=null}={}){if(!pdf)return;const serial=++renderSerial;page=clamp(Math.round(page||1),1,pdf.numPages);const requestedPage=page;pageInput.value=String(page);countEl.textContent=`/ ${pdf.numPages}`;document.getElementById("prevPage").disabled=page<=1;document.getElementById("nextPage").disabled=page>=pdf.numPages;setLoading(true);paper.classList.remove("is-refining");cancelRenderTasks();try{const pdfPage=await getPdfPage(requestedPage);if(serial!==renderSerial)return;const baseViewport=pdfPage.getViewport({scale:1});fitScale=fitForPage(baseViewport);if(!scaleInitialized){scale=fitScale;scaleInitialized=true}else scale=clamp(scale,.45,4);const viewport=pdfPage.getViewport({scale});const ratio=Math.max(1,Math.min(window.devicePixelRatio||1,2.5));canvas.style.width=`${viewport.width}px`;canvas.style.height=`${viewport.height}px`;paper.style.width=`${viewport.width}px`;paper.style.height=`${viewport.height}px`;const cacheKey=`${requestedPage}:${scale.toFixed(3)}:${ratio.toFixed(2)}`,cachedBitmap=lruGet(bitmapCache,cacheKey);if(cachedBitmap){canvas.width=Math.floor(viewport.width*ratio);canvas.height=Math.floor(viewport.height*ratio);ctx.setTransform(1,0,0,1,0,0);ctx.clearRect(0,0,canvas.width,canvas.height);ctx.drawImage(cachedBitmap,0,0,canvas.width,canvas.height);setLoading(false);renderText(pdfPage,viewport,serial,requestedPage)}else{const previewRatio=Math.min(1,Math.max(.45,ratio*.42));canvas.width=Math.floor(viewport.width*previewRatio);canvas.height=Math.floor(viewport.height*previewRatio);ctx.setTransform(1,0,0,1,0,0);ctx.clearRect(0,0,canvas.width,canvas.height);const previewTransform=previewRatio===1?null:[previewRatio,0,0,previewRatio,0,0];previewRenderTask=pdfPage.render({canvasContext:ctx,viewport,transform:previewTransform});await previewRenderTask.promise;previewRenderTask=null;if(serial!==renderSerial)return;setLoading(false);paper.classList.add("is-refining");const sharpCanvas=document.createElement("canvas"),sharpCtx=sharpCanvas.getContext("2d",{alpha:false});if(!sharpCtx)throw new Error("O navegador não disponibilizou o contexto gráfico necessário para refinar a página.");sharpCanvas.width=Math.floor(viewport.width*ratio);sharpCanvas.height=Math.floor(viewport.height*ratio);const sharpTransform=ratio===1?null:[ratio,0,0,ratio,0,0];renderTask=pdfPage.render({canvasContext:sharpCtx,viewport,transform:sharpTransform});await Promise.all([renderTask.promise,renderText(pdfPage,viewport,serial,requestedPage)]);renderTask=null;if(serial!==renderSerial)return;canvas.width=sharpCanvas.width;canvas.height=sharpCanvas.height;ctx.setTransform(1,0,0,1,0,0);ctx.clearRect(0,0,canvas.width,canvas.height);ctx.drawImage(sharpCanvas,0,0);paper.classList.remove("is-refining");if(window.createImageBitmap){try{const bitmap=await createImageBitmap(sharpCanvas);lruSet(bitmapCache,cacheKey,bitmap,BITMAP_CACHE_LIMIT,item=>item?.close?.())}catch(_){}}}if(serial!==renderSerial)return;metaEl.textContent=`${pdf.numPages} página${pdf.numPages===1?"":"s"} · página ${page}${requestedSection?` · ${requestedSection}`:""}`;if(pendingHighlight&&firstHighlightScroll){firstHighlightScroll=false;const target=pendingHighlight;pendingHighlight=null;requestAnimationFrame(()=>target.scrollIntoView({block:"center",inline:"center",behavior:"smooth"}))}savePage();updateLocation();if(preservePoint){const factor=scale/preservePoint.oldScale;stage.scrollLeft=(preservePoint.scrollLeft+preservePoint.x)*factor-preservePoint.x;stage.scrollTop=(preservePoint.scrollTop+preservePoint.y)*factor-preservePoint.y}showControls()}catch(error){paper.classList.remove("is-refining");if(error?.name!=="RenderingCancelledException"&&serial===renderSerial)showError(error?.message||error)}}
-      function changePage(delta){const next=clamp(page+delta,1,pdf?.numPages||1);if(next===page)return;page=next;firstHighlightScroll=true;stage.scrollTo({top:0,left:0,behavior:"auto"});render();showGestureHelp()}
-      function setScale(next,{x=stage.clientWidth/2,y=stage.clientHeight/2}={}){const oldScale=scale;const target=clamp(next,.45,4);if(Math.abs(target-oldScale)<.02)return;const preservePoint={oldScale,x,y,scrollLeft:stage.scrollLeft,scrollTop:stage.scrollTop};scale=target;render({preservePoint})}
-      function fitWidth(){setScale(fitScale,{x:stage.clientWidth/2,y:stage.clientHeight/2})}
-      async function init(){if(!file)return showError("O endereço do documento é inválido.");if(!ctx)return showError("O navegador não disponibilizou o contexto gráfico necessário para exibir o PDF.");if(!window.pdfjsLib)return showError("O componente de leitura de PDF não carregou.");try{pdfjsLib.GlobalWorkerOptions.workerSrc="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js";pdfLoadingTask=pdfjsLib.getDocument(file);pdf=await pdfLoadingTask.promise;page=clamp(page,1,pdf.numPages);await render();if(mobileQuery.matches)showGestureHelp()}catch(error){showError(error?.message||error)}}
-      document.getElementById("prevPage").addEventListener("click",()=>changePage(-1));document.getElementById("nextPage").addEventListener("click",()=>changePage(1));document.getElementById("zoomOut").addEventListener("click",()=>setScale(scale-.18));document.getElementById("zoomIn").addEventListener("click",()=>setScale(scale+.18));document.getElementById("fitPage").addEventListener("click",fitWidth);
-      pageInput.addEventListener("change",()=>{page=Number(pageInput.value)||1;firstHighlightScroll=true;render()});pageInput.addEventListener("keydown",event=>{if(event.key==="Enter"){event.preventDefault();page=Number(pageInput.value)||1;firstHighlightScroll=true;render();pageInput.blur()}});
-      document.addEventListener("keydown",event=>{if(event.target.matches("input,textarea,select"))return;if(event.key==="ArrowLeft")changePage(-1);if(event.key==="ArrowRight")changePage(1);if(event.key==="+")setScale(scale+.18);if(event.key==="-")setScale(scale-.18);if(event.key==="0")fitWidth()});
-      stage.addEventListener("pointerdown",event=>{if(event.pointerType==="mouse"&&event.button!==0)return;showControls();stage.setPointerCapture?.(event.pointerId);pointers.set(event.pointerId,{x:event.clientX,y:event.clientY});const rect=stage.getBoundingClientRect();if(pointers.size===1){gesture={id:event.pointerId,startX:event.clientX,startY:event.clientY,lastX:event.clientX,lastY:event.clientY,startTime:performance.now(),scrollLeft:stage.scrollLeft,scrollTop:stage.scrollTop,panned:false,pinched:false,localX:event.clientX-rect.left,localY:event.clientY-rect.top}}else if(pointers.size===2){const values=[...pointers.values()];gesture.pinched=true;gesture.baseDistance=Math.hypot(values[0].x-values[1].x,values[0].y-values[1].y);gesture.baseScale=scale;gesture.centerX=(values[0].x+values[1].x)/2-rect.left;gesture.centerY=(values[0].y+values[1].y)/2-rect.top;pinchPreviewScale=scale;viewer.classList.add("is-gesture-active")}});
-      stage.addEventListener("pointermove",event=>{if(!pointers.has(event.pointerId)||!gesture)return;const point=pointers.get(event.pointerId);point.x=event.clientX;point.y=event.clientY;if(pointers.size>=2&&gesture.pinched){const values=[...pointers.values()];const distance=Math.hypot(values[0].x-values[1].x,values[0].y-values[1].y);pinchPreviewScale=clamp(gesture.baseScale*(distance/Math.max(1,gesture.baseDistance)),.45,4);paper.style.transformOrigin=`${gesture.centerX+stage.scrollLeft}px ${gesture.centerY+stage.scrollTop}px`;paper.style.transform=`scale(${pinchPreviewScale/scale})`;event.preventDefault();return}const dx=event.clientX-gesture.startX,dy=event.clientY-gesture.startY;gesture.lastX=event.clientX;gesture.lastY=event.clientY;if(scale>fitScale+.04){stage.scrollLeft=gesture.scrollLeft-dx;stage.scrollTop=gesture.scrollTop-dy;if(Math.hypot(dx,dy)>8)gesture.panned=true;event.preventDefault()}});
-      function finishPointer(event){if(!pointers.has(event.pointerId)||!gesture)return;const ended=pointers.get(event.pointerId);pointers.delete(event.pointerId);if(gesture.pinched){if(pointers.size<2){paper.style.transform="";paper.style.transformOrigin="0 0";viewer.classList.remove("is-gesture-active");const preserve={oldScale:scale,x:gesture.centerX,y:gesture.centerY,scrollLeft:stage.scrollLeft,scrollTop:stage.scrollTop};scale=pinchPreviewScale||scale;gesture=null;render({preservePoint:preserve})}return}const dx=ended.x-gesture.startX,dy=ended.y-gesture.startY,duration=performance.now()-gesture.startTime;const isTap=Math.hypot(dx,dy)<12&&!gesture.panned;if(isTap){const now=performance.now();if(now-lastTap.time<340&&Math.hypot(gesture.localX-lastTap.x,gesture.localY-lastTap.y)<42){const old=scale;const target=Math.abs(scale-fitScale)<.08?Math.min(4,fitScale*2.15):fitScale;lastTap.time=0;setScale(target,{x:gesture.localX,y:gesture.localY});if(target>old)showGestureHelp()}else{lastTap={time:now,x:gesture.localX,y:gesture.localY}}}else if(scale<=fitScale+.04&&duration<850&&Math.abs(dx)>72&&Math.abs(dx)>Math.abs(dy)*1.35){changePage(dx<0?1:-1)}gesture=null;showControls()}
-      stage.addEventListener("pointerup",finishPointer);stage.addEventListener("pointercancel",finishPointer);stage.addEventListener("contextmenu",event=>{if(mobileQuery.matches)event.preventDefault()});stage.addEventListener("scroll",showControls,{passive:true});toolbar.addEventListener("pointerdown",showControls);window.addEventListener("resize",()=>{clearTimeout(window.__hubPdfResize);window.__hubPdfResize=setTimeout(()=>{if(pdf&&Math.abs(scale-fitScale)<.12){scaleInitialized=false;render()}},180)});
-      window.addEventListener("beforeunload",()=>{cancelRenderTasks();try{pdfLoadingTask?.destroy()}catch(_){};bitmapCache.forEach(bitmap=>bitmap?.close?.());bitmapCache.clear();pageCache.forEach(cleanupPdfPage);pageCache.clear();textContentCache.clear()},{once:true});
+
+      const params = new URLSearchParams(location.search);
+      const requested = params.get("file") || "";
+      const requestedTitle = params.get("title") || "Documento";
+      const requestedSection = params.get("section") || "";
+      const requestedQuery = params.get("q") || "";
+      const explicitPage = params.has("page") ? Math.max(1, Number(params.get("page") || 1)) : 0;
+
+      const viewer = document.getElementById("viewer");
+      const stage = document.getElementById("stage");
+      const toolbar = document.getElementById("toolbar");
+      const titleEl = document.getElementById("docTitle");
+      const metaEl = document.getElementById("docMeta");
+      const status = document.getElementById("status");
+      const paper = document.getElementById("paper");
+      const skeleton = document.getElementById("pageSkeleton");
+      const canvas = document.getElementById("pdfCanvas");
+      const ctx = canvas.getContext("2d", { alpha: false });
+      const textLayer = document.getElementById("textLayer");
+      const continuousStack = document.getElementById("continuousStack");
+      const viewModeButton = document.getElementById("viewMode");
+      const pageInput = document.getElementById("pageNumber");
+      const countEl = document.getElementById("pageCount");
+      const download = document.getElementById("downloadLink");
+      const returnLink = document.getElementById("returnLink");
+      const matchNote = document.getElementById("matchNote");
+      const gestureHelp = document.getElementById("gestureHelp");
+      const prevButton = document.getElementById("prevPage");
+      const nextButton = document.getElementById("nextPage");
+      const mobileQuery = matchMedia("(max-width:760px) and (pointer:coarse)");
+
+      let pdf = null;
+      let pdfLoadingTask = null;
+      let page = 1;
+      let scale = 1.2;
+      let fitScale = 1.2;
+      let renderTask = null;
+      let previewRenderTask = null;
+      let textRenderTask = null;
+      let renderSerial = 0;
+      let scaleInitialized = false;
+      let firstHighlightScroll = true;
+      let pendingHighlight = null;
+      let hideTimer = 0;
+      let gestureTimer = 0;
+      let matchNoteTimer = 0;
+      let viewMode = "page";
+      let continuousZoom = 1;
+      let continuousObserver = null;
+      let continuousGeneration = 0;
+      let continuousScrollFrame = 0;
+      let continuousActive = 0;
+      let continuousQueue = [];
+
+      const pageCache = new Map();
+      const textContentCache = new Map();
+      const bitmapCache = new Map();
+      const continuousEntries = new Map();
+      const continuousRendered = new Map();
+      const PAGE_CACHE_LIMIT=5;
+      const BITMAP_CACHE_LIMIT=3;
+      const CONTINUOUS_RENDER_LIMIT = 9;
+      const CONTINUOUS_CONCURRENCY = 2;
+      const VIEW_MODE_KEY = "hubPdfViewMode";
+      const pointers = new Map();
+      let gesture = null;
+      let pinchPreviewScale = 0;
+      let lastTap = { time: 0, x: 0, y: 0 };
+
+      titleEl.textContent = requestedTitle;
+      document.title = `${requestedTitle} · HUB SI`;
+
+      const normalize = text => String(text || "")
+        .toLowerCase()
+        .normalize("NFD")
+        .replace(/[\u0300-\u036f]/g, "");
+      const viewerStopWords = new Set(["para", "como", "com", "das", "dos", "uma", "documento", "pagina", "página"]);
+      const queryTerms = [...new Set(
+        normalize(`${requestedQuery} ${requestedSection}`)
+          .replace(/[^a-z0-9\s]/g, " ")
+          .split(/\s+/)
+          .filter(term => term.length >= 4 && !viewerStopWords.has(term))
+      )];
+      const clamp = (value, min, max) => Math.min(max, Math.max(min, value));
+      const safeGet = (key, fallback = "") => {
+        try { return localStorage.getItem(key) ?? fallback; } catch (_) { return fallback; }
+      };
+      const safeSet = (key, value) => {
+        try { localStorage.setItem(key, value); } catch (_) {}
+      };
+      const safeLocal = value => {
+        const clean = String(value || "").trim();
+        if (!clean) return null;
+        try {
+          const url = new URL(clean, location.href);
+          if (url.origin !== location.origin) throw new Error("Origem externa");
+          return url;
+        } catch (_) {
+          return null;
+        }
+      };
+
+      const fileUrl = safeLocal(requested);
+      const returnUrl = safeLocal(params.get("returnTo") || "");
+      if (returnUrl) returnLink.href = `${returnUrl.pathname}${returnUrl.search}${returnUrl.hash}`;
+      else {
+        returnLink.addEventListener("click", event => {
+          if (document.referrer && safeLocal(document.referrer) && history.length > 1) {
+            event.preventDefault();
+            history.back();
+          }
+        });
+      }
+      const file = fileUrl?.href || "";
+      download.href = file || "#";
+      download.download = (file.split("/").pop() || "documento.pdf").split(/[?#]/)[0];
+      const storageKey = `hubPdfLastPage:${normalize(fileUrl?.pathname || requestedTitle).slice(-160)}`;
+      const savedPage = () => Math.max(1, Number(safeGet(storageKey, "1") || 1));
+      page = explicitPage || savedPage();
+
+      function lruGet(cache, key) {
+        if (!cache.has(key)) return null;
+        const value = cache.get(key);
+        cache.delete(key);
+        cache.set(key, value);
+        return value;
+      }
+
+      function lruSet(cache, key, value, limit, onEvict = () => {}) {
+        if (cache.has(key)) cache.delete(key);
+        cache.set(key, value);
+        while (cache.size > limit) {
+          const oldest = cache.keys().next().value;
+          const removed = cache.get(oldest);
+          cache.delete(oldest);
+          onEvict(removed);
+        }
+      }
+
+      function cleanupPdfPage(entry) {
+        Promise.resolve(entry)
+          .then(pdfPage => { try { pdfPage?.cleanup?.(); } catch (_) {} })
+          .catch(() => {});
+      }
+
+      function getPdfPage(number) {
+        const cached = lruGet(pageCache, number);
+        if (cached) return cached;
+        const promise = pdf.getPage(number).catch(error => {
+          if (pageCache.get(number) === promise) pageCache.delete(number);
+          throw error;
+        });
+        lruSet(pageCache, number, promise, PAGE_CACHE_LIMIT, cleanupPdfPage);
+        return promise;
+      }
+
+      function getTextContent(pdfPage, number) {
+        const cached = lruGet(textContentCache, number);
+        if (cached) return cached;
+        const promise = pdfPage.getTextContent().catch(error => {
+          if (textContentCache.get(number) === promise) textContentCache.delete(number);
+          throw error;
+        });
+        lruSet(textContentCache, number, promise, PAGE_CACHE_LIMIT);
+        return promise;
+      }
+
+      function showError(message) {
+        status.hidden = false;
+        skeleton.hidden = true;
+        paper.hidden = true;
+        continuousStack.hidden = true;
+        const title = document.createElement("strong");
+        const detail = document.createElement("span");
+        title.textContent = "Não foi possível abrir o documento.";
+        detail.textContent = String(message || "Erro desconhecido.");
+        status.replaceChildren(title, detail);
+        if (file) {
+          const actions = document.createElement("div");
+          const link = document.createElement("a");
+          actions.className = "error-actions";
+          link.href = file;
+          link.target = "_blank";
+          link.rel = "noopener";
+          link.textContent = "Tentar abrir o arquivo original";
+          actions.append(link);
+          status.append(actions);
+        }
+      }
+
+      function setLoading(active) {
+        if (viewMode === "continuous") {
+          skeleton.hidden = true;
+          paper.hidden = true;
+          continuousStack.hidden = false;
+          status.hidden = true;
+          return;
+        }
+        skeleton.hidden = !active;
+        if (active) {
+          status.hidden = true;
+          paper.hidden = true;
+        } else {
+          skeleton.hidden = true;
+          paper.hidden = false;
+        }
+      }
+
+      function showControls() {
+        viewer.classList.remove("controls-hidden");
+        clearTimeout(hideTimer);
+        if (mobileQuery.matches) {
+          hideTimer = setTimeout(() => {
+            if (!toolbar.matches(":focus-within")) viewer.classList.add("controls-hidden");
+          }, 2600);
+        }
+      }
+
+      function showGestureHelp() {
+        if (!mobileQuery.matches || viewMode === "continuous") return;
+        gestureHelp.classList.add("visible");
+        clearTimeout(gestureTimer);
+        gestureTimer = setTimeout(() => gestureHelp.classList.remove("visible"), 2200);
+      }
+
+      function fitForPage(baseViewport) {
+        const horizontalPadding = mobileQuery.matches ? 12 : 32;
+        const verticalReserve = mobileQuery.matches ? 90 : 28;
+        const width = Math.max(180, stage.clientWidth - horizontalPadding);
+        const height = Math.max(220, stage.clientHeight - verticalReserve);
+        return clamp(Math.min(width / baseViewport.width, height / baseViewport.height), .45, 2.1);
+      }
+
+      function continuousFitForPage(baseViewport) {
+        const horizontalPadding = mobileQuery.matches ? 16 : 40;
+        const width = Math.max(180, stage.clientWidth - horizontalPadding);
+        return clamp(width / baseViewport.width, .35, 2.2);
+      }
+
+      function updateNavigationControls() {
+        const total = pdf?.numPages || 0;
+        pageInput.value = String(page);
+        countEl.textContent = total ? `/ ${total}` : "/ —";
+        prevButton.disabled = !total || page <= 1;
+        nextButton.disabled = !total || page >= total;
+      }
+
+      function updateLocation() {
+        const next = new URL(location.href);
+        next.searchParams.set("page", String(page));
+        if (viewMode === "continuous") next.searchParams.set("view", "continuous");
+        else next.searchParams.delete("view");
+        history.replaceState(history.state, "", `${next.pathname}${next.search}${next.hash}`);
+      }
+
+      function savePage() {
+        safeSet(storageKey, String(page));
+      }
+
+      function highlightLayer(layer, allowPendingScroll = false) {
+        let count = 0;
+        let first = null;
+        if (!queryTerms.length) return { count, first };
+        layer.querySelectorAll("span").forEach(span => {
+          const text = normalize(span.textContent);
+          const hit = queryTerms.some(term => text.includes(term) || (text.length >= 4 && term.includes(text)));
+          if (hit) {
+            span.classList.add("search-hit");
+            count += 1;
+            if (!first) first = span;
+          }
+        });
+        if (first && allowPendingScroll && firstHighlightScroll) pendingHighlight = first;
+        return { count, first };
+      }
+
+      function showMatchNote(hits, pageNumber = page) {
+        window.clearTimeout(matchNoteTimer);
+        matchNote.replaceChildren();
+        if (hits) {
+          const strong = document.createElement("strong");
+          strong.textContent = String(hits);
+          matchNote.append(strong, document.createTextNode(` destaque${hits === 1 ? "" : "s"} na página ${pageNumber}${requestedSection ? ` · ${requestedSection}` : ""}`));
+        } else {
+          matchNote.textContent = `Nenhum destaque literal na página ${pageNumber}${requestedSection ? ` · trecho: ${requestedSection}` : ""}`;
+        }
+        matchNote.hidden = false;
+        matchNoteTimer = window.setTimeout(() => { matchNote.hidden = true; }, 4200);
+      }
+
+      async function renderText(pdfPage, viewport, serial, pageNumber) {
+        try { textRenderTask?.cancel?.(); } catch (_) {}
+        textRenderTask = null;
+        textLayer.replaceChildren();
+        textLayer.style.width = `${viewport.width}px`;
+        textLayer.style.height = `${viewport.height}px`;
+        try {
+          const content = await getTextContent(pdfPage, pageNumber);
+          if (serial !== renderSerial || viewMode !== "page") return;
+          const nextLayer = document.createElement("div");
+          const task = pdfjsLib.renderTextLayer({ textContentSource: content, container: nextLayer, viewport, textDivs: [] });
+          textRenderTask = task;
+          await task.promise;
+          if (textRenderTask === task) textRenderTask = null;
+          if (serial !== renderSerial || viewMode !== "page") return;
+          textLayer.replaceChildren(...nextLayer.childNodes);
+          const hits = highlightLayer(textLayer, true).count;
+          if (queryTerms.length) showMatchNote(hits, pageNumber);
+        } catch (error) {
+          if (error?.name !== "RenderingCancelledException" && serial === renderSerial) console.warn("Camada de texto indisponível:", error);
+        }
+      }
+
+      function cancelRenderTasks() {
+        for (const task of [previewRenderTask, renderTask, textRenderTask]) {
+          try { task?.cancel(); } catch (_) {}
+        }
+        previewRenderTask = null;
+        renderTask = null;
+        textRenderTask = null;
+      }
+
+      async function render({ preservePoint = null } = {}) {
+        if (!pdf || viewMode !== "page") return;
+        const serial = ++renderSerial;
+        page = clamp(Math.round(page || 1), 1, pdf.numPages);
+        const requestedPage = page;
+        updateNavigationControls();
+        setLoading(true);
+        paper.classList.remove("is-refining");
+        cancelRenderTasks();
+        try {
+          const pdfPage = await getPdfPage(requestedPage);
+          if (serial !== renderSerial || viewMode !== "page") return;
+          const baseViewport = pdfPage.getViewport({ scale: 1 });
+          fitScale = fitForPage(baseViewport);
+          if (!scaleInitialized) {
+            scale = fitScale;
+            scaleInitialized = true;
+          } else scale = clamp(scale, .45, 4);
+          const viewport = pdfPage.getViewport({ scale });
+          const ratio = Math.max(1, Math.min(window.devicePixelRatio || 1, 2.5));
+          canvas.style.width = `${viewport.width}px`;
+          canvas.style.height = `${viewport.height}px`;
+          paper.style.width = `${viewport.width}px`;
+          paper.style.height = `${viewport.height}px`;
+          const cacheKey = `${requestedPage}:${scale.toFixed(3)}:${ratio.toFixed(2)}`;
+          const cachedBitmap = lruGet(bitmapCache, cacheKey);
+          if (cachedBitmap) {
+            canvas.width = Math.floor(viewport.width * ratio);
+            canvas.height = Math.floor(viewport.height * ratio);
+            ctx.setTransform(1, 0, 0, 1, 0, 0);
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            ctx.drawImage(cachedBitmap, 0, 0, canvas.width, canvas.height);
+            setLoading(false);
+            renderText(pdfPage, viewport, serial, requestedPage);
+          } else {
+            const previewRatio = Math.min(1, Math.max(.45, ratio * .42));
+            canvas.width = Math.floor(viewport.width * previewRatio);
+            canvas.height = Math.floor(viewport.height * previewRatio);
+            ctx.setTransform(1, 0, 0, 1, 0, 0);
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            const previewTransform = previewRatio === 1 ? null : [previewRatio, 0, 0, previewRatio, 0, 0];
+            previewRenderTask = pdfPage.render({ canvasContext: ctx, viewport, transform: previewTransform });
+            await previewRenderTask.promise;
+            previewRenderTask = null;
+            if (serial !== renderSerial || viewMode !== "page") return;
+            setLoading(false);
+            paper.classList.add("is-refining");
+            const sharpCanvas = document.createElement("canvas");
+            const sharpCtx = sharpCanvas.getContext("2d", { alpha: false });
+            if (!sharpCtx) throw new Error("O navegador não disponibilizou o contexto gráfico necessário para refinar a página.");
+            sharpCanvas.width = Math.floor(viewport.width * ratio);
+            sharpCanvas.height = Math.floor(viewport.height * ratio);
+            const sharpTransform = ratio === 1 ? null : [ratio, 0, 0, ratio, 0, 0];
+            renderTask = pdfPage.render({ canvasContext: sharpCtx, viewport, transform: sharpTransform });
+            await Promise.all([renderTask.promise, renderText(pdfPage, viewport, serial, requestedPage)]);
+            renderTask = null;
+            if (serial !== renderSerial || viewMode !== "page") return;
+            canvas.width = sharpCanvas.width;
+            canvas.height = sharpCanvas.height;
+            ctx.setTransform(1, 0, 0, 1, 0, 0);
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            ctx.drawImage(sharpCanvas, 0, 0);
+            paper.classList.remove("is-refining");
+            if (window.createImageBitmap) {
+              try {
+                const bitmap = await createImageBitmap(sharpCanvas);
+                lruSet(bitmapCache, cacheKey, bitmap, BITMAP_CACHE_LIMIT, item => item?.close?.());
+              } catch (_) {}
+            }
+          }
+          if (serial !== renderSerial || viewMode !== "page") return;
+          metaEl.textContent = `${pdf.numPages} página${pdf.numPages === 1 ? "" : "s"} · página ${page}${requestedSection ? ` · ${requestedSection}` : ""}`;
+          if (pendingHighlight && firstHighlightScroll) {
+            firstHighlightScroll = false;
+            const target = pendingHighlight;
+            pendingHighlight = null;
+            requestAnimationFrame(() => target.scrollIntoView({ block: "center", inline: "center", behavior: "smooth" }));
+          }
+          savePage();
+          updateLocation();
+          if (preservePoint) {
+            const factor = scale / preservePoint.oldScale;
+            stage.scrollLeft = (preservePoint.scrollLeft + preservePoint.x) * factor - preservePoint.x;
+            stage.scrollTop = (preservePoint.scrollTop + preservePoint.y) * factor - preservePoint.y;
+          }
+          showControls();
+        } catch (error) {
+          paper.classList.remove("is-refining");
+          if (error?.name !== "RenderingCancelledException" && serial === renderSerial) showError(error?.message || error);
+        }
+      }
+
+      function createContinuousEntries() {
+        if (continuousEntries.size === pdf.numPages) return;
+        continuousObserver?.disconnect();
+        continuousEntries.clear();
+        continuousStack.replaceChildren();
+        for (let number = 1; number <= pdf.numPages; number += 1) {
+          const shell = document.createElement("article");
+          shell.className = "continuous-page";
+          shell.dataset.pageNumber = String(number);
+          shell.setAttribute("aria-label", `Página ${number}`);
+          shell.style.width = `min(calc(100vw - ${mobileQuery.matches ? 16 : 40}px), 760px)`;
+          shell.style.aspectRatio = "1 / 1.414";
+          const pageCanvas = document.createElement("canvas");
+          pageCanvas.hidden = true;
+          const layer = document.createElement("div");
+          layer.className = "textLayer";
+          layer.setAttribute("aria-label", `Texto selecionável da página ${number}`);
+          const pageSkeleton = document.createElement("div");
+          pageSkeleton.className = "continuous-page-skeleton";
+          pageSkeleton.setAttribute("aria-hidden", "true");
+          const badge = document.createElement("span");
+          badge.className = "continuous-page-number";
+          badge.textContent = String(number);
+          shell.append(pageCanvas, layer, pageSkeleton, badge);
+          continuousStack.append(shell);
+          continuousEntries.set(number, {
+            number,
+            shell,
+            canvas: pageCanvas,
+            textLayer: layer,
+            skeleton: pageSkeleton,
+            renderTask: null,
+            textTask: null,
+            renderedKey: "",
+            visible: false,
+            queued: false,
+            rendering: false,
+            generation: 0
+          });
+        }
+      }
+
+      function cancelContinuousEntry(entry, { clear = false } = {}) {
+        try { entry.renderTask?.cancel?.(); } catch (_) {}
+        try { entry.textTask?.cancel?.(); } catch (_) {}
+        entry.renderTask = null;
+        entry.textTask = null;
+        entry.queued = false;
+        entry.generation += 1;
+        if (clear) {
+          entry.renderedKey = "";
+          entry.canvas.hidden = true;
+          entry.canvas.width = 0;
+          entry.canvas.height = 0;
+          entry.textLayer.replaceChildren();
+          entry.skeleton.hidden = false;
+          entry.shell.style.aspectRatio = "1 / 1.414";
+        }
+      }
+
+      function cancelContinuousTasks({ clear = false } = {}) {
+        continuousGeneration += 1;
+        continuousQueue = [];
+        for (const entry of continuousEntries.values()) cancelContinuousEntry(entry, { clear });
+        if (clear) continuousRendered.clear();
+      }
+
+      function markContinuousRendered(number) {
+        continuousRendered.delete(number);
+        continuousRendered.set(number, performance.now());
+        while (continuousRendered.size > CONTINUOUS_RENDER_LIMIT) {
+          const candidates = [...continuousRendered.keys()];
+          const victim = candidates.find(candidate => {
+            const entry = continuousEntries.get(candidate);
+            return entry && !entry.visible && Math.abs(candidate - page) > 1;
+          });
+          if (victim == null) break;
+          continuousRendered.delete(victim);
+          const entry = continuousEntries.get(victim);
+          if (entry) cancelContinuousEntry(entry, { clear: true });
+        }
+      }
+
+      async function renderContinuousText(entry, pdfPage, viewport, generation) {
+        entry.textLayer.replaceChildren();
+        entry.textLayer.style.width = `${viewport.width}px`;
+        entry.textLayer.style.height = `${viewport.height}px`;
+        try {
+          const content = await getTextContent(pdfPage, entry.number);
+          if (viewMode !== "continuous" || generation !== continuousGeneration || generation !== entry.generation) return;
+          const nextLayer = document.createElement("div");
+          const task = pdfjsLib.renderTextLayer({ textContentSource: content, container: nextLayer, viewport, textDivs: [] });
+          entry.textTask = task;
+          await task.promise;
+          if (entry.textTask === task) entry.textTask = null;
+          if (viewMode !== "continuous" || generation !== continuousGeneration || generation !== entry.generation) return;
+          entry.textLayer.replaceChildren(...nextLayer.childNodes);
+          const shouldScroll = entry.number === page && firstHighlightScroll;
+          const result = highlightLayer(entry.textLayer, false);
+          if (shouldScroll && result.first) {
+            firstHighlightScroll = false;
+            requestAnimationFrame(() => result.first.scrollIntoView({ block: "center", inline: "center", behavior: "smooth" }));
+          }
+          if (queryTerms.length && entry.number === page) showMatchNote(result.count, entry.number);
+        } catch (error) {
+          if (error?.name !== "RenderingCancelledException") console.warn(`Camada de texto indisponível na página ${entry.number}:`, error);
+        }
+      }
+
+      async function renderContinuousPage(entry) {
+        if (!pdf || viewMode !== "continuous") return;
+        entry.queued = false;
+        const generation = continuousGeneration;
+        entry.generation = generation;
+        try {
+          const pdfPage = await getPdfPage(entry.number);
+          if (viewMode !== "continuous" || generation !== continuousGeneration || generation !== entry.generation) return;
+          const baseViewport = pdfPage.getViewport({ scale: 1 });
+          const pageScale = clamp(continuousFitForPage(baseViewport) * continuousZoom, .35, 3.2);
+          const viewport = pdfPage.getViewport({ scale: pageScale });
+          const ratio = Math.max(1, Math.min(window.devicePixelRatio || 1, mobileQuery.matches ? 1.75 : 2));
+          const renderKey = `${pageScale.toFixed(3)}:${ratio.toFixed(2)}`;
+          if (entry.renderedKey === renderKey && !entry.canvas.hidden) {
+            markContinuousRendered(entry.number);
+            return;
+          }
+          cancelContinuousEntry(entry, { clear: false });
+          entry.generation = generation;
+          entry.renderedKey = "";
+          entry.shell.style.width = `${viewport.width}px`;
+          entry.shell.style.height = `${viewport.height}px`;
+          entry.shell.style.aspectRatio = "auto";
+          entry.canvas.style.width = `${viewport.width}px`;
+          entry.canvas.style.height = `${viewport.height}px`;
+          entry.skeleton.hidden = false;
+          entry.canvas.hidden = true;
+          const pageCtx = entry.canvas.getContext("2d", { alpha: false });
+          if (!pageCtx) throw new Error("O navegador não disponibilizou o contexto gráfico necessário para esta página.");
+          const previewRatio = Math.min(1, Math.max(.42, ratio * .38));
+          entry.canvas.width = Math.floor(viewport.width * previewRatio);
+          entry.canvas.height = Math.floor(viewport.height * previewRatio);
+          const previewTransform = previewRatio === 1 ? null : [previewRatio, 0, 0, previewRatio, 0, 0];
+          entry.renderTask = pdfPage.render({ canvasContext: pageCtx, viewport, transform: previewTransform });
+          await entry.renderTask.promise;
+          entry.renderTask = null;
+          if (viewMode !== "continuous" || generation !== continuousGeneration || generation !== entry.generation) return;
+          entry.canvas.hidden = false;
+          entry.skeleton.hidden = true;
+          const sharpCanvas = document.createElement("canvas");
+          const sharpCtx = sharpCanvas.getContext("2d", { alpha: false });
+          if (!sharpCtx) throw new Error("O navegador não disponibilizou o contexto gráfico necessário para refinar a página.");
+          sharpCanvas.width = Math.floor(viewport.width * ratio);
+          sharpCanvas.height = Math.floor(viewport.height * ratio);
+          const sharpTransform = ratio === 1 ? null : [ratio, 0, 0, ratio, 0, 0];
+          entry.renderTask = pdfPage.render({ canvasContext: sharpCtx, viewport, transform: sharpTransform });
+          await Promise.all([
+            entry.renderTask.promise,
+            renderContinuousText(entry, pdfPage, viewport, generation)
+          ]);
+          entry.renderTask = null;
+          if (viewMode !== "continuous" || generation !== continuousGeneration || generation !== entry.generation) return;
+          entry.canvas.width = sharpCanvas.width;
+          entry.canvas.height = sharpCanvas.height;
+          const finalCtx = entry.canvas.getContext("2d", { alpha: false });
+          if (!finalCtx) throw new Error("O navegador não disponibilizou o contexto gráfico final da página.");
+          finalCtx.drawImage(sharpCanvas, 0, 0);
+          entry.canvas.hidden = false;
+          entry.skeleton.hidden = true;
+          entry.renderedKey = renderKey;
+          markContinuousRendered(entry.number);
+        } catch (error) {
+          if (error?.name !== "RenderingCancelledException" && viewMode === "continuous") {
+            entry.skeleton.hidden = true;
+            entry.shell.dataset.renderError = "true";
+            console.warn(`Não foi possível renderizar a página ${entry.number}:`, error);
+          }
+        }
+      }
+
+      function pumpContinuousQueue() {
+        if (viewMode !== "continuous") return;
+        while (continuousActive < CONTINUOUS_CONCURRENCY && continuousQueue.length) {
+          const entry = continuousQueue.shift();
+          if (!entry || !entry.queued) continue;
+          continuousActive += 1;
+          entry.rendering = true;
+          renderContinuousPage(entry).finally(() => {
+            entry.rendering = false;
+            continuousActive = Math.max(0, continuousActive - 1);
+            pumpContinuousQueue();
+          });
+        }
+      }
+
+      function scheduleContinuousPage(number, priority = false) {
+        const entry = continuousEntries.get(number);
+        if (!entry || entry.queued || entry.rendering || (entry.renderedKey && !entry.canvas.hidden)) return;
+        entry.queued = true;
+        if (priority) continuousQueue.unshift(entry);
+        else continuousQueue.push(entry);
+        pumpContinuousQueue();
+      }
+
+      function scheduleContinuousNeighbors(center = page, radius = 2) {
+        if (!pdf) return;
+        const first = Math.max(1, center - radius);
+        const last = Math.min(pdf.numPages, center + radius);
+        for (let number = first; number <= last; number += 1) {
+          scheduleContinuousPage(number, Math.abs(number - center) <= 1);
+        }
+      }
+
+      function setupContinuousObserver() {
+        continuousObserver?.disconnect();
+        if (!("IntersectionObserver" in window)) {
+          scheduleContinuousNeighbors(page, 2);
+          return;
+        }
+        continuousObserver = new IntersectionObserver(entries => {
+          for (const item of entries) {
+            const number = Number(item.target.dataset.pageNumber || 0);
+            const entry = continuousEntries.get(number);
+            if (!entry) continue;
+            entry.visible = item.isIntersecting;
+            if (item.isIntersecting) scheduleContinuousPage(number, Math.abs(number - page) <= 1);
+            else if (entry.renderTask && Math.abs(number - page) > 2) cancelContinuousEntry(entry, { clear: false });
+          }
+        }, { root: stage, rootMargin: "1000px 0px", threshold: .01 });
+        for (const entry of continuousEntries.values()) continuousObserver.observe(entry.shell);
+      }
+
+      function updateContinuousCurrentPage() {
+        continuousScrollFrame = 0;
+        if (viewMode !== "continuous" || !pdf) return;
+        const stageRect = stage.getBoundingClientRect();
+        const targetY = stageRect.top + Math.min(stageRect.height * .32, 220);
+        let best = page;
+        let distance = Infinity;
+        for (const entry of continuousEntries.values()) {
+          const rect = entry.shell.getBoundingClientRect();
+          const inside = rect.top <= targetY && rect.bottom >= targetY;
+          const currentDistance = inside ? 0 : Math.min(Math.abs(rect.top - targetY), Math.abs(rect.bottom - targetY));
+          if (currentDistance < distance) {
+            best = entry.number;
+            distance = currentDistance;
+          }
+        }
+        if (best !== page) {
+          page = best;
+          updateNavigationControls();
+          savePage();
+          updateLocation();
+          metaEl.textContent = `${pdf.numPages} página${pdf.numPages === 1 ? "" : "s"} · página ${page} · modo contínuo`;
+          scheduleContinuousPage(page, true);
+          scheduleContinuousNeighbors(page, 2);
+        }
+      }
+
+      function scrollToContinuousPage(number, { behavior = "smooth" } = {}) {
+        if (!pdf) return;
+        page = clamp(Math.round(number || 1), 1, pdf.numPages);
+        updateNavigationControls();
+        savePage();
+        updateLocation();
+        const entry = continuousEntries.get(page);
+        if (!entry) return;
+        scheduleContinuousPage(page, true);
+        stage.scrollTo({ top: Math.max(0, entry.shell.offsetTop - 12), left: 0, behavior });
+        metaEl.textContent = `${pdf.numPages} página${pdf.numPages === 1 ? "" : "s"} · página ${page} · modo contínuo`;
+      }
+
+      function enterContinuousMode({ initial = false } = {}) {
+        cancelRenderTasks();
+        renderSerial += 1;
+        viewer.classList.add("continuous-mode");
+        paper.hidden = true;
+        skeleton.hidden = true;
+        status.hidden = true;
+        continuousStack.hidden = false;
+        createContinuousEntries();
+        setupContinuousObserver();
+        updateNavigationControls();
+        metaEl.textContent = `${pdf.numPages} página${pdf.numPages === 1 ? "" : "s"} · página ${page} · modo contínuo`;
+        requestAnimationFrame(() => scrollToContinuousPage(page, { behavior: initial ? "auto" : "smooth" }));
+      }
+
+      function exitContinuousMode() {
+        continuousObserver?.disconnect();
+        continuousObserver = null;
+        cancelContinuousTasks({ clear: true });
+        viewer.classList.remove("continuous-mode");
+        continuousStack.hidden = true;
+        stage.scrollTo({ top: 0, left: 0, behavior: "auto" });
+        scaleInitialized = false;
+        render();
+      }
+
+      function setViewMode(next, { persist = true, initial = false } = {}) {
+        const clean = next === "continuous" ? "continuous" : "page";
+        const changed = clean !== viewMode;
+        viewMode = clean;
+        viewModeButton.setAttribute("aria-pressed", clean === "continuous" ? "true" : "false");
+        viewModeButton.setAttribute("aria-label", clean === "continuous" ? "Voltar à visualização de uma página" : "Exibir todas as páginas em uma coluna");
+        viewModeButton.title = clean === "continuous" ? "Voltar para uma página" : "Todas as páginas em uma coluna";
+        if (persist) safeSet(VIEW_MODE_KEY, clean);
+        if (!pdf) return;
+        if (clean === "continuous") enterContinuousMode({ initial });
+        else if (changed || initial) exitContinuousMode();
+        updateLocation();
+        showControls();
+      }
+
+      function rerenderContinuous() {
+        if (viewMode !== "continuous") return;
+        const current = page;
+        cancelContinuousTasks({ clear: true });
+        for (const entry of continuousEntries.values()) {
+          entry.shell.style.width = `min(calc(100vw - ${mobileQuery.matches ? 16 : 40}px), 760px)`;
+          entry.shell.style.height = "auto";
+          entry.shell.style.aspectRatio = "1 / 1.414";
+        }
+        requestAnimationFrame(() => {
+          setupContinuousObserver();
+          scrollToContinuousPage(current, { behavior: "auto" });
+          scheduleContinuousPage(current, true);
+        });
+      }
+
+      function changePage(delta) {
+        const next = clamp(page + delta, 1, pdf?.numPages || 1);
+        if (next === page) return;
+        firstHighlightScroll = true;
+        if (viewMode === "continuous") {
+          scrollToContinuousPage(next);
+        } else {
+          page = next;
+          stage.scrollTo({ top: 0, left: 0, behavior: "auto" });
+          render();
+          showGestureHelp();
+        }
+      }
+
+      function setScale(next, { x = stage.clientWidth / 2, y = stage.clientHeight / 2 } = {}) {
+        if (viewMode === "continuous") {
+          continuousZoom = clamp(next, .65, 2.5);
+          rerenderContinuous();
+          return;
+        }
+        const oldScale = scale;
+        const target = clamp(next, .45, 4);
+        if (Math.abs(target - oldScale) < .02) return;
+        const preservePoint = { oldScale, x, y, scrollLeft: stage.scrollLeft, scrollTop: stage.scrollTop };
+        scale = target;
+        render({ preservePoint });
+      }
+
+      function zoomBy(delta) {
+        if (viewMode === "continuous") setScale(continuousZoom + delta);
+        else setScale(scale + delta);
+      }
+
+      function fitWidth() {
+        if (viewMode === "continuous") {
+          continuousZoom = 1;
+          rerenderContinuous();
+        } else setScale(fitScale, { x: stage.clientWidth / 2, y: stage.clientHeight / 2 });
+      }
+
+      async function init() {
+        if (!file) return showError("O endereço do documento é inválido.");
+        if (!ctx) return showError("O navegador não disponibilizou o contexto gráfico necessário para exibir o PDF.");
+        if (!window.pdfjsLib) return showError("O componente de leitura de PDF não carregou.");
+        try {
+          pdfjsLib.GlobalWorkerOptions.workerSrc = "https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js";
+          pdfLoadingTask = pdfjsLib.getDocument(file);
+          pdf = await pdfLoadingTask.promise;
+          page = clamp(page, 1, pdf.numPages);
+          const requestedMode = params.get("view") === "continuous" ? "continuous" : safeGet(VIEW_MODE_KEY, "page");
+          viewMode = requestedMode === "continuous" ? "continuous" : "page";
+          setViewMode(viewMode, { persist: false, initial: true });
+          if (mobileQuery.matches && viewMode === "page") showGestureHelp();
+        } catch (error) {
+          showError(error?.message || error);
+        }
+      }
+
+      prevButton.addEventListener("click", () => changePage(-1));
+      nextButton.addEventListener("click", () => changePage(1));
+      document.getElementById("zoomOut").addEventListener("click", () => zoomBy(-.18));
+      document.getElementById("zoomIn").addEventListener("click", () => zoomBy(.18));
+      document.getElementById("fitPage").addEventListener("click", fitWidth);
+      viewModeButton.addEventListener("click", () => setViewMode(viewMode === "continuous" ? "page" : "continuous"));
+
+      pageInput.addEventListener("change", () => {
+        const target = Number(pageInput.value) || 1;
+        firstHighlightScroll = true;
+        if (viewMode === "continuous") scrollToContinuousPage(target);
+        else { page = target; render(); }
+      });
+      pageInput.addEventListener("keydown", event => {
+        if (event.key !== "Enter") return;
+        event.preventDefault();
+        const target = Number(pageInput.value) || 1;
+        firstHighlightScroll = true;
+        if (viewMode === "continuous") scrollToContinuousPage(target);
+        else { page = target; render(); }
+        pageInput.blur();
+      });
+
+      document.addEventListener("keydown", event => {
+        if (event.target.matches("input,textarea,select")) return;
+        if (event.key === "ArrowLeft") changePage(-1);
+        if (event.key === "ArrowRight") changePage(1);
+        if (event.key === "+") zoomBy(.18);
+        if (event.key === "-") zoomBy(-.18);
+        if (event.key === "0") fitWidth();
+      });
+
+      stage.addEventListener("pointerdown", event => {
+        showControls();
+        if (viewMode === "continuous") return;
+        if (event.pointerType === "mouse" && event.button !== 0) return;
+        stage.setPointerCapture?.(event.pointerId);
+        pointers.set(event.pointerId, { x: event.clientX, y: event.clientY });
+        const rect = stage.getBoundingClientRect();
+        if (pointers.size === 1) {
+          gesture = {
+            id: event.pointerId,
+            startX: event.clientX,
+            startY: event.clientY,
+            lastX: event.clientX,
+            lastY: event.clientY,
+            startTime: performance.now(),
+            scrollLeft: stage.scrollLeft,
+            scrollTop: stage.scrollTop,
+            panned: false,
+            pinched: false,
+            localX: event.clientX - rect.left,
+            localY: event.clientY - rect.top
+          };
+        } else if (pointers.size === 2) {
+          const values = [...pointers.values()];
+          gesture.pinched = true;
+          gesture.baseDistance = Math.hypot(values[0].x - values[1].x, values[0].y - values[1].y);
+          gesture.baseScale = scale;
+          gesture.centerX = (values[0].x + values[1].x) / 2 - rect.left;
+          gesture.centerY = (values[0].y + values[1].y) / 2 - rect.top;
+          pinchPreviewScale = scale;
+          viewer.classList.add("is-gesture-active");
+        }
+      });
+
+      stage.addEventListener("pointermove", event => {
+        if (viewMode === "continuous" || !pointers.has(event.pointerId) || !gesture) return;
+        const point = pointers.get(event.pointerId);
+        point.x = event.clientX;
+        point.y = event.clientY;
+        if (pointers.size >= 2 && gesture.pinched) {
+          const values = [...pointers.values()];
+          const distance = Math.hypot(values[0].x - values[1].x, values[0].y - values[1].y);
+          pinchPreviewScale = clamp(gesture.baseScale * (distance / Math.max(1, gesture.baseDistance)), .45, 4);
+          paper.style.transformOrigin = `${gesture.centerX + stage.scrollLeft}px ${gesture.centerY + stage.scrollTop}px`;
+          paper.style.transform = `scale(${pinchPreviewScale / scale})`;
+          event.preventDefault();
+          return;
+        }
+        const dx = event.clientX - gesture.startX;
+        const dy = event.clientY - gesture.startY;
+        gesture.lastX = event.clientX;
+        gesture.lastY = event.clientY;
+        if (scale > fitScale + .04) {
+          stage.scrollLeft = gesture.scrollLeft - dx;
+          stage.scrollTop = gesture.scrollTop - dy;
+          if (Math.hypot(dx, dy) > 8) gesture.panned = true;
+          event.preventDefault();
+        }
+      });
+
+      function finishPointer(event) {
+        if (viewMode === "continuous" || !pointers.has(event.pointerId) || !gesture) return;
+        const ended = pointers.get(event.pointerId);
+        pointers.delete(event.pointerId);
+        if (gesture.pinched) {
+          if (pointers.size < 2) {
+            pointers.clear();
+            paper.style.transform = "";
+            paper.style.transformOrigin = "0 0";
+            viewer.classList.remove("is-gesture-active");
+            const preserve = {
+              oldScale: scale,
+              x: gesture.centerX,
+              y: gesture.centerY,
+              scrollLeft: stage.scrollLeft,
+              scrollTop: stage.scrollTop
+            };
+            scale = pinchPreviewScale || scale;
+            gesture = null;
+            render({ preservePoint: preserve });
+          }
+          return;
+        }
+        const dx = ended.x - gesture.startX;
+        const dy = ended.y - gesture.startY;
+        const duration = performance.now() - gesture.startTime;
+        const isTap = Math.hypot(dx, dy) < 12 && !gesture.panned;
+        if (isTap) {
+          const now = performance.now();
+          if (now - lastTap.time < 340 && Math.hypot(gesture.localX - lastTap.x, gesture.localY - lastTap.y) < 42) {
+            const old = scale;
+            const target = Math.abs(scale - fitScale) < .08 ? Math.min(4, fitScale * 2.15) : fitScale;
+            lastTap.time = 0;
+            setScale(target, { x: gesture.localX, y: gesture.localY });
+            if (target > old) showGestureHelp();
+          } else lastTap = { time: now, x: gesture.localX, y: gesture.localY };
+        } else if (scale <= fitScale + .04 && duration < 850 && Math.abs(dx) > 72 && Math.abs(dx) > Math.abs(dy) * 1.35) {
+          changePage(dx < 0 ? 1 : -1);
+        }
+        gesture = null;
+        showControls();
+      }
+
+      stage.addEventListener("pointerup", finishPointer);
+      stage.addEventListener("pointercancel", finishPointer);
+      stage.addEventListener("contextmenu", event => {
+        if (mobileQuery.matches && viewMode === "page") event.preventDefault();
+      });
+      stage.addEventListener("scroll", () => {
+        showControls();
+        if (viewMode === "continuous" && !continuousScrollFrame) {
+          continuousScrollFrame = requestAnimationFrame(updateContinuousCurrentPage);
+        }
+      }, { passive: true });
+      toolbar.addEventListener("pointerdown", showControls);
+      window.addEventListener("resize", () => {
+        clearTimeout(window.__hubPdfResize);
+        window.__hubPdfResize = setTimeout(() => {
+          if (!pdf) return;
+          if (viewMode === "continuous") rerenderContinuous();
+          else if (Math.abs(scale - fitScale) < .12) {
+            scaleInitialized = false;
+            render();
+          }
+        }, 180);
+      });
+
+      function resetGestureState() {
+        pointers.clear();
+        gesture = null;
+        pinchPreviewScale = 0;
+        paper.style.transform = "";
+        paper.style.transformOrigin = "0 0";
+        viewer.classList.remove("is-gesture-active");
+      }
+
+      let viewerDisposed = false;
+      function disposeViewer() {
+        if (viewerDisposed) return;
+        viewerDisposed = true;
+        resetGestureState();
+        cancelRenderTasks();
+        continuousObserver?.disconnect();
+        cancelContinuousTasks({ clear: true });
+        try { pdfLoadingTask?.destroy(); } catch (_) {}
+        bitmapCache.forEach(bitmap => bitmap?.close?.());
+        bitmapCache.clear();
+        pageCache.forEach(cleanupPdfPage);
+        pageCache.clear();
+        textContentCache.clear();
+      }
+
+      window.addEventListener("beforeunload", disposeViewer, { once: true });
+      window.addEventListener("pagehide", event => {
+        resetGestureState();
+        if (!event.persisted) disposeViewer();
+      });
+
       init();
     })();
   </script>

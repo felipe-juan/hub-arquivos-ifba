@@ -20,6 +20,12 @@ assert(js.includes('linksDeviceBucket'), "Troca celular/desktop não restaura a 
 assert(js.includes('cancelAnimationFrame(linksResizeFrame)'), "Resize dos Links não é agrupado por frame.");
 assert(css.includes('.links-columns-control'), "Estilos do seletor de colunas ausentes.");
 
+assert(html.includes('<span id="linksColumnsLabel">Colunas</span>'), "Rótulo do seletor deve ser apenas Colunas.");
+assert(css.includes('grid-template-columns: max-content minmax(118px, 160px) max-content max-content'), "Controles de Links não permanecem na mesma fileira com seletor intrínseco no desktop.");
+assert(html.includes('class="section content-section apps-section"'), "Seção de Apps não possui classe de layout dedicada.");
+assert(css.includes('.apps-section .cards-grid'), "Grade de Apps não possui regra desktop dedicada.");
+assert(css.includes('grid-template-columns: repeat(5, minmax(0, 1fr))'), "Os cinco Apps não são mantidos em uma única fileira no desktop.");
+
 if (failures.length) {
   console.error(`Teste das colunas de Links falhou com ${failures.length} problema(s):`);
   failures.forEach(item => console.error(`- ${item}`));

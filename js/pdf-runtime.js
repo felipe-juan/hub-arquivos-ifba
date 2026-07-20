@@ -8,6 +8,8 @@ function cancelElementRender(el) {
   if (!active) return;
   active.cancelled = true;
   try { active.renderTask?.cancel(); } catch (_) {}
+  try { active.page?.cleanup?.(); } catch (_) {}
+  active.page = null;
   try { active.loadingTask?.destroy(); } catch (_) {}
   activeRenders.delete(el);
   if (el?.dataset.pdfRendered === "loading") delete el.dataset.pdfRendered;
@@ -63,7 +65,7 @@ export async function renderSinglePdfThumbnail(el, budget) {
   if (!(await ensurePdfJs()) || !setupPdfJs() || !el.isConnected) return;
   const url = el.dataset.pdfUrl;
   if (!url) return;
-  const active = { cancelled: false, loadingTask: null, renderTask: null };
+  const active = { cancelled: false, loadingTask: null, renderTask: null, page: null };
   activeRenders.set(el, active);
   el.dataset.pdfRendered = "loading";
   el.classList.add("thumb-loading");
@@ -72,7 +74,8 @@ export async function renderSinglePdfThumbnail(el, budget) {
     active.loadingTask = window.pdfjsLib.getDocument(url);
     const pdf = await active.loadingTask.promise;
     if (active.cancelled || !el.isConnected) return;
-    const page = await pdf.getPage(1);
+    active.page = await pdf.getPage(1);
+    const page = active.page;
     if (active.cancelled || !el.isConnected) return;
     const box = el.getBoundingClientRect();
     const targetWidth = Math.max(110, Math.min(budget.maxCssWidth, box.width || 160));
@@ -100,6 +103,8 @@ export async function renderSinglePdfThumbnail(el, budget) {
       console.warn("Não foi possível gerar miniatura do PDF:", url, error);
     }
   } finally {
+    try { active.page?.cleanup?.(); } catch (_) {}
+    active.page = null;
     try { await active.loadingTask?.destroy(); } catch (_) {}
     if (activeRenders.get(el) === active) activeRenders.delete(el);
     el.classList.remove("thumb-loading");

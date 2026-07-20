@@ -13,11 +13,13 @@ counts = {"ids": 0, "important": 0, "deep": 0}
 
 for path in FILES:
     text = path.read_text(encoding="utf-8")
-    counts["ids"] += len(re.findall(r"(^|[\s,>+~])#[A-Za-z_-][\w-]*", text))
     counts["important"] += text.count("!important")
+    # Count ID selectors only in selector preambles. Scanning the entire CSS also
+    # mistakes hexadecimal colors such as #f8fbff for ID selectors.
     for selector in re.findall(r"([^{}]+)\{", text):
         clean = re.sub(r"/\*.*?\*/", "", selector, flags=re.S).strip()
         if clean.startswith("@"): continue
+        counts["ids"] += len(re.findall(r"(^|[\s,>+~])#[A-Za-z_-][\w-]*", clean))
         if max((len(part.split()) for part in clean.split(",")), default=0) > 5:
             counts["deep"] += 1
 

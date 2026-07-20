@@ -55,6 +55,7 @@ for (const token of ["doomJoystick", "doomLookZone", "data-doom-hold=\"fire\"", 
 }
 assert(js.includes('syncTouchControls({ ready: false });'), "HUD touch deve aparecer durante o carregamento.");
 assert(js.includes('next.add("strafe")'), "Joystick móvel deve oferecer deslocamento lateral moderno.");
+assert(js.includes('event.currentTarget.setPointerCapture?.(event.pointerId);'), "Botões touch não capturam o ponteiro e podem ficar presos ao deslizar.");
 assert(js.includes('setupLookZone();'), "Área touch de visão deve ser inicializada.");
 assert(js.includes('return fallbackKeyboardEvent(keyCode, pressed);'), "Entrada touch deve possuir fallback para eventos de teclado.");
 assert(!/function sendRawKeyEvent[\s\S]{0,120}if \(!commandInterface/.test(js), "Fallback não pode depender da interface completa do js-dos.");

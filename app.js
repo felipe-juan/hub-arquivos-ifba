@@ -34,6 +34,7 @@ const state = {
   selectedSearchIndex: -1,
   previewDocId: "",
   previewPage: "",
+  previewHistoryPushed: false,
   effectiveSearchQuery: "",
   searchCorrection: null,
   expandedSearchResults: [],
@@ -94,13 +95,19 @@ const PDF_THUMBNAIL_BUDGET = Object.freeze({
 });
 let searchHistoryReady = false;
 let restoringSearchHistory = false;
+let searchRestoreGeneration = 0;
 let liveSearchHistoryEntry = false;
 let searchScrollHistoryTimer = 0;
+let latestSearchRunGeneration = 0;
+let previewOpenGeneration = 0;
+let previewReturnFocus = null;
 let pendingFocusDocumentId = new URLSearchParams(location.search).get("focusDoc") || "";
 let searchIndexUrl = "documents/search-index.json";
 let deferredSearchIndex = null;
 let deferredSearchIndexPromise = null;
 let deferredSearchIndexLoaded = false;
+let deferredSearchIndexRetryAt = 0;
+const SEARCH_INDEX_RETRY_DELAY_MS = 30000;
 const DEFAULT_LINK_ORDER = [
   "link-protocolo",
   "link-fluxograma-atual",
@@ -514,8 +521,8 @@ function detectSearchIntent(query = "") {
 function regexAccentPattern(term = "") {
   const escaped = escapeHtml(term).replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
   const map = {
-    a: "[aàáâãäå]", e: "[eèéêë]", i: "[iìíîï]", o: "[oòóôõö]", u: "[uùúûü]", c: "c",
-    A: "[AÀÁÂÃÄÅ]", E: "[EÈÉÊË]", I: "[IÌÍÎÏ]", O: "[OÒÓÔÕÖ]", U: "[UÙÚÛÜ]", C: "C"
+    a: "[aàáâãäå]", e: "[eèéêë]", i: "[iìíîï]", o: "[oòóôõö]", u: "[uùúûü]", c: "[cç]",
+    A: "[AÀÁÂÃÄÅ]", E: "[EÈÉÊË]", I: "[IÌÍÎÏ]", O: "[OÒÓÔÕÖ]", U: "[UÙÚÛÜ]", C: "[CÇ]"
   };
   return escaped.replace(/[aeioucAEIOUC]/g, char => map[char] || char);
 }
@@ -853,7 +860,7 @@ function thumbnailHtml(resource, type = "document", options = {}) {
 
 let pdfRuntimePromise = null;
 function getPdfRuntime() {
-  if (!pdfRuntimePromise) pdfRuntimePromise = import("./js/pdf-runtime.js?v=0.2.33");
+  if (!pdfRuntimePromise) pdfRuntimePromise = import("./js/pdf-runtime.js?v=0.2.36");
   return pdfRuntimePromise;
 }
 async function renderSinglePdfThumbnail(el) {
@@ -1144,15 +1151,19 @@ function parseManifestCsv(text = "") {
   }).filter(item => item.title || item.path || item.sourceUrl);
 }
 
-async function fetchOptionalText(url) {
+async function fetchOptionalText(url, timeoutMs = 10000) {
+  const controller = typeof AbortController === "function" ? new AbortController() : null;
+  const timer = controller ? window.setTimeout(() => controller.abort(), Math.max(1000, timeoutMs)) : 0;
   try {
-    const response = await fetch(url, { cache: "no-store" });
+    const response = await fetch(url, { cache: "no-store", signal: controller?.signal });
     if (!response.ok) return null;
     const text = await response.text();
     if (/^\s*</.test(text) && text.includes("<html")) return null;
     return text;
   } catch (error) {
     return null;
+  } finally {
+    if (timer) window.clearTimeout(timer);
   }
 }
 
@@ -1504,6 +1515,7 @@ function currentSearchNavigationSnapshot(overrides = {}) {
     selectedResultIndex: Number.isFinite(state.selectedSearchIndex) ? state.selectedSearchIndex : -1,
     previewDocId: state.previewDocId || "",
     previewPage: state.previewPage || "",
+    previewHistoryPushed: Boolean(state.previewHistoryPushed),
     expandedResults: [...(state.expandedSearchResults || [])],
     scrollY: Math.max(0, Math.round(window.scrollY || 0)),
     routeHash: normalizeLocalRouteHash(location.hash),
@@ -1551,6 +1563,7 @@ function searchNavigationSnapshotFromLocation(candidate = history.state) {
     selectedResultIndex: Number.isFinite(Number(stored.selectedResultIndex)) ? Number(stored.selectedResultIndex) : -1,
     previewDocId: stored.previewDocId || "",
     previewPage: stored.previewPage || "",
+    previewHistoryPushed: Boolean(stored.previewHistoryPushed),
     expandedResults: Array.isArray(stored.expandedResults) ? stored.expandedResults : [],
     scrollY: Math.max(0, Number(stored.scrollY) || 0),
     routeHash: normalizeLocalRouteHash(location.hash || stored.routeHash || ""),
@@ -1598,6 +1611,7 @@ function scheduleSearchScrollHistoryUpdate() {
 function applySearchNavigationSnapshot(snapshot, { replaceEntry = false } = {}) {
   const input = document.getElementById("searchInput");
   if (!input) return false;
+  const restoreGeneration = ++searchRestoreGeneration;
   restoringSearchHistory = true;
   applySearchFilters(snapshot.filters || {});
   input.value = snapshot.query || "";
@@ -1609,10 +1623,12 @@ function applySearchNavigationSnapshot(snapshot, { replaceEntry = false } = {}) 
   state.selectedSearchIndex = Number.isFinite(Number(snapshot.selectedResultIndex)) ? Number(snapshot.selectedResultIndex) : -1;
   state.previewDocId = "";
   state.previewPage = "";
+  state.previewHistoryPushed = Boolean(snapshot.previewHistoryPushed);
   state.expandedSearchResults = Array.isArray(snapshot.expandedResults) ? [...snapshot.expandedResults] : [];
-  const restorePromise = runSearch(input.value, { historyMode: "none" });
+  const restorePromise = runSearch(input.value, { historyMode: "none", navigationRestoreGeneration: restoreGeneration });
 
   const finishRestore = () => {
+    if (restoreGeneration !== searchRestoreGeneration) return false;
     state.searchDirectoryPage = desiredDirectoryPage;
     applySearchResultsView(state.searchResultsView, { persist: false });
     renderSearchDirectory();
@@ -1623,6 +1639,7 @@ function applySearchNavigationSnapshot(snapshot, { replaceEntry = false } = {}) 
     } else {
       state.previewDocId = "";
       state.previewPage = "";
+      state.previewHistoryPushed = false;
       setPreviewModalOpen(false);
     }
     document.querySelectorAll("details[data-result-passages]").forEach(details => {
@@ -1639,11 +1656,11 @@ function applySearchNavigationSnapshot(snapshot, { replaceEntry = false } = {}) 
     else window.scrollTo({ top: Math.max(0, Number(snapshot.scrollY) || 0), behavior: "auto" });
     restoringSearchHistory = false;
     if (replaceEntry) syncSearchHistory("replace");
+    return true;
   };
   return Promise.resolve(restorePromise).then(() => new Promise(resolve => {
     requestAnimationFrame(() => requestAnimationFrame(() => {
-      finishRestore();
-      resolve(true);
+      resolve(finishRestore());
     }));
   }));
 }
@@ -1784,15 +1801,36 @@ function resultRenderKey(result = {}, index = 0) {
   return `${result.type || "item"}:${result.id || result.docId || result.title || index}`;
 }
 
+function reconcileKeyedChildren(container, nodes = []) {
+  const desired = new Set(nodes);
+  let cursor = container.firstElementChild;
+  nodes.forEach(node => {
+    if (node === cursor) {
+      cursor = cursor.nextElementSibling;
+      return;
+    }
+    container.insertBefore(node, cursor);
+  });
+  [...container.children].forEach(node => {
+    if (!desired.has(node)) node.remove();
+  });
+}
+
 function resultRenderSignature(result = {}, index = 0) {
-  const passageKey = (result.matchedChunks || []).map(chunk => `${chunk.id || ""}:${chunk.page || ""}`).join("|");
+  const passageKey = (result.matchedChunks || []).map(chunk => `${chunk.id || ""}:${chunk.page || ""}:${chunk.heading || ""}:${compactText(chunk.text || "", 180)}`).join("|");
   const expanded = (state.expandedSearchResults || []).includes(String(result.id || result.doc?.id || index));
-  return JSON.stringify([index, result.type, result.id, result.title, result.subtitle, result.score, result.matchCount, passageKey, expanded, state.effectiveSearchQuery]);
+  return JSON.stringify([
+    index, result.type, result.id, result.title, result.subtitle, result.text, result.score, result.matchCount,
+    result.chunk?.id, result.chunk?.page, result.chunk?.heading, compactText(result.chunk?.text || "", 220),
+    result.fileFormat, result.correspondent, result.status, result.url,
+    result.exactTerms || [], result.strictTerms || [], result.semanticTerms || [], result.matchSources || {},
+    passageKey, expanded, state.effectiveSearchQuery
+  ]);
 }
 
 function patchResultCards(container, results = []) {
   const existing = new Map([...container.children].filter(node => node.matches?.(".result-card[data-render-key]")).map(node => [node.dataset.renderKey, node]));
-  const fragment = document.createDocumentFragment();
+  const nodes = [];
   results.forEach((result, index) => {
     const key = resultRenderKey(result, index);
     const signature = resultRenderSignature(result, index);
@@ -1801,41 +1839,45 @@ function patchResultCards(container, results = []) {
     if (!node) return;
     node.dataset.renderKey = key;
     node.dataset.renderSignature = signature;
-    fragment.appendChild(node);
+    nodes.push(node);
   });
-  container.replaceChildren(fragment);
+  reconcileKeyedChildren(container, nodes);
   container.classList.toggle("virtualized-collection", results.length >= VIEWPORT_VIRTUALIZATION_THRESHOLD);
 }
 
 function patchDirectoryRows(tbody, rows = []) {
   const existing = new Map([...tbody.children].filter(node => node.dataset?.renderKey).map(node => [node.dataset.renderKey, node]));
-  const fragment = document.createDocumentFragment();
+  const nodes = [];
   rows.forEach(({ key, signature, html }) => {
     let node = existing.get(key);
     if (!node || node.dataset.renderSignature !== signature) node = nodeFromHtml(html);
     if (!node) return;
     node.dataset.renderKey = key;
     node.dataset.renderSignature = signature;
-    fragment.appendChild(node);
+    nodes.push(node);
   });
-  tbody.replaceChildren(fragment);
+  reconcileKeyedChildren(tbody, nodes);
   tbody.classList.toggle("virtualized-table-body", rows.length >= 40);
 }
 
 function patchResourceCards(container, docs = []) {
   const existing = new Map([...container.children].filter(node => node.dataset?.renderKey).map(node => [node.dataset.renderKey, node]));
-  const fragment = document.createDocumentFragment();
+  const nodes = [];
   docs.forEach(doc => {
     const key = `document:${doc.id}`;
-    const signature = JSON.stringify([doc.id, doc.title, doc.thumbnailUrl, doc.createdDate, doc.pageCount, doc.fileSize, doc.validityStatus]);
+    const signature = JSON.stringify([
+      doc.id, doc.title, doc.summary, doc.status, doc.thumbnailUrl, doc.thumbnailSrcset,
+      doc.createdDate, doc.pageCount, doc.fileSize, doc.validityStatus, doc.sourceLabel,
+      doc.pdfUrl, doc.sourceUrl, doc.documentType || doc.kind, doc.group || doc.category
+    ]);
     let node = existing.get(key);
     if (!node || node.dataset.renderSignature !== signature) node = nodeFromHtml(renderResourceCard(doc, "document"));
     if (!node) return;
     node.dataset.renderKey = key;
     node.dataset.renderSignature = signature;
-    fragment.appendChild(node);
+    nodes.push(node);
   });
-  container.replaceChildren(fragment);
+  reconcileKeyedChildren(container, nodes);
   container.classList.toggle("virtualized-collection", docs.length >= VIEWPORT_VIRTUALIZATION_THRESHOLD);
 }
 
@@ -2329,19 +2371,17 @@ function searchWorkerPayload() {
 async function ensureDeferredSearchIndex() {
   if (deferredSearchIndexLoaded) return deferredSearchIndex;
   if (deferredSearchIndexPromise) return deferredSearchIndexPromise;
+  if (deferredSearchIndexRetryAt > Date.now()) return deferredSearchIndex || { documents: [], vocabulary: [] };
   deferredSearchIndexPromise = (async () => {
     const text = await fetchOptionalText(searchIndexUrl || "documents/search-index.json");
-    if (!text) {
-      deferredSearchIndexLoaded = true;
-      deferredSearchIndex = { documents: [], vocabulary: [] };
-      return deferredSearchIndex;
-    }
+    if (!text) throw new Error("O índice completo de trechos não respondeu.");
     const parsed = JSON.parse(text);
     deferredSearchIndex = {
       documents: Array.isArray(parsed) ? parsed : (parsed.documents || []),
       vocabulary: Array.isArray(parsed?.vocabulary) ? parsed.vocabulary : []
     };
     deferredSearchIndexLoaded = true;
+    deferredSearchIndexRetryAt = 0;
     const chunksById = new Map(deferredSearchIndex.documents.map(item => [item.id, item]));
     documents.forEach(doc => {
       const indexed = chunksById.get(doc.id);
@@ -2352,9 +2392,12 @@ async function ensureDeferredSearchIndex() {
     await updateSearchWorkerNow();
     return deferredSearchIndex;
   })().catch(error => {
+    deferredSearchIndex = deferredSearchIndex || { documents: [], vocabulary: [] };
+    deferredSearchIndexRetryAt = Date.now() + SEARCH_INDEX_RETRY_DELAY_MS;
+    console.warn("Índice completo de trechos indisponível; nova tentativa será feita depois:", error);
+    return deferredSearchIndex;
+  }).finally(() => {
     deferredSearchIndexPromise = null;
-    console.warn("Índice completo de trechos indisponível:", error);
-    return { documents: [], vocabulary: [] };
   });
   return deferredSearchIndexPromise;
 }
@@ -2388,7 +2431,7 @@ function ensureSearchWorker() {
   if (!("Worker" in window)) return Promise.reject(new Error("Web Worker indisponível"));
 
   searchWorkerInitPromise = new Promise((resolve, reject) => {
-    const worker = new Worker("js/search-worker.js?v=0.2.33");
+    const worker = new Worker("js/search-worker.js?v=0.2.36");
     searchWorker = worker;
     const initId = ++searchRequestId;
     let settled = false;
@@ -2398,7 +2441,7 @@ function ensureSearchWorker() {
       window.clearTimeout(timeout);
       handler(value);
     };
-    const timeout = window.setTimeout(() => finishInit(reject, new Error("Tempo esgotado ao iniciar a busca")), 7000);
+    const timeout = window.setTimeout(() => { const error = new Error("Tempo esgotado ao iniciar a busca"); finishInit(reject, error); resetSearchWorker(error); }, 7000);
 
     worker.addEventListener("message", event => {
       const message = event.data || {};
@@ -2492,7 +2535,7 @@ async function searchInWorker(query, filters) {
       worker.postMessage({ type: "search", id, query, filters });
     });
   } catch (workerError) {
-    if (!window.HubSearchEngine) await import("./js/search-engine.js?v=0.2.33");
+    if (!window.HubSearchEngine) await import("./js/search-engine.js?v=0.2.36");
     if (!mainThreadSearchEngine) mainThreadSearchEngine = new window.HubSearchEngine(searchWorkerPayload());
     else mainThreadSearchEngine.update(searchWorkerPayload());
     const id = ++searchRequestId;
@@ -2504,7 +2547,12 @@ async function searchInWorker(query, filters) {
 }
 
 
-async function runSearch(query = document.getElementById("searchInput").value, { historyMode = "replace" } = {}) {
+async function runSearch(query = document.getElementById("searchInput").value, { historyMode = "replace", navigationRestoreGeneration = 0 } = {}) {
+  if (!navigationRestoreGeneration) {
+    searchRestoreGeneration += 1;
+    restoringSearchHistory = false;
+  }
+  const runGeneration = ++latestSearchRunGeneration;
   const normalizedQuery = String(query || "").trim();
   const queryChanged = normalizedQuery !== String(state.lastQuery || "").trim();
   if (queryChanged) {
@@ -2524,6 +2572,7 @@ async function runSearch(query = document.getElementById("searchInput").value, {
   const requestMarker = searchRequestId + 1;
   try {
     const response = await searchInWorker(normalizedQuery, getFilters());
+    if (runGeneration !== latestSearchRunGeneration) return;
     if (response.id !== latestSearchRequestId || response.id < requestMarker) return;
     const results = (response.results || []).map(hydrateSearchResult);
     renderResults(results, normalizedQuery, { effectiveQuery: response.effectiveQuery || normalizedQuery, correction: response.correction || null });
@@ -2531,6 +2580,7 @@ async function runSearch(query = document.getElementById("searchInput").value, {
     syncSearchHistory(historyMode, { routeHash: "#buscar" });
     window.dispatchEvent(new CustomEvent("hub:search-performance", { detail: { elapsedMs: response.elapsedMs || 0, query: normalizedQuery } }));
   } catch (error) {
+    if (runGeneration !== latestSearchRunGeneration) return;
     console.warn("Falha no mecanismo de busca:", error);
     renderResults([], normalizedQuery, { effectiveQuery: normalizedQuery, correction: null });
     updateSuggestions(normalizedQuery);
@@ -3185,7 +3235,10 @@ function renderDirectory() {
     const category = doc.group || doc.category || categoryFromPath(fileUrl);
     return {
       key: `directory:${doc.id}`,
-      signature: JSON.stringify([doc.id, doc.title, category, createdDateText(doc), directoryFileSize(doc), doc.thumbnailUrl]),
+      signature: JSON.stringify([
+        doc.id, doc.title, category, createdDateText(doc), directoryFileSize(doc),
+        doc.thumbnailUrl, doc.thumbnailSrcset, fileUrl, doc.pdfUrl, doc.sourceUrl
+      ]),
       html: `
         <tr>
           <td class="directory-thumb-cell">${thumbnailHtml(doc, "document")}</td>
@@ -3299,9 +3352,7 @@ function populateLinksColumnsSelect() {
   select.innerHTML = options.join("");
   select.value = preferred;
   select.disabled = state.linksEditMode;
-  if (label) label.textContent = view === "cards"
-    ? "Colunas da visualização detalhada"
-    : "Colunas da visualização rápida";
+  if (label) label.textContent = "Colunas";
 }
 
 function applyLinksColumns({ persist = false } = {}) {
@@ -3863,43 +3914,72 @@ function bestChunksForDoc(doc, exactTerms = [], semanticTerms = []) {
   return chunks.slice(0, 1);
 }
 
+function previewFocusableElements() {
+  const modal = document.getElementById("previewModal");
+  if (!modal || modal.getAttribute("aria-hidden") !== "false") return [];
+  return [...modal.querySelectorAll("a[href], button:not([disabled]), input:not([disabled]), select:not([disabled]), textarea:not([disabled]), [tabindex]:not([tabindex='-1'])")]
+    .filter(element => !element.hidden && element.getClientRects().length > 0);
+}
+
 function setPreviewModalOpen(open) {
   const modal = document.getElementById("previewModal");
   if (!modal) return;
+  const wasOpen = modal.getAttribute("aria-hidden") === "false";
+  if (!open) previewOpenGeneration += 1;
   modal.setAttribute("aria-hidden", open ? "false" : "true");
   document.body.classList.toggle("modal-open", Boolean(open));
+  if (wasOpen && !open) {
+    const returnTarget = previewReturnFocus;
+    previewReturnFocus = null;
+    const fallbackTarget = document.getElementById("searchInput") || document.querySelector("a[href], button:not([disabled])");
+    const focusTarget = returnTarget?.isConnected && typeof returnTarget.focus === "function" ? returnTarget : fallbackTarget;
+    if (focusTarget && typeof focusTarget.focus === "function") {
+      requestAnimationFrame(() => focusTarget.focus({ preventScroll: true }));
+    }
+  }
 }
 
 function closePreviewModal({ historyMode = "back" } = {}) {
   const modal = document.getElementById("previewModal");
   const wasOpen = modal?.getAttribute("aria-hidden") === "false";
+  const canGoBack = Boolean(state.previewHistoryPushed);
   setPreviewModalOpen(false);
   state.previewDocId = "";
   state.previewPage = "";
+  state.previewHistoryPushed = false;
   if (!wasOpen || restoringSearchHistory || historyMode === "none") return;
-  if (historyMode === "back" && history.state?.marker === SEARCH_HISTORY_MARKER && history.state?.previewDocId) {
+  if (historyMode === "back" && canGoBack && history.state?.marker === SEARCH_HISTORY_MARKER && history.state?.previewDocId) {
     history.back();
     return;
   }
-  syncSearchHistory("replace", { previewDocId: "", previewPage: "" });
+  syncSearchHistory("replace", { previewDocId: "", previewPage: "", previewHistoryPushed: false });
 }
 
 async function openPreviewFromDoc(doc, options = {}) {
-  if (!doc) return;
+  if (!doc) return false;
+  const requestGeneration = Number(options.requestGeneration) || ++previewOpenGeneration;
+  const modalAlreadyOpen = document.getElementById("previewModal")?.getAttribute("aria-hidden") === "false";
+  if (!modalAlreadyOpen && !options.requestGeneration) previewReturnFocus = options.returnFocus || document.activeElement;
   await hydrateDocumentPassages(doc);
+  if (requestGeneration !== previewOpenGeneration) return false;
   const queryTerms = expandedTerms(state.lastQuery || "");
   const exactTerms = options.exactTerms || queryTerms.exact || [];
   const semanticTerms = options.semanticTerms || queryTerms.semantic || [];
   const chunk = options.chunk || bestChunksForDoc(doc, exactTerms, semanticTerms)[0] || doc.chunks?.[0] || { page: "—", heading: "Prévia", text: doc.summary || doc.title || "" };
-  openPreview({ type: "document", doc, chunk, exactTerms, semanticTerms }, options);
+  return openPreview({ type: "document", doc, chunk, exactTerms, semanticTerms }, { ...options, requestGeneration });
 }
 
-async function openPreview(result, { historyMode = "push", restorePage = "" } = {}) {
+async function openPreview(result, { historyMode = "push", restorePage = "", requestGeneration = 0, returnFocus = null } = {}) {
   const modal = document.getElementById("previewModal");
   const modalContent = document.getElementById("modalContent");
-  if (!modal || !modalContent || !result || result.type !== "document") return;
+  if (!modal || !modalContent || !result || result.type !== "document") return false;
+  const generation = Number(requestGeneration) || ++previewOpenGeneration;
+  const modalAlreadyOpen = modal.getAttribute("aria-hidden") === "false";
+  if (!modalAlreadyOpen && !requestGeneration) previewReturnFocus = returnFocus || document.activeElement;
   const doc = result.doc;
+  if (!doc) return false;
   await hydrateDocumentPassages(doc);
+  if (generation !== previewOpenGeneration) return false;
   const exactTerms = result.exactTerms || [];
   const semanticTerms = result.semanticTerms || [];
   const chunks = (result.matchedChunks || []).length
@@ -3976,15 +4056,19 @@ async function openPreview(result, { historyMode = "push", restorePage = "" } = 
       </footer>
     </div>
   `;
+  if (generation !== previewOpenGeneration) return false;
   setPreviewModalOpen(true);
   state.previewDocId = doc.id || "";
   state.previewPage = String(firstPage || "");
-  syncSearchHistory(historyMode, { previewDocId: state.previewDocId, previewPage: state.previewPage });
+  if (historyMode !== "none") state.previewHistoryPushed = historyMode === "push";
+  syncSearchHistory(historyMode, { previewDocId: state.previewDocId, previewPage: state.previewPage, previewHistoryPushed: state.previewHistoryPushed });
+  requestAnimationFrame(() => modal.querySelector("button[data-close-modal]")?.focus?.({ preventScroll: true }));
   if (restorePage) {
     const restoreIndex = shownChunks.findIndex(chunk => String(chunk.page || "") === String(restorePage));
     if (restoreIndex >= 0) requestAnimationFrame(() => document.getElementById(`preview-chunk-${restoreIndex}`)?.scrollIntoView({ block: "start", behavior: "auto" }));
   }
   schedulePdfThumbnailRender();
+  return true;
 }
 
 function setupModal() {
@@ -3999,9 +4083,9 @@ function setupModal() {
       const matchIndex = Number(previewButton.dataset.previewMatch);
       if (result?.type === "document" && Number.isFinite(matchIndex) && matchIndex >= 0) {
         const selectedChunk = (result.matchedChunks || [])[matchIndex];
-        openPreview({ ...result, chunk: selectedChunk || result.chunk }, { restorePage: selectedChunk?.page || "" });
+        openPreview({ ...result, chunk: selectedChunk || result.chunk }, { restorePage: selectedChunk?.page || "", returnFocus: previewButton });
       } else {
-        openPreview(result);
+        openPreview(result, { returnFocus: previewButton });
       }
     }
 
@@ -4009,19 +4093,19 @@ function setupModal() {
     if (directoryDoc) {
       event.preventDefault();
       const doc = documents.find(item => item.id === directoryDoc.dataset.directoryDoc);
-      openPreviewFromDoc(doc);
+      openPreviewFromDoc(doc, { returnFocus: directoryDoc });
     }
 
     const docPreviewButton = event.target.closest("[data-doc-preview]");
     if (docPreviewButton) {
       const doc = documents.find(item => item.id === docPreviewButton.dataset.docPreview);
-      openPreviewFromDoc(doc);
+      openPreviewFromDoc(doc, { returnFocus: docPreviewButton });
     }
 
     const openDoc = event.target.closest("[data-open-doc]");
     if (openDoc) {
       const doc = documents.find(item => item.id === openDoc.dataset.openDoc);
-      openPreviewFromDoc(doc);
+      openPreviewFromDoc(doc, { returnFocus: openDoc });
     }
 
     const copyButton = event.target.closest("[data-copy-resource]");
@@ -4065,6 +4149,37 @@ document.addEventListener("keydown", event => {
   const typing = target && /^(INPUT|TEXTAREA|SELECT)$/i.test(target.tagName || "") || target?.isContentEditable;
   const modalOpen = document.getElementById("previewModal")?.getAttribute("aria-hidden") === "false";
 
+  if (modalOpen && event.key === "Tab") {
+    const focusable = previewFocusableElements();
+    if (focusable.length) {
+      const first = focusable[0];
+      const last = focusable[focusable.length - 1];
+      const activeInside = focusable.includes(document.activeElement);
+      if (!activeInside) {
+        event.preventDefault();
+        (event.shiftKey ? last : first).focus();
+      } else if (event.shiftKey && document.activeElement === first) {
+        event.preventDefault();
+        last.focus();
+      } else if (!event.shiftKey && document.activeElement === last) {
+        event.preventDefault();
+        first.focus();
+      }
+    }
+    return;
+  }
+
+  if (modalOpen && event.key === "Escape") {
+    event.preventDefault();
+    closePreviewModal();
+    return;
+  }
+
+  if (modalOpen) {
+    if ((event.ctrlKey || event.metaKey) && !event.altKey && event.key.toLowerCase() === "k") event.preventDefault();
+    return;
+  }
+
   if ((event.ctrlKey || event.metaKey) && !event.altKey && event.key.toLowerCase() === "k") {
     event.preventDefault();
     window.HUB_SIDEBAR_SEARCH?.open?.();
@@ -4077,12 +4192,6 @@ document.addEventListener("keydown", event => {
     navigateToLocalAnchor("#buscar", { behavior: "smooth" });
     input?.focus({ preventScroll: true });
     input?.select();
-    return;
-  }
-
-  if (event.key === "Escape" && modalOpen) {
-    event.preventDefault();
-    closePreviewModal();
     return;
   }
 
@@ -4957,10 +5066,10 @@ function waitForInitialPaint() {
 
 function loadDeferredFeatureScripts() {
   const scripts = [
-    "js/enhancements.js?v=0.2.33",
-    "js/experience.js?v=0.2.33",
-    "js/sidebar-quick-search.js?v=0.2.33",
-    "js/performance-monitor.js?v=0.2.33"
+    "js/enhancements.js?v=0.2.36",
+    "js/experience.js?v=0.2.36",
+    "js/sidebar-quick-search.js?v=0.2.36",
+    "js/performance-monitor.js?v=0.2.36"
   ];
   const load = src => new Promise(resolve => {
     if (document.querySelector(`script[src="${src}"]`)) { resolve(); return; }
@@ -5041,4 +5150,9 @@ async function boot() {
 }
 
 
-boot();
+boot().catch(error => {
+  console.error("Falha ao iniciar o HUB:", error);
+  setLoadingStatus("Não foi possível concluir a inicialização. Recarregue a página ou tente novamente quando a conexão estiver estável.", "error");
+  const summary = document.getElementById("resultsSummary");
+  if (summary && !summary.textContent.trim()) summary.textContent = "Falha ao carregar os recursos principais do HUB.";
+});

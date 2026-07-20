@@ -26,6 +26,7 @@ jobs:
           python3 scripts/test_markup_safety.py
           python3 scripts/test_production_asset_resolution.py
           python3 scripts/test_host_verifier.py
+          python3 scripts/test_links_toggle_intrinsic.py
           python3 scripts/update_content.py --check-only --skip-inline
       - name: Enforce performance budget
         run: |
@@ -60,6 +61,8 @@ jobs:
           node scripts/test_search_engine.cjs
           node --check scripts/test_runtime_regressions.cjs
           node scripts/test_runtime_regressions.cjs
+          node --check scripts/test_pdf_continuous_mode.cjs
+          node scripts/test_pdf_continuous_mode.cjs
           node --check apps/doom/doom.js
       - name: Check Python and release script syntax
         run: |

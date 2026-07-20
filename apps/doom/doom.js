@@ -823,6 +823,7 @@
       button.addEventListener("pointerdown", event => {
         if (!mobileInput || !playerReady || !controlsActive) return;
         event.preventDefault();
+        button.setPointerCapture?.(event.pointerId);
         button.classList.add("is-pressed");
         tapAction(button.dataset.doomTap);
       });
@@ -837,6 +838,7 @@
     byId("doomWeapon")?.addEventListener("pointerdown", event => {
       if (!mobileInput || !playerReady || !controlsActive) return;
       event.preventDefault();
+      event.currentTarget.setPointerCapture?.(event.pointerId);
       weaponSlot = weaponSlot >= 7 ? 1 : weaponSlot + 1;
       const output = byId("doomWeaponNumber");
       if (output) output.textContent = String(weaponSlot);

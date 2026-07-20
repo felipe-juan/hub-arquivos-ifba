@@ -88,6 +88,9 @@ html[data-theme="light"] .doom-exit-button{color:#8c261c!important}
 .doom-controls-list li{display:grid;align-content:start;gap:8px;min-width:0;padding:10px;border:1px solid var(--doom-line);border-radius:12px;background:rgba(0,0,0,.12);color:var(--doom-muted);font-size:.78rem;text-align:center}
 .doom-key-group{display:flex;align-items:center;justify-content:center;flex-wrap:wrap;gap:4px;min-height:30px}
 .doom-key-group b{font-weight:800;color:var(--doom-muted)}
+.doom-wasd-group{display:grid;grid-template-columns:minmax(0,1fr);justify-items:center;align-content:center;gap:4px;min-height:42px}
+.doom-wasd-row{display:flex;align-items:center;justify-content:center;gap:4px;width:100%}
+.doom-wasd-row--top,.doom-wasd-row--bottom{justify-content:center}
 kbd{display:inline-grid;place-items:center;min-width:27px;min-height:27px;padding:3px 7px;border:1px solid rgba(255,255,255,.28);border-bottom-width:3px;border-radius:6px;background:rgba(255,255,255,.08);color:var(--doom-text);font:800 .72rem/1 Inter,ui-sans-serif,system-ui,sans-serif;box-shadow:0 2px 0 rgba(0,0,0,.28)}
 html[data-theme="light"] kbd{border-color:rgba(23,50,61,.24);background:#fff;box-shadow:0 2px 0 rgba(23,50,61,.12)}
 

@@ -15,11 +15,31 @@ const appShell = fs.readFileSync("apps/app-shell.js", "utf8");
 const flux = fs.readFileSync("apps/fluxogramas/index.html", "utf8");
 const enhancements = fs.readFileSync("js/enhancements.js", "utf8");
 const experience = fs.readFileSync("js/experience.js", "utf8");
+const sidebarSearch = fs.readFileSync("js/sidebar-quick-search.js", "utf8");
 
 assert(app.includes("sharedLinkRequestFromLocation"), "Leitura de ?doc=/?share= ausente.");
+
+assert(app.includes("latestSearchRunGeneration"), "Busca não descarta respostas assíncronas antigas.");
+assert(app.includes("searchRestoreGeneration"), "Restauração do histórico não possui geração contra corridas.");
+assert(app.includes("previewOpenGeneration"), "Abertura de preview não descarta cliques antigos.");
+assert(app.includes("previewHistoryPushed"), "Preview não distingue histórico empilhado de abertura compartilhada.");
+assert(app.includes("reconcileKeyedChildren"), "Renderização não reaproveita nós estáveis por chave.");
+assert(app.includes("boot().catch(error =>"), "Falhas fatais do boot não são apresentadas de modo controlado.");
+assert(viewer.includes("pointers.clear()"), "Pinch móvel não elimina ponteiros fantasmas ao terminar o gesto.");
+assert(viewer.includes("function resetGestureState()"), "BFCache não limpa gesto móvel interrompido no visualizador.");
+assert(viewer.includes("pageCache.delete(number)"), "Falha ao carregar página PDF permanece presa no cache.");
+assert(viewer.includes("textContentCache.delete(number)"), "Falha ao carregar texto PDF permanece presa no cache.");
+assert(pdf.includes("active.page?.cleanup?.()"), "Cancelamento de miniatura não libera a página PDF ativa.");
+assert(sw.includes("navigationFallback(url)"), "Navegação offline não escolhe o shell conforme a rota.");
+assert(sw.includes("fetchWithTimeout(request, 15000)"), "Instalação do shell pode ficar presa indefinidamente em rede lenta.");
+assert(sw.includes("fetchWithTimeout(request, 10000)"), "Metadados sem cache podem ficar presos indefinidamente em rede lenta.");
+assert(sw.includes("event.waitUntil(self.skipWaiting())"), "Ativação solicitada do service worker não mantém a promessa viva.");
+assert(sw.includes("await staticCache.match(fallback)"), "Fallback de navegação ainda pode vir de um cache antigo global.");
+assert(sw.includes("caches.open(cacheName)"), "Estratégias do service worker não isolam seus caches.");
 assert(app.includes("if (!restoredDoomSearch && sharedLinkRequest) handleSharedLink(sharedLinkRequest);"), "Link público não é executado no boot.");
 assert(app.includes("resetSearchWorker"), "Worker de busca não possui limpeza central.");
 assert(app.includes("Tempo esgotado ao executar a busca"), "Busca no Worker não possui timeout.");
+assert(app.includes('finishInit(reject, error); resetSearchWorker(error);'), "Timeout de inicialização do Worker não permite recuperação posterior.");
 assert(app.includes('message.type === "error" && message.id === initId'), "Erro de inicialização do Worker só seria percebido após o timeout.");
 const boot = app.slice(app.indexOf("async function boot()"), app.indexOf("boot();"));
 assert(!boot.includes("ensureSearchWorker()"), "Worker pesado ainda é criado durante o boot.");
@@ -28,8 +48,8 @@ assert(pdf.includes("page.cleanup?.()"), "Extração PDF não libera páginas pr
 assert(pdf.includes("pdfJsLoadPromise = null"), "Falha de PDF.js não permite nova tentativa.");
 assert(viewer.includes("status.replaceChildren"), "Erro do visualizador ainda é montado por HTML inseguro.");
 assert(viewer.includes("textRenderTask"), "Renderização de texto PDF não é cancelável.");
-assert(viewer.includes("if(!ctx)return showError"), "Visualizador não trata canvas 2D indisponível.");
-assert(viewer.includes("if(!sharpCtx)throw new Error"), "Renderização nítida não valida o contexto 2D temporário.");
+assert(/if\s*\(\s*!ctx\s*\)\s*return showError/.test(viewer), "Visualizador não trata canvas 2D indisponível.");
+assert(/if\s*\(\s*!sharpCtx\s*\)\s*throw new Error/.test(viewer), "Renderização nítida não valida o contexto 2D temporário.");
 assert(sw.includes("event.waitUntil(network.then(() => undefined))"), "Atualização stale-while-revalidate não está ligada ao evento.");
 assert(sw.includes("Promise.allSettled(CORE.map"), "Instalação do service worker ainda falha inteira quando um recurso offline opcional está indisponível.");
 assert(sw.includes("const REQUIRED_CORE = new Set"), "Service worker não diferencia shell essencial de recursos offline opcionais.");
@@ -50,6 +70,7 @@ assert(!flux.includes("insertAdjacentHTML('afterbegin',`<div class=\"flux-load-e
 assert(enhancements.includes("const queueFavoriteSync = () =>"), "Sincronização de favoritos ainda executa a cada mutação sem agrupar por frame.");
 assert(enhancements.includes("try {\n      const keys = [];"), "Restauração de preferências não tolera armazenamento bloqueado.");
 assert(experience.includes('try { localStorage.removeItem(RECENTS_KEY); } catch (_) {}'), "Limpeza de recentes não tolera armazenamento bloqueado.");
+assert(sidebarSearch.includes("documents/manifest-summary.json"), "Busca rápida lateral ignora o catálogo resumido e baixa o manifesto completo primeiro.");
 
 assert(calendar.includes("function getSharedThemeMode()"), "Calendário não protege a leitura do tema compartilhado.");
 assert(!calendar.includes('if((localStorage.getItem("hubThemeMode")||"auto")==="auto")'), "Calendário lê localStorage sem proteção no listener do tema.");

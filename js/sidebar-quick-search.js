@@ -154,10 +154,12 @@
       } catch (_) {}
       if (!items.length) {
         try {
-          const response = await fetch(new URL("documents/manifest.json", rootInfo.root), { cache: "no-cache" });
-          if (response.ok) {
+          for (const path of ["documents/manifest-summary.json", "documents/manifest.json"]) {
+            const response = await fetch(new URL(path, rootInfo.root), { cache: "no-cache" });
+            if (!response.ok) continue;
             const manifest = await response.json();
             items = Array.isArray(manifest) ? manifest : (manifest.documents || []);
+            if (items.length) break;
           }
         } catch (_) {}
       }
