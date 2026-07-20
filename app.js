@@ -860,7 +860,7 @@ function thumbnailHtml(resource, type = "document", options = {}) {
 
 let pdfRuntimePromise = null;
 function getPdfRuntime() {
-  if (!pdfRuntimePromise) pdfRuntimePromise = import("./js/pdf-runtime.js?v=0.2.43");
+  if (!pdfRuntimePromise) pdfRuntimePromise = import("./js/pdf-runtime.js?v=0.2.44");
   return pdfRuntimePromise;
 }
 async function renderSinglePdfThumbnail(el) {
@@ -2431,7 +2431,7 @@ function ensureSearchWorker() {
   if (!("Worker" in window)) return Promise.reject(new Error("Web Worker indisponível"));
 
   searchWorkerInitPromise = new Promise((resolve, reject) => {
-    const worker = new Worker("js/search-worker.js?v=0.2.43");
+    const worker = new Worker("js/search-worker.js?v=0.2.44");
     searchWorker = worker;
     const initId = ++searchRequestId;
     let settled = false;
@@ -2535,7 +2535,7 @@ async function searchInWorker(query, filters) {
       worker.postMessage({ type: "search", id, query, filters });
     });
   } catch (workerError) {
-    if (!window.HubSearchEngine) await import("./js/search-engine.js?v=0.2.43");
+    if (!window.HubSearchEngine) await import("./js/search-engine.js?v=0.2.44");
     if (!mainThreadSearchEngine) mainThreadSearchEngine = new window.HubSearchEngine(searchWorkerPayload());
     else mainThreadSearchEngine.update(searchWorkerPayload());
     const id = ++searchRequestId;
@@ -5077,10 +5077,10 @@ function waitForInitialPaint() {
 
 function loadDeferredFeatureScripts() {
   const scripts = [
-    "js/enhancements.js?v=0.2.43",
-    "js/experience.js?v=0.2.43",
-    "js/sidebar-quick-search.js?v=0.2.43",
-    "js/performance-monitor.js?v=0.2.43"
+    "js/enhancements.js?v=0.2.44",
+    "js/experience.js?v=0.2.44",
+    "js/sidebar-quick-search.js?v=0.2.44",
+    "js/performance-monitor.js?v=0.2.44"
   ];
   const load = src => new Promise(resolve => {
     if (document.querySelector(`script[src="${src}"]`)) { resolve(); return; }

@@ -9,9 +9,9 @@ O projeto deve ser tratado como uma ferramenta experimental de apoio. Para decis
 
 ## Versão atual
 
-**v0.2.43**
+**v0.2.44**
 
-Esta versão corrige os controles móveis do DOOM: avanço e recuo do joystick deixam de depender da sensibilidade da câmera, as teclas mantidas são reafirmadas durante o toque e a visão passa a usar um controle contínuo por toque e permanência, sem exigir arrastar repetidamente.
+Esta versão mantém as correções de avanço/recuo do joystick do DOOM e retorna a câmera mobile ao gesto de arrastar. Movimentos curtos recebem ganho adicional, eventos touch agrupados são aproveitados para maior suavidade e a sensibilidade continua ajustável sem interferir no joystick.
 
 ## Sobre o projeto
 

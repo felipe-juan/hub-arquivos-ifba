@@ -179,10 +179,12 @@ if 'data-doom-tap="confirm"' not in doom_index or 'confirm: 257' not in doom_js:
     errors.append("Botão OK/Enter do menu móvel do DOOM ausente")
 if doom_index.count('id="doomJoystick"') != 1:
     errors.append("O DOOM deve declarar exatamente um joystick customizado")
-if 'id="doomLookPuck"' not in doom_index or 'TOQUE E SEGURE PARA VIRAR' not in doom_index:
-    errors.append("Controle contínuo de visão móvel do DOOM ausente")
-if 'sendMouseRelativeMotion' not in doom_js or 'const deadZone = 0.16;' not in doom_js:
+if 'DESLIZE PARA OLHAR' not in doom_index or 'deslize horizontalmente' not in doom_index:
+    errors.append("Controle de visão por arraste móvel do DOOM ausente")
+if 'sendMouseRelativeMotion' not in doom_js or 'sendLookDragDelta' not in doom_js or 'const deadZone = 0.16;' not in doom_js:
     errors.append("Movimento/visão móvel do DOOM não usa o roteamento robusto esperado")
+if 'lookSteeringFrame' in doom_js or 'doomLookPuck' in doom_index:
+    errors.append("Controle contínuo antigo de visão do DOOM ainda está presente")
 if 'JOYSTICK_ALIAS_CODES' not in doom_js or 'startJoystickKeepAlive();' not in doom_js:
     errors.append("Joystick móvel do DOOM não possui aliases/keepalive para avanço e recuo")
 if 'kiosk: true' not in doom_js or 'layers: []' not in doom_js or 'scaleControls: 0' not in doom_js:

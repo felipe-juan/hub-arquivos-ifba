@@ -131,10 +131,14 @@ assert(js.includes('JOYSTICK_ALIAS_CODES') && js.includes('up: Object.freeze([87
 assert(js.includes('startJoystickKeepAlive();') && js.includes('setInterval(() =>'),
   "Joystick deve reafirmar teclas mantidas para evitar perda de avanço/recuo em navegadores móveis.");
 assert(js.includes('next.add("strafe")'), "Joystick móvel deve oferecer deslocamento lateral moderno.");
-assert(js.includes('sendMouseRelativeMotion') && js.includes('lookSteeringFrame'),
-  "Controle de visão deve usar movimento relativo de mouse contínuo.");
-assert(html.includes('doomLookPuck') && html.includes('TOQUE E SEGURE PARA VIRAR'),
-  "Controle de visão precisa comunicar o modo toque-e-segure sem arraste contínuo.");
+assert(js.includes('sendMouseRelativeMotion') && js.includes('sendLookDragDelta'),
+  "Controle de visão deve transformar o deslocamento do dedo em movimento relativo do mouse.");
+assert(js.includes('getCoalescedEvents') && js.includes('lookSensitivityGain'),
+  "Arraste da visão deve aproveitar eventos agrupados e ganho de sensibilidade próprio.");
+assert(html.includes('DESLIZE PARA OLHAR') && html.includes('deslize horizontalmente'),
+  "Controle de visão precisa comunicar claramente o gesto de arrastar.");
+assert(!js.includes('lookSteeringFrame') && !html.includes('doomLookPuck'),
+  "Modo toque-e-segure antigo não pode permanecer no controle de visão.");
 assert(js.includes('Number.isFinite(numeric) ? numeric : min'),
   "Clamp deve preservar o valor zero; tratá-lo como falso quebra o centro do controle de visão.");
 assert(js.includes('event.currentTarget.setPointerCapture?.(event.pointerId);'), "Botões touch não capturam o ponteiro e podem ficar presos ao deslizar.");
@@ -251,26 +255,57 @@ assert(joystickActionsAt(100, 42).includes("up"), "Mover o joystick para cima de
 assert(joystickActionsAt(100, 158).includes("down"), "Mover o joystick para baixo deve acionar recuo.");
 assert(joystickActionsAt(100, 100).length === 0, "Centro do joystick deve permanecer neutro.");
 
-const updateLook = extractFunction(js, "updateLookSteering");
-function lookVelocityAt(clientX) {
-  const puck = { style: {} };
-  const zone = { getBoundingClientRect: () => ({ left: 0, width: 200 }) };
+const lookGain = extractFunction(js, "lookSensitivityGain");
+function gainAt(deltaX, sensitivity = 100) {
   const context = {
-    Math,
-    Number,
-    lookVelocity: 999,
-    byId(id) { return id === "doomLookZone" ? zone : id === "doomLookPuck" ? puck : null; },
+    Math, Number,
+    touchPreferences: { sensitivity },
     clamp(value, min, max) {
       const numeric = Number(value);
       return Math.min(max, Math.max(min, Number.isFinite(numeric) ? numeric : min));
     },
   };
-  vm.runInNewContext(`(${updateLook})({ clientX: ${clientX} });`, context);
-  return context.lookVelocity;
+  return vm.runInNewContext(`(${lookGain})(${deltaX});`, context);
 }
-assert(lookVelocityAt(100) === 0, "Centro do controle de visão deve ser neutro.");
-assert(lookVelocityAt(175) > 0, "Segurar à direita deve virar continuamente para a direita.");
-assert(lookVelocityAt(25) < 0, "Segurar à esquerda deve virar continuamente para a esquerda.");
+assert(gainAt(2, 100) > gainAt(12, 100),
+  "Arrastes curtos devem receber ganho adicional para evitar várias passadas na tela.");
+assert(gainAt(6, 160) > gainAt(6, 80),
+  "A preferência de sensibilidade deve aumentar efetivamente a resposta da visão.");
+
+const sendLookDelta = extractFunction(js, "sendLookDragDelta");
+function dragAmount(deltaX, sensitivity = 100) {
+  const delivered = [];
+  const context = {
+    Math, Number,
+    touchPreferences: { sensitivity },
+    lookRemainderX: 0,
+    lookFallbackAction: "",
+    lookFallbackTimer: 0,
+    window: {
+      clearTimeout() {},
+      setTimeout() { return 1; },
+    },
+    clamp(value, min, max) {
+      const numeric = Number(value);
+      return Math.min(max, Math.max(min, Number.isFinite(numeric) ? numeric : min));
+    },
+    lookSensitivityGain(delta) {
+      const magnitude = Math.abs(delta);
+      const level = Math.min(220, Math.max(60, sensitivity)) / 100;
+      const baseGain = 2.25 + level * 1.75;
+      const shortSwipeBoost = magnitude <= 3 ? 1.65 : magnitude <= 8 ? 1.35 : 1.1;
+      return baseGain * shortSwipeBoost;
+    },
+    sendLookRelativeMotion(amount) { delivered.push(amount); return true; },
+    setLookFallbackAction() {},
+  };
+  vm.runInNewContext(`(${sendLookDelta})(${deltaX});`, context);
+  return delivered[0] || 0;
+}
+assert(dragAmount(4, 100) > 16,
+  "Um arraste curto para a direita deve produzir movimento de visão claramente perceptível.");
+assert(dragAmount(-4, 100) < -16,
+  "Um arraste curto para a esquerda deve preservar direção e sensibilidade.");
 
 const statusZ = Number(css.match(/\.doom-status\{[^}]*z-index:(\d+)/)?.[1] || 0);
 const controlsZ = Number(css.match(/\.doom-touch-controls\{[^}]*z-index:(\d+)/)?.[1] || 0);

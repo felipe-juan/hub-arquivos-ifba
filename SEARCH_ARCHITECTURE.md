@@ -2,7 +2,7 @@
 
 O objetivo não é copiar o Paperless-ngx inteiro. O ideal é aproveitar as ideias certas e construir um fluxo menor, voltado para universidade.
 
-## Easter Egg do DOOM — v0.2.43
+## Easter Egg do DOOM — v0.2.44
 
 A consulta exata `doom` é interceptada antes da busca comum e renderiza um único resultado anômalo dentro da grade. Consultas maiores, como `doom pdf`, continuam passando pela busca normal. A mesma regra vale quando a consulta da sidebar é enviada à busca principal.
 
@@ -15,7 +15,7 @@ A página tenta os recursos nesta ordem:
 3. endereço `latest` para os arquivos do motor v8;
 4. modo de compatibilidade js-dos 6.22.
 
-No celular, o HUD personalizado desativa os controles nativos do js-dos. O joystick esquerdo envia simultaneamente setas e aliases WASD, usa zona morta fixa de 16% e reafirma as teclas mantidas enquanto o dedo permanece pressionado. A visão usa `sendMouseRelativeMotion`: tocar e segurar à esquerda ou à direita da área de visão produz rotação contínua, com velocidade proporcional à distância do centro e sensibilidade ajustável. Arrastar apenas altera essa velocidade; não é necessário repetir gestos longos.
+No celular, o HUD personalizado desativa os controles nativos do js-dos. O joystick esquerdo envia simultaneamente setas e aliases WASD, usa zona morta fixa de 16% e reafirma as teclas mantidas enquanto o dedo permanece pressionado. A visão usa `sendMouseRelativeMotion` a partir do deslocamento horizontal do dedo: o usuário arrasta a área direita como em um FPS mobile, movimentos curtos recebem ganho adicional e eventos agrupados do navegador são aproveitados para maior suavidade. A sensibilidade da visão é independente do joystick.
 
 Ao perder foco, a sessão libera entradas mantidas, tenta pausar o motor e exige retomada explícita. O encerramento mostra o tempo da sessão e pode restaurar a busca anterior.
 

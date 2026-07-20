@@ -83,10 +83,10 @@
   let joystickActions = new Set();
   let joystickKeepAliveTimer = 0;
   let lookPointerId = null;
-  let lookVelocity = 0;
-  let lookAnimationFrame = 0;
-  let lookLastFrameAt = 0;
+  let lookLastX = 0;
+  let lookRemainderX = 0;
   let lookFallbackAction = "";
+  let lookFallbackTimer = 0;
   let weaponSlot = 2;
   let touchPreferences = { ...DEFAULT_TOUCH_PREFS };
   let stoppingPlayer = false;
@@ -888,15 +888,13 @@
     }, 180);
   }
 
-  function stopLookSteering() {
-    if (lookAnimationFrame) window.cancelAnimationFrame(lookAnimationFrame);
-    lookAnimationFrame = 0;
-    lookLastFrameAt = 0;
-    lookVelocity = 0;
+  function stopLookDrag() {
+    lookLastX = 0;
+    lookRemainderX = 0;
+    if (lookFallbackTimer) window.clearTimeout(lookFallbackTimer);
+    lookFallbackTimer = 0;
     if (lookFallbackAction) releaseAction(lookFallbackAction, "look-zone");
     lookFallbackAction = "";
-    const puck = byId("doomLookPuck");
-    if (puck) puck.style.transform = "translate3d(0, 0, 0)";
   }
 
   function releaseAllTouchControls() {
@@ -908,7 +906,7 @@
     joystickActions.clear();
     joystickPointerId = null;
     stopJoystickKeepAlive();
-    stopLookSteering();
+    stopLookDrag();
     lookPointerId = null;
     const knob = byId("doomJoystickKnob");
     if (knob) knob.style.transform = "translate3d(0, 0, 0)";
@@ -1119,38 +1117,30 @@
     return false;
   }
 
-  function lookSteeringFrame(timestamp) {
-    if (lookPointerId === null || !mobileInput || !playerReady || !controlsActive) {
-      stopLookSteering();
-      return;
-    }
-    const elapsed = lookLastFrameAt ? clamp(timestamp - lookLastFrameAt, 4, 40) : 16.67;
-    lookLastFrameAt = timestamp;
-    const sensitivity = touchPreferences.sensitivity / 100;
-    const relativeAmount = lookVelocity * 7.2 * sensitivity * (elapsed / 16.67);
-    const mouseDelivered = sendLookRelativeMotion(relativeAmount);
-    // Fallback para runtimes antigos sem movimento relativo de mouse.
-    setLookFallbackAction(mouseDelivered || Math.abs(lookVelocity) < 0.08
-      ? ""
-      : lookVelocity < 0 ? "left" : "right");
-    lookAnimationFrame = window.requestAnimationFrame(lookSteeringFrame);
+  function lookSensitivityGain(deltaX) {
+    const magnitude = Math.abs(deltaX);
+    const sensitivity = clamp(touchPreferences.sensitivity, 60, 220) / 100;
+    const baseGain = 2.25 + sensitivity * 1.75;
+    const shortSwipeBoost = magnitude <= 3 ? 1.65 : magnitude <= 8 ? 1.35 : 1.1;
+    return baseGain * shortSwipeBoost;
   }
 
-  function updateLookSteering(event) {
-    const zone = byId("doomLookZone");
-    const puck = byId("doomLookPuck");
-    if (!zone) return;
-    const rect = zone.getBoundingClientRect();
-    const halfWidth = Math.max(1, rect.width / 2);
-    const normalized = clamp((event.clientX - (rect.left + halfWidth)) / halfWidth, -1, 1);
-    const deadZone = 0.12;
-    if (Math.abs(normalized) <= deadZone) {
-      lookVelocity = 0;
-    } else {
-      const magnitude = (Math.abs(normalized) - deadZone) / (1 - deadZone);
-      lookVelocity = Math.sign(normalized) * Math.pow(magnitude, 1.25);
+  function sendLookDragDelta(deltaX) {
+    if (!Number.isFinite(deltaX) || Math.abs(deltaX) < 0.05) return;
+    const amplified = deltaX * lookSensitivityGain(deltaX) + lookRemainderX;
+    const amount = amplified < 0 ? Math.ceil(amplified) : Math.floor(amplified);
+    lookRemainderX = amplified - amount;
+    if (!amount) return;
+    if (sendLookRelativeMotion(amount)) {
+      setLookFallbackAction("");
+      return;
     }
-    if (puck) puck.style.transform = `translate3d(${lookVelocity * Math.min(54, rect.width * .22)}px, 0, 0)`;
+    setLookFallbackAction(amount < 0 ? "left" : "right");
+    if (lookFallbackTimer) window.clearTimeout(lookFallbackTimer);
+    lookFallbackTimer = window.setTimeout(() => {
+      setLookFallbackAction("");
+      lookFallbackTimer = 0;
+    }, 75);
   }
 
   function setupLookZone() {
@@ -1161,24 +1151,32 @@
       if (event.target.closest("button")) return;
       event.preventDefault();
       lookPointerId = event.pointerId;
+      lookLastX = event.clientX;
+      lookRemainderX = 0;
       zone.setPointerCapture?.(event.pointerId);
       zone.classList.add("is-active");
-      updateLookSteering(event);
-      lookLastFrameAt = 0;
-      lookAnimationFrame = window.requestAnimationFrame(lookSteeringFrame);
       vibrate(6);
     });
     zone.addEventListener("pointermove", event => {
       if (event.pointerId !== lookPointerId) return;
       event.preventDefault();
-      updateLookSteering(event);
+      const points = typeof event.getCoalescedEvents === "function"
+        ? event.getCoalescedEvents()
+        : [event];
+      for (const point of points.length ? points : [event]) {
+        const nextX = Number(point.clientX);
+        if (!Number.isFinite(nextX)) continue;
+        const deltaX = clamp(nextX - lookLastX, -48, 48);
+        lookLastX = nextX;
+        sendLookDragDelta(deltaX);
+      }
     });
     const release = event => {
       if (event.pointerId !== lookPointerId) return;
       event.preventDefault?.();
       lookPointerId = null;
       zone.classList.remove("is-active");
-      stopLookSteering();
+      stopLookDrag();
     };
     for (const type of ["pointerup", "pointercancel", "lostpointercapture"]) zone.addEventListener(type, release);
     window.addEventListener("pointerup", release, true);
