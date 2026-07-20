@@ -1,7 +1,0 @@
-js-dos=8.4.1
-emulators=8.4.1
-bundle=https://v8.js-dos.com/bundles/doom.jsdos
-js_dos_sha256=9e083d840e4de87d9089463faff596b41beb56d5181ff3bd5b7c12b4c07b7982
-emulators_sha256=5d9ca14da8fe75d2f1abb5a374aee14774fafd9f87c159cbcc411ca80c51c645
-bundle_sha256=40d74b90f3527480d2256c75ef443777bd5bebde95133cfe3ba01b2390516712
-fetched_at=2026-07-20T14:36:29Z

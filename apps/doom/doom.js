@@ -81,9 +81,12 @@
   let softFullscreen = false;
   let joystickPointerId = null;
   let joystickActions = new Set();
+  let joystickKeepAliveTimer = 0;
   let lookPointerId = null;
-  let lookOriginX = 0;
-  let lookAction = "";
+  let lookVelocity = 0;
+  let lookAnimationFrame = 0;
+  let lookLastFrameAt = 0;
+  let lookFallbackAction = "";
   let weaponSlot = 2;
   let touchPreferences = { ...DEFAULT_TOUCH_PREFS };
   let stoppingPlayer = false;
@@ -147,7 +150,10 @@
   });
 
   const byId = id => document.getElementById(id);
-  const clamp = (value, min, max) => Math.min(max, Math.max(min, Number(value) || min));
+  const clamp = (value, min, max) => {
+    const numeric = Number(value);
+    return Math.min(max, Math.max(min, Number.isFinite(numeric) ? numeric : min));
+  };
   const DESKTOP_HOLD_ACTIONS = Object.freeze({
     KeyW: Object.freeze(["up"]),
     KeyA: Object.freeze(["strafe", "left"]),
@@ -727,20 +733,10 @@
   }
 
   function keyCodeForAction(action) {
-    const browserKeyCode = V6_KEY_CODES[action];
-    if (activeEngine === "v6") return browserKeyCode;
-
-    // A documentação oficial recomenda converter o keyCode DOM para o código
-    // interno do js-dos. Use a tabela fixa apenas quando o conversor não estiver
-    // exposto pela versão carregada do player.
-    try {
-      const convert = window.emulatorsUi?.controls?.domToKeyCode;
-      if (typeof convert === "function") {
-        const converted = Number(convert(browserKeyCode));
-        if (Number.isFinite(converted)) return converted;
-      }
-    } catch (_) {}
-    return V8_KEY_CODES[action];
+    // O CI usa códigos próprios. Para teclas especiais, use diretamente os
+    // valores documentados pelo js-dos; depender do conversor da UI tornava o
+    // resultado variável entre builds e impedia avanço/recuo em alguns celulares.
+    return activeEngine === "v6" ? V6_KEY_CODES[action] : V8_KEY_CODES[action];
   }
 
   function fallbackKeyboardEvent(keyCode, pressed) {
@@ -876,6 +872,33 @@
     return true;
   }
 
+  function stopJoystickKeepAlive() {
+    if (joystickKeepAliveTimer) window.clearInterval(joystickKeepAliveTimer);
+    joystickKeepAliveTimer = 0;
+  }
+
+  function startJoystickKeepAlive() {
+    stopJoystickKeepAlive();
+    joystickKeepAliveTimer = window.setInterval(() => {
+      if (!mobileInput || !playerReady || !controlsActive || joystickPointerId === null) return;
+      for (const action of joystickActions) {
+        sendActionEvent(action, true);
+        sendJoystickAliasEvent(action, true);
+      }
+    }, 180);
+  }
+
+  function stopLookSteering() {
+    if (lookAnimationFrame) window.cancelAnimationFrame(lookAnimationFrame);
+    lookAnimationFrame = 0;
+    lookLastFrameAt = 0;
+    lookVelocity = 0;
+    if (lookFallbackAction) releaseAction(lookFallbackAction, "look-zone");
+    lookFallbackAction = "";
+    const puck = byId("doomLookPuck");
+    if (puck) puck.style.transform = "translate3d(0, 0, 0)";
+  }
+
   function releaseAllTouchControls() {
     for (const action of [...actionSources.keys()]) {
       sendActionEvent(action, false);
@@ -884,10 +907,9 @@
     for (const sources of holdButtonSources.values()) sources.clear();
     joystickActions.clear();
     joystickPointerId = null;
-    if (lookAction) releaseAction(lookAction, "look-zone");
-    lookAction = "";
+    stopJoystickKeepAlive();
+    stopLookSteering();
     lookPointerId = null;
-    lookOriginX = 0;
     const knob = byId("doomJoystickKnob");
     if (knob) knob.style.transform = "translate3d(0, 0, 0)";
     document.querySelectorAll(".doom-touch-button.is-pressed").forEach(button => button.classList.remove("is-pressed"));
@@ -907,12 +929,29 @@
     try { navigator.vibrate?.(duration); } catch (_) {}
   }
 
+  const JOYSTICK_ALIAS_CODES = Object.freeze({
+    up: Object.freeze([87]),
+    down: Object.freeze([83]),
+    left: Object.freeze([65]),
+    right: Object.freeze([68]),
+  });
+
+  function sendJoystickAliasEvent(action, pressed) {
+    for (const code of JOYSTICK_ALIAS_CODES[action] || []) sendRawKeyEvent(code, pressed);
+  }
+
   function setJoystickActions(nextActions) {
     for (const action of joystickActions) {
-      if (!nextActions.has(action)) releaseAction(action, "joystick");
+      if (!nextActions.has(action)) {
+        releaseAction(action, "joystick");
+        sendJoystickAliasEvent(action, false);
+      }
     }
     for (const action of nextActions) {
-      if (!joystickActions.has(action)) holdAction(action, "joystick");
+      if (!joystickActions.has(action)) {
+        holdAction(action, "joystick");
+        sendJoystickAliasEvent(action, true);
+      }
     }
     joystickActions = nextActions;
   }
@@ -933,18 +972,20 @@
     const y = rawY * scale;
     knob.style.transform = `translate3d(${x}px, ${y}px, 0)`;
 
-    const sensitivity = touchPreferences.sensitivity / 100;
-    const normalizedX = (x / maxRadius) * sensitivity;
-    const normalizedY = (y / maxRadius) * sensitivity;
-    const deadZone = clamp(0.3 / sensitivity, 0.18, 0.45);
+    // Movimento não deve depender da sensibilidade da câmera. Na versão
+    // anterior, sensibilidade baixa elevava demais a zona morta vertical e podia
+    // tornar avanço/recuo praticamente inalcançáveis no celular.
+    const normalizedX = x / maxRadius;
+    const normalizedY = y / maxRadius;
+    const deadZone = 0.16;
     const next = new Set();
-    if (normalizedY < -deadZone) next.add("up");
-    if (normalizedY > deadZone) next.add("down");
-    if (normalizedX < -deadZone) {
+    if (normalizedY <= -deadZone) next.add("up");
+    if (normalizedY >= deadZone) next.add("down");
+    if (normalizedX <= -deadZone) {
       next.add("strafe");
       next.add("left");
     }
-    if (normalizedX > deadZone) {
+    if (normalizedX >= deadZone) {
       next.add("strafe");
       next.add("right");
     }
@@ -971,6 +1012,7 @@
       joystick.setPointerCapture?.(event.pointerId);
       joystick.classList.add("is-active");
       updateJoystickFromPointer(event);
+      startJoystickKeepAlive();
       vibrate(8);
     });
     joystick.addEventListener("pointermove", event => {
@@ -978,13 +1020,17 @@
       event.preventDefault();
       updateJoystickFromPointer(event);
     });
-    for (const type of ["pointerup", "pointercancel", "lostpointercapture"]) {
-      joystick.addEventListener(type, event => {
-        if (event.pointerId !== joystickPointerId) return;
-        event.preventDefault();
-        resetJoystick(event.pointerId);
-      });
-    }
+    const finishJoystick = event => {
+      if (event.pointerId !== joystickPointerId) return;
+      event.preventDefault?.();
+      resetJoystick(event.pointerId);
+      stopJoystickKeepAlive();
+    };
+    for (const type of ["pointerup", "pointercancel", "lostpointercapture"]) joystick.addEventListener(type, finishJoystick);
+    // Alguns navegadores móveis perdem a captura quando a interface muda para
+    // tela cheia. O fallback global garante que o estado não fique preso.
+    window.addEventListener("pointerup", finishJoystick, true);
+    window.addEventListener("pointercancel", finishJoystick, true);
     joystick.addEventListener("contextmenu", event => event.preventDefault());
   }
 
@@ -1054,11 +1100,57 @@
     weapon?.addEventListener("contextmenu", event => event.preventDefault());
   }
 
-  function setLookAction(nextAction = "") {
-    if (lookAction === nextAction) return;
-    if (lookAction) releaseAction(lookAction, "look-zone");
-    lookAction = nextAction;
-    if (lookAction) holdAction(lookAction, "look-zone");
+  function setLookFallbackAction(nextAction = "") {
+    if (lookFallbackAction === nextAction) return;
+    if (lookFallbackAction) releaseAction(lookFallbackAction, "look-zone");
+    lookFallbackAction = nextAction;
+    if (lookFallbackAction) holdAction(lookFallbackAction, "look-zone");
+  }
+
+  function sendLookRelativeMotion(amount) {
+    if (!Number.isFinite(amount) || Math.abs(amount) < 0.01) return false;
+    try {
+      if (typeof commandInterface?.sendMouseRelativeMotion === "function") {
+        commandInterface.sendMouseRelativeMotion(amount, 0);
+        commandInterface.sendMouseSync?.();
+        return true;
+      }
+    } catch (_) {}
+    return false;
+  }
+
+  function lookSteeringFrame(timestamp) {
+    if (lookPointerId === null || !mobileInput || !playerReady || !controlsActive) {
+      stopLookSteering();
+      return;
+    }
+    const elapsed = lookLastFrameAt ? clamp(timestamp - lookLastFrameAt, 4, 40) : 16.67;
+    lookLastFrameAt = timestamp;
+    const sensitivity = touchPreferences.sensitivity / 100;
+    const relativeAmount = lookVelocity * 7.2 * sensitivity * (elapsed / 16.67);
+    const mouseDelivered = sendLookRelativeMotion(relativeAmount);
+    // Fallback para runtimes antigos sem movimento relativo de mouse.
+    setLookFallbackAction(mouseDelivered || Math.abs(lookVelocity) < 0.08
+      ? ""
+      : lookVelocity < 0 ? "left" : "right");
+    lookAnimationFrame = window.requestAnimationFrame(lookSteeringFrame);
+  }
+
+  function updateLookSteering(event) {
+    const zone = byId("doomLookZone");
+    const puck = byId("doomLookPuck");
+    if (!zone) return;
+    const rect = zone.getBoundingClientRect();
+    const halfWidth = Math.max(1, rect.width / 2);
+    const normalized = clamp((event.clientX - (rect.left + halfWidth)) / halfWidth, -1, 1);
+    const deadZone = 0.12;
+    if (Math.abs(normalized) <= deadZone) {
+      lookVelocity = 0;
+    } else {
+      const magnitude = (Math.abs(normalized) - deadZone) / (1 - deadZone);
+      lookVelocity = Math.sign(normalized) * Math.pow(magnitude, 1.25);
+    }
+    if (puck) puck.style.transform = `translate3d(${lookVelocity * Math.min(54, rect.width * .22)}px, 0, 0)`;
   }
 
   function setupLookZone() {
@@ -1069,26 +1161,28 @@
       if (event.target.closest("button")) return;
       event.preventDefault();
       lookPointerId = event.pointerId;
-      lookOriginX = event.clientX;
       zone.setPointerCapture?.(event.pointerId);
       zone.classList.add("is-active");
+      updateLookSteering(event);
+      lookLastFrameAt = 0;
+      lookAnimationFrame = window.requestAnimationFrame(lookSteeringFrame);
+      vibrate(6);
     });
     zone.addEventListener("pointermove", event => {
       if (event.pointerId !== lookPointerId) return;
       event.preventDefault();
-      const threshold = clamp(zone.getBoundingClientRect().width * .055 / (touchPreferences.sensitivity / 100), 12, 42);
-      const delta = event.clientX - lookOriginX;
-      setLookAction(delta < -threshold ? "left" : delta > threshold ? "right" : "");
+      updateLookSteering(event);
     });
     const release = event => {
       if (event.pointerId !== lookPointerId) return;
-      event.preventDefault();
-      setLookAction("");
+      event.preventDefault?.();
       lookPointerId = null;
-      lookOriginX = 0;
       zone.classList.remove("is-active");
+      stopLookSteering();
     };
     for (const type of ["pointerup", "pointercancel", "lostpointercapture"]) zone.addEventListener(type, release);
+    window.addEventListener("pointerup", release, true);
+    window.addEventListener("pointercancel", release, true);
     zone.addEventListener("contextmenu", event => event.preventDefault());
   }
 

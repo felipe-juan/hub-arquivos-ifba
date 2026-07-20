@@ -9,9 +9,9 @@ O projeto deve ser tratado como uma ferramenta experimental de apoio. Para decis
 
 ## Versão atual
 
-**v0.2.42**
+**v0.2.43**
 
-Esta versão torna o carregamento do DOOM resiliente a falhas do CDN e prepara uma instalação local verificável do js-dos. O loader tenta a cópia local primeiro, usa múltiplas fontes remotas independentes como contingência e registra com precisão qual fonte falhou. Para publicar sem depender de terceiros, execute `bash scripts/vendor_doom_assets.sh` antes do commit.
+Esta versão corrige os controles móveis do DOOM: avanço e recuo do joystick deixam de depender da sensibilidade da câmera, as teclas mantidas são reafirmadas durante o toque e a visão passa a usar um controle contínuo por toque e permanência, sem exigir arrastar repetidamente.
 
 ## Sobre o projeto
 
@@ -119,17 +119,6 @@ O comportamento exato depende das políticas de cache e armazenamento do navegad
 
 
 
-
-
-## Alterações da v0.2.42
-
-- Corrigida a tela “O emulador não pôde ser baixado”, causada pela dependência exclusiva dos endpoints do domínio `v8.js-dos.com`.
-- O loader usa o endpoint oficial `latest` primeiro, mantém a versão 8.4.1 fixada como contingência e acrescenta jsDelivr e UNPKG como fontes independentes do pacote npm.
-- O fallback 6.22 passou a usar os endpoints atuais documentados e mantém o arquivo do DOSBox correspondente à fonte carregada.
-- Falhas de carregamento agora identificam cada fonte tentada, distinguindo timeout, bloqueio de rede e script que não criou `window.Dos`.
-- `scripts/vendor_doom_assets.sh` instala `js-dos` e `emulators` na mesma versão 8.4.1, baixa o bundle em área temporária, valida ZIP, configuração e WebAssembly e só substitui uma instalação anterior após sucesso completo.
-- Criado `scripts/check_doom_runtime.py`, que confere arquivos obrigatórios, integridade do bundle e checksums antes da publicação.
-- O runtime local é a configuração recomendada para o GitHub Pages, removendo a dependência operacional de CDNs durante o jogo.
 
 ## Alterações da v0.2.38
 

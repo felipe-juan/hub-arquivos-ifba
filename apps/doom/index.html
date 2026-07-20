@@ -23,12 +23,12 @@
   <link rel="stylesheet" href="../../assets/build/design-system.afe11aadcef7.css" />
   <link rel="stylesheet" href="../build/app-shell.f5dcd9311598.css" />
   <link rel="stylesheet" href="../../assets/build/sidebar-quick-search.ea5032187b1e.css" />
-  <link rel="stylesheet" href="../build/doom.e8cc1dfcf3ec.css" />
+  <link rel="stylesheet" href="../build/doom.7ed0acb21f57.css" />
   <script defer src="../../assets/build/data.d5d624533d89.js"></script>
-  <script defer src="../../assets/build/design-system.e91c6c2e7121.js"></script>
+  <script defer src="../../assets/build/design-system.8aee9a1d7892.js"></script>
   <script defer src="../build/app-shell.e4d3759152fc.js"></script>
   <script defer src="../../assets/build/sidebar-quick-search.f0e1ed1ead1c.js"></script>
-  <script defer src="../build/doom.01d14f0a77a1.js"></script>
+  <script defer src="../build/doom.d41340cdf73e.js"></script>
 </head>
 <body class="doom-app-page">
   <main id="mainContent" class="doom-main" tabindex="-1">
@@ -95,7 +95,7 @@
               <input id="doomTouchOpacity" type="range" min="35" max="100" step="5" value="88" />
             </label>
             <label class="doom-touch-setting">
-              <span>Sensibilidade <output id="doomTouchSensitivityValue">100%</output></span>
+              <span>Sensibilidade da visão <output id="doomTouchSensitivityValue">100%</output></span>
               <input id="doomTouchSensitivity" type="range" min="60" max="160" step="5" value="100" />
             </label>
             <label class="doom-touch-check">
@@ -111,8 +111,13 @@
           <div id="doomRecoveryToast" class="doom-recovery-toast" role="status" aria-live="polite" hidden>Sessão do DOOM recuperada.</div>
 
           <div id="doomTouchControls" class="doom-touch-controls" hidden data-ready="false" aria-label="Controles virtuais móveis do DOOM">
-            <div id="doomLookZone" class="doom-look-zone" role="application" aria-label="Área de visão: arraste horizontalmente para olhar para os lados">
-              <span aria-hidden="true">ARRASTE PARA OLHAR</span>
+            <div id="doomLookZone" class="doom-look-zone" role="application" aria-label="Controle de visão: toque e segure à esquerda ou à direita para virar">
+              <div class="doom-look-pad" aria-hidden="true">
+                <span>◀</span>
+                <i id="doomLookPuck" class="doom-look-puck"></i>
+                <span>▶</span>
+              </div>
+              <small aria-hidden="true">TOQUE E SEGURE PARA VIRAR</small>
             </div>
             <div class="doom-touch-hud-state" aria-hidden="true"><span></span><strong>CONTROLE TOUCH</strong></div>
             <div class="doom-touch-left">

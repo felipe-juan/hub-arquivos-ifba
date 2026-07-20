@@ -92,8 +92,8 @@ assert(js.includes('jsdosConf:') && js.includes('layers: []'), "Controles virtua
 assert(js.includes('scaleControls: 0') && js.includes('setScaleControls?.(0)'), "Escala dos controles nativos deve permanecer zerada.");
 assert(js.includes('kiosk: true') && js.includes('setKiosk?.(true)'), "Player deve usar kiosk para não duplicar interface móvel.");
 assert(js.includes('playerReady || !commandInterface'), "HUD não deve ser liberado antes da Command Interface.");
-assert(js.includes('window.emulatorsUi?.controls?.domToKeyCode'),
-  "O roteador deve usar o conversor oficial de keyCode do js-dos quando disponível.");
+assert(js.includes('return activeEngine === "v6" ? V6_KEY_CODES[action] : V8_KEY_CODES[action];'),
+  "Ações especiais devem usar diretamente os códigos documentados pelo js-dos, sem conversor variável da UI.");
 assert(js.includes('syntheticKeyboardEvents.add(event)') && js.includes('syntheticKeyboardEvents.has(event)'),
   "Fallbacks DOM precisam ser marcados para não entrar em recursão no roteador.");
 assert(js.includes('return fallbackKeyboardEvent(keyCode, pressed) || delivered;'),
@@ -124,7 +124,19 @@ assert(html.includes('<kbd>Espaço</kbd></span><span>Usar item / abrir porta</sp
 assert(html.includes('<kbd>Ctrl</kbd><b>ou</b><kbd>Mouse 1</kbd>') && html.includes('Atirar / confirmar'),
   "Ajuda desktop deve explicar que Ctrl e Mouse 1 atiram/confirmam.");
 assert(js.includes('syncTouchControls({ ready: false });'), "HUD touch deve aparecer durante o carregamento.");
+assert(js.includes('const deadZone = 0.16;') && js.includes('normalizedY <= -deadZone') && js.includes('normalizedY >= deadZone'),
+  "Joystick móvel deve ter zona morta vertical fixa e acessível para avanço/recuo.");
+assert(js.includes('JOYSTICK_ALIAS_CODES') && js.includes('up: Object.freeze([87])') && js.includes('down: Object.freeze([83])'),
+  "Joystick deve enviar setas e aliases W/S para cobrir configurações distintas do DOOM.");
+assert(js.includes('startJoystickKeepAlive();') && js.includes('setInterval(() =>'),
+  "Joystick deve reafirmar teclas mantidas para evitar perda de avanço/recuo em navegadores móveis.");
 assert(js.includes('next.add("strafe")'), "Joystick móvel deve oferecer deslocamento lateral moderno.");
+assert(js.includes('sendMouseRelativeMotion') && js.includes('lookSteeringFrame'),
+  "Controle de visão deve usar movimento relativo de mouse contínuo.");
+assert(html.includes('doomLookPuck') && html.includes('TOQUE E SEGURE PARA VIRAR'),
+  "Controle de visão precisa comunicar o modo toque-e-segure sem arraste contínuo.");
+assert(js.includes('Number.isFinite(numeric) ? numeric : min'),
+  "Clamp deve preservar o valor zero; tratá-lo como falso quebra o centro do controle de visão.");
 assert(js.includes('event.currentTarget.setPointerCapture?.(event.pointerId);'), "Botões touch não capturam o ponteiro e podem ficar presos ao deslizar.");
 assert(js.includes('setupLookZone();'), "Área touch de visão deve ser inicializada.");
 assert(js.includes('holdButtonSources.set(button, sources)') && js.includes('for (const sources of holdButtonSources.values()) sources.clear()'),
@@ -219,6 +231,46 @@ vm.runInNewContext(`(${releaseActionFn})("strafe", "desktop:A");`, sourceContext
 vm.runInNewContext(`(${releaseActionFn})("strafe", "desktop:D");`, sourceContext);
 assert(sourceCalls.join(",") === "strafe:true,strafe:false",
   "A/D simultâneos não podem soltar o strafe enquanto uma das teclas continuar pressionada.");
+
+
+const updateJoystick = extractFunction(js, "updateJoystickFromPointer");
+function joystickActionsAt(clientX, clientY) {
+  let actions = [];
+  const knob = { style: {} };
+  const joystick = { getBoundingClientRect: () => ({ left: 0, top: 0, width: 200, height: 200 }) };
+  const context = {
+    Math,
+    Set,
+    byId(id) { return id === "doomJoystick" ? joystick : id === "doomJoystickKnob" ? knob : null; },
+    setJoystickActions(next) { actions = [...next]; },
+  };
+  vm.runInNewContext(`(${updateJoystick})({ clientX: ${clientX}, clientY: ${clientY} });`, context);
+  return actions;
+}
+assert(joystickActionsAt(100, 42).includes("up"), "Mover o joystick para cima deve acionar avanço.");
+assert(joystickActionsAt(100, 158).includes("down"), "Mover o joystick para baixo deve acionar recuo.");
+assert(joystickActionsAt(100, 100).length === 0, "Centro do joystick deve permanecer neutro.");
+
+const updateLook = extractFunction(js, "updateLookSteering");
+function lookVelocityAt(clientX) {
+  const puck = { style: {} };
+  const zone = { getBoundingClientRect: () => ({ left: 0, width: 200 }) };
+  const context = {
+    Math,
+    Number,
+    lookVelocity: 999,
+    byId(id) { return id === "doomLookZone" ? zone : id === "doomLookPuck" ? puck : null; },
+    clamp(value, min, max) {
+      const numeric = Number(value);
+      return Math.min(max, Math.max(min, Number.isFinite(numeric) ? numeric : min));
+    },
+  };
+  vm.runInNewContext(`(${updateLook})({ clientX: ${clientX} });`, context);
+  return context.lookVelocity;
+}
+assert(lookVelocityAt(100) === 0, "Centro do controle de visão deve ser neutro.");
+assert(lookVelocityAt(175) > 0, "Segurar à direita deve virar continuamente para a direita.");
+assert(lookVelocityAt(25) < 0, "Segurar à esquerda deve virar continuamente para a esquerda.");
 
 const statusZ = Number(css.match(/\.doom-status\{[^}]*z-index:(\d+)/)?.[1] || 0);
 const controlsZ = Number(css.match(/\.doom-touch-controls\{[^}]*z-index:(\d+)/)?.[1] || 0);

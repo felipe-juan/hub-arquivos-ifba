@@ -2,24 +2,24 @@
 
 O objetivo não é copiar o Paperless-ngx inteiro. O ideal é aproveitar as ideias certas e construir um fluxo menor, voltado para universidade.
 
-## Easter Egg do DOOM — v0.2.25
+## Easter Egg do DOOM — v0.2.43
 
 A consulta exata `doom` é interceptada antes da busca comum e renderiza um único resultado anômalo dentro da grade. Consultas maiores, como `doom pdf`, continuam passando pela busca normal. A mesma regra vale quando a consulta da sidebar é enviada à busca principal.
 
-O clique no resultado salva a consulta, filtros e posição da página em `sessionStorage`, simula uma falha de classificação e abre a transição **ANOMALIA DETECTADA NO ACERVO**. Depois disso, `apps/doom/` apresenta um terminal de confirmação. O motor só é carregado após **INICIAR DOOM**.
+O clique no resultado salva a consulta, filtros e posição da página em `sessionStorage`, simula uma falha de classificação e abre a transição **ANOMALIA DETECTADA NO ACERVO**. Depois disso, `apps/doom/` apresenta um terminal de confirmação. O motor só é carregado após **INICIAR DOOM**. Cada nova entrada exige novamente pesquisar e selecionar o resultado; a descoberta não fica gravada para encurtar o fluxo.
 
 A página tenta os recursos nesta ordem:
 
-1. assets locais em `apps/doom/vendor/` e `apps/doom/game/`;
+1. runtime local validado em `apps/doom/vendor/` e bundle em `apps/doom/game/`;
 2. js-dos v8.4.1 fixado e bundle público pela rede;
 3. endereço `latest` para os arquivos do motor v8;
 4. modo de compatibilidade js-dos 6.22.
 
-A área do jogo bloqueia os comandos até receber um clique explícito. Ao perder foco, a sessão libera o teclado, tenta pausar o motor e exige novo clique para retomar. O encerramento mostra o tempo da sessão e pode restaurar a busca anterior.
+No celular, o HUD personalizado desativa os controles nativos do js-dos. O joystick esquerdo envia simultaneamente setas e aliases WASD, usa zona morta fixa de 16% e reafirma as teclas mantidas enquanto o dedo permanece pressionado. A visão usa `sendMouseRelativeMotion`: tocar e segurar à esquerda ou à direita da área de visão produz rotação contínua, com velocidade proporcional à distância do centro e sensibilidade ajustável. Arrastar apenas altera essa velocidade; não é necessário repetir gestos longos.
 
-O service worker nunca usa `offline.html` como substituto para `.js`, `.css`, `.wasm`, `.worker`, `.data` ou `.jsdos`. Requisições externas do emulador não são interceptadas pelo service worker do HUB. Os assets locais podem ser preparados com `bash scripts/vendor_doom_assets.sh`.
+Ao perder foco, a sessão libera entradas mantidas, tenta pausar o motor e exige retomada explícita. O encerramento mostra o tempo da sessão e pode restaurar a busca anterior.
 
-Na v0.2.27, a descoberta fica registrada localmente apenas para reduzir a duração da animação em visitas seguintes. O gamepad touch mantém preferências de opacidade, sensibilidade, vibração e lateralidade, impede rolagem acidental durante o jogo e tenta recuperar uma falha inesperada uma única vez. O HTML inicial continua sem scripts, estilos ou bundles do js-dos; esses recursos só são injetados após **INICIAR DOOM**.
+O service worker nunca usa `offline.html` como substituto para `.js`, `.css`, `.wasm`, `.worker`, `.data` ou `.jsdos`. Requisições externas do emulador não são interceptadas pelo service worker do HUB. Os assets locais podem ser preparados com `bash scripts/vendor_doom_assets.sh` e validados por `python3 scripts/check_doom_runtime.py`.
 
 
 ## Tolerância, agrupamento e abertura direta — v0.2.28
