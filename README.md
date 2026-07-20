@@ -9,9 +9,9 @@ O projeto deve ser tratado como uma ferramenta experimental de apoio. Para decis
 
 ## Versão atual
 
-**v0.2.37**
+**v0.2.38**
 
-Esta versão revisa integralmente os controles móveis do DOOM. O HUD customizado passa a ser o único controle virtual exibido, recebe um botão **OK** para confirmar opções dos menus, só é liberado quando a interface de comandos do emulador está pronta e limpa corretamente toques interrompidos. O Easter Egg volta a exigir, em toda nova abertura, a pesquisa por `doom` e a seleção do resultado oculto.
+Esta versão corrige o roteamento dos controles do DOOM em desktop e celular. WASD passa a usar um mapeamento moderno e estável, Ctrl e **ATIRAR** também confirmam opções dos menus, Espaço é roteado explicitamente para usar/abrir e a ajuda informa todas as teclas relevantes.
 
 ## Sobre o projeto
 
@@ -119,6 +119,19 @@ O comportamento exato depende das políticas de cache e armazenamento do navegad
 
 
 
+
+## Alterações da v0.2.38
+
+- WASD passou a ser enviado diretamente pela `CommandInterface`, sem depender do foco ou dos listeners internos do canvas.
+- W/S avançam e recuam; A/D combinam `strafe` com esquerda/direita para deslocamento lateral no padrão moderno de FPS.
+- Fontes simultâneas de uma mesma ação são rastreadas separadamente, evitando que soltar A interrompa o strafe enquanto D ainda está pressionado, e vice-versa.
+- Ctrl esquerdo e direito são roteados explicitamente para atirar.
+- Ao iniciar um disparo por Ctrl ou pelo botão móvel **ATIRAR**, o HUB também envia um pulso de Enter, permitindo selecionar opções dos menus com o mesmo comando de tiro.
+- Espaço é roteado explicitamente para usar objetos, acionar mecanismos e abrir portas.
+- Enter confirma menus e Esc abre/fecha o menu por meio do mesmo roteamento controlado.
+- A ajuda desktop agora mostra **Ctrl ou Mouse 1**, **Espaço**, **Enter** e **Esc**, com descrições completas.
+- Atualizado o teste de regressão para simular Ctrl, WASD, Espaço, Enter e múltiplas fontes simultâneas.
+- Atualizados versão, service worker, monitor de desempenho, documentação e assets com hash.
 
 ## Alterações da v0.2.37
 

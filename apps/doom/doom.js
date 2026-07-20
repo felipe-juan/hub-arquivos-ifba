@@ -116,11 +116,19 @@
 
   const byId = id => document.getElementById(id);
   const clamp = (value, min, max) => Math.min(max, Math.max(min, Number(value) || min));
-  const DESKTOP_KEY_ACTIONS = Object.freeze({
-    KeyW: "up",
-    KeyA: "left",
-    KeyS: "down",
-    KeyD: "right",
+  const DESKTOP_HOLD_ACTIONS = Object.freeze({
+    KeyW: Object.freeze(["up"]),
+    KeyA: Object.freeze(["strafe", "left"]),
+    KeyS: Object.freeze(["down"]),
+    KeyD: Object.freeze(["strafe", "right"]),
+    ControlLeft: Object.freeze(["fire"]),
+    ControlRight: Object.freeze(["fire"]),
+    Space: Object.freeze(["use"]),
+  });
+  const DESKTOP_TAP_ACTIONS = Object.freeze({
+    Enter: "confirm",
+    NumpadEnter: "confirm",
+    Escape: "menu",
   });
 
   function consumeHubLaunchGrant() {
@@ -712,7 +720,7 @@
   }
 
   function holdAction(action, source) {
-    if (!mobileInput || !playerReady || !controlsActive || !source) return;
+    if (!playerReady || !controlsActive || !source) return;
     let sources = actionSources.get(action);
     if (!sources) {
       sources = new Set();
@@ -735,26 +743,40 @@
   }
 
   function releaseDesktopMappedKeys() {
-    for (const [code, action] of desktopMappedKeys) {
-      sendActionEvent(action, false);
-      desktopMappedKeys.delete(code);
+    for (const [code, actions] of desktopMappedKeys) {
+      const source = `desktop:${code}`;
+      for (const action of actions) releaseAction(action, source);
     }
+    desktopMappedKeys.clear();
+  }
+
+  function pulseMenuConfirm() {
+    tapRawKey(keyCodeForAction("confirm"));
   }
 
   function handleDesktopMappedKey(event) {
-    if (mobileInput || !playerReady || !controlsActive || event.metaKey || event.ctrlKey || event.altKey) return false;
-    const action = DESKTOP_KEY_ACTIONS[event.code];
-    if (!action) return false;
+    if (mobileInput || !playerReady || !controlsActive || event.metaKey) return false;
+    const holdActions = DESKTOP_HOLD_ACTIONS[event.code] || null;
+    const tapActionName = DESKTOP_TAP_ACTIONS[event.code] || "";
+    if (!holdActions && !tapActionName) return false;
+
     event.preventDefault();
     event.stopImmediatePropagation();
+
+    if (tapActionName) {
+      if (event.type === "keydown" && !event.repeat) tapRawKey(keyCodeForAction(tapActionName));
+      return true;
+    }
+
+    const source = `desktop:${event.code}`;
     if (event.type === "keydown") {
-      if (!event.repeat && !desktopMappedKeys.has(event.code)) {
-        desktopMappedKeys.set(event.code, action);
-        sendActionEvent(action, true);
-      }
+      if (event.repeat || desktopMappedKeys.has(event.code)) return true;
+      desktopMappedKeys.set(event.code, holdActions);
+      if (holdActions.includes("fire")) pulseMenuConfirm();
+      for (const action of holdActions) holdAction(action, source);
     } else if (desktopMappedKeys.has(event.code)) {
+      for (const action of desktopMappedKeys.get(event.code)) releaseAction(action, source);
       desktopMappedKeys.delete(event.code);
-      sendActionEvent(action, false);
     }
     return true;
   }
@@ -883,6 +905,7 @@
         sources.set(event.pointerId, source);
         button.setPointerCapture?.(event.pointerId);
         button.classList.add("is-pressed");
+        if (action === "fire") pulseMenuConfirm();
         holdAction(action, source);
         vibrate(action === "fire" ? 14 : 8);
       });
