@@ -8,7 +8,8 @@ Uso recomendado, a partir da raiz do projeto:
 Opções:
     --check-only   Não recria o manifesto; apenas confere o estado atual.
     --skip-inline  Não executa a validação dos scripts inline.
-    --json-report  Salva um resumo em documents/_manifest_reports/update-summary.json.
+    --json-report       Salva um resumo em documents/_manifest_reports/update-summary.json.
+    --allow-remote-doom Permite atualizar sem runtime local do DOOM (não recomendado para publicação).
 
 O script não faz commit nem push. Ele mantém essa decisão sob controle do mantenedor.
 """
@@ -69,7 +70,11 @@ def main() -> int:
     parser.add_argument("--check-only", action="store_true")
     parser.add_argument("--skip-inline", action="store_true")
     parser.add_argument("--json-report", action="store_true")
+    parser.add_argument("--allow-remote-doom", action="store_true")
     args = parser.parse_args()
+
+    if not args.check_only and not args.allow_remote_doom:
+        run([sys.executable, "scripts/check_doom_runtime.py"])
 
     if not args.check_only:
         run([sys.executable, "scripts/generate_documents_manifest.py"])

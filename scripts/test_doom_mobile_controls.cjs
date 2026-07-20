@@ -7,6 +7,9 @@ const js = fs.readFileSync("apps/doom/doom.js", "utf8");
 const css = fs.readFileSync("apps/doom/doom.css", "utf8");
 const html = fs.readFileSync("apps/doom/index.html", "utf8");
 const app = fs.readFileSync("app.js", "utf8");
+const runtimeManifest = JSON.parse(fs.readFileSync("apps/doom/vendor/runtime-manifest.json", "utf8"));
+const vendorScript = fs.readFileSync("scripts/vendor_doom_assets.sh", "utf8");
+const coiCompat = fs.readFileSync("apps/doom/coi-serviceworker.js", "utf8");
 const failures = [];
 const assert = (condition, message) => { if (!condition) failures.push(message); };
 
@@ -89,7 +92,12 @@ assert(js.includes('jsdosConf:') && js.includes('layers: []'), "Controles virtua
 assert(js.includes('scaleControls: 0') && js.includes('setScaleControls?.(0)'), "Escala dos controles nativos deve permanecer zerada.");
 assert(js.includes('kiosk: true') && js.includes('setKiosk?.(true)'), "Player deve usar kiosk para não duplicar interface móvel.");
 assert(js.includes('playerReady || !commandInterface'), "HUD não deve ser liberado antes da Command Interface.");
-assert(js.includes('if (mobileInput) return false;'), "Eventos touch não devem fingir sucesso com KeyboardEvent sintético.");
+assert(js.includes('window.emulatorsUi?.controls?.domToKeyCode'),
+  "O roteador deve usar o conversor oficial de keyCode do js-dos quando disponível.");
+assert(js.includes('syntheticKeyboardEvents.add(event)') && js.includes('syntheticKeyboardEvents.has(event)'),
+  "Fallbacks DOM precisam ser marcados para não entrar em recursão no roteador.");
+assert(js.includes('return fallbackKeyboardEvent(keyCode, pressed) || delivered;'),
+  "Teclas precisam usar Command Interface e fallback DOM em paralelo.");
 assert(js.includes('KeyW: Object.freeze(["up"])') && js.includes('KeyS: Object.freeze(["down"])'),
   "W/S exibidos precisam estar realmente mapeados no desktop.");
 assert(js.includes('KeyA: Object.freeze(["strafe", "left"])') && js.includes('KeyD: Object.freeze(["strafe", "right"])'),
@@ -99,6 +107,16 @@ assert(js.includes('ControlLeft: Object.freeze(["fire"])') && js.includes('Contr
 assert(js.includes('Space: Object.freeze(["use"])'), "Espaço precisa ser roteado explicitamente para usar/abrir.");
 assert(js.includes('if (holdActions.includes("fire")) pulseMenuConfirm();'),
   "Ctrl precisa confirmar o menu além de atirar.");
+assert(js.includes('activateKeyboard({ focus: true, announce: false });'),
+  "Desktop deve ativar WASD automaticamente quando a Command Interface ficar pronta.");
+assert(js.includes('const mappedCommand = Boolean(DESKTOP_HOLD_ACTIONS[event.code] || DESKTOP_TAP_ACTIONS[event.code]);')
+  && js.includes('activateKeyboard({ focus: true, announce: true });'),
+  "A primeira tecla mapeada deve reativar o teclado sem exigir movimento do mouse.");
+const activateKeyboardFn = extractFunction(js, "activateKeyboard");
+assert(activateKeyboardFn.indexOf('controlsActive = true;') < activateKeyboardFn.indexOf('const resumePromise = resumeEmulator();'),
+  "O roteador precisa ser ativado antes de aguardar a retomada do emulador.");
+assert(js.includes('function focusGameInput()') && js.includes('window.requestAnimationFrame(focusGameInput);'),
+  "Canvas deve receber foco imediatamente e novamente no frame seguinte.");
 assert(js.includes('if (action === "fire") pulseMenuConfirm();'),
   "ATIRAR móvel precisa confirmar o menu além de atirar.");
 assert(html.includes('<kbd>Espaço</kbd></span><span>Usar item / abrir porta</span>'),
@@ -115,6 +133,27 @@ assert(js.includes('clearLaunchParameters();') && js.includes('url.searchParams.
   "Grant consumido deve ser removido da URL para impedir reabertura direta por recarga.");
 assert(app.includes('hubDoomLaunchGrantV1') && js.includes('hubDoomLaunchGrantV1'), "Busca e app devem compartilhar o grant de abertura.");
 assert(!app.includes('hubDoomDiscoveredV1') && !app.includes('discoveredBefore'), "Descoberta anterior não pode pular ou encurtar o fluxo do Easter Egg.");
+assert(typeof runtimeManifest.localAssets === "boolean", "O manifesto precisa declarar localAssets como booleano.");
+assert(js.includes('LOCAL.manifest') && js.includes('localRuntimeAvailable()'),
+  "O loader deve decidir a fonte local por manifesto, sem sondar arquivos inexistentes.");
+assert(js.includes('cdn.jsdelivr.net/npm/js-dos@8.4.1') && js.includes('unpkg.com/js-dos@8.4.1'),
+  "O loader precisa oferecer CDNs npm independentes além do domínio oficial.");
+assert(js.includes('https://v8.js-dos.com/v6.22/js-dos.js') && js.includes('legacyEngine.wdosbox'),
+  "O fallback 6.22 precisa usar os endpoints oficiais atuais e o runtime correspondente.");
+assert(vendorScript.includes('EMULATORS_VERSION="8.4.1"') && vendorScript.includes('npm pack'),
+  "O instalador local precisa fixar js-dos e emulators na mesma versão.");
+assert(!js.includes('method: "HEAD"') && !js.includes('headers: { Range: "bytes=0-0" }'),
+  "O loader padrão não deve gerar 404 ao sondar bundle local ausente.");
+assert(js.includes('workerThread: false') && js.includes('setWorkerThread?.(false)'),
+  "Hospedagem estática padrão não deve depender de coi-serviceworker.js para Worker.");
+assert(coiCompat.includes('workerThread:false') && coiCompat.includes('Compatibility no-op'),
+  "Probe legado de coi-serviceworker.js precisa receber um fallback local inofensivo.");
+assert(js.includes('window.emulators.pathPrefix = prefix'),
+  "O caminho dos WASM remotos precisa ser aplicado explicitamente ao runtime global.");
+assert(js.includes('resetStaleLocalEngine()') && js.includes('allowLocal: useLocalRuntime'),
+  "Estado local antigo não pode contaminar uma inicialização remota.");
+assert(vendorScript.includes('"localAssets": true') && vendorScript.includes('runtime-manifest.json'),
+  "O instalador local deve habilitar o manifesto somente após validar os assets.");
 
 
 const handleDesktopMappedKey = extractFunction(js, "handleDesktopMappedKey");
@@ -154,13 +193,16 @@ function simulateDesktopKey({ code, type = "keydown", repeat = false, metaKey = 
 const ctrlDown = simulateDesktopKey({ code: "ControlLeft" });
 assert(ctrlDown.handled === true && ctrlDown.calls.includes("confirm") && ctrlDown.calls.includes("hold:fire:desktop:ControlLeft"),
   "Ctrl precisa atirar e emitir confirmação do menu no primeiro keydown.");
+assert(!ctrlDown.calls.includes("stop"),
+  "O roteador não pode bloquear o evento físico antes do listener nativo do js-dos.");
 const aDown = simulateDesktopKey({ code: "KeyA" });
 assert(aDown.calls.includes("hold:strafe:desktop:KeyA") && aDown.calls.includes("hold:left:desktop:KeyA"),
   "A deve combinar strafe e esquerda para deslocamento lateral.");
 const spaceDown = simulateDesktopKey({ code: "Space" });
 assert(spaceDown.calls.includes("hold:use:desktop:Space"), "Espaço deve enviar a ação de usar/abrir.");
 const enterDown = simulateDesktopKey({ code: "Enter" });
-assert(enterDown.calls.includes("tap:257"), "Enter deve confirmar o menu por meio da Command Interface.");
+assert(enterDown.handled === true && !enterDown.calls.some(call => call.startsWith("tap:")),
+  "Enter físico deve seguir ao listener nativo do js-dos sem pulso duplicado.");
 
 const holdActionFn = extractFunction(js, "holdAction");
 const releaseActionFn = extractFunction(js, "releaseAction");

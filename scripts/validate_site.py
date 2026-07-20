@@ -18,12 +18,12 @@ required = [
     "index.html", "app.js", "data.js", "styles.css", "service-worker.js", "offline.html", "DESIGN_SYSTEM.md",
     "css/enhancements.css", "css/design-system.css", "css/specificity-baseline.json", "js/storage.js", "js/design-system.js", "js/where-data.js", "js/enhancements.js",
     "js/search-engine.js", "js/search-worker.js", "js/pdf-runtime.js", "js/performance-monitor.js",
-    "scripts/check_inline_scripts.py", "scripts/test_internal_navigation.cjs", "scripts/test_doom_mobile_controls.cjs", "scripts/test_links_columns.cjs", "scripts/test_search_engine.cjs", "scripts/test_runtime_regressions.cjs", "scripts/test_markup_safety.py", "scripts/test_production_asset_resolution.py", "scripts/test_host_verifier.py", "scripts/responsive_smoke_test.mjs", "scripts/update_content.py", "scripts/audit_css.py", "scripts/check_performance_budget.py", "scripts/benchmark_search.cjs", "scripts/build_production_assets.py", "scripts/verify_production_host.py", "scripts/vendor_doom_assets.sh", "performance-budget.json", "PERFORMANCE_HOSTING.md", "PERFORMANCE_DEVICE_TESTING.md", "assets/build-manifest.json", "documents/manifest-summary.json", "documents/search-index.json", ".github/workflows/validate.yml",
+    "scripts/check_inline_scripts.py", "scripts/test_internal_navigation.cjs", "scripts/test_doom_mobile_controls.cjs", "scripts/test_links_columns.cjs", "scripts/test_search_engine.cjs", "scripts/test_runtime_regressions.cjs", "scripts/test_markup_safety.py", "scripts/test_production_asset_resolution.py", "scripts/test_host_verifier.py", "scripts/responsive_smoke_test.mjs", "scripts/update_content.py", "scripts/audit_css.py", "scripts/check_performance_budget.py", "scripts/benchmark_search.cjs", "scripts/build_production_assets.py", "scripts/verify_production_host.py", "scripts/vendor_doom_assets.sh", "scripts/check_doom_runtime.py", "performance-budget.json", "PERFORMANCE_HOSTING.md", "PERFORMANCE_DEVICE_TESTING.md", "assets/build-manifest.json", "documents/manifest-summary.json", "documents/search-index.json", ".github/workflows/validate.yml",
     "apps/catalog.json", "apps/README.md",
     "apps/barema/index.html", "apps/barema/data/barema-data.js", "apps/barema/data/source-metadata.json",
     "apps/calendario/index.html", "apps/calendario/data/calendar-data.js", "apps/calendario/data/source-metadata.json",
     "apps/fluxogramas/index.html", "apps/fluxogramas/data/fluxogramas-data.js", "apps/fluxogramas/data/source-metadata.json",
-    "apps/doom/index.html", "apps/doom/doom.js", "apps/doom/doom.css", "apps/doom/vendor/README.md",
+    "apps/doom/index.html", "apps/doom/doom.js", "apps/doom/doom.css", "apps/doom/vendor/README.md", "apps/doom/vendor/runtime-manifest.json", "apps/doom/coi-serviceworker.js",
 ]
 for item in required:
     check_file(item)
@@ -133,6 +133,8 @@ for redirect in [
 
 # Recursos compartilhados de qualidade e atualização.
 index_text = (ROOT / "index.html").read_text(encoding="utf-8")
+if release_version and f"HUB SI · v{release_version} ·" not in index_text:
+    errors.append("Versão exibida no rodapé não corresponde a VERSION")
 if "reportIssueButton" not in index_text:
     errors.append("Botão de reportar problema ausente da página principal")
 try:
@@ -183,6 +185,28 @@ if 'hubDoomLaunchGrantV1' not in doom_js or 'hubDoomLaunchGrantV1' not in (ROOT 
     errors.append("Fluxo obrigatório busca → resultado → DOOM está ausente")
 if 'hubDoomDiscoveredV1' in (ROOT / "app.js").read_text(encoding="utf-8"):
     errors.append("O DOOM não deve lembrar descoberta anterior para encurtar o acesso")
+try:
+    doom_runtime_manifest = json.loads((ROOT / "apps/doom/vendor/runtime-manifest.json").read_text(encoding="utf-8"))
+    if not isinstance(doom_runtime_manifest.get("localAssets"), bool):
+        errors.append("Manifesto do runtime DOOM precisa declarar localAssets como booleano")
+    elif doom_runtime_manifest.get("localAssets") is True:
+        local_runtime_files = [
+            ROOT / "apps/doom/vendor/js-dos/js-dos.js",
+            ROOT / "apps/doom/vendor/js-dos/js-dos.css",
+            ROOT / "apps/doom/vendor/emulators/emulators.js",
+            ROOT / "apps/doom/game/doom.jsdos",
+        ]
+        for runtime_file in local_runtime_files:
+            if not runtime_file.is_file() or runtime_file.stat().st_size == 0:
+                errors.append(f"Runtime local DOOM incompleto: {runtime_file.relative_to(ROOT)}")
+        if not list((ROOT / "apps/doom/vendor/emulators").glob("*.wasm")):
+            errors.append("Runtime local DOOM não contém arquivos WebAssembly")
+except Exception as exc:
+    errors.append(f"Manifesto do runtime DOOM inválido: {exc}")
+if 'method: "HEAD"' in doom_js or 'bytes=0-0' in doom_js:
+    errors.append("Loader DOOM ainda sonda arquivos locais ausentes e gera 404")
+if 'workerThread: false' not in doom_js or 'window.emulators.pathPrefix = prefix' not in doom_js:
+    errors.append("Runtime DOOM remoto não fixa execução sem COI e pathPrefix dos emuladores")
 for token in (
     "hubDoomReturnContextV1", "visibilitychange", "requestFullscreen", "showProductivitySummary",
     "sendKeyEvent", "simulateKeyEvent", "maxTouchPoints", "screen.orientation", "releaseAllTouchControls",

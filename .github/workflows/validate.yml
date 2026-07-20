@@ -27,6 +27,7 @@ jobs:
           python3 scripts/test_production_asset_resolution.py
           python3 scripts/test_host_verifier.py
           python3 scripts/test_links_toggle_intrinsic.py
+          python3 scripts/check_doom_runtime.py --allow-missing
           python3 scripts/update_content.py --check-only --skip-inline
       - name: Enforce performance budget
         run: |
@@ -68,3 +69,4 @@ jobs:
         run: |
           python3 -m compileall -q scripts
           bash -n scripts/update_documents_and_publish.sh
+          bash -n scripts/vendor_doom_assets.sh

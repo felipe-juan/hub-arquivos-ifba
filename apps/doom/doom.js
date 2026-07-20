@@ -6,22 +6,52 @@
     css: new URL("vendor/js-dos/js-dos.css", location.href).href,
     emulators: new URL("vendor/emulators/", location.href).href,
     bundle: new URL("game/doom.jsdos", location.href).href,
+    manifest: new URL("vendor/runtime-manifest.json", location.href).href,
   };
   const REMOTE_V8 = {
-    script: "https://v8.js-dos.com/8.xx/8.4.1/js-dos.js",
-    css: "https://v8.js-dos.com/8.xx/8.4.1/js-dos.css",
-    emulators: "https://v8.js-dos.com/8.xx/8.4.1/emulators/",
-    bundle: "https://v8.js-dos.com/bundles/doom.jsdos",
-  };
-  const REMOTE_LATEST = {
+    label: "CDN oficial latest",
     script: "https://v8.js-dos.com/latest/js-dos.js",
     css: "https://v8.js-dos.com/latest/js-dos.css",
     emulators: "https://v8.js-dos.com/latest/emulators/",
+    bundle: "https://v8.js-dos.com/bundles/doom.jsdos",
   };
-  const REMOTE_V6 = {
-    script: "https://js-dos.com/6.22/current/js-dos.js",
-    wdosbox: "https://js-dos.com/6.22/current/wdosbox.js",
+  const REMOTE_PINNED_V8 = {
+    label: "CDN oficial 8.4.1",
+    script: "https://v8.js-dos.com/8.xx/8.4.1/js-dos.js",
+    css: "https://v8.js-dos.com/8.xx/8.4.1/js-dos.css",
+    emulators: "https://v8.js-dos.com/8.xx/8.4.1/emulators/",
   };
+  const REMOTE_NPM_V8 = [
+    {
+      label: "jsDelivr npm 8.4.1",
+      script: "https://cdn.jsdelivr.net/npm/js-dos@8.4.1/dist/js-dos.js",
+      css: "https://cdn.jsdelivr.net/npm/js-dos@8.4.1/dist/js-dos.css",
+      emulators: "https://cdn.jsdelivr.net/npm/emulators@8.4.1/dist/",
+    },
+    {
+      label: "UNPKG npm 8.4.1",
+      script: "https://unpkg.com/js-dos@8.4.1/dist/js-dos.js",
+      css: "https://unpkg.com/js-dos@8.4.1/dist/js-dos.css",
+      emulators: "https://unpkg.com/emulators@8.4.1/dist/",
+    },
+  ];
+  const REMOTE_V6 = [
+    {
+      label: "compatibilidade oficial 6.22",
+      script: "https://v8.js-dos.com/v6.22/js-dos.js",
+      wdosbox: "https://v8.js-dos.com/v6.22/dosbox.js",
+    },
+    {
+      label: "compatibilidade jsDelivr 6.22.60",
+      script: "https://cdn.jsdelivr.net/npm/js-dos@6.22.60/dist/js-dos.js",
+      wdosbox: "https://cdn.jsdelivr.net/npm/js-dos@6.22.60/dist/wdosbox.js",
+    },
+    {
+      label: "compatibilidade UNPKG 6.22.60",
+      script: "https://unpkg.com/js-dos@6.22.60/dist/js-dos.js",
+      wdosbox: "https://unpkg.com/js-dos@6.22.60/dist/wdosbox.js",
+    },
+  ];
 
   const RETURN_CONTEXT_KEY = "hubDoomReturnContextV1";
   const LAUNCH_GRANT_KEY = "hubDoomLaunchGrantV1";
@@ -61,7 +91,9 @@
   let recoveryInProgress = false;
   let currentStartRecovery = false;
   let recoveryToastTimer = 0;
+  let localRuntimePromise = null;
   const desktopMappedKeys = new Map();
+  const syntheticKeyboardEvents = new WeakSet();
 
   const actionSources = new Map();
   const holdButtonSources = new Map();
@@ -455,8 +487,10 @@
       if (status) status.textContent = "Controle touch pronto para jogar.";
       updateLandscapeHint();
     } else {
-      setKeyboardMessage("Clique na área do jogo para ativar o teclado.");
-      showKeyboardGate();
+      // A Command Interface já está pronta: não espere um clique/pointer lock para
+      // liberar WASD, Ctrl, Espaço, Enter e Esc. O primeiro comando de teclado
+      // também pode reativar a sessão após uma pausa.
+      activateKeyboard({ focus: true, announce: false });
     }
     if (!currentStartRecovery) resetSessionClock();
     startSessionClock();
@@ -546,12 +580,23 @@
     });
   }
 
+  function clearEngineGlobals() {
+    try { delete window.Dos; } catch (_) { window.Dos = undefined; }
+    try { delete window.emulators; } catch (_) { window.emulators = undefined; }
+    try { delete window.emulatorsUi; } catch (_) { window.emulatorsUi = undefined; }
+  }
+
   function loadScript(urls, expectedGlobal = "Dos") {
     return new Promise((resolve, reject) => {
       let index = 0;
+      const failures = [];
+      const fail = (entry, reason) => {
+        failures.push(`${entry?.label || entry?.url || "fonte desconhecida"}: ${reason}`);
+      };
       const tryNext = () => {
         if (typeof window[expectedGlobal] === "function") {
           resolve({
+            label: "já carregado",
             url: "already-loaded",
             pathPrefix: window.__hubDoomPathPrefix || REMOTE_V8.emulators,
             local: Boolean(window.__hubDoomLocalEngine),
@@ -559,20 +604,25 @@
           return;
         }
         if (index >= urls.length) {
-          reject(new Error("O emulador não pôde ser baixado."));
+          const error = new Error(`O emulador não pôde ser baixado. Fontes tentadas: ${failures.join(" | ") || "nenhuma"}`);
+          error.attempts = failures.slice();
+          reject(error);
           return;
         }
         const entry = urls[index++];
+        clearEngineGlobals();
         const script = document.createElement("script");
         script.src = entry.url;
-        script.async = true;
+        script.async = false;
         script.dataset.doomEngineScript = "true";
+        script.dataset.doomEngineLabel = entry.label || entry.url;
         const timeout = window.setTimeout(() => {
           script.onload = null;
           script.onerror = null;
           script.remove();
+          fail(entry, "tempo esgotado");
           tryNext();
-        }, 15000);
+        }, 20000);
         script.onload = () => {
           window.clearTimeout(timeout);
           if (typeof window[expectedGlobal] === "function") {
@@ -581,12 +631,14 @@
             resolve(entry);
           } else {
             script.remove();
+            fail(entry, `script carregou, mas window.${expectedGlobal} não foi criado`);
             tryNext();
           }
         };
         script.onerror = () => {
           window.clearTimeout(timeout);
           script.remove();
+          fail(entry, "erro de rede ou bloqueio do navegador");
           tryNext();
         };
         document.head.append(script);
@@ -595,25 +647,39 @@
     });
   }
 
-  async function localBundleExists() {
-    try {
-      const response = await fetch(LOCAL.bundle, { method: "HEAD", cache: "no-store" });
-      if (response.ok) return true;
-      if (![403, 405, 501].includes(response.status)) return false;
-    } catch (_) {}
-
-    try {
-      const response = await fetch(LOCAL.bundle, {
-        method: "GET",
-        cache: "no-store",
-        headers: { Range: "bytes=0-0" },
-      });
-      const available = response.ok || response.status === 206;
-      try { await response.body?.cancel(); } catch (_) {}
-      return available;
-    } catch (_) {
-      return false;
+  async function localRuntimeAvailable() {
+    if (!localRuntimePromise) {
+      const manifestUrl = new URL(LOCAL.manifest);
+      manifestUrl.searchParams.set("runtimeCheck", String(Date.now()));
+      localRuntimePromise = fetch(manifestUrl, { cache: "no-store" })
+        .then(response => response.ok ? response.json() : null)
+        .then(manifest => Boolean(
+          manifest?.localAssets === true
+          && String(manifest?.jsDosVersion || manifest?.runtimeVersion || "") === "8.4.1"
+          && String(manifest?.emulatorsVersion || "") === "8.4.1"
+        ))
+        .catch(() => false);
     }
+    return localRuntimePromise;
+  }
+
+  function resetStaleLocalEngine() {
+    if (!window.__hubDoomLocalEngine) return;
+    document.querySelectorAll('[data-doom-engine-script="true"], link[data-doom-engine-style="true"]')
+      .forEach(node => node.remove());
+    clearEngineGlobals();
+    window.__hubDoomPathPrefix = "";
+    window.__hubDoomLocalEngine = false;
+  }
+
+  function configureEmulatorPath(pathPrefix, local) {
+    const prefix = String(pathPrefix || REMOTE_V8.emulators);
+    window.__hubDoomPathPrefix = prefix;
+    window.__hubDoomLocalEngine = Boolean(local);
+    if (window.emulators && typeof window.emulators === "object") {
+      window.emulators.pathPrefix = prefix;
+    }
+    return prefix;
   }
 
   async function stopCurrentPlayer() {
@@ -661,8 +727,20 @@
   }
 
   function keyCodeForAction(action) {
-    const table = activeEngine === "v6" ? V6_KEY_CODES : V8_KEY_CODES;
-    return table[action];
+    const browserKeyCode = V6_KEY_CODES[action];
+    if (activeEngine === "v6") return browserKeyCode;
+
+    // A documentação oficial recomenda converter o keyCode DOM para o código
+    // interno do js-dos. Use a tabela fixa apenas quando o conversor não estiver
+    // exposto pela versão carregada do player.
+    try {
+      const convert = window.emulatorsUi?.controls?.domToKeyCode;
+      if (typeof convert === "function") {
+        const converted = Number(convert(browserKeyCode));
+        if (Number.isFinite(converted)) return converted;
+      }
+    } catch (_) {}
+    return V8_KEY_CODES[action];
   }
 
   function fallbackKeyboardEvent(keyCode, pressed) {
@@ -674,12 +752,14 @@
       const event = new KeyboardEvent(pressed ? "keydown" : "keyup", {
         bubbles: true,
         cancelable: true,
+        composed: true,
         key,
         code,
       });
       for (const property of ["keyCode", "which", "charCode"]) {
         try { Object.defineProperty(event, property, { configurable: true, get: () => browserCode }); } catch (_) {}
       }
+      syntheticKeyboardEvents.add(event);
       target.dispatchEvent(event);
       return true;
     } catch (_) {
@@ -689,30 +769,45 @@
 
   function sendRawKeyEvent(keyCode, pressed) {
     if (!Number.isFinite(keyCode)) return false;
+    let delivered = false;
     try {
       if (typeof commandInterface?.sendKeyEvent === "function") {
         commandInterface.sendKeyEvent(keyCode, pressed);
-        return true;
-      }
-      if (typeof commandInterface?.simulateKeyEvent === "function") {
+        delivered = true;
+      } else if (typeof commandInterface?.simulateKeyEvent === "function") {
         commandInterface.simulateKeyEvent(keyCode, pressed);
-        return true;
+        delivered = true;
       }
     } catch (_) {}
-    if (mobileInput) return false;
-    return fallbackKeyboardEvent(keyCode, pressed);
+
+    // Espelhe também como KeyboardEvent no player. O roteador anterior bloqueava
+    // o evento real e dependia exclusivamente da Command Interface; em alguns
+    // navegadores o comando não alcançava o backend, deixando WASD e Ctrl mortos.
+    // Duas notificações do mesmo estado são idempotentes no teclado SDL.
+    return fallbackKeyboardEvent(keyCode, pressed) || delivered;
   }
 
   function tapRawKey(keyCode) {
     if (!Number.isFinite(keyCode)) return;
+
+    // Para comandos de menu, priorize um único pulso DOM. Enviar Enter duas
+    // vezes por caminhos paralelos pode avançar duas opções em alguns menus.
+    const dispatched = fallbackKeyboardEvent(keyCode, true);
+    if (dispatched) {
+      window.setTimeout(() => fallbackKeyboardEvent(keyCode, false), 90);
+      return;
+    }
+
     try {
       if (typeof commandInterface?.simulateKeyPress === "function") {
         commandInterface.simulateKeyPress(keyCode);
         return;
       }
+      commandInterface?.sendKeyEvent?.(keyCode, true);
+      window.setTimeout(() => {
+        try { commandInterface?.sendKeyEvent?.(keyCode, false); } catch (_) {}
+      }, 90);
     } catch (_) {}
-    sendRawKeyEvent(keyCode, true);
-    window.setTimeout(() => sendRawKeyEvent(keyCode, false), 90);
   }
 
   function sendActionEvent(action, pressed) {
@@ -761,10 +856,10 @@
     if (!holdActions && !tapActionName) return false;
 
     event.preventDefault();
-    event.stopImmediatePropagation();
 
     if (tapActionName) {
-      if (event.type === "keydown" && !event.repeat) tapRawKey(keyCodeForAction(tapActionName));
+      // Enter/Esc reais continuam chegando ao listener nativo do js-dos. O envio
+      // explícito fica restrito aos controles virtuais e aos fallbacks.
       return true;
     }
 
@@ -1060,24 +1155,47 @@
     emulatorPaused = false;
   }
 
-  async function activateKeyboard() {
-    if (!playerReady) return;
-    await resumeEmulator();
+  function focusGameInput() {
+    const focusTarget = byId("doomPlayer")?.querySelector("canvas, [tabindex]") || byId("doomStage");
+    if (!focusTarget) return;
+    if (!focusTarget.hasAttribute?.("tabindex")) focusTarget.tabIndex = -1;
+    try { focusTarget.focus?.({ preventScroll: true }); }
+    catch (_) { try { focusTarget.focus?.(); } catch (_) {} }
+  }
+
+  async function activateKeyboard(options) {
+    options = options || {};
+    const { focus = true, announce = true } = options;
+    if (!playerReady) return false;
+
+    // Ative o roteador imediatamente. Antes, controlsActive só era definido após
+    // await resumeEmulator(), fazendo o primeiro W/Ctrl ser perdido e dando a
+    // impressão de que era obrigatório movimentar o mouse para jogar.
     controlsActive = true;
     startSessionClock();
     byId("doomStage")?.classList.toggle("is-keyboard-active", !mobileInput);
     byId("doomStage")?.classList.toggle("is-touch-active", mobileInput);
     hideKeyboardGate();
+
+    if (focus && !mobileInput) {
+      focusGameInput();
+      window.requestAnimationFrame(focusGameInput);
+    }
+
+    const resumePromise = resumeEmulator();
     if (mobileInput) {
       syncTouchControls({ ready: true });
-      setKeyboardMessage("Controle touch ativo. Use o joystick e os botões de ação.");
+      if (announce) setKeyboardMessage("Controle touch ativo. Use o joystick e os botões de ação.");
       const status = byId("doomTouchStatus");
       if (status) status.textContent = "Controle touch retomado.";
-      return;
+      await resumePromise;
+      return true;
     }
-    setKeyboardMessage("Teclado ativo no jogo. Clique fora ou troque de aba para liberar e pausar.");
-    const focusTarget = byId("doomPlayer")?.querySelector("canvas, [tabindex]") || byId("doomStage");
-    focusTarget?.focus?.({ preventScroll: true });
+
+    if (announce) setKeyboardMessage("WASD, Ctrl e Espaço ativos. Clique fora ou troque de aba para pausar.");
+    else setKeyboardMessage("WASD, Ctrl e Espaço ativos no jogo.");
+    await resumePromise;
+    return true;
   }
 
   async function deactivateKeyboard(reason = "Sessão pausada. Clique para retomar.") {
@@ -1109,15 +1227,27 @@
     }
   }
 
-  async function startV8(bundleUrl, generation) {
+  async function startV8(bundleUrl, generation, { allowLocal = false } = {}) {
     showLoading("Carregando o player web fixado na versão 8.4.1.");
-    await loadStylesheet([LOCAL.css, REMOTE_V8.css, REMOTE_LATEST.css]);
+    if (!allowLocal) resetStaleLocalEngine();
+    const remoteStyles = [
+      REMOTE_V8.css,
+      REMOTE_PINNED_V8.css,
+      ...REMOTE_NPM_V8.map(entry => entry.css),
+    ];
+    const stylesheetCandidates = allowLocal ? [LOCAL.css, ...remoteStyles] : remoteStyles;
+    await loadStylesheet(stylesheetCandidates);
     if (generation !== runGeneration) throw cancelledError();
-    const engine = await loadScript([
-      { url: LOCAL.script, pathPrefix: LOCAL.emulators, local: true },
-      { url: REMOTE_V8.script, pathPrefix: REMOTE_V8.emulators, local: false },
-      { url: REMOTE_LATEST.script, pathPrefix: REMOTE_LATEST.emulators, local: false },
-    ]);
+    const remoteScripts = [
+      { ...REMOTE_V8, url: REMOTE_V8.script, pathPrefix: REMOTE_V8.emulators, local: false },
+      { ...REMOTE_PINNED_V8, url: REMOTE_PINNED_V8.script, pathPrefix: REMOTE_PINNED_V8.emulators, local: false },
+      ...REMOTE_NPM_V8.map(entry => ({ ...entry, url: entry.script, pathPrefix: entry.emulators, local: false })),
+    ];
+    const scriptCandidates = allowLocal
+      ? [{ label: "runtime local 8.4.1", url: LOCAL.script, pathPrefix: LOCAL.emulators, local: true }, ...remoteScripts]
+      : remoteScripts;
+    const engine = await loadScript(scriptCandidates);
+    engine.pathPrefix = configureEmulatorPath(engine.pathPrefix, engine.local);
     if (generation !== runGeneration) throw cancelledError();
     if (typeof window.Dos !== "function") throw new Error("O emulador v8 não foi carregado.");
 
@@ -1154,6 +1284,8 @@
       playerProps = window.Dos(player, {
         url: bundleUrl,
         pathPrefix: engine.pathPrefix,
+        workerThread: false,
+        offscreenCanvas: false,
         autoStart: true,
         autoSave: false,
         kiosk: true,
@@ -1184,6 +1316,8 @@
         },
       });
       playerProps?.setNoCloud?.(true);
+      playerProps?.setWorkerThread?.(false);
+      playerProps?.setOffscreenCanvas?.(false);
       playerProps?.setAutoStart?.(true);
       playerProps?.setKiosk?.(true);
       playerProps?.setThinSidebar?.(true);
@@ -1200,8 +1334,8 @@
     showLoading("Usando o modo de compatibilidade do emulador.");
     await stopCurrentPlayer();
     if (generation !== runGeneration) throw cancelledError();
-    try { delete window.Dos; } catch (_) { window.Dos = undefined; }
-    await loadScript([{ url: REMOTE_V6.script, local: false }]);
+    clearEngineGlobals();
+    const legacyEngine = await loadScript(REMOTE_V6.map(entry => ({ ...entry, url: entry.script, local: false })));
     if (generation !== runGeneration) throw cancelledError();
     if (typeof window.Dos !== "function") throw new Error("O modo de compatibilidade não foi carregado.");
 
@@ -1225,7 +1359,7 @@
       startupCancel = cancel;
       try {
         window.Dos(canvas, {
-          wdosboxUrl: REMOTE_V6.wdosbox,
+          wdosboxUrl: legacyEngine.wdosbox,
           onerror: message => {
             const error = new Error(String(message || "Falha no DOSBox."));
             if (playerReady && !stoppingPlayer && recoverDoomSession(error.message)) return;
@@ -1271,11 +1405,12 @@
       syncTouchControls({ ready: false });
       await clearLegacyDoomState();
       if (generation !== runGeneration) return;
-      const bundleUrl = (await localBundleExists()) ? LOCAL.bundle : REMOTE_V8.bundle;
+      const useLocalRuntime = await localRuntimeAvailable();
+      const bundleUrl = useLocalRuntime ? LOCAL.bundle : REMOTE_V8.bundle;
       if (generation !== runGeneration) return;
 
       try {
-        await startV8(bundleUrl, generation);
+        await startV8(bundleUrl, generation, { allowLocal: useLocalRuntime });
       } catch (v8Error) {
         if (generation !== runGeneration || v8Error?.name === "AbortError") return;
         console.warn("DOOM Easter Egg: v8 falhou, tentando compatibilidade 6.22.", v8Error);
@@ -1286,11 +1421,14 @@
       console.error("DOOM Easter Egg:", error);
       currentStartRecovery = false;
       recoveryInProgress = false;
+      const remoteLoadFailed = Array.isArray(error?.attempts) && error.attempts.length > 0;
       showError(
         error?.message || "Não foi possível iniciar o jogo.",
         recovery
           ? "A recuperação automática também falhou. Tente reiniciar manualmente."
-          : "A página não recebeu um emulador válido. Tente novamente ou confira no console qual recurso foi bloqueado."
+          : (remoteLoadFailed
+            ? "Nenhuma fonte remota do js-dos respondeu corretamente. Para uma publicação estável, instale e publique o runtime local com scripts/vendor_doom_assets.sh."
+            : "O emulador foi carregado, mas não conseguiu iniciar o bundle. Confira os detalhes técnicos no console.")
       );
     } finally {
       if (generation === runGeneration) starting = false;
@@ -1416,6 +1554,7 @@
   }
 
   function guardInactiveKeyboard(event) {
+    if (syntheticKeyboardEvents.has(event)) return;
     if (mobileInput) return;
     const gameVisible = byId("doomGameShell") && !byId("doomGameShell").hidden;
     if (!gameVisible || !playerReady) return;
@@ -1423,6 +1562,22 @@
       handleDesktopMappedKey(event);
       return;
     }
+
+    const mappedCommand = Boolean(DESKTOP_HOLD_ACTIONS[event.code] || DESKTOP_TAP_ACTIONS[event.code]);
+    if (mappedCommand && event.type === "keydown") {
+      // Depois de blur/BFCache, a primeira tecla válida reativa o emulador. A
+      // ativação muda controlsActive de forma síncrona, portanto o mesmo evento
+      // não é descartado.
+      activateKeyboard({ focus: true, announce: true });
+      handleDesktopMappedKey(event);
+      return;
+    }
+    if (mappedCommand) {
+      event.preventDefault();
+      event.stopImmediatePropagation();
+      return;
+    }
+
     const interactive = event.target?.closest?.("button, a, input, select, textarea, [contenteditable='true']");
     if (event.key === "Tab" || event.metaKey) return;
     if ((event.ctrlKey || event.altKey) && !["Control", "Alt", "AltGraph"].includes(event.key)) return;
@@ -1509,9 +1664,7 @@
           hideKeyboardGate();
           setKeyboardMessage("Controle touch ativo. Use o joystick e os botões de ação.");
         } else {
-          controlsActive = false;
-          setKeyboardMessage("Clique na área do jogo para ativar o teclado.");
-          showKeyboardGate();
+          activateKeyboard({ focus: true, announce: false });
         }
       }
       updateLandscapeHint();

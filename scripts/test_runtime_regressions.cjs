@@ -8,6 +8,7 @@ const pdf = fs.readFileSync("js/pdf-runtime.js", "utf8");
 const viewer = fs.readFileSync("document-viewer.html", "utf8");
 const sw = fs.readFileSync("service-worker.js", "utf8");
 const doom = fs.readFileSync("apps/doom/doom.js", "utf8");
+const doomRuntimeManifest = JSON.parse(fs.readFileSync("apps/doom/vendor/runtime-manifest.json", "utf8"));
 const calendar = fs.readFileSync("apps/calendario/index.html", "utf8");
 const design = fs.readFileSync("js/design-system.js", "utf8");
 const performanceMonitor = fs.readFileSync("js/performance-monitor.js", "utf8");
@@ -55,7 +56,8 @@ assert(sw.includes("Promise.allSettled(CORE.map"), "Instalação do service work
 assert(sw.includes("const REQUIRED_CORE = new Set"), "Service worker não diferencia shell essencial de recursos offline opcionais.");
 assert(sw.includes("await cache.delete(request)"), "Cache limitado não atualiza recência antes do trim.");
 assert(doom.includes("status.replaceChildren"), "Status do DOOM ainda usa HTML interpolado.");
-assert(doom.includes("headers: { Range: \"bytes=0-0\" }"), "Teste do bundle local não possui fallback para servidores sem HEAD.");
+assert(doom.includes("localRuntimeAvailable") && typeof doomRuntimeManifest.localAssets === "boolean", "Runtime local do DOOM não é decidido por manifesto explícito.");
+assert(!doom.includes('method: "HEAD"') && !doom.includes("bytes=0-0"), "Loader do DOOM ainda sonda arquivos locais ausentes e gera 404.");
 assert(doom.includes("if (event.persisted)"), "DOOM não trata BFCache/pagehide preservado.");
 assert(!calendar.includes("onclick="), "Calendário ainda contém onclick inline.");
 assert(design.includes('sessionStorage.setItem("hubUpdateNotice", "pending")'), "Aviso de atualização ainda grava a versão antiga da página.");
