@@ -9,7 +9,7 @@ O projeto deve ser tratado como uma ferramenta experimental de apoio. Para decis
 
 ## Versão atual
 
-**v0.2.44**
+**v0.2.46**
 
 Esta versão mantém as correções de avanço/recuo do joystick do DOOM e retorna a câmera mobile ao gesto de arrastar. Movimentos curtos recebem ganho adicional, eventos touch agrupados são aproveitados para maior suavidade e a sensibilidade continua ajustável sem interferir no joystick.
 
@@ -763,3 +763,8 @@ Importante: esta licença se aplica ao código do site/repositório. Documentos 
 - **Código, estrutura, interface e lógica:** gerados por IA generativa.
 - **Ideias, requisitos, testes, feedback, curadoria e direção do produto:** mantenedor humano.
 - **Fontes acadêmicas:** documentos e canais oficiais do IFBA Campus Vitória da Conquista.
+
+
+## Assistente do HUB
+
+O app `apps/assistente/` oferece uma conversa semelhante a chatbots modernos e usa a API independente do projeto `hub-assistente-ifba`. O histórico fica somente no navegador. Configure o endereço da API em `apps/assistente/config.js`.

@@ -1,6 +1,6 @@
 {
   "schemaVersion": 1,
-  "updatedAt": "2026-07-11",
+  "updatedAt": "2026-08-05",
   "apps": [
     {
       "id": "barema",
@@ -36,6 +36,15 @@
       ],
       "status": "curated-from-official-documents",
       "reviewedAt": "2026-07-10"
+    },
+    {
+      "id": "assistente",
+      "title": "Assistente do HUB",
+      "url": "apps/assistente/",
+      "internalVersion": "1.0.3",
+      "sourceFiles": [],
+      "status": "uses-independent-assistant-api",
+      "reviewedAt": "2026-08-05"
     }
   ]
 }

@@ -1,0 +1,85 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+  <meta name="color-scheme" content="dark light">
+  <meta name="theme-color" content="#0b1118">
+  <title>Assistente do HUB</title>
+  <link rel="icon" href="../../favicon.ico">
+  <link rel="stylesheet" href="app.css">
+</head>
+<body>
+  <div class="chat-app" id="chatApp">
+    <aside class="chat-sidebar" id="chatSidebar" aria-label="Histórico de conversas">
+      <div class="sidebar-brand">
+        <a href="../../" class="hub-mark" aria-label="Voltar ao HUB">H</a>
+        <div><strong>Assistente do HUB</strong><small>IFBA Vitória da Conquista</small></div>
+        <button class="icon-button mobile-only" id="closeSidebar" type="button" aria-label="Fechar histórico">✕</button>
+      </div>
+      <button class="new-chat-button" id="newChat" type="button"><span aria-hidden="true">＋</span> Nova conversa</button>
+      <nav class="conversation-list" id="conversationList" aria-label="Conversas salvas"></nav>
+      <div class="sidebar-footer">
+        <button type="button" id="openSettings"><span aria-hidden="true">⚙</span> Configurações</button>
+        <a href="../../"><span aria-hidden="true">←</span> Voltar ao HUB</a>
+      </div>
+    </aside>
+
+    <main class="chat-main">
+      <header class="chat-header">
+        <button class="icon-button mobile-only" id="openSidebar" type="button" aria-label="Abrir histórico">☰</button>
+        <div class="header-copy"><strong id="conversationTitle">Nova conversa</strong><span class="connection-state" id="connectionState" data-state="checking"><i></i> Verificando conexão</span></div>
+        <button class="icon-button" id="clearConversation" type="button" aria-label="Limpar conversa" title="Limpar conversa">⌫</button>
+      </header>
+
+      <section class="message-scroll" id="messageScroll" aria-label="Conversa" aria-live="polite">
+        <div class="welcome" id="welcome">
+          <div class="assistant-avatar large" aria-hidden="true">H</div>
+          <h1>Como posso ajudar?</h1>
+          <p>Consulte salas, horários, professores, setores, documentos e serviços do HUB em forma de conversa.</p>
+          <div class="prompt-grid" id="promptGrid">
+            <button type="button" data-prompt="Qual é o contato da biblioteca?"><strong>Biblioteca</strong><span>Contato e serviços</span></button>
+            <button type="button" data-prompt="Onde é a aula de Algoritmos?"><strong>Salas</strong><span>Disciplinas e horários</span></button>
+            <button type="button" data-prompt="Quem são os professores do 3º semestre?"><strong>Professores</strong><span>Período atual</span></button>
+            <button type="button" data-prompt="Como funciona a média final?"><strong>Média final</strong><span>Regras e cálculo</span></button>
+          </div>
+          <p class="disclaimer">O assistente usa regras e dados cadastrados, não IA generativa. Confirme decisões acadêmicas nas fontes oficiais.</p>
+        </div>
+        <div class="messages" id="messages"></div>
+      </section>
+
+      <footer class="composer-area">
+        <div class="composer" id="composer">
+          <textarea id="messageInput" rows="1" maxlength="3000" placeholder="Envie uma mensagem ao Assistente do HUB" aria-label="Mensagem"></textarea>
+          <button id="sendMessage" type="button" aria-label="Enviar mensagem" title="Enviar">↑</button>
+        </div>
+        <small>Enter envia · Shift + Enter quebra a linha · Histórico salvo somente neste navegador · Respostas baseadas em regras e dados cadastrados</small>
+      </footer>
+    </main>
+  </div>
+
+  <dialog id="settingsDialog" class="settings-dialog">
+    <form method="dialog">
+      <header><div><strong>Configurações</strong><small>Conexão e dados locais</small></div><button class="icon-button" value="cancel" aria-label="Fechar">✕</button></header>
+      <label>Endereço da API<input id="apiBaseUrl" type="url" spellcheck="false" placeholder="https://api.seudominio.com"></label>
+      <p class="field-help">Para testes locais, use <code>http://localhost:3220</code>. No GitHub Pages, a API independente precisa estar publicada por HTTPS.</p>
+      <label>Como o assistente deve chamar você?<input id="senderName" type="text" maxlength="80" placeholder="Estudante"></label>
+      <div class="settings-actions">
+        <button type="button" class="danger-button" id="deleteHistory">Apagar histórico local</button>
+        <button value="cancel" class="secondary-button">Cancelar</button>
+        <button value="default" class="primary-button" id="saveSettings">Salvar</button>
+      </div>
+    </form>
+  </dialog>
+
+  <template id="typingTemplate">
+    <article class="message-row assistant typing-row" data-typing="true">
+      <div class="assistant-avatar" aria-hidden="true">H</div>
+      <div class="message-content"><div class="typing-bubble" aria-label="Assistente digitando"><i></i><i></i><i></i></div></div>
+    </article>
+  </template>
+
+  <script src="config.js"></script>
+  <script src="app.js"></script>
+</body>
+</html>

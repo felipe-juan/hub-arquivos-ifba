@@ -385,8 +385,20 @@ window.HUB_DATA = {
       "url": "#media-final",
       "category": "Calculadora e tabela",
       "tags": [
-        "média", "média final", "nota", "notas", "prova final", "tabela da final",
-        "quanto preciso tirar", "calculadora", "consulta rápida", "app", "ferramenta", "MP", "PF", "MF"
+        "média",
+        "média final",
+        "nota",
+        "notas",
+        "prova final",
+        "tabela da final",
+        "quanto preciso tirar",
+        "calculadora",
+        "consulta rápida",
+        "app",
+        "ferramenta",
+        "MP",
+        "PF",
+        "MF"
       ]
     },
     {
@@ -414,6 +426,27 @@ window.HUB_DATA = {
         "documento comprova",
         "whatsapp",
         "contato"
+      ]
+    },
+    {
+      "id": "app-assistente-hub",
+      "title": "Assistente do HUB",
+      "description": "Chat conversacional independente para consultar salas, horários, professores, setores, documentos e serviços usando o motor de regras do antigo HUB Bot.",
+      "url": "apps/assistente/",
+      "category": "Assistente",
+      "openMode": "new-tab",
+      "tags": [
+        "assistente",
+        "chat",
+        "chatbot",
+        "hub bot",
+        "horários",
+        "salas",
+        "professores",
+        "setores",
+        "contatos",
+        "documentos",
+        "IFBA"
       ]
     },
     {
