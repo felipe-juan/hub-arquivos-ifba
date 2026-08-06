@@ -1,10 +1,9 @@
 {
-  "generatedAt": "2026-08-06T18:13:35.426541+00:00",
   "documents": 55,
-  "metadataComplete": 0,
-  "relatedOnly": 55,
-  "unresolvedText": [],
   "extraction": {
     "sidecar-existing": 55
-  }
+  },
+  "metadataComplete": 0,
+  "relatedOnly": 55,
+  "unresolvedText": []
 }

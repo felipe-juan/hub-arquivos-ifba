@@ -43,9 +43,7 @@ jobs:
           set -Eeuo pipefail
           python3 scripts/build_and_validate_hub.py .
           node --check service-worker.js
-          node --check apps/assistente/app.js
-          node --check apps/assistente/config.js
-          node --check sidebar/sidebar.js
+          for file in apps/assistente/*.js sidebar/sidebar.js; do node --check "$file"; done
           python3 scripts/test_assistente_web.py .
 
       - name: Verify deterministic build

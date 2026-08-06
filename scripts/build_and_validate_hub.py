@@ -1,13 +1,13 @@
 #!/usr/bin/env python3
-"""Executa o build do HUB na ordem canônica e valida o resultado final.
+"""Executa o build canônico, reprodutível e validado do HUB.
 
-A normalização do cache ocorre *depois* da geração dos assets e *antes* do
-validador. Assim, referências transitórias criadas pelo build nunca chegam à
-validação nem ao GitHub Pages.
+Fedora e GitHub Actions chamam exatamente este arquivo. A geração documental é
+executada duas vezes, com intervalo real, e precisa produzir bytes idênticos.
 """
 from __future__ import annotations
 
 import argparse
+import os
 import subprocess
 import sys
 from pathlib import Path
@@ -34,17 +34,31 @@ def main() -> int:
     if not (root / "service-worker.js").is_file():
         raise SystemExit("Execute na raiz do HUB Arquivos IFBA.")
 
+    # Todos os geradores que precisem de uma data recebem a data estável do
+    # commit, nunca o relógio da máquina que executa o build.
+    if not os.environ.get("SOURCE_DATE_EPOCH"):
+        try:
+            epoch = subprocess.check_output(
+                ["git", "log", "-1", "--format=%ct"],
+                cwd=root, text=True, stderr=subprocess.DEVNULL
+            ).strip()
+        except (OSError, subprocess.CalledProcessError):
+            epoch = "1785974400"  # 2026-08-06T00:00:00Z, fallback da release.
+        os.environ["SOURCE_DATE_EPOCH"] = epoch
+    print(f"SOURCE_DATE_EPOCH={os.environ['SOURCE_DATE_EPOCH']}", flush=True)
+
     run(root, "scripts/patch_build_production_assets.py", str(root), optional=False)
     run(root, "scripts/check_doom_runtime.py")
     if not args.skip_manifest:
-        run(root, "scripts/generate_documents_manifest.py")
+        run(root, "scripts/verify_document_generation.py", str(root), optional=False)
     run(root, "scripts/build_production_assets.py")
+    run(root, "scripts/normalize_document_manifests.py", str(root), optional=False)
     run(root, "scripts/sync_assistente_offline_cache.py", str(root), optional=False)
     run(root, "scripts/check_index_status.py")
     run(root, "scripts/validate_site.py", optional=False)
     if not args.skip_inline:
         run(root, "scripts/check_inline_scripts.py")
-    print("\nBuild canônico do HUB concluído e validado.")
+    print("\nBuild canônico e determinístico do HUB concluído e validado.")
     return 0
 
 

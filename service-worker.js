@@ -1,4 +1,4 @@
-const VERSION = "hub-ifba-v0.2.60";
+const VERSION = "hub-ifba-v0.2.61";
 const STATIC_CACHE = `${VERSION}-static`;
 const METADATA_CACHE = `${VERSION}-metadata`;
 const IMAGE_CACHE = `${VERSION}-images`;
@@ -11,14 +11,14 @@ const CORE = [
   "./index.html",
   "./offline.html",
   "./document-viewer.html",
-  "assets/build/styles.4a1bafcd0921.css",
+  "assets/build/styles.06d3c2ded2b5.css",
   "assets/build/enhancements.254c728974fb.css",
   "assets/build/sidebar-quick-search.ea5032187b1e.css",
   "assets/build/design-system.afe11aadcef7.css",
   "assets/build/data.e091feef07af.js",
-  "assets/build/app.33c4dbfec30a.js",
+  "assets/build/app.ffea939a5be1.js",
   "assets/build/storage.aade70adc118.js",
-  "assets/build/design-system.162038ce4cba.js",
+  "assets/build/design-system.4dffacaddd6c.js",
   "assets/build/where-data.2815ed20f527.js",
   "./assets/logo-pixel.png",
   "./assets/logo-pixel-64.png",
@@ -29,6 +29,13 @@ const CORE = [
   "./apps/assistente/index.html",
   "./apps/assistente/config.js",
   "./apps/assistente/app.css",
+  "./apps/assistente/api-client.js",
+  "./apps/assistente/history-store.js",
+  "./apps/assistente/offline-search.js",
+  "./apps/assistente/chat-controller.js",
+  "./apps/assistente/composer-controller.js",
+  "./apps/assistente/message-renderer.js",
+  "./apps/assistente/response-actions.js",
   "./apps/assistente/app.js",
   "./apps/assistente/offline-data.json",
   "./sidebar/sidebar.css",
@@ -56,8 +63,8 @@ const CORE = [
 
 const REQUIRED_CORE = new Set([
   "./", "./index.html", "./offline.html", "./document-viewer.html",
-  "assets/build/styles.4a1bafcd0921.css", "assets/build/enhancements.254c728974fb.css", "assets/build/sidebar-quick-search.ea5032187b1e.css", "assets/build/design-system.afe11aadcef7.css",
-  "assets/build/data.e091feef07af.js", "assets/build/app.33c4dbfec30a.js", "assets/build/storage.aade70adc118.js", "assets/build/design-system.162038ce4cba.js", "assets/build/where-data.2815ed20f527.js",
+  "assets/build/styles.06d3c2ded2b5.css", "assets/build/enhancements.254c728974fb.css", "assets/build/sidebar-quick-search.ea5032187b1e.css", "assets/build/design-system.afe11aadcef7.css",
+  "assets/build/data.e091feef07af.js", "assets/build/app.ffea939a5be1.js", "assets/build/storage.aade70adc118.js", "assets/build/design-system.4dffacaddd6c.js", "assets/build/where-data.2815ed20f527.js",
 ]);
 
 async function installCoreResources() {

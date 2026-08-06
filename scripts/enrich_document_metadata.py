@@ -39,7 +39,7 @@ def load_json(path: Path, default: Any) -> Any:
 
 def write_json(path: Path, value: Any) -> None:
     path.parent.mkdir(parents=True, exist_ok=True)
-    path.write_text(json.dumps(value, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
+    path.write_text(json.dumps(value, ensure_ascii=False, indent=2, sort_keys=True) + "\n", encoding="utf-8")
 
 
 def rel(path: Path) -> str:
@@ -154,7 +154,6 @@ def main() -> None:
     previous_raw = load_json(OUTPUT, {})
     previous_items = previous_raw.get("documents", []) if isinstance(previous_raw, dict) else []
     previous = {str(item.get("path") or item.get("id")): item for item in previous_items if isinstance(item, dict)}
-    now = datetime.now(timezone.utc).isoformat()
     enriched: list[dict[str, Any]] = []
     unresolved: list[str] = []
     extraction: dict[str, int] = {}
@@ -219,7 +218,9 @@ def main() -> None:
         record["citationPolicy"] = "verified-eligible" if record["metadataComplete"] and record["status"] == "vigente" else "related-only"
         enriched.append(record)
 
-    output = {"schemaVersion": 1, "generatedAt": now, "policy": "unknown-until-explicitly-reviewed", "documents": enriched}
+    enriched.sort(key=lambda item: (str(item.get("path") or ""), str(item.get("id") or "")))
+    unresolved.sort()
+    output = {"schemaVersion": 1, "policy": "unknown-until-explicitly-reviewed", "documents": enriched}
     write_json(OUTPUT, output)
 
     # Propaga metadados conservadores para os índices consumidos pelo backend.
@@ -242,7 +243,7 @@ def main() -> None:
                 if item.get(field) != record.get(field):
                     item[field] = record.get(field); changed = True
         if changed: write_json(index_path, raw_index)
-    write_json(REPORT, {"generatedAt": now, "documents": len(enriched), "metadataComplete": sum(bool(item["metadataComplete"]) for item in enriched), "relatedOnly": sum(item["citationPolicy"] == "related-only" for item in enriched), "unresolvedText": unresolved, "extraction": extraction})
+    write_json(REPORT, {"documents": len(enriched), "metadataComplete": sum(bool(item["metadataComplete"]) for item in enriched), "relatedOnly": sum(item["citationPolicy"] == "related-only" for item in enriched), "unresolvedText": unresolved, "extraction": extraction})
     print(f"Metadados documentais: {len(enriched)} documento(s); completos: {sum(bool(item['metadataComplete']) for item in enriched)}; texto pendente: {len(unresolved)}.")
 
 

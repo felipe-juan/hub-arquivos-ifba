@@ -4,7 +4,6 @@ from __future__ import annotations
 import json
 import re
 import sys
-from datetime import datetime, timezone
 from pathlib import Path
 from typing import Any
 
@@ -98,17 +97,20 @@ def main() -> None:
         if not key or key in seen: continue
         seen.add(key); unique.append(item)
 
-    generated = datetime.now(timezone.utc)
+    # Data estável da revisão do conteúdo. Não usamos o relógio do build, pois
+    # o mesmo commit precisa produzir exatamente os mesmos bytes no Fedora e no Actions.
+    reviewed_dates = [str(item.get("updatedAt") or "")[:10] for item in unique if item.get("updatedAt")]
+    reviewed_iso = max(reviewed_dates, default="2026-08-06")
+    year, month, day = reviewed_iso.split("-") if reviewed_iso.count("-") == 2 else ("2026", "08", "06")
     payload = {
         "schemaVersion": 2,
-        "version": "1.4.5",
-        "updatedAt": generated.date().strftime("%d/%m/%Y"),
-        "generatedAt": generated.isoformat(),
+        "version": "1.5.0",
+        "updatedAt": f"{day}/{month}/{year}",
         "sourcePolicy": "central-records-only",
         "items": unique[:500],
     }
     TARGET.parent.mkdir(parents=True, exist_ok=True)
-    TARGET.write_text(json.dumps(payload, ensure_ascii=False, separators=(",", ":")) + "\n", encoding="utf-8")
+    TARGET.write_text(json.dumps(payload, ensure_ascii=False, sort_keys=True, separators=(",", ":")) + "\n", encoding="utf-8")
     print(f"Catálogo offline central gerado: {len(payload['items'])} item(ns).")
 
 if __name__ == "__main__": main()

@@ -60,9 +60,7 @@ jobs:
           set -Eeuo pipefail
           python3 scripts/build_and_validate_hub.py .
           node --check service-worker.js
-          node --check apps/assistente/app.js
-          node --check apps/assistente/config.js
-          node --check sidebar/sidebar.js
+          for file in apps/assistente/*.js sidebar/sidebar.js; do node --check "$file"; done
           python3 scripts/test_assistente_web.py .
 
       - name: Verify deterministic build
@@ -115,10 +113,10 @@ def is_pages_workflow(text: str) -> bool:
 
 def unique_destination(name: str) -> Path:
     DISABLED.mkdir(parents=True, exist_ok=True)
-    candidate = DISABLED / f"{name}.disabled-v1.4.5"
+    candidate = DISABLED / f"{name}.disabled-v1.5.0"
     index = 2
     while candidate.exists():
-        candidate = DISABLED / f"{name}.disabled-v1.4.5-{index}"
+        candidate = DISABLED / f"{name}.disabled-v1.5.0-{index}"
         index += 1
     return candidate
 
