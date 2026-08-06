@@ -1,4 +1,4 @@
-const VERSION = "hub-ifba-v0.2.49";
+const VERSION = "hub-ifba-v0.2.50";
 const STATIC_CACHE = `${VERSION}-static`;
 const METADATA_CACHE = `${VERSION}-metadata`;
 const IMAGE_CACHE = `${VERSION}-images`;
@@ -8,15 +8,16 @@ const KNOWN_CACHES = [STATIC_CACHE, METADATA_CACHE, IMAGE_CACHE, DOCUMENT_CACHE,
 
 const CORE = [
   "./", "./index.html", "./offline.html", "./document-viewer.html",
-  "assets/build/styles.0f2430007aad.css", "assets/build/enhancements.254c728974fb.css", "assets/build/sidebar-quick-search.ea5032187b1e.css", "assets/build/design-system.afe11aadcef7.css",
-  "assets/build/data.2036f3435be3.js", "assets/build/app.4c873ee01f19.js", "assets/build/storage.aade70adc118.js", "assets/build/design-system.f795106a864a.js", "assets/build/where-data.2815ed20f527.js",
+  "assets/build/styles.4563f758911c.css", "assets/build/enhancements.254c728974fb.css", "assets/build/sidebar-quick-search.ea5032187b1e.css", "assets/build/design-system.afe11aadcef7.css",
+  "assets/build/data.2036f3435be3.js", "assets/build/app.4fed4bd224d1.js", "assets/build/storage.aade70adc118.js", "assets/build/design-system.bef396dd0635.js", "assets/build/where-data.2815ed20f527.js",
   "./assets/logo-pixel.png", "./assets/logo-pixel-64.png", "./assets/apple-touch-icon.png", "./favicon.ico",
-  "apps/build/app-shell.cd41ed34fb82.css", "apps/build/app-shell.a029743f5073.js", "./apps/catalog.json",
+  "apps/build/app-shell.cd41ed34fb82.css", "apps/build/app-shell.1cf8a835c191.js", "./apps/catalog.json",
   "./apps/assistente/",
   "./apps/assistente/index.html",
   "./apps/assistente/config.js",
   "./apps/assistente/app.css",
   "./apps/assistente/app.js",
+  "./apps/assistente/offline-data.json",
   "./apps/calendario/", "./apps/calendario/index.html", "apps/build/calendar-data.84ae485c16ae.js", "./apps/calendario/data/source-metadata.json",
   "./apps/fluxogramas/", "./apps/fluxogramas/index.html", "apps/build/fluxogramas-data.a37b87063d78.js", "./apps/fluxogramas/data/source-metadata.json",
   "./apps/barema/", "./apps/barema/index.html", "apps/build/barema-data.33efba1c5da4.js", "./apps/barema/data/source-metadata.json",
@@ -26,8 +27,8 @@ const CORE = [
 
 const REQUIRED_CORE = new Set([
   "./", "./index.html", "./offline.html", "./document-viewer.html",
-  "assets/build/styles.0f2430007aad.css", "assets/build/enhancements.254c728974fb.css", "assets/build/sidebar-quick-search.ea5032187b1e.css", "assets/build/design-system.afe11aadcef7.css",
-  "assets/build/data.2036f3435be3.js", "assets/build/app.4c873ee01f19.js", "assets/build/storage.aade70adc118.js", "assets/build/design-system.f795106a864a.js", "assets/build/where-data.2815ed20f527.js",
+  "assets/build/styles.4563f758911c.css", "assets/build/enhancements.254c728974fb.css", "assets/build/sidebar-quick-search.ea5032187b1e.css", "assets/build/design-system.afe11aadcef7.css",
+  "assets/build/data.2036f3435be3.js", "assets/build/app.4fed4bd224d1.js", "assets/build/storage.aade70adc118.js", "assets/build/design-system.bef396dd0635.js", "assets/build/where-data.2815ed20f527.js",
 ]);
 
 async function installCoreResources() {

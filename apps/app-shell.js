@@ -282,6 +282,7 @@
       if (event.key === PREF.linkOrder) renderLinks();
       if (event.key === PREF.width) width = applySidebarWidth(event.newValue || 276, false);
     });
+    window.addEventListener("hub:favorites-changed", renderFavorites);
   }
 
   if (document.readyState === "loading") document.addEventListener("DOMContentLoaded", inject, { once: true });

@@ -1,11 +1,14 @@
-# Assistente do HUB v1.2.0
+# Assistente do HUB v1.3.0
 
-App conversacional independente com:
+Frontend independente do WhatsApp, integrado ao design e à sidebar do HUB.
 
-- uma única conversa persistente no navegador;
-- campo de mensagem sempre visível;
-- botão de envio bloqueado somente enquanto a resposta está em andamento;
-- menus com opção de saída;
-- histórico da conversa em IndexedDB com fallback local;
-- sidebar global idêntica à página inicial do HUB;
-- API independente `hub-assistente-ifba v1.2.0`.
+Recursos desta versão:
+
+- conversa única persistente;
+- contexto ativo visível e limpável;
+- explicação de ambiguidades;
+- respostas progressivas e híbridas;
+- ações diretas no HUB;
+- modo offline sincronizado em `offline-data.json`;
+- componentes de conhecimento, citação e conflito;
+- interface mobile e desktop estável.

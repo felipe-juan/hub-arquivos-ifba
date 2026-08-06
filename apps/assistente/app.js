@@ -12,6 +12,8 @@
     sending: false,
     requestSerial: 0,
     settings: loadSettings(),
+    activeContext: null,
+    offlineCatalog: null,
     typingWatchdog: 0,
     toastTimer: 0
   };
@@ -160,11 +162,12 @@
         || [...saved.conversations].sort((a, b) => Number(b.updatedAt || 0) - Number(a.updatedAt || 0))[0];
     }
     state.conversation = normalizeConversation(source);
+    state.activeContext = saved?.activeContext && typeof saved.activeContext === 'object' ? saved.activeContext : null;
   }
 
   function saveState() {
     if (!state.conversation) state.conversation = freshConversation();
-    persistSavedState({ conversation: state.conversation });
+    persistSavedState({ conversation: state.conversation, activeContext: state.activeContext });
   }
 
   function currentConversation() {
@@ -236,7 +239,11 @@
       copied: Boolean(extras.copied),
       components: Array.isArray(extras.components) ? extras.components : [],
       sources: Array.isArray(extras.sources) ? extras.sources : [],
-      context: extras.context && typeof extras.context === 'object' ? extras.context : null
+      context: extras.context && typeof extras.context === 'object' ? extras.context : null,
+      ambiguity: extras.ambiguity && typeof extras.ambiguity === 'object' ? extras.ambiguity : null,
+      knowledge: extras.knowledge && typeof extras.knowledge === 'object' ? extras.knowledge : null,
+      citation: extras.citation && typeof extras.citation === 'object' ? extras.citation : null,
+      presentation: extras.presentation && typeof extras.presentation === 'object' ? extras.presentation : null
     };
     conversation.messages.push(message);
     conversation.messages = conversation.messages.slice(-Number(CONFIG.maxMessagesPerConversation || 250));
@@ -275,6 +282,16 @@
     state.toastTimer = setTimeout(() => { toast.hidden = true; }, 1800);
   }
 
+  function actionButton(action = {}) {
+    const kind = escapeHtml(action.kind || (String(action.value || '').startsWith('http') ? 'open-url' : 'message'));
+    const value = escapeHtml(action.value || '');
+    const title = escapeHtml(action.title || '');
+    const page = escapeHtml(action.page || '');
+    const meta = escapeHtml(action.meta || '');
+    const icon = escapeHtml(action.icon || '');
+    return `<button type="button" data-hub-action data-action-kind="${kind}" data-action-value="${value}" data-action-title="${title}" data-action-page="${page}" data-action-meta="${meta}">${icon ? `<span aria-hidden="true">${icon}</span>` : ''}${escapeHtml(action.label || 'Abrir')}</button>`;
+  }
+
   function renderComponents(message) {
     const components = Array.isArray(message.components) ? message.components : [];
     if (!components.length) return '';
@@ -282,7 +299,7 @@
       const type = escapeHtml(component.type || 'information');
       if (component.type === 'sources') {
         const items = Array.isArray(component.items) ? component.items : [];
-        return `<section class="structured-card sources-card" data-component="${type}"><strong>${escapeHtml(component.title || 'Fontes no HUB')}</strong>${items.map(item => `<a href="${escapeHtml(item.url || '#')}" target="_blank" rel="noopener noreferrer"><span>📄 ${escapeHtml(item.title || 'Documento')}</span><small>${escapeHtml(item.label || `Página ${item.page || 1}`)}</small>${item.snippet ? `<em>${escapeHtml(item.snippet)}</em>` : ''}</a>`).join('')}</section>`;
+        return `<section class="structured-card sources-card" data-component="${type}"><strong>${escapeHtml(component.title || 'Fontes no HUB')}</strong>${items.map(item => `<div class="source-row"><a href="${escapeHtml(item.url || '#')}" target="_blank" rel="noopener noreferrer"><span>📄 ${escapeHtml(item.title || 'Documento')}</span><small>${escapeHtml(item.label || `Página ${item.page || 1}`)}</small>${item.snippet ? `<em>${escapeHtml(item.snippet)}</em>` : ''}</a><button type="button" data-hub-action data-action-kind="favorite-document" data-action-value="${escapeHtml(item.url || '#')}" data-action-title="${escapeHtml(item.title || 'Documento')}" data-action-page="${escapeHtml(item.page || 1)}" data-action-meta="${escapeHtml(item.label || 'Documento')}">☆</button></div>`).join('')}</section>`;
       }
       const rows = [];
       if (component.email) rows.push(`<a href="mailto:${escapeHtml(component.email)}">✉ ${escapeHtml(component.email)}</a>`);
@@ -290,13 +307,49 @@
       if (Array.isArray(component.subjects) && component.subjects.length) rows.push(`<span>Disciplinas: ${escapeHtml(component.subjects.join(', '))}</span>`);
       if (Array.isArray(component.links)) rows.push(...component.links.map(link => `<a href="${escapeHtml(link)}" target="_blank" rel="noopener noreferrer">Abrir link</a>`));
       const actions = Array.isArray(component.actions) ? component.actions : [];
-      return `<section class="structured-card" data-component="${type}"><strong>${escapeHtml(component.title || 'Informação')}</strong>${rows.join('')}${actions.length ? `<div class="structured-actions">${actions.map(action => `<button type="button" data-option-value="${escapeHtml(action.value)}">${escapeHtml(action.label)}</button>`).join('')}</div>` : ''}</section>`;
+      return `<section class="structured-card" data-component="${type}"><strong>${escapeHtml(component.title || 'Informação')}</strong>${rows.join('')}${actions.length ? `<div class="structured-actions">${actions.map(action => component.type === 'hub-actions' ? actionButton(action) : `<button type="button" data-option-value="${escapeHtml(action.value)}">${escapeHtml(action.label)}</button>`).join('')}</div>` : ''}</section>`;
     }).join('')}</div>`;
+  }
+
+  function renderAmbiguity(message) {
+    const item = message.ambiguity;
+    if (!item) return '';
+    const candidates = Array.isArray(item.candidates) ? item.candidates : [];
+    return `<section class="ambiguity-card"><strong>${escapeHtml(item.title || 'Encontrei mais de uma possibilidade.')}</strong><p>${escapeHtml(item.explanation || '')}</p>${candidates.length ? `<ol>${candidates.map(candidate => `<li>${escapeHtml(candidate.label)}</li>`).join('')}</ol>` : ''}</section>`;
+  }
+
+  function renderKnowledge(message) {
+    const item = message.knowledge;
+    if (!item) return '';
+    const source = item.source || null;
+    const warning = message.citation && !message.citation.verified;
+    const rows = [];
+    if (source?.title) rows.push(`<span><strong>Fonte:</strong> ${escapeHtml(source.title)}${source.page ? ` · página ${escapeHtml(source.page)}` : ''}</span>`);
+    if (item.validity && item.validity !== 'não informada') rows.push(`<span><strong>Validade:</strong> ${escapeHtml(item.validity)}</span>`);
+    if (item.lastReviewedAt) rows.push(`<span><strong>Revisado:</strong> ${escapeHtml(item.lastReviewedAt)}${item.responsible ? ` · ${escapeHtml(item.responsible)}` : ''}</span>`);
+    if (item.conflictNotice) rows.push(`<span>${escapeHtml(item.conflictNotice)}</span>`);
+    return rows.length ? `<section class="knowledge-meta ${warning ? 'knowledge-warning' : ''}">${rows.join('')}</section>` : '';
+  }
+
+  function renderMessageBody(message) {
+    const presentation = message.presentation;
+    if (!presentation?.progressive) return formatMessage(message.text);
+    return `<section class="progressive-answer"><div class="progressive-summary">${formatMessage(presentation.summary || message.text)}</div>${presentation.details ? `<details><summary>Detalhes</summary><div class="progressive-details">${formatMessage(presentation.details)}</div></details>` : ''}${presentation.source ? `<details><summary>Fonte</summary><div class="progressive-source">${formatMessage(presentation.source)}</div></details>` : ''}</section>`;
   }
 
   function contextBadge(message) {
     const title = message.context?.title || message.context?.topic || '';
     return title ? `<div class="context-badge">Respondendo sobre ${escapeHtml(title)}</div>` : '';
+  }
+
+  function renderActiveContext() {
+    const box = $('activeContext');
+    const summary = $('activeContextSummary');
+    const context = state.activeContext;
+    if (!box || !summary) return;
+    const label = context?.summary || [context?.discipline, context?.semester ? `${context.semester}º semestre` : '', context?.professor, context?.sector, context?.date].filter(Boolean).join(' · ') || context?.title || context?.topic || '';
+    box.hidden = !label;
+    summary.textContent = label;
   }
 
   function scrollToBottom(smooth = true) {
@@ -312,6 +365,7 @@
   }
 
   function renderMessages() {
+    renderActiveContext();
     const conversation = currentConversation();
     $('welcome').hidden = Boolean(conversation.messages.length);
     $('messages').innerHTML = conversation.messages.map(message => {
@@ -328,7 +382,7 @@
         <article class="message-row assistant" data-message-id="${escapeHtml(message.id)}">
           <div class="assistant-avatar" aria-hidden="true">🤖</div>
           <div class="message-content ${message.error ? 'error-card' : ''}">
-            ${contextBadge(message)}${formatMessage(message.text)}${renderComponents(message)}${attachment}${options}${assistantActions(message)}
+            ${contextBadge(message)}${renderMessageBody(message)}${renderAmbiguity(message)}${renderComponents(message)}${renderKnowledge(message)}${attachment}${options}${assistantActions(message)}
           </div>
         </article>`;
     }).join('');
@@ -337,6 +391,7 @@
   }
 
   function render() {
+    renderActiveContext();
     renderMessages();
     setSending(state.sending);
   }
@@ -423,28 +478,92 @@
     } finally { clearTimeout(timer); }
   }
 
+  async function loadOfflineCatalog() {
+    try {
+      const response = await fetch(CONFIG.offlineCatalogPath || 'offline-data.json', { cache: 'no-store' });
+      if (!response.ok) throw new Error();
+      const data = await response.json();
+      state.offlineCatalog = data && typeof data === 'object' ? data : null;
+    } catch { state.offlineCatalog = null; }
+  }
+
+  function normalizeOffline(value = '') {
+    return safeText(value).normalize('NFD').replace(/[\u0300-\u036f]/g, '').toLowerCase().replace(/[^a-z0-9]+/g, ' ').trim();
+  }
+
+  function findOfflineItem(text) {
+    const catalog = state.offlineCatalog;
+    if (!catalog) return null;
+    const query = normalizeOffline(text);
+    const terms = query.split(' ').filter(term => term.length > 2);
+    let best = null;
+    for (const item of catalog.items || []) {
+      const hay = normalizeOffline([item.title,item.summary,item.category,...(item.tags||[])].join(' '));
+      let score = terms.reduce((sum, term) => sum + (hay.includes(term) ? 2 : 0), 0);
+      if (query && hay.includes(query)) score += 8;
+      if (score && (!best || score > best.score)) best = { item, score };
+    }
+    return best?.item || null;
+  }
+
   function offlineAnswer(text) {
-    const value = safeText(text).normalize('NFD').replace(/[\u0300-\u036f]/g, '').toLowerCase();
+    const value = normalizeOffline(text);
     const hubRoot = new URL('../../', location.href).href;
-    const answer = (body, actions = []) => ({
-      text: `Modo offline — algumas informações podem não estar atualizadas.\n\n${body}`,
-      components: actions.length ? [{ type: 'offline', title: 'Atalhos do HUB', actions }] : []
+    const updated = state.offlineCatalog?.updatedAt || '';
+    const answer = (body, actions = [], extra = {}) => ({
+      text: `Modo offline — algumas informações podem não estar atualizadas.\n\n${body}${updated ? `\n\nAtualizado em ${updated}.` : ''}`,
+      components: actions.length ? [{ type: 'hub-actions', title: 'Ações disponíveis', actions }] : [],
+      knowledge: extra.knowledge || null,
+      presentation: { progressive: false, summary: body, details: '', source: updated ? `Dados locais atualizados em ${updated}.` : '', defaultExpanded: false }
     });
-    if (/suap/.test(value)) return answer('Acesse o SUAP pelo sistema institucional.', [{ label: 'Abrir SUAP', value: 'https://suap.ifba.edu.br' }]);
-    if (/portal|campus/.test(value)) return answer('O Portal do Campus Vitória da Conquista reúne notícias, setores e editais.', [{ label: 'Abrir Portal', value: 'https://portal.ifba.edu.br/conquista' }]);
-    if (/biblioteca/.test(value)) return answer('Contato local salvo: biblioteca.vdc@ifba.edu.br. A página da Biblioteca reúne catálogo e serviços.', [{ label: 'Abrir Biblioteca', value: 'https://portal.ifba.edu.br/conquista/ensino/biblioteca' }]);
-    if (/caens|estagio/.test(value)) return answer('Contato local salvo da CAENS: caens.vdc@ifba.edu.br. Para dados atualizados, confirme na página oficial do setor.', [{ label: 'Abrir CAENS', value: 'https://portal.ifba.edu.br/conquista/coordenacao-de-apoio-ao-ensino-caens' }]);
-    if (/setor|contato|coordenacao|localizacao/.test(value)) return answer('A busca local do HUB pode localizar páginas, contatos e documentos de setores.', [{ label: 'Buscar no HUB', value: `${hubRoot}?q=${encodeURIComponent(text)}` }]);
-    if (/calendario|feriado|recesso|data/.test(value)) return answer('Consulte o calendário acadêmico no acervo do HUB.', [{ label: 'Buscar calendário', value: `${hubRoot}?q=calendário acadêmico` }]);
-    if (/documento|regulamento|resolucao|ppc|matriz|trancamento|jubilamento/.test(value)) return answer('A busca do HUB continua disponível para localizar documentos oficiais.', [{ label: 'Buscar documentos', value: `${hubRoot}?q=${encodeURIComponent(text)}` }]);
-    if (/ajuda|o que voce|pode fazer/.test(value)) return answer('Posso ajudar offline com Portal, SUAP, Biblioteca, CAENS, calendário, setores e documentos principais.');
+    const item = findOfflineItem(text);
+    if (item) {
+      const actions = [];
+      if (item.url) actions.push({ label:'Abrir no HUB', kind:'open-url', value:item.url, icon:'↗' });
+      if (item.kind === 'document' && item.url) actions.push({ label:'Favoritar documento', kind:'favorite-document', value:item.url, title:item.title, page:item.page || 1, meta:item.category || 'Documento', icon:'☆' });
+      return answer(item.summary || item.description || `Encontrei “${item.title}” nos dados locais do HUB.`, actions, { knowledge: item.knowledge || null });
+    }
+    if (/suap/.test(value)) return answer('Acesse o SUAP pelo sistema institucional.', [{ label:'Abrir SUAP',kind:'open-url',value:'https://suap.ifba.edu.br',icon:'↗' }]);
+    if (/portal|campus/.test(value)) return answer('O Portal do Campus Vitória da Conquista reúne notícias, setores e editais.', [{ label:'Abrir Portal',kind:'open-url',value:'https://portal.ifba.edu.br/conquista',icon:'↗' }]);
+    if (/biblioteca/.test(value)) return answer('Contato local salvo: biblioteca.vdc@ifba.edu.br. A página da Biblioteca reúne catálogo e serviços.', [{ label:'Abrir Biblioteca',kind:'open-url',value:'https://portal.ifba.edu.br/conquista/ensino/biblioteca',icon:'📚' },{label:'Copiar e-mail',kind:'copy',value:'biblioteca.vdc@ifba.edu.br',icon:'✉'}]);
+    if (/caens|estagio/.test(value)) return answer('Contato local salvo da CAENS: caens.vdc@ifba.edu.br. Para dados atualizados, confirme na página oficial do setor.', [{ label:'Abrir CAENS',kind:'open-url',value:'https://portal.ifba.edu.br/conquista/coordenacao-de-apoio-ao-ensino-caens',icon:'↗' },{label:'Copiar e-mail',kind:'copy',value:'caens.vdc@ifba.edu.br',icon:'✉'}]);
+    if (/setor|contato|coordenacao|localizacao/.test(value)) return answer('A busca local do HUB pode localizar páginas, contatos e documentos de setores.', [{ label:'Buscar no HUB',kind:'open-url',value:`${hubRoot}?q=${encodeURIComponent(text)}`,icon:'⌕' }]);
+    if (/calendario|feriado|recesso|data/.test(value)) return answer('Consulte o calendário acadêmico salvo no HUB.', [{ label:'Ver calendário',kind:'open-url',value:`${hubRoot}apps/calendario/`,icon:'📅' }]);
+    if (/horario|aula|semestre/.test(value)) return answer('Os horários recentes podem ser localizados pela busca do HUB.', [{ label:'Ver horários',kind:'open-url',value:`${hubRoot}?q=${encodeURIComponent('horários '+text)}`,icon:'🕒' }]);
+    if (/documento|regulamento|resolucao|ppc|matriz|trancamento|jubilamento/.test(value)) return answer('A busca do HUB continua disponível para localizar documentos oficiais armazenados no dispositivo.', [{ label:'Buscar documentos',kind:'open-url',value:`${hubRoot}?q=${encodeURIComponent(text)}`,icon:'📄' }]);
+    if (/ajuda|o que voce|pode fazer/.test(value)) return answer('Posso ajudar offline com cards mais consultados, documentos recentes, calendário, contatos, setores, links e horários sincronizados.');
     return null;
   }
 
-  function openOrSendAction(value) {
-    if (/^https?:\/\//i.test(value)) { window.open(value, '_blank', 'noopener,noreferrer'); return true; }
+  const FAVORITES_KEY = 'hubFavoritesV1';
+  function readFavorites() { try { const value=JSON.parse(localStorage.getItem(FAVORITES_KEY)||'[]'); return Array.isArray(value)?value:[]; } catch { return []; } }
+  function favoriteKey(item={}) { return `${item.kind||'document'}:${item.id||item.url||item.title}`; }
+  function toggleDocumentFavorite({ value='', title='Documento', page='1', meta='Documento', button=null } = {}) {
+    const item={ id:value, kind:'document', title, url:value, meta:meta || `Página ${page}` };
+    const items=readFavorites(); const key=favoriteKey(item); const index=items.findIndex(saved=>favoriteKey(saved)===key);
+    const active=index<0;
+    if(active) items.unshift(item); else items.splice(index,1);
+    try { localStorage.setItem(FAVORITES_KEY,JSON.stringify(items.slice(0,30))); } catch {}
+    if(button){button.classList.toggle('is-favorite',active);button.textContent=active?'★':'☆';button.setAttribute('aria-pressed',String(active));}
+    window.dispatchEvent(new CustomEvent('hub:favorites-changed'));
+    showToast(active?'Documento adicionado aos favoritos':'Documento removido dos favoritos');
+  }
+
+  async function handleHubAction(button) {
+    const kind=button.dataset.actionKind||'message'; const value=button.dataset.actionValue||'';
+    if(kind==='favorite-document'){toggleDocumentFavorite({value,title:button.dataset.actionTitle||'Documento',page:button.dataset.actionPage||'1',meta:button.dataset.actionMeta||'Documento',button});return true;}
+    if(kind==='copy'){try{await navigator.clipboard.writeText(value);}catch{const area=document.createElement('textarea');area.value=value;document.body.append(area);area.select();document.execCommand('copy');area.remove();}showToast('Copiado');return true;}
+    if(kind==='open-url'||kind==='hub-search'||kind==='locate-sector'){window.open(new URL(value,location.href).href,'_blank','noopener,noreferrer');return true;}
+    if(kind==='message'){if(!state.sending)send(value);return true;}
     return false;
   }
+
+  function openOrSendAction(value) {
+    if (/^(?:https?:\/\/|\.\.?\/|\/|#)/i.test(value)) { window.open(new URL(value, location.href).href, '_blank', 'noopener,noreferrer'); return true; }
+    return false;
+  }
+
+
 
   async function send(text) {
     text = safeText(text).trim();
@@ -464,6 +583,7 @@
       });
       if (serial !== state.requestSerial) return;
       if (data.sessionId) conversation.sessionId = data.sessionId;
+      state.activeContext = data.context && typeof data.context === 'object' ? data.context : null;
       const replies = Array.isArray(data.replies) ? data.replies : [];
       if (!replies.length) {
         addMessage('assistant', 'Não encontrei uma resposta para essa mensagem. Tente reformular em uma frase curta.', { error: true });
@@ -474,14 +594,18 @@
           options: index === replies.length - 1 ? (data.options || data.suggestions || []) : [],
           components: index === replies.length - 1 ? (data.components || []) : [],
           sources: index === replies.length - 1 ? (data.sources || []) : [],
-          context: data.context || null
+          context: data.context || null,
+          ambiguity: index === replies.length - 1 ? data.ambiguity : null,
+          knowledge: index === replies.length - 1 ? data.knowledge : null,
+          citation: index === replies.length - 1 ? data.citation : null,
+          presentation: reply.presentation || (index === replies.length - 1 ? data.presentation : null)
         }));
       }
       setConnection('online', 'Conectado');
     } catch (error) {
       if (serial !== state.requestSerial) return;
       const offline = offlineAnswer(text);
-      if (offline) addMessage('assistant', offline.text, { components: offline.components, error: false });
+      if (offline) addMessage('assistant', offline.text, { components: offline.components, knowledge: offline.knowledge, presentation: offline.presentation, error: false });
       else {
         const message = error.name === 'AbortError'
           ? 'A resposta demorou demais. Verifique a conexão e tente novamente.'
@@ -514,8 +638,19 @@
     setSending(false);
     try { await request(CONFIG.resetPath || '/api/assistant/reset', { sessionId: previous.sessionId }, 8000); } catch {}
     state.conversation = freshConversation();
+    state.activeContext = null;
     saveState();
     render();
+  }
+
+  async function clearActiveContext() {
+    if (!state.activeContext || state.sending) return;
+    const sessionId = currentConversation().sessionId;
+    state.activeContext = null;
+    saveState();
+    renderActiveContext();
+    showToast('Contexto limpo');
+    try { await request(CONFIG.clearContextPath || '/api/assistant/context/clear', { sessionId }, 8000); } catch {}
   }
 
   function messageById(id) {
@@ -591,11 +726,14 @@
       if (button) send(button.dataset.prompt);
     });
     $('messages').addEventListener('click', event => {
+      const hubAction = event.target.closest('[data-hub-action]');
       const option = event.target.closest('[data-option-value]');
       const copy = event.target.closest('[data-copy-message]');
       const feedback = event.target.closest('[data-feedback]');
       const retry = event.target.closest('[data-retry-message]');
-      if (option) {
+      if (hubAction) {
+        handleHubAction(hubAction);
+      } else if (option) {
         if (!state.sending && !openOrSendAction(option.dataset.optionValue)) send(option.dataset.optionValue);
       } else if (copy) copyMessage(copy.dataset.copyMessage);
       else if (feedback) sendFeedback(feedback.dataset.message, feedback.dataset.feedback);
@@ -604,6 +742,7 @@
         if (text) send(text);
       }
     });
+    $('clearContext').addEventListener('click', clearActiveContext);
     $('clearConversation').addEventListener('click', () => {
       if (state.sending) return;
       if (confirm('Limpar a conversa e começar novamente?')) resetCurrent();
@@ -646,7 +785,7 @@
   }
 
   async function bootstrap() {
-    await loadState();
+    await Promise.all([loadState(), loadOfflineCatalog()]);
     bindViewport();
     bind();
     setSending(false);
