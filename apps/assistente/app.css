@@ -49,7 +49,7 @@ button:focus-visible, a:focus-visible, textarea:focus-visible, input:focus-visib
   min-height: 0;
   overflow: hidden;
   display: grid;
-  grid-template-rows: auto auto minmax(0, 1fr) auto;
+  grid-template-rows: auto minmax(0, 1fr) auto;
   background: transparent;
 }
 
@@ -240,7 +240,7 @@ button:focus-visible, a:focus-visible, textarea:focus-visible, input:focus-visib
 }
 
 
-/* v1.3.1 — ações, componentes estruturados e estabilidade visual. */
+/* v1.3.3 — ações, componentes estruturados e estabilidade visual. */
 .message-toolbar { min-height: 32px; align-items: center; }
 .message-toolbar button { position: relative; transition: background .16s ease, color .16s ease, border-color .16s ease, transform .12s ease; }
 .message-toolbar button:active { transform: scale(.92); }
@@ -261,43 +261,10 @@ button:focus-visible, a:focus-visible, textarea:focus-visible, input:focus-visib
 .sources-card a span { color: var(--ink); font-weight: 760; }
 .sources-card a small { color: var(--cyan); }
 .sources-card a em { color: var(--muted); font-size: .69rem; font-style: normal; line-height: 1.4; }
-.context-badge { width: fit-content; margin-bottom: .45rem; padding: .22rem .48rem; border-radius: 999px; background: color-mix(in srgb, var(--cyan) 10%, transparent); color: var(--cyan); font-size: .66rem; font-weight: 780; }
 @media (max-width: 620px) { .message-action-status { flex-basis: 100%; } .structured-card { padding: .62rem; } }
 
 
-/* v1.3.1 — contexto visível, respostas progressivas e ações híbridas */
-.active-context {
-  min-width: 0;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: .8rem;
-  padding: .42rem clamp(.7rem, 2vw, 1.2rem);
-  border-bottom: 1px solid var(--line);
-  background: color-mix(in srgb, var(--cyan) 7%, var(--bg-2));
-}
-.active-context[hidden] { display: none !important; }
-.active-context > div {
-  width: min(100%, var(--assistant-content-max));
-  min-width: 0;
-  display: flex;
-  align-items: baseline;
-  gap: .45rem;
-}
-.active-context small { flex: 0 0 auto; color: var(--muted); font-size: .7rem; font-weight: 750; }
-.active-context strong { min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font-size: .78rem; }
-.active-context button {
-  flex: 0 0 auto;
-  min-height: 30px;
-  padding: .28rem .58rem;
-  border: 1px solid var(--line);
-  border-radius: 999px;
-  background: var(--surface-2);
-  color: var(--text);
-  font-size: .68rem;
-  font-weight: 800;
-  cursor: pointer;
-}
+/* v1.3.3 — respostas documentais progressivas e ações híbridas. */
 .progressive-answer { display: grid; gap: .55rem; }
 .progressive-summary { margin: 0; }
 .progressive-answer details {
@@ -358,10 +325,6 @@ button:focus-visible, a:focus-visible, textarea:focus-visible, input:focus-visib
 .structured-card[data-component="hub-actions"] button.is-favorite { color: #ffd85e; border-color: #ffd85e; }
 .offline-updated { color: var(--faint); font-size: .68rem; }
 @media (max-width: 700px) {
-  .active-context { align-items: stretch; gap: .45rem; padding-block: .38rem; }
-  .active-context > div { display: grid; gap: .05rem; }
-  .active-context strong { font-size: .72rem; }
-  .active-context button { align-self: center; white-space: nowrap; }
   .progressive-answer details { border-radius: 12px; }
   .structured-card[data-component="hub-actions"] .structured-actions { display: grid; grid-template-columns: 1fr 1fr; }
   .structured-card[data-component="hub-actions"] button { width: 100%; }

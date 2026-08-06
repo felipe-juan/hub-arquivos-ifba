@@ -379,6 +379,29 @@ window.HUB_DATA = {
   ],
   "apps": [
     {
+      "id": "app-assistente-hub",
+      "title": "Assistente do HUB",
+      "description": "Chat conversacional independente para consultar salas, horários, professores, setores, documentos e serviços usando o motor de regras do antigo HUB Bot.",
+      "url": "apps/assistente/",
+      "category": "Assistente",
+      "openMode": "new-tab",
+      "emoji": "🤖",
+      "icon": "🤖",
+      "tags": [
+        "assistente",
+        "chat",
+        "chatbot",
+        "hub bot",
+        "horários",
+        "salas",
+        "professores",
+        "setores",
+        "contatos",
+        "documentos",
+        "IFBA"
+      ]
+    },
+    {
       "id": "app-media-final",
       "title": "Média e Prova Final",
       "description": "Um único app com calculadora de média parcial e final, além da tabela rápida para consultar quanto é necessário tirar na prova final.",
@@ -426,29 +449,6 @@ window.HUB_DATA = {
         "documento comprova",
         "whatsapp",
         "contato"
-      ]
-    },
-    {
-      "id": "app-assistente-hub",
-      "title": "Assistente do HUB",
-      "description": "Chat conversacional independente para consultar salas, horários, professores, setores, documentos e serviços usando o motor de regras do antigo HUB Bot.",
-      "url": "apps/assistente/",
-      "category": "Assistente",
-      "openMode": "new-tab",
-      "emoji": "🤖",
-      "icon": "🤖",
-      "tags": [
-        "assistente",
-        "chat",
-        "chatbot",
-        "hub bot",
-        "horários",
-        "salas",
-        "professores",
-        "setores",
-        "contatos",
-        "documentos",
-        "IFBA"
       ]
     },
     {

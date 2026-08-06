@@ -3,6 +3,16 @@
   "updatedAt": "2026-08-06",
   "apps": [
     {
+      "id": "assistente",
+      "title": "Assistente do HUB",
+      "url": "apps/assistente/",
+      "internalVersion": "1.3.3",
+      "sourceFiles": [],
+      "status": "uses-independent-assistant-api",
+      "reviewedAt": "2026-08-06",
+      "emoji": "🤖"
+    },
+    {
       "id": "barema",
       "title": "Barema Explorer",
       "url": "apps/barema/",
@@ -36,16 +46,6 @@
       ],
       "status": "curated-from-official-documents",
       "reviewedAt": "2026-07-10"
-    },
-    {
-      "id": "assistente",
-      "title": "Assistente do HUB",
-      "url": "apps/assistente/",
-      "internalVersion": "1.3.1",
-      "sourceFiles": [],
-      "status": "uses-independent-assistant-api",
-      "reviewedAt": "2026-08-06",
-      "emoji": "🤖"
     }
   ]
 }

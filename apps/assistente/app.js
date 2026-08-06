@@ -12,7 +12,6 @@
     sending: false,
     requestSerial: 0,
     settings: loadSettings(),
-    activeContext: null,
     offlineCatalog: null,
     typingWatchdog: 0,
     toastTimer: 0
@@ -162,12 +161,11 @@
         || [...saved.conversations].sort((a, b) => Number(b.updatedAt || 0) - Number(a.updatedAt || 0))[0];
     }
     state.conversation = normalizeConversation(source);
-    state.activeContext = saved?.activeContext && typeof saved.activeContext === 'object' ? saved.activeContext : null;
   }
 
   function saveState() {
     if (!state.conversation) state.conversation = freshConversation();
-    persistSavedState({ conversation: state.conversation, activeContext: state.activeContext });
+    persistSavedState({ conversation: state.conversation });
   }
 
   function currentConversation() {
@@ -337,21 +335,6 @@
     return `<section class="progressive-answer"><div class="progressive-summary">${formatMessage(presentation.summary || message.text)}</div>${presentation.details ? `<details><summary>Detalhes</summary><div class="progressive-details">${formatMessage(presentation.details)}</div></details>` : ''}${presentation.source ? `<details><summary>Fonte</summary><div class="progressive-source">${formatMessage(presentation.source)}</div></details>` : ''}</section>`;
   }
 
-  function contextBadge(message) {
-    const title = message.context?.title || message.context?.topic || '';
-    return title ? `<div class="context-badge">Respondendo sobre ${escapeHtml(title)}</div>` : '';
-  }
-
-  function renderActiveContext() {
-    const box = $('activeContext');
-    const summary = $('activeContextSummary');
-    const context = state.activeContext;
-    if (!box || !summary) return;
-    const label = context?.summary || [context?.discipline, context?.semester ? `${context.semester}º semestre` : '', context?.professor, context?.sector, context?.date].filter(Boolean).join(' · ') || context?.title || context?.topic || '';
-    box.hidden = !label;
-    summary.textContent = label;
-  }
-
   function scrollToBottom(smooth = true) {
     const viewport = $('messageScroll');
     if (!viewport) return;
@@ -365,7 +348,6 @@
   }
 
   function renderMessages() {
-    renderActiveContext();
     const conversation = currentConversation();
     $('welcome').hidden = Boolean(conversation.messages.length);
     $('messages').innerHTML = conversation.messages.map(message => {
@@ -382,7 +364,7 @@
         <article class="message-row assistant" data-message-id="${escapeHtml(message.id)}">
           <div class="assistant-avatar" aria-hidden="true">🤖</div>
           <div class="message-content ${message.error ? 'error-card' : ''}">
-            ${contextBadge(message)}${renderMessageBody(message)}${renderAmbiguity(message)}${renderComponents(message)}${renderKnowledge(message)}${attachment}${options}${assistantActions(message)}
+            ${renderMessageBody(message)}${renderAmbiguity(message)}${renderComponents(message)}${renderKnowledge(message)}${attachment}${options}${assistantActions(message)}
           </div>
         </article>`;
     }).join('');
@@ -391,7 +373,6 @@
   }
 
   function render() {
-    renderActiveContext();
     renderMessages();
     setSending(state.sending);
   }
@@ -583,7 +564,6 @@
       });
       if (serial !== state.requestSerial) return;
       if (data.sessionId) conversation.sessionId = data.sessionId;
-      state.activeContext = data.context && typeof data.context === 'object' ? data.context : null;
       const replies = Array.isArray(data.replies) ? data.replies : [];
       if (!replies.length) {
         addMessage('assistant', 'Não encontrei uma resposta para essa mensagem. Tente reformular em uma frase curta.', { error: true });
@@ -594,7 +574,7 @@
           options: index === replies.length - 1 ? (data.options || data.suggestions || []) : [],
           components: index === replies.length - 1 ? (data.components || []) : [],
           sources: index === replies.length - 1 ? (data.sources || []) : [],
-          context: data.context || null,
+          context: null,
           ambiguity: index === replies.length - 1 ? data.ambiguity : null,
           knowledge: index === replies.length - 1 ? data.knowledge : null,
           citation: index === replies.length - 1 ? data.citation : null,
@@ -638,20 +618,10 @@
     setSending(false);
     try { await request(CONFIG.resetPath || '/api/assistant/reset', { sessionId: previous.sessionId }, 8000); } catch {}
     state.conversation = freshConversation();
-    state.activeContext = null;
     saveState();
     render();
   }
 
-  async function clearActiveContext() {
-    if (!state.activeContext || state.sending) return;
-    const sessionId = currentConversation().sessionId;
-    state.activeContext = null;
-    saveState();
-    renderActiveContext();
-    showToast('Contexto limpo');
-    try { await request(CONFIG.clearContextPath || '/api/assistant/context/clear', { sessionId }, 8000); } catch {}
-  }
 
   function messageById(id) {
     return currentConversation().messages.find(message => message.id === id) || null;
@@ -742,7 +712,6 @@
         if (text) send(text);
       }
     });
-    $('clearContext').addEventListener('click', clearActiveContext);
     $('clearConversation').addEventListener('click', () => {
       if (state.sending) return;
       if (confirm('Limpar a conversa e começar novamente?')) resetCurrent();

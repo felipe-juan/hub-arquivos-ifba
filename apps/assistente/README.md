@@ -1,4 +1,4 @@
-# Assistente do HUB v1.3.1
+# Assistente do HUB v1.3.3
 
 Frontend independente do WhatsApp, integrado ao design e à sidebar do HUB.
 

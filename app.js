@@ -704,6 +704,8 @@ function resourceFormat(resource, type = "document") {
 
 
 function emojiForResource(resource = {}, type = "link") {
+  const explicitEmoji = resource.emoji || resource.icon || resource.app?.emoji || resource.app?.icon || "";
+  if (explicitEmoji) return explicitEmoji;
   const haystack = normalize(`${resource.title || ""} ${resource.description || ""} ${resource.category || ""} ${(resource.tags || []).join(" ")} ${resource.url || ""}`);
   const url = (resource.url || "").toLowerCase();
 
@@ -860,7 +862,7 @@ function thumbnailHtml(resource, type = "document", options = {}) {
 
 let pdfRuntimePromise = null;
 function getPdfRuntime() {
-  if (!pdfRuntimePromise) pdfRuntimePromise = import("./js/pdf-runtime.js?v=0.2.51");
+  if (!pdfRuntimePromise) pdfRuntimePromise = import("./js/pdf-runtime.js?v=0.2.53");
   return pdfRuntimePromise;
 }
 async function renderSinglePdfThumbnail(el) {
@@ -1278,6 +1280,7 @@ function linkResource(link) {
 function appResource(app) {
   return {
     type: "app",
+    emoji: app.emoji || app.icon || "",
     id: app.id,
     title: app.title,
     subtitle: `${app.category} · ferramenta do hub`,
@@ -2431,7 +2434,7 @@ function ensureSearchWorker() {
   if (!("Worker" in window)) return Promise.reject(new Error("Web Worker indisponível"));
 
   searchWorkerInitPromise = new Promise((resolve, reject) => {
-    const worker = new Worker("js/search-worker.js?v=0.2.51");
+    const worker = new Worker("js/search-worker.js?v=0.2.53");
     searchWorker = worker;
     const initId = ++searchRequestId;
     let settled = false;
@@ -2535,7 +2538,7 @@ async function searchInWorker(query, filters) {
       worker.postMessage({ type: "search", id, query, filters });
     });
   } catch (workerError) {
-    if (!window.HubSearchEngine) await import("./js/search-engine.js?v=0.2.51");
+    if (!window.HubSearchEngine) await import("./js/search-engine.js?v=0.2.53");
     if (!mainThreadSearchEngine) mainThreadSearchEngine = new window.HubSearchEngine(searchWorkerPayload());
     else mainThreadSearchEngine.update(searchWorkerPayload());
     const id = ++searchRequestId;
@@ -5077,10 +5080,10 @@ function waitForInitialPaint() {
 
 function loadDeferredFeatureScripts() {
   const scripts = [
-    "js/enhancements.js?v=0.2.51",
-    "js/experience.js?v=0.2.51",
-    "js/sidebar-quick-search.js?v=0.2.51",
-    "js/performance-monitor.js?v=0.2.51"
+    "js/enhancements.js?v=0.2.53",
+    "js/experience.js?v=0.2.53",
+    "js/sidebar-quick-search.js?v=0.2.53",
+    "js/performance-monitor.js?v=0.2.53"
   ];
   const load = src => new Promise(resolve => {
     if (document.querySelector(`script[src="${src}"]`)) { resolve(); return; }
