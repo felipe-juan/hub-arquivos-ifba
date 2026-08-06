@@ -435,6 +435,8 @@ window.HUB_DATA = {
       "url": "apps/assistente/",
       "category": "Assistente",
       "openMode": "new-tab",
+      "emoji": "🤖",
+      "icon": "🤖",
       "tags": [
         "assistente",
         "chat",

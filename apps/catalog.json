@@ -41,10 +41,11 @@
       "id": "assistente",
       "title": "Assistente do HUB",
       "url": "apps/assistente/",
-      "internalVersion": "1.0.3",
+      "internalVersion": "1.1.0",
       "sourceFiles": [],
       "status": "uses-independent-assistant-api",
-      "reviewedAt": "2026-08-05"
+      "reviewedAt": "2026-08-06",
+      "emoji": "🤖"
     }
   ]
 }

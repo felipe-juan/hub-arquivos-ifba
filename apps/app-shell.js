@@ -28,10 +28,11 @@
     return `../../${value.replace(/^\.\//, "")}`;
   };
   const currentPath = location.pathname;
-  const currentApp = currentPath.includes("/calendario/") ? "calendar"
+  const currentApp = currentPath.includes("/assistente/") ? "assistente" : currentPath.includes("/calendario/") ? "calendar"
     : currentPath.includes("/fluxogramas/") ? "flux"
       : currentPath.includes("/barema/") ? "barema" : "";
   const apps = [
+    { id: "assistente", icon: "🤖", title: "Assistente do HUB", url: "../assistente/" },
     { id: "media-final", icon: "🧮", title: "Média e Prova Final", url: "#media-final", internal: true },
     { id: "onde-resolvo", icon: "🧭", title: "Onde resolvo isso?", url: "#onde-resolvo", internal: true },
     { id: "barema", icon: "🎓", title: "Barema de Atividades Complementares", url: "../barema/" },
@@ -327,7 +328,9 @@ if ("serviceWorker" in navigator) {
   };
   window.HUB_RECORD_RECENT = add;
   const path = location.pathname;
-  const current = path.includes("/calendario/")
+  const current = path.includes("/assistente/")
+    ? { id: "app-assistente", kind: "app", title: "Assistente do HUB", url: "apps/assistente/", meta: "Assistente", emoji: "🤖" }
+    : path.includes("/calendario/")
     ? { id: "app-calendario", kind: "app", title: "Calendário Acadêmico 2026", url: "apps/calendario/", meta: "Calendário", emoji: "📅" }
     : path.includes("/fluxogramas/")
       ? { id: "app-fluxogramas", kind: "app", title: "Fluxogramas Curriculares", url: "apps/fluxogramas/", meta: "Fluxogramas", emoji: "🧭" }

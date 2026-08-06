@@ -5080,7 +5080,7 @@ function loadDeferredFeatureScripts() {
     "assets/build/enhancements.9aaad1d9bf82.js",
     "assets/build/experience.63cf70eebb8d.js",
     "assets/build/sidebar-quick-search.f0e1ed1ead1c.js",
-    "assets/build/performance-monitor.31475bff14f9.js"
+    "assets/build/performance-monitor.cbd193db0347.js"
   ];
   const load = src => new Promise(resolve => {
     if (document.querySelector(`script[src="${src}"]`)) { resolve(); return; }

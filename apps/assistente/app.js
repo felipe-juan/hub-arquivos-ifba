@@ -7,7 +7,7 @@
   const DB_NAME = 'hubAssistantHistoryV1';
   const DB_STORE = 'state';
   const $ = id => document.getElementById(id);
-  const state = { conversations: [], currentId: '', sending: false, settings: loadSettings() };
+  const state = { conversations: [], currentId: '', sending: false, sendingConversationId: '', settings: loadSettings() };
 
   function uuid() {
     return globalThis.crypto?.randomUUID?.() || `${Date.now()}-${Math.random().toString(16).slice(2)}`;
@@ -18,14 +18,25 @@
     if (!('indexedDB' in globalThis)) return Promise.resolve(null);
     return new Promise(resolve => {
       let request;
-      try { request = indexedDB.open(DB_NAME, 1); } catch { resolve(null); return; }
+      let settled = false;
+      const finish = value => {
+        if (settled) {
+          try { value?.close?.(); } catch {}
+          return;
+        }
+        settled = true;
+        clearTimeout(timer);
+        resolve(value || null);
+      };
+      const timer = setTimeout(() => finish(null), 1500);
+      try { request = indexedDB.open(DB_NAME, 1); } catch { finish(null); return; }
       request.onupgradeneeded = () => {
         const database = request.result;
         if (!database.objectStoreNames.contains(DB_STORE)) database.createObjectStore(DB_STORE);
       };
-      request.onsuccess = () => resolve(request.result);
-      request.onerror = () => resolve(null);
-      request.onblocked = () => resolve(null);
+      request.onsuccess = () => finish(request.result);
+      request.onerror = () => finish(null);
+      request.onblocked = () => finish(null);
     });
   }
 
@@ -97,7 +108,7 @@
       title: String(value.title || 'Nova conversa').slice(0, 90),
       createdAt: Number(value.createdAt || Date.now()),
       updatedAt: Number(value.updatedAt || Date.now()),
-      messages: Array.isArray(value.messages) ? value.messages.slice(-Number(CONFIG.maxMessagesPerConversation || 250)) : []
+      messages: Array.isArray(value.messages) ? value.messages.slice(-Number(CONFIG.maxMessagesPerConversation || 250)).map(message => ({ ...message, options: normalizeOptions(message.options) })) : []
     };
   }
 
@@ -190,13 +201,29 @@
     return out.join('');
   }
 
+  function normalizeOptions(options) {
+    const source = Array.isArray(options) ? options : [];
+    const normalized = source
+      .filter(option => option && typeof option === 'object')
+      .map((option, index) => ({
+        id: String(option.id || `option-${index + 1}`),
+        label: String(option.label || `Opção ${index + 1}`),
+        value: String(option.value ?? index + 1),
+        kind: String(option.kind || 'choice')
+      }));
+    if (normalized.length && !normalized.some(option => option.kind === 'exit' || /^(?:sair|cancelar|0)$/i.test(option.value))) {
+      normalized.push({ id: 'exit-menu', label: 'Sair do menu e fazer outra pergunta', value: 'sair', kind: 'exit' });
+    }
+    return normalized;
+  }
+
   function titleFrom(text) {
     const clean = safeText(text).replace(/\s+/g, ' ').trim();
     return clean.length > 42 ? `${clean.slice(0, 41)}…` : clean || 'Nova conversa';
   }
 
-  function addMessage(role, text, extras = {}) {
-    const conversation = currentConversation();
+  function addMessage(role, text, extras = {}, targetConversation = currentConversation()) {
+    const conversation = targetConversation;
     if (!conversation) return null;
     const message = {
       id: uuid(),
@@ -204,7 +231,7 @@
       role,
       text: safeText(text),
       createdAt: Date.now(),
-      options: Array.isArray(extras.options) ? extras.options : [],
+      options: normalizeOptions(extras.options),
       attachment: extras.attachment || null,
       error: Boolean(extras.error),
       feedback: String(extras.feedback || '')
@@ -245,6 +272,28 @@
       </div>`;
   }
 
+  function scrollToBottom(smooth = true) {
+    const viewport = $('messageScroll');
+    if (!viewport) return;
+    const top = Math.max(0, viewport.scrollHeight - viewport.clientHeight);
+    // Nunca use scrollIntoView aqui: ele pode rolar o body/app-shell e criar o
+    // “vazio infinito” observado no desktop e o desaparecimento no celular.
+    try {
+      viewport.scrollTo({
+        top,
+        behavior: smooth && !matchMedia('(prefers-reduced-motion: reduce)').matches ? 'smooth' : 'auto'
+      });
+    } catch { viewport.scrollTop = top; }
+  }
+
+  function stabilizeLayout({ scroll = false } = {}) {
+    const viewport = $('messageScroll');
+    const composer = $('composerArea');
+    if (!viewport || !composer) return;
+    document.documentElement.classList.add('assistant-ready');
+    if (scroll) requestAnimationFrame(() => scrollToBottom(false));
+  }
+
   function renderMessages() {
     const conversation = currentConversation();
     $('conversationTitle').textContent = conversation?.title || 'Nova conversa';
@@ -257,37 +306,49 @@
         ? `<a class="attachment-link" href="${escapeHtml(message.attachment.url)}" target="_blank" rel="noopener noreferrer">📎 ${escapeHtml(message.attachment.fileName || 'Abrir anexo')}</a>`
         : '';
       const options = message.options?.length
-        ? `<div class="message-actions">${message.options.map(option => `<button type="button" data-option-value="${escapeHtml(option.value)}">${escapeHtml(option.label)}</button>`).join('')}</div>`
+        ? `<div class="message-actions">${message.options.map(option => `<button type="button" class="${option.kind === 'exit' ? 'exit-option' : ''}" data-option-kind="${escapeHtml(option.kind)}" data-option-value="${escapeHtml(option.value)}">${escapeHtml(option.label)}</button>`).join('')}</div>`
         : '';
       return `
         <article class="message-row assistant" data-message-id="${escapeHtml(message.id)}">
-          <div class="assistant-avatar" aria-hidden="true">H</div>
+          <div class="assistant-avatar" aria-hidden="true">🤖</div>
           <div class="message-content ${message.error ? 'error-card' : ''}">
             ${formatMessage(message.text)}${attachment}${options}${assistantActions(message)}
           </div>
         </article>`;
     }).join('');
-    requestAnimationFrame(() => { $('messageScroll').scrollTop = $('messageScroll').scrollHeight; });
+    requestAnimationFrame(() => stabilizeLayout({ scroll: true }));
   }
 
   function render() {
     renderConversations();
     renderMessages();
+    if (state.sending && state.sendingConversationId === state.currentId) requestAnimationFrame(showTyping);
+    requestAnimationFrame(() => setSending(state.sending, state.sendingConversationId));
   }
 
-  function setSending(active) {
-    state.sending = active;
-    $('sendMessage').disabled = active || !$('messageInput').value.trim();
-    $('messageInput').disabled = active;
+  function setSending(active, conversationId = state.sendingConversationId) {
+    state.sending = Boolean(active);
+    state.sendingConversationId = active ? String(conversationId || state.currentId) : '';
+    const input = $('messageInput');
+    const sendButton = $('sendMessage');
+    sendButton.disabled = state.sending || !input.value.trim();
+    sendButton.setAttribute('aria-busy', state.sending ? 'true' : 'false');
+    sendButton.title = state.sending ? 'Aguarde o assistente responder' : 'Enviar';
+    $('messageScroll').setAttribute('aria-busy', state.sending ? 'true' : 'false');
+    $('composerHint').textContent = state.sending
+      ? 'O assistente está escrevendo. O campo continua disponível; somente o envio está temporariamente bloqueado.'
+      : 'Enter envia · Shift + Enter quebra a linha';
+    document.querySelectorAll('[data-prompt], [data-option-value]').forEach(button => { button.disabled = state.sending; });
   }
 
   function showTyping() {
     if ($('[data-typing="true"]')) return;
     $('messages').append($('typingTemplate').content.cloneNode(true));
-    $('messageScroll').scrollTop = $('messageScroll').scrollHeight;
+    $('messageScroll').setAttribute('aria-busy', 'true');
+    scrollToBottom(false);
   }
 
-  function hideTyping() { $('[data-typing="true"]')?.remove(); }
+  function hideTyping() { $('[data-typing="true"]')?.remove(); $('messageScroll').setAttribute('aria-busy', 'false'); }
 
   function setConnection(status, label) {
     const element = $('connectionState');
@@ -340,11 +401,11 @@
     text = safeText(text).trim();
     if (!text || state.sending) return;
     const conversation = currentConversation() || createConversation();
-    addMessage('user', text);
+    addMessage('user', text, {}, conversation);
     $('messageInput').value = '';
     resizeInput();
     render();
-    setSending(true);
+    setSending(true, conversation.id);
     showTyping();
     try {
       const data = await request(CONFIG.messagePath || '/api/assistant/message', {
@@ -356,13 +417,13 @@
       hideTyping();
       const replies = Array.isArray(data.replies) ? data.replies : [];
       if (!replies.length) {
-        addMessage('assistant', 'Não encontrei uma resposta para essa mensagem. Tente reformular em uma frase curta.', { error: true });
+        addMessage('assistant', 'Não encontrei uma resposta para essa mensagem. Tente reformular em uma frase curta.', { error: true }, conversation);
       } else {
         replies.forEach((reply, index) => addMessage('assistant', reply.text, {
           serverId: reply.id,
           attachment: reply.attachment,
           options: index === replies.length - 1 ? (data.options || []) : []
-        }));
+        }, conversation));
       }
       setConnection('online', 'Conectado');
     } catch (error) {
@@ -370,13 +431,15 @@
       const message = error.name === 'AbortError'
         ? 'A resposta demorou demais. Verifique a conexão e tente novamente.'
         : `Não foi possível falar com o assistente. ${error.message}`;
-      addMessage('assistant', message, { error: true });
+      addMessage('assistant', message, { error: true }, conversation);
       setConnection('offline', 'API indisponível');
     } finally {
       saveState();
       render();
       setSending(false);
-      $('messageInput').focus();
+      if (matchMedia('(pointer: fine)').matches && document.activeElement !== $('messageInput')) {
+        $('messageInput').focus({ preventScroll: true });
+      }
     }
   }
 
@@ -480,7 +543,7 @@
       const copy = event.target.closest('[data-copy-message]');
       const feedback = event.target.closest('[data-feedback]');
       const retry = event.target.closest('[data-retry-message]');
-      if (option) send(option.dataset.optionValue);
+      if (option) { if (!state.sending) send(option.dataset.optionValue); }
       else if (copy) copyMessage(copy.dataset.copyMessage);
       else if (feedback) sendFeedback(feedback.dataset.message, feedback.dataset.feedback);
       else if (retry) {
@@ -489,10 +552,14 @@
       }
     });
     $('newChat').addEventListener('click', () => {
+      if (state.sending) return;
       createConversation();
       $('chatSidebar').classList.remove('open');
+      $('conversationOverlay').classList.remove('open');
+      document.body.classList.remove('assistant-conversations-open');
     });
     $('clearConversation').addEventListener('click', () => {
+      if (state.sending) return;
       if (confirm('Limpar esta conversa e começar novamente?')) resetCurrent();
     });
     $('conversationList').addEventListener('click', event => {
@@ -500,19 +567,32 @@
       const remove = event.target.closest('[data-delete-conversation]');
       if (remove) {
         event.preventDefault();
+        if (state.sending) return;
         deleteConversation(remove.dataset.deleteConversation);
         return;
       }
       if (link) {
         event.preventDefault();
+        if (state.sending) return;
         state.currentId = link.dataset.conversation;
         saveState();
         render();
         $('chatSidebar').classList.remove('open');
+        $('conversationOverlay').classList.remove('open');
+        document.body.classList.remove('assistant-conversations-open');
       }
     });
-    $('openSidebar').addEventListener('click', () => $('chatSidebar').classList.add('open'));
-    $('closeSidebar').addEventListener('click', () => $('chatSidebar').classList.remove('open'));
+    const setConversationDrawer = open => {
+      $('chatSidebar').classList.toggle('open', open);
+      $('conversationOverlay').classList.toggle('open', open);
+      document.body.classList.toggle('assistant-conversations-open', open);
+    };
+    $('openSidebar').addEventListener('click', () => setConversationDrawer(true));
+    $('closeSidebar').addEventListener('click', () => setConversationDrawer(false));
+    $('conversationOverlay').addEventListener('click', () => setConversationDrawer(false));
+    document.addEventListener('keydown', event => {
+      if (event.key === 'Escape') setConversationDrawer(false);
+    });
     $('openSettings').addEventListener('click', () => {
       $('apiBaseUrl').value = state.settings.apiBaseUrl;
       $('senderName').value = state.settings.senderName;
@@ -542,13 +622,46 @@
     window.addEventListener('offline', () => setConnection('offline', 'Sem internet'));
   }
 
+  let viewportSyncTimer = 0;
+  function syncViewportHeight() {
+    const visualHeight = Number(globalThis.visualViewport?.height || 0);
+    const layoutHeight = Number(globalThis.innerHeight || document.documentElement.clientHeight || 0);
+    const height = Math.max(360, Math.round(visualHeight > 0 ? visualHeight : layoutHeight));
+    document.documentElement.style.setProperty('--assistant-window-height', `${height}px`);
+    stabilizeLayout();
+  }
+
+  function scheduleViewportSync(delay = 0) {
+    clearTimeout(viewportSyncTimer);
+    viewportSyncTimer = setTimeout(() => {
+      syncViewportHeight();
+      requestAnimationFrame(() => stabilizeLayout({ scroll: true }));
+    }, delay);
+  }
+
+  function bindViewport() {
+    syncViewportHeight();
+    // resize acompanha teclado virtual e rotação. O evento scroll do
+    // visualViewport foi removido porque podia reduzir/deslocar o chat inteiro.
+    globalThis.visualViewport?.addEventListener('resize', () => scheduleViewportSync(20));
+    globalThis.addEventListener('resize', () => scheduleViewportSync(20));
+    globalThis.addEventListener('orientationchange', () => scheduleViewportSync(140));
+    globalThis.addEventListener('pageshow', () => scheduleViewportSync(0));
+    document.addEventListener('visibilitychange', () => {
+      if (!document.hidden) scheduleViewportSync(0);
+    });
+  }
+
   async function bootstrap() {
     await loadState();
+    bindViewport();
     bind();
     render();
     resizeInput();
+    setSending(false);
     checkHealth();
-    $('messageInput').focus();
+    stabilizeLayout({ scroll: true });
+    if (matchMedia('(pointer: fine)').matches) $('messageInput').focus({ preventScroll: true });
   }
 
   bootstrap();
