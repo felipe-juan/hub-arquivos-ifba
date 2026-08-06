@@ -9,7 +9,7 @@ const KNOWN_CACHES = [STATIC_CACHE, METADATA_CACHE, IMAGE_CACHE, DOCUMENT_CACHE,
 const CORE = [
   "./", "./index.html", "./offline.html", "./document-viewer.html",
   "assets/build/styles.888976578efc.css", "assets/build/enhancements.254c728974fb.css", "assets/build/sidebar-quick-search.ea5032187b1e.css", "assets/build/design-system.afe11aadcef7.css",
-  "assets/build/data.955b99e3aae2.js", "assets/build/app.445662ca1f11.js", "assets/build/storage.aade70adc118.js", "assets/build/design-system.63bcb7fec392.js", "assets/build/where-data.2815ed20f527.js",
+  "assets/build/data.955b99e3aae2.js", "assets/build/app.81dcebd04081.js", "assets/build/storage.aade70adc118.js", "assets/build/design-system.63bcb7fec392.js", "assets/build/where-data.2815ed20f527.js",
   "./assets/logo-pixel.png", "./assets/logo-pixel-64.png", "./assets/apple-touch-icon.png", "./favicon.ico",
   "apps/build/app-shell.cd41ed34fb82.css", "apps/build/app-shell.1cf8a835c191.js", "./apps/catalog.json",
   "./apps/assistente/",
@@ -28,7 +28,7 @@ const CORE = [
 const REQUIRED_CORE = new Set([
   "./", "./index.html", "./offline.html", "./document-viewer.html",
   "assets/build/styles.888976578efc.css", "assets/build/enhancements.254c728974fb.css", "assets/build/sidebar-quick-search.ea5032187b1e.css", "assets/build/design-system.afe11aadcef7.css",
-  "assets/build/data.955b99e3aae2.js", "assets/build/app.445662ca1f11.js", "assets/build/storage.aade70adc118.js", "assets/build/design-system.63bcb7fec392.js", "assets/build/where-data.2815ed20f527.js",
+  "assets/build/data.955b99e3aae2.js", "assets/build/app.81dcebd04081.js", "assets/build/storage.aade70adc118.js", "assets/build/design-system.63bcb7fec392.js", "assets/build/where-data.2815ed20f527.js",
 ]);
 
 async function installCoreResources() {

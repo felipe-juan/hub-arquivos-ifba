@@ -1282,6 +1282,7 @@ function appResource(app) {
     type: "app",
     emoji: app.emoji || app.icon || "",
     emoji: app.emoji || app.icon || "",
+    emoji: app.emoji || app.icon || "",
     id: app.id,
     title: app.title,
     subtitle: `${app.category} · ferramenta do hub`,
