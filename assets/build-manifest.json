@@ -1,8 +1,8 @@
 {
-  "version": "0.2.48",
+  "version": "0.2.49",
   "generatedBy": "scripts/build_production_assets.py",
   "files": {
-    "app.js": "assets/build/app.7c9ef4a910c2.js",
+    "app.js": "assets/build/app.4c873ee01f19.js",
     "apps/app-shell.css": "apps/build/app-shell.cd41ed34fb82.css",
     "apps/app-shell.js": "apps/build/app-shell.a029743f5073.js",
     "apps/barema/data/barema-data.js": "apps/build/barema-data.33efba1c5da4.js",
@@ -14,16 +14,16 @@
     "css/enhancements.css": "assets/build/enhancements.254c728974fb.css",
     "css/sidebar-quick-search.css": "assets/build/sidebar-quick-search.ea5032187b1e.css",
     "data.js": "assets/build/data.2036f3435be3.js",
-    "js/design-system.js": "assets/build/design-system.6a39cce4c6bc.js",
+    "js/design-system.js": "assets/build/design-system.f795106a864a.js",
     "js/enhancements.js": "assets/build/enhancements.9aaad1d9bf82.js",
     "js/experience.js": "assets/build/experience.63cf70eebb8d.js",
     "js/pdf-runtime.js": "assets/build/pdf-runtime.cf990fb0fd4a.js",
-    "js/performance-monitor.js": "assets/build/performance-monitor.a52677297870.js",
+    "js/performance-monitor.js": "assets/build/performance-monitor.9b660e59bb40.js",
     "js/search-engine.js": "assets/build/search-engine.0e4132201f8a.js",
     "js/search-worker.js": "assets/build/search-worker.3f5310d8ee0c.js",
     "js/sidebar-quick-search.js": "assets/build/sidebar-quick-search.f0e1ed1ead1c.js",
     "js/storage.js": "assets/build/storage.aade70adc118.js",
     "js/where-data.js": "assets/build/where-data.2815ed20f527.js",
-    "styles.css": "assets/build/styles.574b59f8a80e.css"
+    "styles.css": "assets/build/styles.0f2430007aad.css"
   }
 }

@@ -41,7 +41,7 @@
       "id": "assistente",
       "title": "Assistente do HUB",
       "url": "apps/assistente/",
-      "internalVersion": "1.1.1",
+      "internalVersion": "1.2.0",
       "sourceFiles": [],
       "status": "uses-independent-assistant-api",
       "reviewedAt": "2026-08-06",

@@ -20,7 +20,7 @@
   }
   const startedAt = performance.timeOrigin || Date.now();
   const metrics = {
-    version: "0.2.48",
+    version: "0.2.49",
     capturedAt: new Date().toISOString(),
     device: {
       userAgent: navigator.userAgent,

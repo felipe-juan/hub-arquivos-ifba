@@ -238,3 +238,28 @@ button:focus-visible, a:focus-visible, textarea:focus-visible, input:focus-visib
   * { scroll-behavior: auto !important; }
   .typing-bubble i { animation: none; }
 }
+
+
+/* v1.2.0 — ações, componentes estruturados e estabilidade visual. */
+.message-toolbar { min-height: 32px; align-items: center; }
+.message-toolbar button { position: relative; transition: background .16s ease, color .16s ease, border-color .16s ease, transform .12s ease; }
+.message-toolbar button:active { transform: scale(.92); }
+.message-toolbar button.selected { border-color: color-mix(in srgb, var(--cyan) 42%, var(--line)); background: color-mix(in srgb, var(--cyan) 13%, var(--surface-2)); color: var(--cyan); }
+.message-toolbar button.helpful { border-color: color-mix(in srgb, var(--red) 55%, var(--line)); background: color-mix(in srgb, var(--red) 12%, var(--surface-2)); color: var(--red); font-size: 1.02rem; }
+.message-toolbar button.negative { border-color: color-mix(in srgb, var(--amber) 55%, var(--line)); color: var(--amber); }
+.message-toolbar button.copied { color: var(--green); border-color: color-mix(in srgb, var(--green) 45%, var(--line)); }
+.message-action-status { color: var(--muted); font-size: .68rem; animation: assistant-feedback-in .18s ease; }
+@keyframes assistant-feedback-in { from { opacity: 0; transform: translateY(2px); } to { opacity: 1; transform: none; } }
+.action-toast { position: fixed; z-index: 1400; left: 50%; bottom: calc(max(1rem, env(safe-area-inset-bottom)) + 76px); transform: translateX(-50%); padding: .55rem .8rem; border: 1px solid var(--line); border-radius: 999px; background: var(--bg-2); color: var(--ink); box-shadow: var(--shadow); font-size: .76rem; }
+.structured-components { display: grid; gap: .55rem; margin-top: .7rem; }
+.structured-card { display: grid; gap: .42rem; padding: .72rem; border: 1px solid var(--line); border-radius: 14px; background: color-mix(in srgb, var(--surface-2) 78%, transparent); }
+.structured-card > strong { color: var(--ink); font-size: .8rem; }
+.structured-card > a, .structured-card > span { color: var(--text); font-size: .76rem; overflow-wrap: anywhere; }
+.structured-actions { display: flex; flex-wrap: wrap; gap: .4rem; margin-top: .2rem; }
+.structured-actions button { min-height: 34px; padding: .4rem .62rem; border: 1px solid var(--line); border-radius: 10px; background: var(--surface-2); color: var(--text); font-size: .72rem; box-shadow: none; }
+.sources-card a { display: grid; gap: .18rem; padding: .55rem; border: 1px solid color-mix(in srgb, var(--cyan) 22%, var(--line)); border-radius: 11px; background: color-mix(in srgb, var(--cyan) 5%, transparent); text-decoration: none; }
+.sources-card a span { color: var(--ink); font-weight: 760; }
+.sources-card a small { color: var(--cyan); }
+.sources-card a em { color: var(--muted); font-size: .69rem; font-style: normal; line-height: 1.4; }
+.context-badge { width: fit-content; margin-bottom: .45rem; padding: .22rem .48rem; border-radius: 999px; background: color-mix(in srgb, var(--cyan) 10%, transparent); color: var(--cyan); font-size: .66rem; font-weight: 780; }
+@media (max-width: 620px) { .message-action-status { flex-basis: 100%; } .structured-card { padding: .62rem; } }

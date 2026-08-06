@@ -11,7 +11,9 @@
     conversation: null,
     sending: false,
     requestSerial: 0,
-    settings: loadSettings()
+    settings: loadSettings(),
+    typingWatchdog: 0,
+    toastTimer: 0
   };
 
   function uuid() {
@@ -92,12 +94,14 @@
   }
 
   function defaultSettings() {
-    return { apiBaseUrl: CONFIG.apiBaseUrl || 'http://localhost:3220', senderName: 'Estudante' };
+    return { senderName: 'Estudante' };
   }
 
   function loadSettings() {
-    try { return { ...defaultSettings(), ...JSON.parse(localStorage.getItem(SETTINGS_KEY) || '{}') }; }
-    catch { return defaultSettings(); }
+    try {
+      const stored = JSON.parse(localStorage.getItem(SETTINGS_KEY) || '{}');
+      return { ...defaultSettings(), senderName: String(stored.senderName || 'Estudante').slice(0, 80) };
+    } catch { return defaultSettings(); }
   }
 
   function saveSettings() {
@@ -169,7 +173,7 @@
   }
 
   function apiUrl(path) {
-    return `${String(state.settings.apiBaseUrl || '').replace(/\/$/, '')}${path}`;
+    return `${String(CONFIG.apiBaseUrl || '').replace(/\/$/, '')}${path}`;
   }
 
   function safeText(value) { return String(value || ''); }
@@ -228,7 +232,11 @@
       options: normalizeOptions(extras.options),
       attachment: extras.attachment || null,
       error: Boolean(extras.error),
-      feedback: String(extras.feedback || '')
+      feedback: String(extras.feedback || ''),
+      copied: Boolean(extras.copied),
+      components: Array.isArray(extras.components) ? extras.components : [],
+      sources: Array.isArray(extras.sources) ? extras.sources : [],
+      context: extras.context && typeof extras.context === 'object' ? extras.context : null
     };
     conversation.messages.push(message);
     conversation.messages = conversation.messages.slice(-Number(CONFIG.maxMessagesPerConversation || 250));
@@ -238,19 +246,57 @@
   }
 
   function assistantActions(message) {
-    const feedbackLabel = message.feedback === 'helpful'
-      ? 'Resposta marcada como útil'
-      : message.feedback === 'not-helpful'
-        ? 'Resposta marcada como não útil'
-        : '';
+    const feedbackLabel = message.copied
+      ? 'Resposta copiada'
+      : message.feedback === 'helpful'
+        ? 'Resposta salva como útil'
+        : message.feedback === 'not-helpful'
+          ? 'Problema registrado'
+          : '';
+    const copiedClass = message.copied ? 'selected copied' : '';
+    const helpfulClass = message.feedback === 'helpful' ? 'selected helpful' : '';
+    const negativeClass = message.feedback === 'not-helpful' ? 'selected negative' : '';
     return `
       <div class="message-toolbar" aria-label="Ações da resposta">
-        <button type="button" data-copy-message="${escapeHtml(message.id)}" title="Copiar resposta" aria-label="Copiar resposta">⧉</button>
-        <button type="button" data-feedback="helpful" data-message="${escapeHtml(message.id)}" class="${message.feedback === 'helpful' ? 'selected' : ''}" title="Resposta útil" aria-label="Marcar como útil">♡</button>
-        <button type="button" data-feedback="not-helpful" data-message="${escapeHtml(message.id)}" class="${message.feedback === 'not-helpful' ? 'selected' : ''}" title="Não respondeu" aria-label="Marcar como não útil">!</button>
+        <button type="button" data-copy-message="${escapeHtml(message.id)}" class="${copiedClass}" title="Copiar resposta" aria-label="Copiar resposta">${message.copied ? '✓' : '⧉'}</button>
+        <button type="button" data-feedback="helpful" data-message="${escapeHtml(message.id)}" class="${helpfulClass}" title="Gostei / salvar como útil" aria-label="Gostei / salvar como útil" aria-pressed="${message.feedback === 'helpful'}">${message.feedback === 'helpful' ? '♥' : '♡'}</button>
+        <button type="button" data-feedback="not-helpful" data-message="${escapeHtml(message.id)}" class="${negativeClass}" title="Não respondeu corretamente" aria-label="Não respondeu corretamente" aria-pressed="${message.feedback === 'not-helpful'}">!</button>
         ${message.error ? `<button type="button" data-retry-message="${escapeHtml(message.id)}">Tentar novamente</button>` : ''}
-        ${feedbackLabel ? `<span>${escapeHtml(feedbackLabel)}</span>` : ''}
+        ${feedbackLabel ? `<span class="message-action-status">${escapeHtml(feedbackLabel)}</span>` : ''}
       </div>`;
+  }
+
+  function showToast(text) {
+    const toast = $('actionToast');
+    if (!toast) return;
+    clearTimeout(state.toastTimer);
+    toast.textContent = text;
+    toast.hidden = false;
+    state.toastTimer = setTimeout(() => { toast.hidden = true; }, 1800);
+  }
+
+  function renderComponents(message) {
+    const components = Array.isArray(message.components) ? message.components : [];
+    if (!components.length) return '';
+    return `<div class="structured-components">${components.map(component => {
+      const type = escapeHtml(component.type || 'information');
+      if (component.type === 'sources') {
+        const items = Array.isArray(component.items) ? component.items : [];
+        return `<section class="structured-card sources-card" data-component="${type}"><strong>${escapeHtml(component.title || 'Fontes no HUB')}</strong>${items.map(item => `<a href="${escapeHtml(item.url || '#')}" target="_blank" rel="noopener noreferrer"><span>📄 ${escapeHtml(item.title || 'Documento')}</span><small>${escapeHtml(item.label || `Página ${item.page || 1}`)}</small>${item.snippet ? `<em>${escapeHtml(item.snippet)}</em>` : ''}</a>`).join('')}</section>`;
+      }
+      const rows = [];
+      if (component.email) rows.push(`<a href="mailto:${escapeHtml(component.email)}">✉ ${escapeHtml(component.email)}</a>`);
+      if (component.phone) rows.push(`<span>☎ ${escapeHtml(component.phone)}</span>`);
+      if (Array.isArray(component.subjects) && component.subjects.length) rows.push(`<span>Disciplinas: ${escapeHtml(component.subjects.join(', '))}</span>`);
+      if (Array.isArray(component.links)) rows.push(...component.links.map(link => `<a href="${escapeHtml(link)}" target="_blank" rel="noopener noreferrer">Abrir link</a>`));
+      const actions = Array.isArray(component.actions) ? component.actions : [];
+      return `<section class="structured-card" data-component="${type}"><strong>${escapeHtml(component.title || 'Informação')}</strong>${rows.join('')}${actions.length ? `<div class="structured-actions">${actions.map(action => `<button type="button" data-option-value="${escapeHtml(action.value)}">${escapeHtml(action.label)}</button>`).join('')}</div>` : ''}</section>`;
+    }).join('')}</div>`;
+  }
+
+  function contextBadge(message) {
+    const title = message.context?.title || message.context?.topic || '';
+    return title ? `<div class="context-badge">Respondendo sobre ${escapeHtml(title)}</div>` : '';
   }
 
   function scrollToBottom(smooth = true) {
@@ -282,7 +328,7 @@
         <article class="message-row assistant" data-message-id="${escapeHtml(message.id)}">
           <div class="assistant-avatar" aria-hidden="true">🤖</div>
           <div class="message-content ${message.error ? 'error-card' : ''}">
-            ${formatMessage(message.text)}${attachment}${options}${assistantActions(message)}
+            ${contextBadge(message)}${formatMessage(message.text)}${renderComponents(message)}${attachment}${options}${assistantActions(message)}
           </div>
         </article>`;
     }).join('');
@@ -302,6 +348,14 @@
 
   function setSending(active) {
     state.sending = Boolean(active);
+    clearTimeout(state.typingWatchdog);
+    if (state.sending) state.typingWatchdog = setTimeout(() => {
+      state.requestSerial += 1;
+      state.sending = false;
+      hideTyping();
+      setConnection('offline', 'Resposta interrompida por tempo limite');
+      renderMessages();
+    }, Math.max(30000, Number(CONFIG.requestTimeoutMs || 25000) + 5000));
     const input = $('messageInput');
     const sendButton = $('sendMessage');
     if (!state.sending) hideTyping();
@@ -331,7 +385,7 @@
   }
 
   async function request(path, payload, timeoutMs = Number(CONFIG.requestTimeoutMs || 25000)) {
-    if (!state.settings.apiBaseUrl) throw new Error('Configure o endereço da API.');
+    if (!CONFIG.apiBaseUrl) throw new Error('A API do Assistente não está configurada nesta versão.');
     const controller = new AbortController();
     const timer = setTimeout(() => controller.abort(), timeoutMs);
     try {
@@ -348,11 +402,11 @@
   }
 
   async function checkHealth() {
-    if (!state.settings.apiBaseUrl) {
+    if (!CONFIG.apiBaseUrl) {
       setConnection('offline', 'API não configurada');
       return false;
     }
-    if (location.protocol === 'https:' && state.settings.apiBaseUrl.startsWith('http:')) {
+    if (location.protocol === 'https:' && String(CONFIG.apiBaseUrl).startsWith('http:')) {
       setConnection('offline', 'API HTTP bloqueada em página HTTPS');
       return false;
     }
@@ -367,6 +421,29 @@
       setConnection('offline', 'API indisponível');
       return false;
     } finally { clearTimeout(timer); }
+  }
+
+  function offlineAnswer(text) {
+    const value = safeText(text).normalize('NFD').replace(/[\u0300-\u036f]/g, '').toLowerCase();
+    const hubRoot = new URL('../../', location.href).href;
+    const answer = (body, actions = []) => ({
+      text: `Modo offline — algumas informações podem não estar atualizadas.\n\n${body}`,
+      components: actions.length ? [{ type: 'offline', title: 'Atalhos do HUB', actions }] : []
+    });
+    if (/suap/.test(value)) return answer('Acesse o SUAP pelo sistema institucional.', [{ label: 'Abrir SUAP', value: 'https://suap.ifba.edu.br' }]);
+    if (/portal|campus/.test(value)) return answer('O Portal do Campus Vitória da Conquista reúne notícias, setores e editais.', [{ label: 'Abrir Portal', value: 'https://portal.ifba.edu.br/conquista' }]);
+    if (/biblioteca/.test(value)) return answer('Contato local salvo: biblioteca.vdc@ifba.edu.br. A página da Biblioteca reúne catálogo e serviços.', [{ label: 'Abrir Biblioteca', value: 'https://portal.ifba.edu.br/conquista/ensino/biblioteca' }]);
+    if (/caens|estagio/.test(value)) return answer('Contato local salvo da CAENS: caens.vdc@ifba.edu.br. Para dados atualizados, confirme na página oficial do setor.', [{ label: 'Abrir CAENS', value: 'https://portal.ifba.edu.br/conquista/coordenacao-de-apoio-ao-ensino-caens' }]);
+    if (/setor|contato|coordenacao|localizacao/.test(value)) return answer('A busca local do HUB pode localizar páginas, contatos e documentos de setores.', [{ label: 'Buscar no HUB', value: `${hubRoot}?q=${encodeURIComponent(text)}` }]);
+    if (/calendario|feriado|recesso|data/.test(value)) return answer('Consulte o calendário acadêmico no acervo do HUB.', [{ label: 'Buscar calendário', value: `${hubRoot}?q=calendário acadêmico` }]);
+    if (/documento|regulamento|resolucao|ppc|matriz|trancamento|jubilamento/.test(value)) return answer('A busca do HUB continua disponível para localizar documentos oficiais.', [{ label: 'Buscar documentos', value: `${hubRoot}?q=${encodeURIComponent(text)}` }]);
+    if (/ajuda|o que voce|pode fazer/.test(value)) return answer('Posso ajudar offline com Portal, SUAP, Biblioteca, CAENS, calendário, setores e documentos principais.');
+    return null;
+  }
+
+  function openOrSendAction(value) {
+    if (/^https?:\/\//i.test(value)) { window.open(value, '_blank', 'noopener,noreferrer'); return true; }
+    return false;
   }
 
   async function send(text) {
@@ -394,17 +471,24 @@
         replies.forEach((reply, index) => addMessage('assistant', reply.text, {
           serverId: reply.id,
           attachment: reply.attachment,
-          options: index === replies.length - 1 ? (data.options || []) : []
+          options: index === replies.length - 1 ? (data.options || data.suggestions || []) : [],
+          components: index === replies.length - 1 ? (data.components || []) : [],
+          sources: index === replies.length - 1 ? (data.sources || []) : [],
+          context: data.context || null
         }));
       }
       setConnection('online', 'Conectado');
     } catch (error) {
       if (serial !== state.requestSerial) return;
-      const message = error.name === 'AbortError'
-        ? 'A resposta demorou demais. Verifique a conexão e tente novamente.'
-        : `Não foi possível falar com o assistente. ${error.message}`;
-      addMessage('assistant', message, { error: true });
-      setConnection('offline', 'API indisponível');
+      const offline = offlineAnswer(text);
+      if (offline) addMessage('assistant', offline.text, { components: offline.components, error: false });
+      else {
+        const message = error.name === 'AbortError'
+          ? 'A resposta demorou demais. Verifique a conexão e tente novamente.'
+          : `Não foi possível falar com o assistente. ${error.message}`;
+        addMessage('assistant', message, { error: true });
+      }
+      setConnection('offline', offline ? 'Modo offline' : 'API indisponível');
     } finally {
       if (serial === state.requestSerial) {
         setSending(false);
@@ -452,7 +536,11 @@
     if (!message) return;
     try {
       await navigator.clipboard.writeText(message.text);
-      setConnection('online', 'Resposta copiada');
+      message.copied = true;
+      saveState();
+      renderMessages();
+      showToast('Resposta copiada');
+      setTimeout(() => { message.copied = false; saveState(); renderMessages(); }, 1800);
     } catch {
       const area = document.createElement('textarea');
       area.value = message.text;
@@ -460,30 +548,34 @@
       area.select();
       document.execCommand('copy');
       area.remove();
+      message.copied = true;
+      saveState();
+      renderMessages();
+      showToast('Resposta copiada');
+      setTimeout(() => { message.copied = false; saveState(); renderMessages(); }, 1800);
     }
   }
 
   async function sendFeedback(messageId, value) {
     const message = messageById(messageId);
     if (!message) return;
-    message.feedback = value;
+    const nextValue = message.feedback === value ? '' : value;
+    message.feedback = nextValue;
     saveState();
     renderMessages();
+    showToast(nextValue === 'helpful' ? 'Salvo como útil' : nextValue === 'not-helpful' ? 'Problema registrado' : 'Feedback removido');
+    if (!nextValue) return;
     try {
       await request(CONFIG.feedbackPath || '/api/assistant/feedback', {
         sessionId: currentConversation().sessionId,
         messageId: message.serverId || message.id,
-        value
+        value: nextValue
       }, 8000);
-    } catch {}
+    } catch {
+      showToast('Feedback salvo neste dispositivo');
+    }
   }
 
-  function validApiBaseUrl(value) {
-    try {
-      const url = new URL(value);
-      return ['http:', 'https:'].includes(url.protocol) ? url.href.replace(/\/$/, '') : '';
-    } catch { return ''; }
-  }
 
   function bind() {
     $('sendMessage').addEventListener('click', () => send($('messageInput').value));
@@ -504,7 +596,7 @@
       const feedback = event.target.closest('[data-feedback]');
       const retry = event.target.closest('[data-retry-message]');
       if (option) {
-        if (!state.sending) send(option.dataset.optionValue);
+        if (!state.sending && !openOrSendAction(option.dataset.optionValue)) send(option.dataset.optionValue);
       } else if (copy) copyMessage(copy.dataset.copyMessage);
       else if (feedback) sendFeedback(feedback.dataset.message, feedback.dataset.feedback);
       else if (retry) {
@@ -515,33 +607,6 @@
     $('clearConversation').addEventListener('click', () => {
       if (state.sending) return;
       if (confirm('Limpar a conversa e começar novamente?')) resetCurrent();
-    });
-    $('openSettings').addEventListener('click', () => {
-      $('apiBaseUrl').value = state.settings.apiBaseUrl;
-      $('senderName').value = state.settings.senderName;
-      $('settingsDialog').showModal();
-    });
-    $('settingsDialog').addEventListener('close', () => {
-      if ($('settingsDialog').returnValue !== 'default') return;
-      const apiBaseUrl = validApiBaseUrl($('apiBaseUrl').value.trim());
-      if (!apiBaseUrl) {
-        alert('Informe um endereço HTTP ou HTTPS válido para a API.');
-        return;
-      }
-      state.settings.apiBaseUrl = apiBaseUrl;
-      state.settings.senderName = $('senderName').value.trim() || 'Estudante';
-      saveSettings();
-      checkHealth();
-    });
-    $('deleteHistory').addEventListener('click', async () => {
-      if (!confirm('Apagar a conversa salva neste navegador?')) return;
-      state.requestSerial += 1;
-      setSending(false);
-      await clearSavedState();
-      state.conversation = freshConversation();
-      saveState();
-      render();
-      $('settingsDialog').close('cancel');
     });
     window.addEventListener('online', checkHealth);
     window.addEventListener('offline', () => setConnection('offline', 'Sem internet'));

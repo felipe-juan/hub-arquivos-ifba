@@ -1,4 +1,4 @@
-# Assistente do HUB v1.1.1
+# Assistente do HUB v1.2.0
 
 App conversacional independente com:
 
@@ -8,4 +8,4 @@ App conversacional independente com:
 - menus com opção de saída;
 - histórico da conversa em IndexedDB com fallback local;
 - sidebar global idêntica à página inicial do HUB;
-- API independente `hub-assistente-ifba v1.1.1`.
+- API independente `hub-assistente-ifba v1.2.0`.

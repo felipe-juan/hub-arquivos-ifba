@@ -13,6 +13,7 @@
   </script>
   <link rel="stylesheet" href="../../styles.css">
   <link rel="stylesheet" href="../app-shell.css">
+  <link rel="stylesheet" href="../../css/sidebar-quick-search.css">
   <link rel="stylesheet" href="app.css">
 </head>
 <body>
@@ -25,7 +26,6 @@
           <span class="connection-state" id="connectionState" data-state="checking"><i aria-hidden="true"></i> Verificando conexão</span>
         </div>
         <div class="assistant-header-actions">
-          <button class="assistant-icon-button" id="openSettings" type="button" aria-label="Abrir configurações" title="Configurações">⚙</button>
           <button class="assistant-icon-button" id="clearConversation" type="button" aria-label="Limpar conversa" title="Limpar conversa">⌫</button>
         </div>
       </header>
@@ -57,19 +57,7 @@
     </main>
   </div>
 
-  <dialog id="settingsDialog" class="settings-dialog">
-    <form method="dialog">
-      <header><div><strong>Configurações</strong><small>Conexão e dados locais</small></div><button class="assistant-icon-button" value="cancel" aria-label="Fechar">✕</button></header>
-      <label>Endereço da API<input id="apiBaseUrl" type="url" spellcheck="false" placeholder="https://api.seudominio.com"></label>
-      <p class="field-help">O endereço de produção é configurado automaticamente pelo instalador. Altere somente para testes ou manutenção.</p>
-      <label>Como o assistente deve chamar você?<input id="senderName" type="text" maxlength="80" placeholder="Estudante"></label>
-      <div class="settings-actions">
-        <button type="button" class="danger-button" id="deleteHistory">Apagar conversa</button>
-        <button value="cancel" class="secondary-button">Cancelar</button>
-        <button value="default" class="primary-button" id="saveSettings">Salvar</button>
-      </div>
-    </form>
-  </dialog>
+  <div id="actionToast" class="action-toast" role="status" aria-live="polite" hidden></div>
 
   <template id="typingTemplate">
     <article class="message-row assistant typing-row" data-typing="true">
