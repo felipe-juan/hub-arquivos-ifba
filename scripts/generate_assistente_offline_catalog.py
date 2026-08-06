@@ -101,7 +101,7 @@ def main() -> None:
     generated = datetime.now(timezone.utc)
     payload = {
         "schemaVersion": 2,
-        "version": "1.4.4",
+        "version": "1.4.5",
         "updatedAt": generated.date().strftime("%d/%m/%Y"),
         "generatedAt": generated.isoformat(),
         "sourcePolicy": "central-records-only",

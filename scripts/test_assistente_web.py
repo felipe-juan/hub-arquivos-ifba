@@ -57,7 +57,7 @@ assert "offline-suap" not in js and "offline-calendar" not in js and "offline-he
 assert "loadOfflineCatalog" in js and "sourcePolicy" not in js  # catálogo é dado, não regra hardcoded
 assert "message.feedback === 'helpful' ? '♥' : '♡'" in js
 assert ".message-toolbar button.helpful" in css
-assert 'version: "1.4.4"' in config
+assert 'version: "1.4.5"' in config
 
 sidebar = root / "sidebar"
 for name in ("sidebar.js", "sidebar.css", "apps-registry.json"):
@@ -94,7 +94,7 @@ for document in metadata.get("documents", []):
         assert document.get("citationPolicy") == "related-only"
 offline = json.loads((app / "offline-data.json").read_text(encoding="utf-8"))
 assert offline.get("sourcePolicy") == "central-records-only"
-assert offline.get("version") == "1.4.4"
+assert offline.get("version") == "1.4.5"
 assert all(item.get("source") in {"hub-data", "document-metadata"} for item in offline.get("items", []))
 
 installer = (Path(__file__).resolve().parent / "install_assistente_web.py").read_text(encoding="utf-8")
@@ -150,4 +150,4 @@ for marker in ("needs: build", "cancel-in-progress: true", "actions/deploy-pages
 
 for path in (app / "app.js", app / "config.js", sidebar / "sidebar.js"):
     subprocess.run(["node", "--check", str(path)], check=True)
-print("Assistente web v1.4.4 instalado: OK")
+print("Assistente web v1.4.5 instalado: OK")

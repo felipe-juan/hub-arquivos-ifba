@@ -1,8 +1,8 @@
 {
-  "version": "0.2.59",
+  "version": "0.2.60",
   "generatedBy": "scripts/build_production_assets.py",
   "files": {
-    "app.js": "assets/build/app.7891c4810919.js",
+    "app.js": "assets/build/app.33c4dbfec30a.js",
     "apps/barema/data/barema-data.js": "apps/build/barema-data.33efba1c5da4.js",
     "apps/calendario/data/calendar-data.js": "apps/build/calendar-data.84ae485c16ae.js",
     "apps/doom/doom.css": "apps/build/doom.62c68b1a02c4.css",
@@ -12,16 +12,16 @@
     "css/enhancements.css": "assets/build/enhancements.254c728974fb.css",
     "css/sidebar-quick-search.css": "assets/build/sidebar-quick-search.ea5032187b1e.css",
     "data.js": "assets/build/data.e091feef07af.js",
-    "js/design-system.js": "assets/build/design-system.a9cdd7bc54a7.js",
+    "js/design-system.js": "assets/build/design-system.162038ce4cba.js",
     "js/enhancements.js": "assets/build/enhancements.9aaad1d9bf82.js",
     "js/experience.js": "assets/build/experience.63cf70eebb8d.js",
     "js/pdf-runtime.js": "assets/build/pdf-runtime.cf990fb0fd4a.js",
-    "js/performance-monitor.js": "assets/build/performance-monitor.ba756360a278.js",
+    "js/performance-monitor.js": "assets/build/performance-monitor.b3edf2b5eb15.js",
     "js/search-engine.js": "assets/build/search-engine.0e4132201f8a.js",
     "js/search-worker.js": "assets/build/search-worker.3f5310d8ee0c.js",
     "js/sidebar-quick-search.js": "assets/build/sidebar-quick-search.f0e1ed1ead1c.js",
     "js/storage.js": "assets/build/storage.aade70adc118.js",
     "js/where-data.js": "assets/build/where-data.2815ed20f527.js",
-    "styles.css": "assets/build/styles.775d981aa66b.css"
+    "styles.css": "assets/build/styles.4a1bafcd0921.css"
   }
 }

@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Instala o Assistente v1.4.4 no HUB por cópia determinística.
+"""Instala o Assistente v1.4.5 no HUB por cópia determinística.
 
 Não usa substituições por expressão regular. Estruturas administradas são arquivos
 completos ou blocos delimitados por marcadores de início/fim.
@@ -15,8 +15,8 @@ from typing import Any
 
 ROOT = Path.cwd()
 PATCH = Path(__file__).resolve().parents[1]
-TARGET_VERSION = "0.2.59"
-APP_VERSION = "1.4.4"
+TARGET_VERSION = "0.2.60"
+APP_VERSION = "1.4.5"
 DATA_PREFIX = "window.HUB_DATA = "
 SW_START = "  // HUB ASSISTENTE MANAGED CACHE START"
 SW_END = "  // HUB ASSISTENTE MANAGED CACHE END"
@@ -88,7 +88,7 @@ def update_data_and_registry() -> None:
             external.append(item)
     registry = {
         "schemaVersion": 1,
-        "generatedBy": "hub-assistente-v1.4.4",
+        "generatedBy": "hub-assistente-v1.4.5",
         "apps": data["apps"],
         "links": useful,
         "externalLinks": external,
