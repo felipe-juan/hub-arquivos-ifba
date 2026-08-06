@@ -12,14 +12,11 @@ html[data-theme="light"] { color-scheme: light; }
 html { width: 100%; height: 100%; overflow: hidden; background: var(--bg); }
 body {
   position: fixed;
-  top: var(--assistant-viewport-top);
-  right: 0;
-  bottom: auto;
-  left: 0;
-  width: auto;
+  inset: var(--assistant-viewport-top) 0 auto 0;
+  width: 100%;
   max-width: none;
   min-height: 0;
-  height: var(--assistant-window-height);
+  height: var(--assistant-window-height, 100dvh);
   margin: 0;
   overflow: hidden;
   overscroll-behavior: none;
@@ -52,13 +49,13 @@ button:focus-visible, a:focus-visible, textarea:focus-visible, input:focus-visib
   min-width: 0;
   min-height: 0;
   overflow: hidden;
-  display: flex;
-  flex-direction: column;
+  display: grid;
+  grid-template-rows: auto minmax(0, 1fr) auto;
   background: transparent;
 }
 
 .assistant-header {
-  flex: 0 0 auto;
+  grid-row: 1;
   min-height: var(--assistant-header-h);
   display: flex;
   align-items: center;
@@ -106,7 +103,7 @@ button:focus-visible, a:focus-visible, textarea:focus-visible, input:focus-visib
 
 .chat-viewport {
   position: relative;
-  flex: 1 1 auto;
+  grid-row: 2;
   min-width: 0;
   min-height: 0;
   max-height: 100%;
@@ -184,14 +181,11 @@ button:focus-visible, a:focus-visible, textarea:focus-visible, input:focus-visib
 .error-card { padding: .72rem .8rem; border: 1px solid color-mix(in srgb, var(--red) 42%, var(--line)); border-radius: 14px; background: color-mix(in srgb, var(--red) 9%, var(--surface)); }
 
 .composer-area {
-  position: relative !important;
+  position: relative;
+  grid-row: 3;
   z-index: 20;
-  flex: 0 0 auto;
-  display: block !important;
-  visibility: visible !important;
-  opacity: 1 !important;
-  transform: none !important;
-  pointer-events: auto !important;
+  display: block;
+  flex-shrink: 0;
   width: 100%;
   min-height: 72px;
   padding: .65rem max(.8rem, env(safe-area-inset-right)) max(.65rem, env(safe-area-inset-bottom)) max(.8rem, env(safe-area-inset-left));
@@ -199,9 +193,9 @@ button:focus-visible, a:focus-visible, textarea:focus-visible, input:focus-visib
   background: var(--bg-2);
   box-shadow: 0 -12px 28px color-mix(in srgb, var(--bg) 68%, transparent);
 }
-.composer { width: min(var(--assistant-composer-max), 100%); margin: 0 auto; display: flex !important; visibility: visible !important; opacity: 1 !important; align-items: flex-end; gap: .5rem; padding: .45rem .45rem .45rem .8rem; border: 1px solid var(--line); border-radius: 18px; background: var(--surface); box-shadow: 0 14px 40px rgba(0,0,0,.16); }
+.composer { width: min(var(--assistant-composer-max), 100%); margin: 0 auto; display: flex; align-items: flex-end; gap: .5rem; padding: .45rem .45rem .45rem .8rem; border: 1px solid var(--line); border-radius: 18px; background: var(--surface); box-shadow: 0 14px 40px rgba(0,0,0,.16); }
 .composer:focus-within { border-color: color-mix(in srgb, var(--green) 38%, var(--line)); box-shadow: var(--hub-focus), 0 14px 40px rgba(0,0,0,.16); }
-.composer textarea { display: block !important; visibility: visible !important; opacity: 1 !important; flex: 1; min-width: 0; min-height: 38px; max-height: min(180px, 32dvh); resize: none; border: 0; outline: 0; padding: .52rem 0 .42rem; background: transparent; color: var(--ink); line-height: 1.45; box-shadow: none; }
+.composer textarea { display: block; flex: 1; min-width: 0; min-height: 38px; max-height: min(180px, 32dvh); resize: none; border: 0; outline: 0; padding: .52rem 0 .42rem; background: transparent; color: var(--ink); line-height: 1.45; box-shadow: none; }
 .composer textarea::placeholder { color: var(--faint); }
 .composer button { width: 40px; height: 40px; min-height: 40px; padding: 0; border: 0; border-radius: 13px; display: grid; place-items: center; background: linear-gradient(135deg, var(--green), var(--cyan)); color: #061015; font-size: 1.15rem; font-weight: 950; box-shadow: 0 8px 20px color-mix(in srgb, var(--green) 16%, transparent); }
 .composer button:hover { transform: none; }
@@ -252,7 +246,7 @@ button:focus-visible, a:focus-visible, textarea:focus-visible, input:focus-visib
 }
 
 
-/* v1.3.4 — ações, componentes estruturados e estabilidade visual. */
+/* v1.4.4 — ações, componentes estruturados e estabilidade visual. */
 .message-toolbar { min-height: 32px; align-items: center; }
 .message-toolbar button { position: relative; transition: background .16s ease, color .16s ease, border-color .16s ease, transform .12s ease; }
 .message-toolbar button:active { transform: scale(.92); }
@@ -276,7 +270,7 @@ button:focus-visible, a:focus-visible, textarea:focus-visible, input:focus-visib
 @media (max-width: 620px) { .message-action-status { flex-basis: 100%; } .structured-card { padding: .62rem; } }
 
 
-/* v1.3.4 — respostas documentais progressivas e ações híbridas. */
+/* v1.4.4 — respostas documentais progressivas e ações híbridas. */
 .progressive-answer { display: grid; gap: .55rem; }
 .progressive-summary { margin: 0; }
 .progressive-answer details {
@@ -322,58 +316,35 @@ button:focus-visible, a:focus-visible, textarea:focus-visible, input:focus-visib
 }
 .knowledge-meta strong { color: var(--text); }
 .knowledge-warning { border-left-color: var(--yellow, #e9b949); }
-.structured-card[data-component="hub-actions"] .structured-actions {
-  display: flex;
-  flex-wrap: wrap;
-  gap: .42rem;
-}
-.structured-card[data-component="hub-actions"] button {
-  min-height: 34px;
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  gap: .3rem;
-}
-.structured-card[data-component="hub-actions"] button.is-favorite { color: #ffd85e; border-color: #ffd85e; }
 .offline-updated { color: var(--faint); font-size: .68rem; }
 @media (max-width: 700px) {
   .progressive-answer details { border-radius: 12px; }
-  .structured-card[data-component="hub-actions"] .structured-actions { display: grid; grid-template-columns: 1fr 1fr; }
-  .structured-card[data-component="hub-actions"] button { width: 100%; }
 }
 
 
-/* v1.3.4 — o compositor é uma região permanente e não participa da rolagem. */
-#composerArea,
-#composerArea[hidden],
-#composerArea[aria-hidden="true"] {
-  display: block !important;
-  visibility: visible !important;
-  opacity: 1 !important;
+
+
+/* v1.4.4 — layout estrutural e histórico incremental. */
+.assistant-workspace { height: 100%; max-height: 100%; }
+.chat-viewport { min-height: 0; overflow-y: auto; }
+.composer-area { min-height: 72px; }
+.load-earlier-messages {
+  display: block;
+  width: min(420px, calc(100% - 2rem));
+  min-height: 36px;
+  margin: .5rem auto .2rem;
+  border: 1px solid var(--line);
+  border-radius: 12px;
+  background: var(--surface-2);
+  color: var(--muted);
+  box-shadow: none;
+  font-size: .72rem;
 }
-#composerArea[inert] { pointer-events: auto !important; }
-#composer,
-#messageInput,
-#sendMessage {
-  visibility: visible !important;
-  opacity: 1 !important;
-}
-body.assistant-compact-height .assistant-header { display: none !important; }
-body.assistant-compact-height .composer-area {
-  min-height: 58px;
-  padding-top: .4rem;
-  padding-bottom: max(.4rem, env(safe-area-inset-bottom));
-}
-.assistant-workspace > .chat-viewport { order: 2; }
-.assistant-workspace > .assistant-header { order: 1; }
-.assistant-workspace > .composer-area { order: 3; }
+.load-earlier-messages:hover { transform: none; color: var(--ink); border-color: color-mix(in srgb, var(--cyan) 35%, var(--line)); }
+.source-row-static { display: grid; gap: .18rem; padding: .55rem; border: 1px solid color-mix(in srgb, var(--cyan) 22%, var(--line)); border-radius: 11px; }
+body.assistant-compact-height .assistant-header { display: none; }
+body.assistant-compact-height .composer-area { min-height: 58px; padding-top: .4rem; padding-bottom: max(.4rem, env(safe-area-inset-bottom)); }
 @media (max-width: 920px) {
-  body {
-    min-height: var(--assistant-window-height);
-    max-height: var(--assistant-window-height);
-  }
-  .composer-area {
-    min-height: 58px;
-    padding-bottom: max(.45rem, env(safe-area-inset-bottom));
-  }
+  body { min-height: var(--assistant-window-height, 100dvh); max-height: var(--assistant-window-height, 100dvh); }
+  .composer-area { min-height: 58px; padding-bottom: max(.45rem, env(safe-area-inset-bottom)); }
 }

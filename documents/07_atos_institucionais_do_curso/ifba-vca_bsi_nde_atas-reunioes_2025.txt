@@ -1,0 +1,667 @@
+                                  MINISTÉRIO DA EDUCAÇÃO
+                    SECRETARIA DE EDUCAÇÃO PROFISSIONAL E TECNOLÓGICA
+               INSTITUTO FEDERAL DE EDUCAÇÃO, CIÊNCIA E TECNOLOGIA DA BAHIA
+
+
+
+                                                         ATA
+
+
+
+                                    INSTITUTO FEDERAL DA BAHIA - IFBA
+                                     CAMPUS DE VITÓRIA DA CONQUISTA
+
+
+
+                     ATA DA REUNIÃO DO NÚCLEO DOCENTE ESTRUTURANTE (NDE)
+
+                        BACHARELADO EM SISTEMAS DE INFORMAÇÃO (CSI.VDC)
+
+
+
+Aos 13 dias do mês de junho do ano de 2025, às 14 horas e 5 minutos, foi realizada, a reunião ordinária do Núcleo
+Docente Estruturante (NDE) do Curso de Bacharelado em Sistemas de Informação do IFBA – Campus Vitória da
+Conquista, conforme convocatória (documento SEI nº 4225600). A reunião foi presidida pelo professor Cláudio Rodolfo
+Sousa de Oliveira, coordenador do curso e presidente do NDE, e secretariada por Leiliane Meira Correia Pires.
+
+
+
+Membros(as) presentes: Cláudio Rodolfo Sousa de Oliveira, Crescencio Rodrigues Lima Neto, Crijna Chagas Flores,
+Igor Luiz Oliveira de Souza, Pablo Freire Matos e Roberto Hugo Melo dos Santos.
+
+
+
+Pauta da Reunião:
+1. Informes
+1.1. Informou-se que o professor Alan Oliveira dos Santos justificou sua ausência por estar em aula no momento da
+reunião.
+1.2. O presidente felicitou os novos membros do NDE: ele próprio, o professor Crescencio e o professor Igor Luiz.
+1.3. Comunicou-se a chegada do professor Andrique Figueirêdo Amorim (Portaria nº 2052/2025/Reitoria), recentemente
+transferido do IFBA – Campus Jequié para o Campus Vitória da Conquista e lotado na Coordenação de Sistemas de
+Informação (CSI.VDC).
+1.4. O presidente informou que, entre a convocação e a realização da reunião, surgiu nova demanda e, por esse motivo,
+solicitou aos membros do colegiado a inclusão de um ponto extra na pauta: Proposta de inclusão do formato de artigo
+como modalidade adicional de Trabalho de Conclusão de Curso II, para egressos dos PPCs 2010.2 e 2017.2 . Após a
+devida explanação, aprovou-se à inclusão do ponto na pauta na reunião.
+
+2. Definição de Cronograma de Reuniões Ordinárias
+         Em razão da constituição tardia do Núcleo no primeiro semestre de 2025, a primeira reunião teve que ser marcada
+para o final do semestre letivo. Assim, os membros do NDE optaram por realizar apenas uma reunião no semestre 2025.1,
+e três reuniões no semestre 2025.2, totalizando quatro reuniões ordinárias no ano letivo de 2025.
+         Após debate, aprovou-se o seguinte cronograma de reuniões ordinárias: 13/06/2025 (atual reunião); 29/08/2025;
+24/10/2025; e 05/12/2025 (nesta reunião deverá ser definido o cronograma de reuniões ordinárias do ano letivo de 2026).
+
+
+
+                                 Ata 4237156       SEI 23281.003866/2025-25 / pg. 1
+3. Proposta para a Direção Acadêmica e Órgão Competentes de Normas para aproveitamento de disciplinas e
+avaliação de conhecimento prévio
+O presidente do NDE compartilhou previamente com os membros, as novas normas de aproveitamento de disciplinas
+propostas pelos cursos de Engenharia Ambiental, Civil e Elétrica. Relatou ainda que contactou o coordenador do curso de
+Licenciatura em Química, professor Anderson Marques de Oliveira, que informou que a proposta está em análise pelos
+órgãos colegiados de seu curso. Foram discutidas as seguintes sugestões de mudanças no “CAPÍTULO XII - DO
+APROVEITAMENTO DE ESTUDOS” das Normas Acadêmicas de Ensino Superior - NAES, indicadas pelas engenharias:
+I) Somente serão aceitas solicitações para componentes curriculares cursados antes da matrícula do requerente no curso.
+II) Não será permitido o aproveitamento de componentes curriculares cursados simultaneamente ao período de vínculo
+com o IFBA, salvo nos casos de mobilidade acadêmica mediante autorização do Colegiado do Curso.
+III) O número máximo de componentes curriculares aproveitados não poderá ultrapassar 40% da carga horária total do
+curso, salvo nos casos de transferência entre campi do IFBA, transferência interna entre cursos do campus, transferência
+externa obrigatória, editais próprios, acordos institucionais ou Portadores de Diploma.
+IV) O aproveitamento de estudos não poderá ultrapassar 30% da carga horária nos componentes curriculares dos
+núcleos profissionalizantes e específicos definidos no Projeto Pedagógico do Curso.
+        O professor Crescêncio destacou que a adoção de critérios mais restritivos para o aproveitamento de disciplinas
+poderá acarretar impactos negativos diretos na trajetória acadêmica dos discentes, dificultando a integralização curricular,
+desestimulando o engajamento e contribuindo para o aumento dos índices de evasão, e que tais medidas contraria os
+princípios de inclusão e permanência defendidos por políticas educacionais contemporâneas. O professor Pablo levantou
+que limitar o aproveitamento de disciplinas pode resultar em maior tempo de permanência no curso e desmotivação por
+parte de estudantes que já dominam os conteúdos. Outros professores também consideraram que tais restrições limitam o
+reconhecimento de competências e conhecimentos adquiridos em experiências anteriores, desvalorizaram as trajetórias
+individuais dos estudantes, e vai contra o avanço do ensino superior na direção da flexibilização dos percursos formativos,
+estimulando a interdisciplinaridade, a mobilidade acadêmica e o reconhecimento de saberes.
+Após ampla discussão, o NDE do curso de Bacharelado em Sistemas de Informação do IFBA – Conquista recomendou à
+Direção Acadêmica e Órgão Competentes que deliberem em não adotar novas restrições no aproveitamento de disciplinas,
+mantendo apenas as regras já previstas na NAES (75% de compatibilidade de carga horária e conteúdo programático).
+
+O presidente do NDE apresentou aos membros proposta de norma fundamentada no Art.127 das NAES, que estabelece
+que a dispensa de cursar componente curricular mediante avaliação de conhecimento prévio será realizada conforme
+resolução específica, e regulamentada pela Resolução nº 153/2024 do CONSEPE do IFBA (documento SEI nº 3917594).
+        O professor Pablo considerou a iniciativa viável, especialmente para alunos com base prévia em programação,
+citando a experiência da UFSCar, embora tenha alertado para os desafios na correção e para a necessidade de assegurar
+que as avaliações mantenham rigor adequado. Já o professor Igor expressou preocupação de que a norma poderia passar a
+ideia de que a universidade não é essencial, além de enfatizar a importância de critérios de avaliação mais rigorosos à
+medida que as disciplinas avançam. A professora Crijina acrescentou que o processo exigiria análise cuidadosa da matriz
+curricular, adaptação de provas para componentes práticos, o que aumenta significativamente a complexidade operacional
+e a necessidade de envolvimento de toda a área. Foram também discutidos a indicação do colegiado sobre as disciplinas
+que poderão ter provas de conhecimento, a formação de uma comissão para ajudar na elaboração, aplicação e correção
+dessas provas, e o prazo para abertura das solicitações.
+        Após ampla discussão e com base nas experiências compartilhadas, o NDE do curso de Bacharelado em Sistemas
+de Informação do IFBA–Conquista recomendou à Direção Acadêmica e Órgão Competentes que deliberem em 1) Definir
+a data inicial para solicitação de aproveitamento de conhecimento prévio após o prazo para reajuste de matrícula; e 2)
+Indicar que a elaboração, aplicação e correção dessas avaliações seria feita por comissões, divididas por área de
+conhecimento, e não somente pelo docente do respectivo componente curricular.
+
+4. Análise do relatório referente ao ato de renovação de reconhecimento do curso
+       Os indicadores do Instrumento de Avaliação de Cursos de Graduação, presenciais e a distância, referentes ao
+reconhecimento e à renovação de reconhecimento de 2024, foram apresentados aos membros do NDE. Três desses
+indicadores, em especial, despertaram maior atenção por representarem uma queda de desempenho em relação à avaliação
+de 2017 ou por apresentarem nota considerada insatisfatória. São eles:
+Indicador 2.16 – Produção científica, cultural, artística ou tecnológica;
+Indicador 3.1 – Espaço de trabalho para docentes em tempo integral; e
+Indicador 3.2 – Espaço de trabalho para o coordenador.
+
+                                  Ata 4237156        SEI 23281.003866/2025-25 / pg. 2
+4.1. Indicador 2.16 – Produção científica, cultural, artística ou tecnológica
+        No caso do Indicador 2.16, observou-se uma redução da nota de 3 para 2. Em 2017, o cenário era: pelo menos 50%
+do corpo docente apresentava, no mínimo, quatro produções acadêmicas nos últimos três anos. Em 2024, esse cenário
+mudou para, no mínimo, uma produção no mesmo intervalo de tempo.
+        Diante desse panorama, o presidente do Núcleo sugeriu a criação de uma comissão voltada ao apoio da produção
+acadêmica dos docentes. A proposta inclui o acompanhamento dos projetos em desenvolvimento nos componentes
+curriculares, com orientação quanto ao formato mais adequado de publicação, considerando que muitos trabalhos deixam
+de ser submetidos por falta de domínio técnico em processos editoriais. A proposta foi bem acolhida pelos membros do
+NDE, que reforçaram a importância desse suporte para fortalecer a produção qualificada de conhecimento. Também foi
+sugerida a ampliação do para incluir o acompanhamento do andamento dos Trabalhos de Conclusão de Curso (TCC). A
+professora Crijina acrescentou a proposta de formalizar a necessidade de submissão de trabalhos a eventos científicos
+como parte dos requisitos para a conclusão do curso.
+        Após amplo debate, recomendou-se ao Colegiado do Curso que delibere pela criação da Comissão de Incentivo à
+Produção Acadêmica do Curso de BSI, com a seguinte composição:
+
+ Membro(a)                     Titulação                      Matrícula                     Representação
+
+ Crescencio Rodrigues Lima     Doutor                         196610-0                      Presidente
+ Neto
+
+ Cláudio Rodolfo Sousa de      Mestre                         196672-9                      Coordenador de BSI
+ Oliveira
+
+ Pablo Freire Matos            Mestre                         185206-8                      Professor de BSI
+
+ Vivyane Coelho Caires         Mestra                         364768-7                      Coordenadora do Curso
+                                                                                            Técnico
+
+ Marcela Alves Pereira         Mestra                         283727-2                      Professora do Curso Técnico
+
+ Djan Almeida Santos           Doutor                         185208-6                      Coordenador da Pós-
+                                                                                            Graduação
+
+ Viviane Maria Lélis           Doutora                        119105-6                      Professora da Pós-
+ Carvalho                                                                                   Graduação
+
+
+
+4.2. Indicador 3.1 – Espaço de trabalho para docentes em tempo integral
+Observou-se que a nota referente ao Indicador 3.1 melhorou de 2 para 3 entre as avaliações de 2017 e 2024, porém
+permanece bem abaixo da média do curso, que é 5. Em 2017, a classificação “2” indicava que os espaços viabilizam ações
+acadêmicas (como planejamento didático-pedagógico), mas não atendiam às necessidades institucionais ou não possuíam
+recursos de TIC apropriados. Já em 2024, a nota “3” significa que os espaços atendem às necessidades institucionais e
+dispõem de recursos de TIC adequados, conforme critérios oficiais. Entretanto, para alcançar a nota “4” seria necessário
+garantir privacidade no uso desses espaços, tanto para os docentes quanto para o atendimento de discentes e orientandos.
+O professor Igor Luiz sugeriu a utilização de um espaço já existente na sala coletiva de docentes da área, que dispõe de
+porta, para atendimento privativo, com ajustes simples de infraestrutura, permitindo o isolamento físico necessário, como
+pode ser visto na Figura 1. O objetivo dessa adequação é proporcionar privacidade durante atendimentos individuais entre
+docentes, discentes e orientandos. O presidente complementou que, como o coordenador utiliza a sala das coordenações,
+esse espaço na sala coletiva permanece subutilizado. A proposta foi bem recebida pelos membros do NDE, e não houve
+objeções às alterações sugeridas.
+A seguir, um projeto de layout do espaço, indicando em destaque (cor amarela) a separação entre a área coletiva e o
+espaço destinado ao atendimento privativo:
+
+
+
+
+                                 Ata 4237156        SEI 23281.003866/2025-25 / pg. 3
+                       Figura 1. Proposta de alteração na sala dos professores (H410 e H411)
+
+Após análise, recomendou-se ao Colegiado do Curso que delibere pela aprovação da mudança sugerida na infraestrutura
+da sala coletiva de professores da área, a fim de se ter um espaço de atendimento privativo, e realize os encaminhamentos
+necessários para que as modificações propostas sejam realizadas.
+
+4.3. Indicador 3.2 – Espaço de trabalho para o coordenador
+        Registrou-se um recuo na avaliação do Indicador 3.2, com a nota caindo de 5 para 4 entre 2017 e 2024. Em 2017, a
+nota máxima obtida indicava que o espaço do coordenador: viabilizava ações acadêmico‑administrativas; possuía
+equipamentos adequados; atendia às necessidades institucionais; oferecia infraestrutura tecnológica diferenciada para
+variadas formas de trabalho; e garantia privacidade para atendimentos individuais e grupais. No entanto, em 2024, embora
+o ambiente ainda cumpra as primeiras quatro exigências, não garante a privacidade para atendimentos individuais e
+grupais, justificando a nota “4”.
+        Atualmente a Sala H409, onde encontra-se a coordenação de BSI, é compartilhada com outras 2 coordenações
+(coordenação do curso técnico em informática e coordenação da pós graduação em desenvolvimento web). Dentre
+algumas mudanças analisadas, optou-se pelo layout da Figura 2, que não muda a disposição atual das áreas das
+coordenações na sala, e mantém o ambiente da coordenação de BSI ventilado, por meio das janelas laterais, e isolado.
+
+
+
+
+                                  Figura 2. Proposta de alteração na sala de coordenação.
+
+Após análise, recomendou-se ao Colegiado do Curso que delibere pela aprovação da mudança sugerida na infraestrutura
+da sala de coordenação dos professores da área, a fim de se ter um espaço privativo para a coordenação de BSI, e realize
+os encaminhamentos necessários para que as modificações propostas sejam realizadas.
+
+5. Proposta de inclusão do formato de artigo como modalidade adicional de Trabalho de Conclusão de Curso II,
+para egressos dos PPCs 2010.2 e 2017.2
+O presidente apresentou aos membros as normas para o Trabalho de Conclusão de Curso II considerando os diferentes
+
+                                 Ata 4237156        SEI 23281.003866/2025-25 / pg. 4
+Projetos Pedagógicos do curso. No PPC 2010.2, consta que “O TCC II consistirá da elaboração do projeto de uma
+monografia de caráter dissertativo de sua própria autoria e caráter inovador, cujo tema esteja relacionado à informática,
+sendo esta apresentada a uma banca examinadora.” Já no PPC 2017.2, afirma-se que “Na disciplina TCC II deverá ser
+redigida uma Monografia como relatório da pesquisa, trabalho ou projeto desenvolvidos.” No atual Regulamento (PPC
+2024.1), está previsto que “No Componente Curricular de TCC II deverá ser redigida uma monografia ou artigo como
+relatório da pesquisa, trabalho ou projeto desenvolvido.”
+        O professor Igor Luiz manifestou-se favorável à nova redação, desde que não seja necessário readequar trabalhos
+já em andamento. A professora Crijina não apontou objeções à inclusão da modalidade artigo. O professor Pablo destacou
+que a expansão de opções só traz vantagens. Os professores Crescêncio e Cláudio também se manifestaram positivamente.
+        Após discussão, recomendou-se ao Colegiado do Curso que delibere em permitir aos egressos dos PPCs 2010.2 e
+2017.2 que utilizem caso optem, adicionalmente, a modalidade Artigo para a confecção dos trabalhos de TCC II.
+
+6. O que ocorrer
+       A professora Crijina sugeriu como ponto de pauta para a próxima reunião do NDE a análise dos dados estatísticos
+compilados pela Comissão Própria de Avaliação (CPA) do campus.
+
+Encerramento:
+       Nada mais havendo a tratar, a reunião foi encerrada às 15h56min. Eu, Cláudio Rodolfo Sousa de Oliveira,
+juntamente com a secretária Leiliane Meira Correia Pires, lavramos a presente ata, que após leitura e aprovação, será
+assinada por nós e pelos demais participantes.
+
+
+
+
+                Documento assinado eletronicamente por CLAUDIO RODOLFO SOUSA DE OLIVEIRA , Presidente do Núcleo
+                Docente Estruturante do Curso de Bacharelado em Sistemas de Informação, em 28/07/2025, às 13:00, conforme
+                decreto nº 8.539/2015.
+
+                Documento assinado eletronicamente por IGOR LUIZ OLIVEIRA DE SOUZA , Membro do Núcleo Docente
+                Estruturante do Curso de Bacharelado em Sistemas de Informação, em 28/07/2025, às 14:46, conforme decreto nº
+                8.539/2015.
+
+
+                Documento assinado eletronicamente por CRIJINA CHAGAS FLORES, Membro do Núcleo Docente Estruturante
+                do Curso de Bacharelado em Sistemas de Informação, em 28/07/2025, às 16:24, conforme decreto nº 8.539/2015.
+
+
+                Documento assinado eletronicamente por ROBERTO HUGO MELO DOS SANTOS , Membro do Núcleo Docente
+                Estruturante do Curso de Bacharelado em Sistemas de Informação, em 28/07/2025, às 16:35, conforme decreto nº
+                8.539/2015.
+
+                Documento assinado eletronicamente por CRESCENCIO RODRIGUES LIMA NETO, Membro do Núcleo
+                Docente Estruturante do Curso de Bacharelado em Sistemas de Informação, em 29/07/2025, às 08:07, conforme
+                decreto nº 8.539/2015.
+
+
+                Documento assinado eletronicamente por PABLO FREIRE MATOS, Membro do Núcleo Docente Estruturante do
+                Curso de Bacharelado em Sistemas de Informação, em 29/07/2025, às 13:16, conforme decreto nº 8.539/2015.
+
+
+
+                Documento assinado eletronicamente por Leiliane Meira Correia Pires, Secretário(a) do Curso de Bacharelado em
+                Sistemas de Informação, em 10/12/2025, às 15:40, conforme decreto nº 8.539/2015.
+
+
+
+               A autenticidade do documento pode ser conferida no site http://sei.ifba.edu.br/sei/controlador_externo.php?
+               acao=documento_conferir&acao_origem=documento_conferir&id_orgao_acesso_externo=0 informando o código
+               verificador 4237156 e o código CRC 8E60F209.
+
+
+
+23281.003866/2025-25                                                                                                  4237156v4
+
+
+
+                                   Ata 4237156         SEI 23281.003866/2025-25 / pg. 5
+                           MINISTÉRIO DA EDUCAÇÃO
+             SECRETARIA DE EDUCAÇÃO PROFISSIONAL E TECNOLÓGICA
+        INSTITUTO FEDERAL DE EDUCAÇÃO, CIÊNCIA E TECNOLOGIA DA BAHIA
+
+
+
+                                                  ATA
+
+
+
+                             INSTITUTO FEDERAL DA BAHIA - IFBA
+                              CAMPUS DE VITÓRIA DA CONQUISTA
+
+
+
+              ATA DA REUNIÃO DO NÚCLEO DOCENTE ESTRUTURANTE (NDE)
+
+                 BACHARELADO EM SISTEMAS DE INFORMAÇÃO (CSI.VDC)
+
+
+
+Aos 29 (vinte e nove) dias do mês de agosto do ano de 2025, às 14 horas e 06 minutos, foi realizada, a
+reunião ordinária do Colegiado do Curso de Bacharelado em Sistemas de Informação do IFBA – Campus
+Vitória da Conquista, conforme convocatória (documento SEI nº 4371817). A reunião foi presidida pelo
+professor Cláudio Rodolfo Sousa de Oliveira, coordenador do curso e presidente do NDE, e secretariada
+por Leiliane Meira Correia Pires.
+
+
+Membros(as) presentes: Alan Oliveira dos Santos, Cláudio Rodolfo Sousa de Oliveira, Crescencio
+Rodrigues Lima Neto, Crijna Chagas Flores, Igor Luiz Oliveira de Souza, Pablo Freire Matos e Roberto
+Hugo Melo dos Santos.
+
+Pauta da Reunião:
+1. Informes
+1.1. Inicialmente, o professor Cláudio Rodolfo Sousa de Oliveira informou que 12 discentes do curso de BSI
+foram contemplados com bolsas no projeto PET Saúde Digital, como pode ser visto no link
+<https://www.uesb.br/wp-content/uploads/2025/07/Resultado-Saude-Digital.pdf>. Este projeto tem como
+proponente a UFBA-Campus Anísio Teixeira e conta com as parcerias da UESB - Campus Vitória da
+Conquista, IFBA - Campus Vitória da Conquista e Prefeitura Municipal de Vitória da Conquista (PMVC).
+1.2 Além disso, o presidente do NDE informou aos membros do Núcleo que o Colegiado do Curso deliberou
+favoravelmente, em reunião do dia 30/07/2025 (ata disponível no documento SEI 4322192), em permitir aos
+egressos dos PPCs 2010.2 e 2017.2 que utilizem caso optem, adicionalmente, a modalidade Artigo para
+a confecção dos trabalhos de TCC II e pela criação da Comissão de Incentivo à Produção Acadêmica
+do Curso de BSI, conforme indicação do NDE em reunião do dia 13/06/2025 (documento SEI 4237156).
+
+
+2. Proposta de Atualização do PPC do Curso de BSI para remoção das aula aos sábados
+
+                             Ata 4380180     SEI 23281.005506/2025-68 / pg. 1
+        O professor Crescencio Rodrigues Lima Neto destacou que, ao longo de 13 (treze) anos, a questão
+das aulas aos sábados foi negligenciada devido a outras demandas, como as avaliações do curso pelo
+Ministério da Educação que levaram a reformulações da grade curricular. Ele indicou que sempre discutiu
+com os alunos sobre a possibilidade de remover as aulas do sábado letivo devido às constantes reclamações.
+O professor compartilhou dados sobre a formação dos alunos, indicando que dos 73 (setenta e três) alunos
+egressos, somente 2 (dois) alunos concluíram o curso de forma regular (oito semestres); a grande maioria dos
+alunos concluiu o curso no intervalo de nove a treze semestres.
+        O professor Cláudio Rodolfo Sousa de Oliveira complementou com uma pesquisa realizada onde
+obteve 204 (duzentos e quatro) respostas, mas após eliminação de duplicatas restaram 197 (cento e noventa e
+sete) respondentes únicos. Destes, 80,4% (oitenta vírgula quatro por cento) preferem remover as aulas aos
+sábados, mesmo que isso prolongue a duração do curso em um semestre adicional.
+        O professor Pablo Freire Matos relatou que os alunos estão apreensivos com as aulas da disciplina
+Banco de Dados II, ofertadas aos sábados em 2025.2, preferindo uma mudança para um curso de quatro anos
+e meio (nove semestres). A maioria dos alunos, envolvidos em diversas atividades, expressou que a carga de
+aulas aos sábados é excessiva.
+        Os professores Crijina Chagas Flores e Igor Luiz Oliveira de Souza também manifestaram apoio à
+alteração, ressaltando a importância de considerar a qualidade de vida dos estudantes. A proposta de manter
+o curso com oito semestres foi discutida, com sugestões de remoção ou junção de disciplinas. O professor
+Pablo Freire Matos destacou a necessidade de uma análise mais aprofundada sobre a carga horária, enquanto
+o professor Crescencio Rodrigues Lima Neto sugeriu que a realocação para nove semestres poderia ser mais
+tranquila. A professora Crijina Chagas Flores, por sua vez, alertou sobre a complexidade de realizar
+mudanças simultâneas e a inviabilidade de colocar disciplinas em horários que não atendem às necessidades
+dos alunos.
+        Durante a discussão, o professor Roberto Hugo Melo dos Santos propôs a retirada das aulas de
+sábado, o que resultaria em um curso de quatro anos e meio. O professor Cláudio Rodolfo Sousa de Oliveira
+destacou que a remoção das aulas aos sábados foi claramente comunicada na enquete, e que a mudança no
+PPC não implicaria em nova visita do MEC, a não ser que o desempenho dos alunos no Exame Exame
+Nacional de Desempenho dos Estudantes (ENADE) fosse abaixo do esperado e que era recomendável manter
+os componentes curriculares do curso para evitar alteração do perfil do egresso do curso.
+        O professor Crescencio Rodrigues Lima Neto apresentou uma proposta inicial da redistribuição da
+grade curricular que considerava os pré-requisitos, a integração entre as disciplinas e a manutenção de todos
+os componentes curriculares da matriz atual de 2024.1. A professora Crijina Chagas Flores sugeriu a troca
+de posições de algumas disciplinas para melhorar a sequência de aprendizado. A discussão também incluiu a
+viabilidade do uso dos laboratórios em relação à nova grade. O professor Pablo Freire Matos apoiou a
+proposta e sugeriu que fosse levada à votação.
+        Após análise, por unanimidade, recomenda-se ao Colegiado do Curso que delibere pela
+aprovação da mudança sugerida na organização das disciplinas do PCC de 2024 expressa na Figura 1,
+para que o curso não precise mais ter aulas aos sábados, implicando assim no aumento de 1 semestre
+letivo, passando de 8 para 9 semestres letivos, conforme a Figura 2.
+
+
+
+
+                      Figura 1. Distribuição de Disciplinas do curso de BSI do PCC de 2024.
+
+
+                              Ata 4380180        SEI 23281.005506/2025-68 / pg. 2
+              Figura 2. Nova Distribuição de Disciplinas para o curso de BSI, recomendada pelo NDE.
+
+
+3. Apresentação dos Indicadores da Comissão Própria de Avaliação (CPA) de 2024
+
+       A professora Crijina Chagas Flores ressaltou que os dados eram referentes ao ano de 2023, e não
+2024 como indicado inicialmente. Analisando os dados divulgados pela CPA 2023 e a pesquisa feita pela
+coordenação do curso com os discentes foi percebida a necessidade de ações que favorecem:
+
+      Capacitação dos docentes no que diz respeito à didática e metodologia de ensino, abordando a
+      importância da autonomia intelectual do discente;
+      Incentivo aos docentes a discutirem os resultados das avaliações com os discentes;
+      Capacitação dos docentes visando alinhar as aulas práticas com novas tecnologias;
+      Apresentação contínua do PPC do curso aos discentes ingressantes;
+      Revisar sempre com os discentes e, se possível, com os egressos as dificuldades encontradas para
+      conclusão do curso;
+      Divulgar aos docentes as informações obtidas no relatório da CPA e abrir espaço para uma análise
+      conjunta dos dados;
+      Divulgar o resultado das pesquisas realizadas semestralmente aos professores das disciplinas;
+      Divulgação ampla da avaliação da coordenação para alcançar o máximo de discentes.
+
+      Sugestões de ações diretas:
+
+      Semana Pedagógica:
+           Apresentar e discutir o resultado das avaliações semestrais dos discentes;
+           Atividades destinadas à capacitação docente;
+           Revisão geral do PPC, com um brainstorm sobre os êxitos e readequações percebidas pelos
+           docentes.
+      Semana de Recepção aos Calouros:
+           Apresentação do PPC do curso;
+           Apresentação dos projetos de pesquisa e extensão.
+      Semana de Informática (Week-IT):
+           Minicurso visando a capacitação docente;
+           Roda de conversa sobre o curso com a coordenação, o corpo docente, os discentes e egressos
+           convidados.
+
+
+4. O que ocorrer
+       Não houve manifestações.
+
+Encerramento:
+       Nada mais havendo a tratar, a reunião foi encerrada às 15h50min. Eu, Cláudio Rodolfo Sousa de
+Oliveira, juntamente com a secretária Leiliane Meira Correia Pires, lavramos a presente ata, que após leitura
+e aprovação, será assinada por nós e pelos demais participantes.
+
+                               Ata 4380180       SEI 23281.005506/2025-68 / pg. 3
+                Documento assinado eletronicamente por CLAUDIO RODOLFO SOUSA DE OLIVEIRA ,
+                Presidente do Núcleo Docente Estruturante do Curso de Bacharelado em Sistemas de Informação ,
+                em 07/10/2025, às 14:08, conforme decreto nº 8.539/2015.
+
+                Documento assinado eletronicamente por Leiliane Meira Correia Pires, Membro do Núcleo Docente
+                Estruturante do Curso de Bacharelado em Sistemas de Informação, em 07/10/2025, às 14:12,
+                conforme decreto nº 8.539/2015.
+
+                Documento assinado eletronicamente por CRESCENCIO RODRIGUES LIMA NETO, Membro do
+                Núcleo Docente Estruturante do Curso de Bacharelado em Sistemas de Informação, em
+                07/10/2025, às 15:10, conforme decreto nº 8.539/2015.
+
+                Documento assinado eletronicamente por PABLO FREIRE MATOS, Membro do Núcleo Docente
+                Estruturante do Curso de Bacharelado em Sistemas de Informação, em 07/10/2025, às 16:39,
+                conforme decreto nº 8.539/2015.
+
+                Documento assinado eletronicamente por CRIJINA CHAGAS FLORES, Membro do Núcleo
+                Docente Estruturante do Curso de Bacharelado em Sistemas de Informação, em 07/10/2025, às
+                19:14, conforme decreto nº 8.539/2015.
+
+                Documento assinado eletronicamente por ROBERTO HUGO MELO DOS SANTOS , Membro do
+                Núcleo Docente Estruturante do Curso de Bacharelado em Sistemas de Informação, em
+                08/10/2025, às 07:54, conforme decreto nº 8.539/2015.
+
+                Documento assinado eletronicamente por ALAN OLIVEIRA DOS SANTOS, Membro do Núcleo
+                Docente Estruturante do Curso de Bacharelado em Sistemas de Informação, em 08/10/2025, às
+                10:29, conforme decreto nº 8.539/2015.
+
+                Documento assinado eletronicamente por IGOR LUIZ OLIVEIRA DE SOUZA , Membro do Núcleo
+                Docente Estruturante do Curso de Bacharelado em Sistemas de Informação, em 09/10/2025, às
+                14:43, conforme decreto nº 8.539/2015.
+
+               A autenticidade do documento pode ser conferida no site
+               http://sei.ifba.edu.br/sei/controlador_externo.php?
+               acao=documento_conferir&acao_origem=documento_conferir&id_orgao_acesso_externo=0 informando
+               o código verificador 4380180 e o código CRC EAE87E43.
+
+
+23281.005506/2025-68                                                                                4380180v24
+
+
+
+
+                               Ata 4380180      SEI 23281.005506/2025-68 / pg. 4
+                            MINISTÉRIO DA EDUCAÇÃO
+              SECRETARIA DE EDUCAÇÃO PROFISSIONAL E TECNOLÓGICA
+         INSTITUTO FEDERAL DE EDUCAÇÃO, CIÊNCIA E TECNOLOGIA DA BAHIA
+
+
+
+                                                    ATA
+
+                               INSTITUTO FEDERAL DA BAHIA - IFBA
+                                CAMPUS DE VITÓRIA DA CONQUISTA
+
+
+
+               ATA DA REUNIÃO DO NÚCLEO DOCENTE ESTRUTURANTE (NDE)
+
+                  BACHARELADO EM SISTEMAS DE INFORMAÇÃO (CSI.VDC)
+
+
+
+Aos 31 (trinta e um) dias do mês de outubro do ano de 2025, às 14 horas e 10 minutos, foi realizada, a
+reunião ordinária do Colegiado do Curso de Bacharelado em Sistemas de Informação do IFBA – Campus
+Vitória da Conquista, conforme convocatória (documento SEI nº 4500523). A reunião foi presidida pelo
+professor Crescencio Rodrigues Lima Neto, membro do NDE, e secretariada por Leiliane Meira Correia
+Pires.
+
+
+Membros(as) presentes: Crescencio Rodrigues Lima Neto, Igor Luiz Oliveira de Souza, Pablo Freire Matos
+e Roberto Hugo Melo dos Santos.
+
+Pauta da Reunião:
+1. Informes
+1.1. Informou-se que os professores Alan Oliveira dos Santos e Crijina Chagas Flores se ausentaram por
+estarem em bancas de TCC, enquanto o professor Cláudio Rodolfo Sousa de Oliveira justificou sua ausência
+por estar ministrando aula.
+1.2. O professor Crescencio Rodrigues Lima Neto informou que conversou com o diretor acadêmico e diretor
+de ensino sobre a proposta de alteração do PPC do curso para nove semestres letivos. Os diretores
+informaram que a proposta precisaria ser analisada com urgência, visto que a proposta precisa tramitar pelos
+demais setores da instituição, o que poderá inviabilizar sua execução no primeiro semestre do próximo ano.
+
+2. Proposta de modificação da ementa da disciplina Matemática Discreta I
+        O professor Crescencio Rodrigues Lima Neto fez uma breve revisão da proposta e dos documentos
+apresentados no processo (23281.006004/2024-73). O professor Roberto Hugo Melo dos Santos explicou que
+a proposta irá facilitar o andamento da disciplina, ressaltando que toda a área envolvida está de acordo com a
+atualização da ementa. Após análise, por unanimidade, decidiu-se recomendar ao Colegiado do Curso que
+delibere pela aprovação da atualização sugerida na ementa do componente curricular Matemática
+Discreta I do PPC em vigor do curso de BSI, deixando de ser "Sistemas Numéricos e Aritmética.
+Conjuntos. Álgebra dos conjuntos. Relações. Funções. Introdução à lógica: lógica proposicional e lógica
+                              Ata 4520259      SEI 23281.007289/2025-41 / pg. 1
+booleana.", passando assim a ser "Bases numéricas: binária e hexadecimal. Conjuntos. Álgebra dos
+conjuntos. Relações. Funções. Introdução à lógica: lógica proposicional e lógica booleana. Matrizes:
+Soma, Multiplicação, Transposta e Inversa.".
+
+3. O que ocorrer
+       Não houve manifestações.
+
+Encerramento:
+       Nada mais havendo a tratar, a reunião foi encerrada às 15h00min. Eu, Crescencio Rodrigues Lima
+Neto, juntamente com a secretária Leiliane Meira Correia Pires, lavramos a presente ata, que após leitura e
+aprovação, será assinada por nós e pelos demais participantes.
+
+
+
+
+                Documento assinado eletronicamente por CRESCENCIO RODRIGUES LIMA NETO, Membro do
+                Núcleo Docente Estruturante do Curso de Bacharelado em Sistemas de Informação, em
+                05/11/2025, às 13:45, conforme decreto nº 8.539/2015.
+
+                Documento assinado eletronicamente por PABLO FREIRE MATOS, Membro do Núcleo Docente
+                Estruturante do Curso de Bacharelado em Sistemas de Informação, em 05/11/2025, às 16:12,
+                conforme decreto nº 8.539/2015.
+
+                Documento assinado eletronicamente por IGOR LUIZ OLIVEIRA DE SOUZA , Membro do Núcleo
+                Docente Estruturante do Curso de Bacharelado em Sistemas de Informação, em 06/11/2025, às
+                15:00, conforme decreto nº 8.539/2015.
+
+
+                Documento assinado eletronicamente por Leiliane Meira Correia Pires, Secretário(a) do Curso de
+                Bacharelado em Sistemas de Informação, em 10/12/2025, às 15:40, conforme decreto nº 8.539/2015.
+
+
+               A autenticidade do documento pode ser conferida no site
+               http://sei.ifba.edu.br/sei/controlador_externo.php?
+               acao=documento_conferir&acao_origem=documento_conferir&id_orgao_acesso_externo=0 informando
+               o código verificador 4520259 e o código CRC 905F6782.
+
+
+23281.007289/2025-41                                                                                   4520259v1
+
+
+
+
+                               Ata 4520259       SEI 23281.007289/2025-41 / pg. 2
+                           MINISTÉRIO DA EDUCAÇÃO
+             SECRETARIA DE EDUCAÇÃO PROFISSIONAL E TECNOLÓGICA
+        INSTITUTO FEDERAL DE EDUCAÇÃO, CIÊNCIA E TECNOLOGIA DA BAHIA
+
+
+
+                                                 ATA
+
+
+
+                             INSTITUTO FEDERAL DA BAHIA - IFBA
+                              CAMPUS DE VITÓRIA DA CONQUISTA
+
+
+
+              ATA DA REUNIÃO DO NÚCLEO DOCENTE ESTRUTURANTE (NDE)
+
+                 BACHARELADO EM SISTEMAS DE INFORMAÇÃO (CSI.VDC)
+
+
+
+Aos 05 (cinco) dias do mês de dezembro do ano de 2025, às 14 horas e 10 minutos, foi realizada, a reunião
+ordinária do Núcleo Docente Estruturante (NDE) do curso de Bacharelado em Sistemas de Informação do
+IFBA – Campus Vitória da Conquista, conforme convocatória (documento SEI nº 4582440). A reunião foi
+presidida pelo professor Crescencio Rodrigues Lima Neto, membro do NDE, e secretariada por Leiliane
+Meira Correia Pires.
+
+
+Membros(as) presentes: Alan Oliveira dos Santos, Crescencio Rodrigues Lima Neto, Crijina Chagas Flores
+e Igor Luiz Oliveira de Souza.
+
+Pauta da Reunião:
+1. Informes
+1.1. O professor Crescencio Rodrigues Lima Neto informou que o Colegiado aprovou a proposta de
+reorganização da grade do Projeto Pedagógico de Curso (PPC) em nove semestres, permitindo, assim, a
+remoção das aulas aos sábados. O presidente do NDE apresentou estudo sobre a coerência entre a carga
+horária semestral sugerida pelo NDE e os horários de funcionamento do curso previstos no PPC, conforme
+indicado pelo Colegiado de Curso (documento SEI nº 4567173).
+
+2. Proposta de modificação da ementa da disciplina Matemática Discreta I - Devolutiva do Colegiado
+do Curso
+        Os membros do NDE analisaram os documentos disponibilizados. Contudo, não foi possível
+deliberar sobre a questão, pois a ata da reunião do Colegiado (documento SEI nº 4583601) ainda não estava
+disponível no momento desta reunião. Ficou decidido que esse ponto será retomado na próxima reunião do
+NDE.
+
+3. Definição de Cronograma de Reuniões ordinárias do NDE para o ano letivo de 2026
+
+                             Ata 4591948     SEI 23281.008325/2025-93 / pg. 1
+       O professor Crescencio Rodrigues Lima Neto apresentou a sugestão inicial encaminhada pelo
+presidente do NDE. Os membros do NDE indicaram apenas a alteração da data de 05/06/2026, por se tratar
+de um dia posterior ao feriado, com possibilidade de ser considerado não letivo. Deliberou-se, assim, as
+seguintes datas para as reuniões do NDE para o ano letivo de 2026: 06/03/2026 – das 14h às 16h; 12/06/2026
+– das 14h às 16h; 04/09/2026 – das 14h às 16h; e 04/12/2026 – das 14h às 16h.
+
+4. O que ocorrer
+       A professora Crijina Chagas Flores sugeriu incluir, como ponto de pauta da próxima reunião, a
+discussão sobre a criação de uma comissão para atualização do manual da disciplina Trabalho de Conclusão
+1. Destacou-se a necessidade de revisar a dinâmica de execução da disciplina, definir os modelos a serem
+adotados pelos alunos, entre outras questões pertinentes, com vistas à melhoria da qualidade e à
+padronização dos procedimentos envolvidos.
+
+O professor Igor Luiz Oliveira de Souza sugeriu incluir, como ponto de pauta, a revisão da ementa da
+disciplina optativa Instalação e Configuração de Servidores de Rede, de modo a alinhá-la às tecnologias
+atualmente utilizadas na indústria. Além disso, destacou que, com a proposta de atualização da grade do
+curso para nove semestres, abre-se a possibilidade de revisão das demais disciplinas optativas.
+
+Encerramento:
+
+       Nada mais havendo a tratar, a reunião foi encerrada às 15h00min. Eu, Crescencio Rodrigues Lima
+Neto, juntamente com a secretária Leiliane Meira Correia Pires, lavramos a presente ata, que após leitura e
+aprovação, será assinada por nós e pelos demais participantes.
+
+
+
+
+              Documento assinado eletronicamente por CRESCENCIO RODRIGUES LIMA NETO, Membro do
+              Núcleo Docente Estruturante do Curso de Bacharelado em Sistemas de Informação, em
+              10/12/2025, às 15:22, conforme decreto nº 8.539/2015.
+
+
+              Documento assinado eletronicamente por Leiliane Meira Correia Pires, Secretário(a) do Curso de
+              Bacharelado em Sistemas de Informação, em 10/12/2025, às 15:40, conforme decreto nº 8.539/2015.
+
+
+              Documento assinado eletronicamente por CRIJINA CHAGAS FLORES, Membro do Núcleo
+              Docente Estruturante do Curso de Bacharelado em Sistemas de Informação, em 10/12/2025, às
+              16:26, conforme decreto nº 8.539/2015.
+
+              Documento assinado eletronicamente por ALAN OLIVEIRA DOS SANTOS, Membro do Núcleo
+              Docente Estruturante do Curso de Bacharelado em Sistemas de Informação, em 10/12/2025, às
+              19:31, conforme decreto nº 8.539/2015.
+
+              Documento assinado eletronicamente por IGOR LUIZ OLIVEIRA DE SOUZA , Membro do Núcleo
+              Docente Estruturante do Curso de Bacharelado em Sistemas de Informação, em 10/12/2025, às
+              21:29, conforme decreto nº 8.539/2015.
+
+              Documento assinado eletronicamente por ROBERTO HUGO MELO DOS SANTOS , Membro do
+              Núcleo Docente Estruturante do Curso de Bacharelado em Sistemas de Informação, em
+              11/12/2025, às 21:26, conforme decreto nº 8.539/2015.
+
+
+
+
+                             Ata 4591948       SEI 23281.008325/2025-93 / pg. 2
+               A autenticidade do documento pode ser conferida no site
+               http://sei.ifba.edu.br/sei/controlador_externo.php?
+               acao=documento_conferir&acao_origem=documento_conferir&id_orgao_acesso_externo=0 informando
+               o código verificador 4591948 e o código CRC E5D31CE8.
+
+
+
+
+23281.008325/2025-93                                                                             4591948v10
+
+
+
+
+                              Ata 4591948     SEI 23281.008325/2025-93 / pg. 3
+

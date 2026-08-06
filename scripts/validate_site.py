@@ -135,8 +135,9 @@ for redirect in [
 index_text = (ROOT / "index.html").read_text(encoding="utf-8")
 if release_version and f"HUB SI · v{release_version} ·" not in index_text:
     errors.append("Versão exibida no rodapé não corresponde a VERSION")
-if "reportIssueButton" not in index_text:
-    errors.append("Botão de reportar problema ausente da página principal")
+shared_sidebar = (ROOT / "sidebar/sidebar.js")
+if "reportIssueButton" not in index_text and (not shared_sidebar.is_file() or "reportIssueButton" not in shared_sidebar.read_text(encoding="utf-8")):
+    errors.append("Botão de reportar problema ausente da sidebar compartilhada")
 try:
     build_payload = json.loads((ROOT / "assets/build-manifest.json").read_text(encoding="utf-8"))
     build_manifest = build_payload.get("files", {})

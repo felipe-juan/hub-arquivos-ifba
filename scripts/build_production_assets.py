@@ -20,11 +20,7 @@ ROOT_LEAVES=[
  'js/pdf-runtime.js','js/search-engine.js','js/performance-monitor.js',
  'styles.css','css/enhancements.css','css/sidebar-quick-search.css','css/design-system.css',
 ]
-APP_LEAVES=[
- 'apps/app-shell.js','apps/app-shell.css','apps/doom/doom.js','apps/doom/doom.css',
- 'apps/calendario/data/calendar-data.js','apps/fluxogramas/data/fluxogramas-data.js',
- 'apps/barema/data/barema-data.js',
-]
+APP_LEAVES = ['apps/doom/doom.js', 'apps/doom/doom.css', 'apps/calendario/data/calendar-data.js', 'apps/fluxogramas/data/fluxogramas-data.js', 'apps/barema/data/barema-data.js']
 HTML_FILES=[ROOT/'index.html',ROOT/'apps/calendario/index.html',ROOT/'apps/fluxogramas/index.html',ROOT/'apps/barema/index.html',ROOT/'apps/doom/index.html']
 
 def digest(data:bytes)->str:return hashlib.sha256(data).hexdigest()[:12]

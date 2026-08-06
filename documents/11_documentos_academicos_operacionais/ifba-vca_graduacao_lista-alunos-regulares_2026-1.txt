@@ -1,0 +1,186 @@
+                                                                                    Página 1 de 3
+
+
+
+
+Matrícula de Alunos Regulares
+Semestre 2026.1
+
+Matrícula         Nome                                     Curso
+202521180016      Alef Wender Melgaço Clemente             Engenharia Ambiental
+202211180020      Antônio Gabriel Rocha Silva              Engenharia Ambiental
+202521180002      Eva Queiroz Santos Moreira               Engenharia Ambiental
+202521180010      LETICIA GOMES SILVA                      Engenharia Ambiental
+202511180006      MANUELA OLIVEIRA MUNIZ                   Engenharia Ambiental
+202211350007      Caio Freitas Rocha Santos                Engenharia Civil
+202511350019      FABIO GRAFITO PAMPLONA SILVA             Engenharia Civil
+202511350008      FERNANDA MEIRA SELLMANN MOREIRA          Engenharia Civil
+202411350006      Ícaro de Sá Ferreira Silva               Engenharia Civil
+202511350004      JOAO GABRIEL DUARTE COELHO               Engenharia Civil
+202411350007      Laisa Roberta Costa Cunha                Engenharia Civil
+202511350003      Lucas Ferraz das Virgens de Oliveira     Engenharia Civil
+202511350001      LUCAS SILVA PIRES                        Engenharia Civil
+202211350002      Mariana dos Santos Bispo                 Engenharia Civil
+202521350005      Matheus Supino da Silva Lisboa           Engenharia Civil
+202511350007      MURILLO SOUZA PINTO                      Engenharia Civil
+202211350011      Natan Guilherme Oliveira Santos          Engenharia Civil
+202411350010      PEDRO AFONSO RODRIGUES BELINATO          Engenharia Civil
+202511350022      RYAN MOREIRA LOPES                       Engenharia Civil
+202421350017      WELINGTON ANTONIO RODRIGUES MARQUES LIMA Engenharia Civil
+202511350009      WILL SOUSA CORREIA                       Engenharia Civil
+202211130021      Allan de Oliveira Lima                   Engenharia Elétrica
+202511130011      ARTHUR BARRETO DE SOUZA                  Engenharia Elétrica
+202511130003      ARTHUR RIBEIRO DE SOUSA                  Engenharia Elétrica
+202511130024      DANIEL PIRES CARVALHO                    Engenharia Elétrica
+202411130011      Daniel Silva Lima                        Engenharia Elétrica
+202511130010      FELIPE RIBEIRO DE SOUZA                  Engenharia Elétrica
+202511130032      JULIANA MOITINHO ATAIDE                  Engenharia Elétrica
+202411130008      Maria Luiza Brasil Medrado               Engenharia Elétrica
+202511130038      Matheus Miranda Coutinho                 Engenharia Elétrica
+202521130010      Mirella Martins Silva                    Engenharia Elétrica
+202511130028      Pedro Henrique Alves Dias                Engenharia Elétrica
+202511130047      PYETRO ALVES DOS SANTOS LORENA           Engenharia Elétrica
+202521130017      RAFAEL RIBEIRO DE SOUZA                  Engenharia Elétrica
+202521130014      Sérgio Enrique Rivas Villanueva          Engenharia Elétrica
+202511130037      Vitória de Sales Sena                    Engenharia Elétrica
+202521130025      Willian Vitor Oliveira Silva             Engenharia Elétrica
+202521130021      YURE VICTOR ALVES COSTA                  Engenharia Elétrica
+202521140008      Arielly Laranjeira Santos                Engenharia Mecânica
+202521140010      Eduardo Silva Miranda                    Engenharia Mecânica
+202521140028      JOÃO PAULO MARQUES DE MELO               Engenharia Mecânica
+202521140005      KAUAN MÁRCIO DE OLIVEIRA ARAÚJO          Engenharia Mecânica
+202521140019      Pablo Silva Lima                         Engenharia Mecânica
+202311320008      Bianca Oliveira Nogueira                 Química
+202411320004      Bruna Carol Oliveira da Silva            Química
+202511320014      CLODEVAN SILVA CARVALHO                  Química
+202311320004      Edilson Almeida Souza Filho              Química
+202311320003      Melquisedeque de Jesus Figueirêdo        Química
+202311320009      Pedro Juan Oliveira Medeiros             Química
+202511320003      SAMUEL CARMO NASCIMENTO                  Química
+202411320016      Yuri Rangel Brito                        Química
+202321190030      ALANA AGNE BRANDAO ROCHA                 Sistemas de Informação
+202411190025      ALLISSON DE ALMEIDA BENTO VIANA          Sistemas de Informação
+202421190040      ANA CLARA COSTA SOUSA                    Sistemas de Informação
+                                                                               Página 2 de 3
+
+
+
+
+Matrícula de Alunos Regulares
+Semestre 2026.1
+
+Matrícula         Nome                                Curso
+202511190007      Ana Clara Marinho Viana             Sistemas de Informação
+202321190010      Ana Luiza Silva Vasconcelos         Sistemas de Informação
+202221190005      Anderson Neves dos Santos           Sistemas de Informação
+202511190014      Andrei Junio Marques Silva          Sistemas de Informação
+202421190032      Arthur Mendes Couto                 Sistemas de Informação
+202321190006      Caio Ferreira Almeida               Sistemas de Informação
+202321190038      CALIL MACEDO BRANDÃO OLIVEIRA       Sistemas de Informação
+202421190023      CARLOS DANIEL OLIVEIRA SILVA        Sistemas de Informação
+202421190029      CLAUDIO AUGUSTO MARQUES MIRANDA     Sistemas de Informação
+202521190017      Davi Antunes Ferreira Santos        Sistemas de Informação
+202521190004      DAVI DIAS RIBEIRO                   Sistemas de Informação
+202511190017      Davi Fernandes Ribeiro              Sistemas de Informação
+202311190015      David Macedo Lima                   Sistemas de Informação
+202521190021      Débora de Jesus Lima                Sistemas de Informação
+202421190044      Dhones Lacerda Rocha                Sistemas de Informação
+202411190035      DIMITRI ALVES ANDRADE FREITAS       Sistemas de Informação
+202411190013      Eduardo de Carvalho Reis            Sistemas de Informação
+202411190004      EDUARDO MIRANDA BERLINK SANTOS      Sistemas de Informação
+202311190042      Elis Vieira Weiss                   Sistemas de Informação
+202511190004      EMANUEL FONSECA NOGUEIRA            Sistemas de Informação
+202521190001      Emily Novaes Freire                 Sistemas de Informação
+202321190003      Érica Meire Prates Ferreira         Sistemas de Informação
+202321190016      Erick Moraes Barros                 Sistemas de Informação
+202511190044      Fábio Alves dos Santos              Sistemas de Informação
+202511190027      FELIPE GABRIEL RIBEIRO DE SOUZA     Sistemas de Informação
+202521190022      FELIPE JUAN DIAS GONCALVES          Sistemas de Informação
+202521190016      FELLIPE ROCHA DOURADO               Sistemas de Informação
+202521190007      FERNANDA OLIVEIRA CAMPOS            Sistemas de Informação
+202421190039      Filipe Alves Sousa Julio            Sistemas de Informação
+202411190010      Filipe Freitas Santos               Sistemas de Informação
+202321190039      Franck Allyson da Silva Rocha       Sistemas de Informação
+202521190040      Gabriel Gomes Barreto               Sistemas de Informação
+202411190016      Gabryelle Beatriz Duarte Moraes     Sistemas de Informação
+202311190036      Geison de Oliveira Lemos Ferreira   Sistemas de Informação
+202511190012      GLAUBER MEIRA BARROS                Sistemas de Informação
+202411190014      GRAZIELLY DE SOUSA BARROS           Sistemas de Informação
+202521190012      GUILHERME MORAES SULZ BARRETO       Sistemas de Informação
+202521190043      GUILHERME PEREIRA BACELAR           Sistemas de Informação
+202311190007      Heder Moreira David                 Sistemas de Informação
+202411190021      Helen Santos Rocha                  Sistemas de Informação
+202521190003      HELOISA CARVALHO PAZ ALVES          Sistemas de Informação
+202521190018      HENRIQUE BARBOSA FERRAO             Sistemas de Informação
+202521190019      Hiago Do Prado Oliveira             Sistemas de Informação
+202311190028      Igor de Eça Almeida                 Sistemas de Informação
+202511190047      Indaia Cerqueira Dutra              Sistemas de Informação
+202521190020      ISABELLA ARGOLO DE SÁ               Sistemas de Informação
+202521190031      JOAO FILIPE DE ANDRADE ANDRADE      Sistemas de Informação
+202411190031      JOAO GABRIEL OLIVEIRA MAGALHAES     Sistemas de Informação
+202511190022      JOAO GABRIEL SANTOS PEREIRA         Sistemas de Informação
+202321190008      João Lucas da Silva Correia         Sistemas de Informação
+202411190009      João Lucas Fonseca Chagas           Sistemas de Informação
+202321190033      João Manoel Oliveira da Silva       Sistemas de Informação
+202521190027      JOAO PEDRO CAMPOS ROCHA             Sistemas de Informação
+202521190014      JOAO PEDRO SANTANA NUNES            Sistemas de Informação
+                                                                                       Página 3 de 3
+
+
+
+
+Matrícula de Alunos Regulares
+Semestre 2026.1
+
+Matrícula         Nome                                        Curso
+202521190015      JOAO VITOR DE SOUZA GUIMARAES               Sistemas de Informação
+202321190023      João Vitor Sigliani Azevêdo                 Sistemas de Informação
+202311190021      João Vittor de Amorim Souza                 Sistemas de Informação
+202511190033      JUAN GUSTAVO DA SILVA LOURENCO              Sistemas de Informação
+202411190034      KAIQUE SILVA SOUSA                          Sistemas de Informação
+202411190027      Kauê Santos Fernandes                       Sistemas de Informação
+202321190005      Láiza Kevelly Pereira Nolasco da Silva      Sistemas de Informação
+202521190029      LEANDRO HENRIQUE DE OLIVEIRA LACERDA        Sistemas de Informação
+202521190038      LEONARDO VITOR DE JESUS SANTOS LACERDA      Sistemas de Informação
+202421190017      Lorena Pereira Oliveira                     Sistemas de Informação
+202511190009      LUIS FILIPE MOREIRA NOVAIS                  Sistemas de Informação
+202311190020      Luiz Carlos Pereira Caetité                 Sistemas de Informação
+202511190026      MARIA EDUARDA DE OLIVEIRA FERREIRA SANTOS   Sistemas de Informação
+202411190002      MARIA EDUARDA SANTOS CAMPOS                 Sistemas de Informação
+202521190028      MARIA JULIA COIMBRA ARAUJO                  Sistemas de Informação
+202411190022      Mary Nicole de Sousa Mendes                 Sistemas de Informação
+202521190033      Mateus Alves Brito Dos Santos               Sistemas de Informação
+202521190008      Mateus Oliveira de Araujo                   Sistemas de Informação
+202521190039      Mateus Rodrigues França de Almeida          Sistemas de Informação
+202421190042      MATHEUS PEREIRA RODRIGUES                   Sistemas de Informação
+202511190008      MAYCON SILVA SAMPAIO                        Sistemas de Informação
+202421190050      Nickolas Gabriel Aquino Miranda             Sistemas de Informação
+202521190009      NICOLAS AMARAL VIEIRA SILVA                 Sistemas de Informação
+202521190032      Nícolas Prado de Oliveira                   Sistemas de Informação
+202521190024      NICOLLAS DA SILVA MEIRA UMBURANAS           Sistemas de Informação
+202421190036      OSMIR SANTOS MEIRA                          Sistemas de Informação
+202511190034      OTONIEL NOVAIS DOS SANTOS                   Sistemas de Informação
+202521190025      PAULO VINICIUS DE JESUS SOUZA               Sistemas de Informação
+202421190003      PAULO VITOR DIAS SOARES                     Sistemas de Informação
+202411190005      PEDRO CESAR PADRE LIMA                      Sistemas de Informação
+202511190031      PEDRO GABRIEL LIMA SANTOS                   Sistemas de Informação
+202311190010      Pedro Henrique de Oliveira dos Anjos        Sistemas de Informação
+202521190013      PEDRO HENRIQUE SANTOS PEREIRA               Sistemas de Informação
+202521190030      RAPHAEL VEIGA MIRANDA DE OLIVEIRA           Sistemas de Informação
+202311190022      Rebeca Freitas Almeida                      Sistemas de Informação
+202511190019      RODOLFO SOUZA GONCALVES                     Sistemas de Informação
+202521190010      SAMUEL BERNARDO SILVA SANTOS                Sistemas de Informação
+202521190011      SAMUEL NOVAES VIANA                         Sistemas de Informação
+202511190051      SAMUEL SILVA SANTOS                         Sistemas de Informação
+202511190005      SAMUEL VIANA CANTIDIO                       Sistemas de Informação
+202311190040      Sarah Alves Borges                          Sistemas de Informação
+202421190045      Sávio Neri Pessoa                           Sistemas de Informação
+202421190009      Sérgio Emílio da Cunha Meira Santos         Sistemas de Informação
+202521190041      SIDNEI LEONARDO GOMES DE SOUZA JUNIOR       Sistemas de Informação
+202411190037      Thiago Ferreira Ribeiro                     Sistemas de Informação
+202521190026      Vanderson dos Santos Gomes                  Sistemas de Informação
+202411190007      Vinícius Nunes de Andrade                   Sistemas de Informação
+202521190023      Vitória Costa dos Santos                    Sistemas de Informação
+202311190008      Wendel Dos Santos Coelho                    Sistemas de Informação
+202521190005      Wesley Campos                               Sistemas de Informação
+

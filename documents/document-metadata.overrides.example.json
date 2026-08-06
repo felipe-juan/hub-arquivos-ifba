@@ -1,0 +1,19 @@
+{
+  "schemaVersion": 1,
+  "documents": {
+    "documents/exemplo.pdf": {
+      "publishedAt": "2026-01-01",
+      "effectiveFrom": "2026-01-01",
+      "effectiveUntil": null,
+      "status": "vigente",
+      "supersedes": null,
+      "issuer": "IFBA",
+      "campus": "Vitória da Conquista",
+      "course": "Sistemas de Informação",
+      "documentType": "regulamento",
+      "officialUrl": "https://portal.ifba.edu.br/",
+      "lastReviewedAt": "2026-08-06",
+      "reviewedBy": "Administrador"
+    }
+  }
+}

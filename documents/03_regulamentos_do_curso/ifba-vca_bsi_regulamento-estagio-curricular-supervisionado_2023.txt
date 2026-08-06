@@ -1,0 +1,591 @@
+  BACHARELADO EM SISTEMAS DE INFORMAÇÕES
+
+
+
+
+         REGULAMENTO DE
+ESTÁGIO CURRICULAR SUPERVISIONADO
+
+
+
+
+            Vitória da Conquista, Bahia
+                Dezembro de 2023
+  BACHARELADO EM SISTEMAS DE INFORMAÇÕES
+
+
+
+
+         REGULAMENTO DE
+ESTÁGIO CURRICULAR SUPERVISIONADO
+
+                 Aprovado pelo Colegiado de Curso em reunião
+                 ocorrida no dia 04/12/2023, conforme autos de
+                 processo nº 23281.007726/2023-64
+
+
+
+
+            Vitória da Conquista, Bahia
+                Dezembro de 2023
+                                 BACHARELADO EM SISTEMAS DE INFORMAÇÃO
+          REGULAMENTO DE ESTÁGIO CURRICULAR SUPERVISIONADO
+
+                                                          SUMÁRIO
+
+I.     Dos Objetivos................................................................................................................3
+II.    Da Natureza e das Finalidades.....................................................................................3
+III.   Das Competências........................................................................................................4
+IV.    Dos Locais de Estágio...................................................................................................6
+V.     Do Período de Realização e da Jornada de Trabalho..................................................7
+VI.    Da Caracterização de Experiência (Aproveitamento Profissional)...............................7
+VII. Do Fluxo de Matrícula na Disciplina de Estágio Supervisionado.................................8
+VIII. Da Apresentação dos Relatórios Parciais e Final.........................................................8
+IX.    Das Disposições Finais.................................................................................................9
+Apêndice A Plano de Estágio ou Caracterização de Experiência.....................................10
+Apêndice B Relatório Final de Estágio Curricular..............................................................12
+                       BACHARELADO EM SISTEMAS DE INFORMAÇÃO
+             REGULAMENTO DE ATIVIDADES COMPLEMENTARES
+
+                                   I. DOS OBJETIVOS
+Art 1º O objetivo deste documento é regular o funcionamento do Estágio Curricular
+Supervisionado do Curso de Bacharelado em Sistemas de Informação do Instituto Federal
+de Educação, Ciência e Tecnologia da Bahia, Campus Vitória da Conquista.
+Parágrafo único. Este Regulamento se aplica apenas aos alunos vinculados à matrizes
+curriculares do Curso de Bacharelado em Sistemas de Informação nas quais há previsão
+do cumprimento, em caráter obrigatório, do componente curricular de Estágio
+Supervisionado.
+
+
+                        II. DA NATUREZA E DAS FINALIDADES
+Art 2º O Estágio Curricular Supervisionado tem como objetivo propiciar a
+complementação do ensino e da aprendizagem do bacharelando, devendo ser planejado,
+executado, acompanhado e avaliado em conformidade com os currículos, programas e
+calendários escolares, a fim de constituir-se em instrumento de integração, treinamento
+prático, aperfeiçoamento técnico, científico e cultural e de relacionamento humano.
+Parágrafo único. A duração do estágio é estabelecida no Projeto Pedagógico do Curso
+de Bacharelado em Sistemas de Informação do campus de Vitória da Conquista.
+Art 3º O campo de Estágio Supervisionado abrangerá toda forma organizacional
+legalmente constituída, tais como órgãos públicos, empresas privadas, organizações
+estatais, sociedades civis, órgãos representativos de classe e profissionais liberais de
+nível superior devidamente registrados em seus respectivos conselhos de fiscalização
+profissional, desde que tenham condições de celebrar convênios de estágio com o IFBA,
+conforme Regulamento Geral de Estágio do instituto.
+Art 4º O Estágio Curricular Supervisionado deverá ser cumprido exclusivamente em uma
+das áreas definidas no perfil de egresso estabelecido no Projeto Pedagógico do Curso de
+Bacharelado em Sistemas de Informação, a saber:
+I.     Desenvolvimento de Sistemas de Informação;
+II.    Infraestrutura e Tecnologia da Informação;
+III.   Gestão e Governança de Sistemas de Informação.
+Art 5º Exige-se, para que o bacharelando dê início à disciplina de Estágio Curricular
+Supervisionado, que ele tenha cumprido os seguintes pré-requisitos necessários:
+I.     Tenha integralizado ao menos 60% da carga horária total do curso;
+II.    Tenha o Plano de Estágio assinado pelo Professor Orientador e pelo Professor da
+       Disciplina de Estágio Supervisionado;
+
+
+
+                                                                                       3
+                       BACHARELADO EM SISTEMAS DE INFORMAÇÃO
+             REGULAMENTO DE ATIVIDADES COMPLEMENTARES
+
+III.   Tenha o Termo de Compromisso e Plano de Estágio registrados e aprovados pela
+       Coordenação de Apoio ao Ensino (CAENS);
+IV.    Tenha o pedido de matrícula deferido pela Coordenação de Curso, conforme
+       requisitos apresentados neste manual.
+Parágrafo único. Para fins de aplicação do disposto no Inciso I deste artigo, deverá ser
+desconsiderada carga horária prevista para as atividades complementares e para a
+própria disciplina de Estágio Curricular Supervisionado.
+
+
+                               III. DAS COMPETÊNCIAS
+Art 6º Denomina-se Órgão Responsável pela Atividade de Estágio a Coordenação de
+Apoio ao Ensino (CAENS) do Campus Vitória da Conquista, competindo à ela:
+I.     Efetivar, junto à Coordenação de Registros Escolares (CORES) do campus, a
+       matrícula de alunos na disciplina de Estágio Supervisionado após aprovação de
+       respectivos Planos de Estágio;
+II.    Vincular formalmente cada Professor Orientador de Estágio de acordo com a
+       indicação feita pelo Professor da Disciplina de Estágio Supervisionado;
+III.   Efetuar o lançamento das notas finais de avaliação de estágios junto à CORES;
+IV.    Receber e encaminhar à Coordenação de Curso solicitações de matrícula e de
+       validação de experiência na disciplina de Estágio Supervisionado;
+V.     Divulgar este Regulamento junto aos alunos do Curso de Bacharelado em
+       Sistemas de Informação.
+Art 7º Denomina-se Professor da Disciplina de Estágio Supervisionado o docente do
+Curso de Bacharelado em Sistemas de Informação responsável pela ministração da
+disciplina de Estágio Supervisionado no período letivo corrente, tendo a carga horária das
+horas-aula respectivas à disciplina computada em seu horário, o qual é aprovado
+previamente pelo Colegiado do Curso e pela Comissão de Horários. Compete ao
+Professor da Disciplina de Estágio Supervisionado:
+I.     Orientar o Aluno Estagiário quanto aos procedimentos para a matrícula na
+       disciplina de Estágio Supervisionado;
+II.    Apresentar o documento do Plano de Estágio, bem como orientar sobre o seu
+       devido preenchimento;
+III.   Apresentar os modelos de relatório parcial e final a serem entregues pelo Aluno
+       Estagiário na disciplina de Estágio Supervisionado;
+IV.    Estabelecer as datas de entrega dos relatórios parciais e final a serem entregues
+       pelo Aluno Estagiário ao Professor Orientador de Estágio;
+
+                                                                                         4
+                       BACHARELADO EM SISTEMAS DE INFORMAÇÃO
+             REGULAMENTO DE ATIVIDADES COMPLEMENTARES
+
+V.     Estabelecer a data de entrega do relatório final com nota a ser entregue pelo
+       Professor Orientador ao Professor da Disciplina de Estágio Supervisionado;
+VI.    Convidar professores a anuir ao papel de orientadores e associá-los aos Alunos
+       Estagiários a partir da assinatura do Plano de Estágio.
+Art 8º Denomina-se Professor Orientador de Estágio o docente do Curso de
+Bacharelado em Sistemas de Informação que irá orientar e esclarecer o Aluno Estagiário
+quanto ao seu programa de estágio, colaborando com o seu planejamento e
+assessorando, acompanhando e avaliando o desenvolvimento do Estágio Curricular
+Supervisionado. Compete ao Professor Orientador de Estágio:
+I.     Aprovar o Plano de Estágio apresentado pelo aluno, levando em consideração os
+       objetivos estabelecidos neste Regulamento;
+II.    Proporcionar momentos de reflexão-ação, individuais ou coletivos, sobre as
+       atividades desenvolvidas no Estágio Curricular Supervisionado, estimulando a
+       formação de profissionais reflexivos e autocríticos;
+III.   Indicar ao Aluno Estagiário as fontes de pesquisa e de consulta necessárias para o
+       aprimoramento do seu desenvolvimento e para a busca de soluções para as
+       dificuldades encontradas;
+IV.    Orientar o Aluno Estagiário nas atividades de estágio e na elaboração dos
+       relatórios parciais e final de estágio;
+V.     Realizar visitas para supervisionar a prática do Aluno Estagiário na empresa,
+       acompanhando a realização do estágio;
+VI.    Avaliar os relatórios de estágio do Aluno Estagiário orientando, atribuindo nota ao
+       relatório final e encaminhando-a ao Professor da Disciplina de Estágio
+       Supervisionado.
+Art 9º Denomina-se Supervisor de Estágio o profissional responsável pelo Aluno
+Estagiário na empresa em que se efetivará o Estágio Curricular Supervisionado,
+competindo a ele:
+I.     Orientar o Aluno Estagiário sobre o planejamento, a execução, o acompanhamento
+       e a avaliação das suas atividades dentro da empresa;
+II.    Fomentar um ambiente de harmonia entre o Aluno Estagiário e os profissionais da
+       empresa onde o estágio é realizado;
+III.   Avaliar o Aluno Estagiário, contribuindo para o seu aperfeiçoamento profissional;
+IV.    Enviar, ao fim do período previsto em Termo de Compromisso, os instrumentos de
+       avaliação fornecidos pelo IFBA Campus Vitória da Conquista;
+
+
+
+                                                                                           5
+                        BACHARELADO EM SISTEMAS DE INFORMAÇÃO
+              REGULAMENTO DE ATIVIDADES COMPLEMENTARES
+
+V.      Supervisionar a realização das atividades realizadas pelo Aluno Estagiário,
+        orientando a execução delas de forma segura, ética e responsável dentro do
+        contexto do ambiente operacional da organização e suas interfaces;
+VI.     Acompanhar o Professor Orientador de Estágio durante a visita de supervisão na
+        empresa de estágio, visando fornecer informações sobre o comportamento e
+        procedimentos realizados pelo Aluno Estagiário naquela empresa.
+Art. 10 Denomina-se Aluno Estagiário o aluno do Curso de Bacharelado em Sistemas
+de Informação, regularmente matriculado, que participará das atividades de estágio na
+empresa, consolidando sua formação e articulação entre a teoria e a prática. Compete ao
+Aluno Estagiário:
+I.      Solicitar sua matrícula na disciplina de Estágio Supervisionado, obedecendo aos
+        requisitos apresentados neste Regulamento;
+II.     Obter, previamente, aprovação do Professor Orientador e do Professor da
+        Disciplina de Estágio Supervisionado do documento de seu Plano de Estágio;
+III.    Apresentar o Plano de Estágio ao Supervisor de Estágio na empresa na qual
+        estagiará;
+IV.     Seguir criteriosamente as orientações do Professor Orientador e do Supervisor de
+        Estágio na realização de suas atividades durante o estágio no ambiente
+        organizacional;
+V.      Cumprir a carga horária e as demais exigências determinadas neste Regulamento;
+VI.     Atender e seguir os regulamentos e normas da empresa na qual o estágio é
+        realizado;
+VII.    Ser assíduo e pontual, apresentando-se de forma adequada no ambiente de
+        estágio;
+VIII.   Apresentar os relatórios parciais e final para o cômputo da pontuação necessária à
+        disciplina de Estágio Supervisionado, conforme requisitos estabelecidos neste
+        Regulamento.
+
+
+                              IV. DOS LOCAIS DE ESTÁGIO
+Art. 11 O Estágio Curricular Supervisionado ocorrerá em locais devidamente
+regularizados conforme legislação vigente, sejam eles empresas públicas ou privadas,
+ambientes de trabalho de profissionais liberais, escritórios, etc, ou ainda de forma remota
+ou híbrida. É requerida a assinatura de convênio firmado entre o concedente e o IFBA, de
+acordo com regulamento da CAENS.
+
+
+
+                                                                                          6
+                       BACHARELADO EM SISTEMAS DE INFORMAÇÃO
+              REGULAMENTO DE ATIVIDADES COMPLEMENTARES
+
+Parágrafo único. O Estágio poderá ser realizado no próprio IFBA Campus Vitória da
+Conquista desde que a atividade desenvolvida assegure o alcance dos objetivos previstos
+no Projeto Pedagógico do Curso de Bacharelado em Sistemas de Informação para a
+disciplina de Estágio Supervisionado, existindo previamente projeto cadastrado do
+organismo interno junto à CAENS e à Coordenação de Curso.
+
+
+          V. DO PERÍODO DE REALIZAÇÃO E DA JORNADA DE TRABALHO
+Art. 12 O estágio curricular obedece à Lei Federal nº 11.788, de 25 de setembro de 2008,
+que estabelece:
+I.     A jornada de atividade do estágio será definida de comum acordo entre a
+       instituição de ensino, a parte concedente e o Aluno Estagiário ou seu representante
+       legal, devendo constar no termo de compromisso, ser compatível com as
+       atividades escolares e não ultrapassar 6 (seis) horas diárias e 30 (trinta) horas
+       semanais;
+II.    As atividades de estágio requerem um período mínimo total de 10 semanas para
+       sua realização ao Aluno Estagiário que cumprir 30 horas semanais, fato este que
+       permite a flexibilidade do início e fim das atividades, observado o disposto no inciso
+       anterior;
+III.   A carga horária das atividades de estágio somente será computada após a
+       matrícula na disciplina de Estágio Supervisionado.
+
+
+ VI. DA CARACTERIZAÇÃO DE EXPERIÊNCIA (APROVEITAMENTO PROFISSIONAL)
+Art. 13 O aluno empregado ou com experiência anterior na iniciativa privada ou pública
+poderá aproveitar suas experiências práticas profissionais para dispensar totalmente as
+atividades de estágio, desde que:
+I.     Atue ou tenha atuado em uma das áreas definidas no Art 4º desse Regulamento;
+II.    Sejam suas atividades verificadas e aprovadas pelo Professor Orientador,
+       compreendendo a carga horária mínima exigida para as atividades de estágio;
+III.   As atividades tenham sido realizadas durante o período de vinculação do aluno ao
+       Curso de Bacharelado em Sistemas de Informação.
+§1º A habilitação do aluno caracterizando-o como empregado será constituída pelo
+registro em Carteira de Trabalho e Previdência Social (CTPS) na qual conste claramente
+a função desempenhada relacionada a uma das áreas definidas no Art 4º desse
+Regulamento ou, na ausência deste registro, por outros documentos com caráter legal
+emitidos pela organização descrevendo as atividades realizadas. Isso também se aplica
+ao aluno trabalhador autônomo ou prestador de serviços;
+
+                                                                                            7
+                         BACHARELADO EM SISTEMAS DE INFORMAÇÃO
+               REGULAMENTO DE ATIVIDADES COMPLEMENTARES
+
+§2º O aluno que solicitar a caracterização de experiência fica dispensado da
+apresentação dos relatórios parciais, do preenchimento do cronograma de atividades no
+Plano de Estágio e da assinatura deste pelo Supervisor de Estágio.
+
+
+      VII. DO FLUXO DE MATRÍCULA NA DISCIPLINA DE ESTÁGIO SUPERVISIONADO
+Art. 14 O processo de matrícula na disciplina de Estágio Supervisionado será iniciado por
+meio de solicitação formal do aluno, seguindo um conjunto de requisitos previstos neste
+regulamento. As seguintes etapas serão observadas para a realização da referida
+matrícula:
+I.       Verificar o status de convênio firmado entre a organização concedente e o IFBA
+         junto à CAENS, solicitando a regularização de convênio ou celebração do mesmo
+         junto à referida organização, caso necessário;
+II.      Preencher o documento de Plano de Estágio ou Caracterização de Experiência
+         (Apêndice A deste Regulamento), obtendo anuência expressa através de
+         assinatura do Supervisor de Estágio na empresa (em se tratando de estágio), do
+         Professor da Disciplina de Estágio Supervisionado e do Professor Orientador no
+         referido documento;
+III.     Solicitar formalmente através do protocolo institucional matrícula na disciplina de
+         Estágio Supervisionado, anexando o documento de Plano de Estágio ou
+         Caracterização de Experiência preenchido e assinado;
+IV.      Acompanhar junto ao Professor da Disciplina de Estágio Supervisionado
+         encaminhamentos do processo referentes ao deferimento/indeferimento da
+         solicitação de matrícula.
+
+
+             VIII. DA APRESENTAÇÃO DOS RELATÓRIOS PARCIAIS E FINAL
+Art. 15 O Aluno Estagiário deverá apresentar ao Professor Orientador versões parciais de
+seu relatório para acompanhamento e orientação na execução de suas atividades junto à
+organização concedente, obedecendo calendário informado pelo Professor da Disciplina
+de Estágio Supervisionado. Ao final da disciplina, uma versão final do relatório deverá ser
+apresentada ao referido Professor Orientador.
+§1º Deverão ser apresentadas ao Professor Orientador duas versões parciais do relatório
+de estágio, conforme datas previamente estabelecidas.
+§2º O Professor Orientador retornará para o Aluno Estagiário correções realizadas sobre
+cada relatório, que deverão ser prontamente recebidas e realizadas em tempo hábil.
+§3º Os relatórios parciais e final ao Professor Orientador deverão ser apresentados ao
+Professor da Disciplina de Estágio Supervisionado.
+
+                                                                                           8
+                       BACHARELADO EM SISTEMAS DE INFORMAÇÃO
+              REGULAMENTO DE ATIVIDADES COMPLEMENTARES
+
+§4º Será atribuída nota apenas à versão final do relatório.
+Art. 16 O processo avaliativo da disciplina de Estágio Supervisionado observará o
+seguinte fluxo:
+I.     Entrega, pelo Aluno Estagiário, do 1º relatório parcial ao Professor Orientador para
+       avaliação e devolução com indicação, se necessário, de correções;
+II.    Entrega, pelo Aluno Estagiário, do 2º relatório parcial ao Professor Orientador para
+       avaliação e devolução com indicação, se necessário, de correções;
+III.   Entrega, pelo Aluno Estagiário, do relatório final ao Professor Orientador para
+       avaliação e devolução com indicação, se necessário, de correções;
+IV.    Formulário de Avaliação de Supervisão da empresa devidamente preenchido à
+       CAENS (conforme modelo definido por aquela coordenação);
+V.     Formulário de Autoavaliação devidamente preenchido à CAENS (conforme modelo
+       definido por aquela coordenação);
+VI.    Entrega, pelo Aluno Estagiário, dos relatórios parciais e final ao Professor da
+       Disciplina de Estágio Supervisionado.
+VII.   Encaminhamento, pelo Professor da Disciplina de Estágio Supervisionado, dos
+       relatórios finais e das notas de avaliação dos Professores Orientadores dos alunos
+       regularmente matriculados à CAENS para arquivamento e encaminhamento, por
+       esta, de solicitação de lançamento de notas finais à CORES.
+
+
+                             IX. DAS DISPOSIÇÕES FINAIS
+Art. 17 Os casos omissos a este Regulamento serão dirimidos no âmbito do Colegiado do
+Curso de Bacharelado em Sistemas de Informação.
+
+
+
+
+                                                                                          9
+                         BACHARELADO EM SISTEMAS DE INFORMAÇÃO
+               REGULAMENTO DE ATIVIDADES COMPLEMENTARES
+                             APÊNDICE A
+         PLANO DE ESTÁGIO OU CARACTERIZAÇÃO DE EXPERIÊNCIA
+                                           MODALIDADE
+(   ) Estágio
+(   ) Caracterização de Experiência
+                     DADOS DO(A) ALUNO(A) ESTAGIÁRIO(A) OU PROFISSIONAL
+Nome:
+Matrícula:
+Endereço:
+Cidade:
+Estado:
+CEP:
+Telefones de Contato:
+E-mail:
+Início do Estágio ou Experiência:
+Término de Estágio ou Experiência:
+                                         DADOS DA EMPRESA
+Nome:
+Razão Social:
+CNPJ:
+Endereço:
+Cidade:
+Estado:
+CEP:
+Supervisor de Estágio ou Experiência na Empresa:
+Cargo ou Função (Supervisor):
+Departamento ou Setor (Supervisor):
+Formação Profissional (Supervisor):
+Telefones de Contato:
+E-mail:
+                      DESCRIÇÃO DAS ATIVIDADES DE ESTÁGIO/EXPERIÊNCIA
+Área(s) de Conhecimento das Atividades de Estágio ou Experiência:
+( ) Desenvolvimento de Sistemas
+( ) Infraestrutura de Tecnologia da Informação
+( ) Gestão de Tecnologia da Informação
+Descrição das Atividades na Empresa:
+
+Descrição de Setor de Atuação do(a) Estagiário(a) ou Profissional:
+
+Setores da Empresa com os quais Estagiário(a) ou Profissional se relacionará ou se relacionou:
+
+Atividades a serem ou que foram desenvolvidas:
+
+Instrumentos e Equipamentos a serem ou que foram utilizados pelo(a) Estagiário ou Profissional:
+
+Relações Interpessoais Profissionais e Técnicas de Sistemas de Informação a serem ou que foram
+desenvolvidas:
+
+
+
+                                                                                                  10
+                     BACHARELADO EM SISTEMAS DE INFORMAÇÃO
+            REGULAMENTO DE ATIVIDADES COMPLEMENTARES
+                           APÊNDICE A
+       PLANO DE ESTÁGIO OU CARACTERIZAÇÃO DE EXPERIÊNCIA
+
+                            CRONOGRAMA DE ATIVIDADES
+                                                  CARGA HO-
+ATIVIDADE                            LOCAL                              PERÍODO
+                                                    RÁRIA
+
+
+
+
+Datas de Entrega de Relatórios Parciais (Apenas para Estágio)
+Data de Visita à Empresa (Apenas para Estágio)
+Data de Entrega de Relatório Final
+                      RESULTADOS ESPERADOS (APENAS PARA ESTÁGIO)
+
+                                   LOCAL E DATA
+
+                                   ASSINATURAS
+
+
+
+    _________________________________         _________________________________
+                 Aluno(a)                       Supervisor(a) de Estágio na Empresa
+
+
+
+    _________________________________         _________________________________
+          Professor(a) Orientador(a)                 Professor(a) de Estágio
+
+
+
+
+                                                                                      11
+             BACHARELADO EM SISTEMAS DE INFORMAÇÃO
+      REGULAMENTO DE ATIVIDADES COMPLEMENTARES
+                       APÊNDICE B
+         RELATÓRIO FINAL DE ESTÁGIO CURRICULAR
+INSTITUTO FEDERAL DE EDUCAÇÃO, CIÊNCIA E TECNOLOGIA DA BAHIA
+                   Campus Vitória da Conquista
+
+
+
+
+    RELATÓRIO FINAL DE ESTÁGIO CURRICULAR
+
+
+
+
+                    Vitória da Conquista, Bahia
+                                Ano
+
+                                                               12
+             BACHARELADO EM SISTEMAS DE INFORMAÇÃO
+      REGULAMENTO DE ATIVIDADES COMPLEMENTARES
+                       APÊNDICE B
+         RELATÓRIO FINAL DE ESTÁGIO CURRICULAR
+INSTITUTO FEDERAL DE EDUCAÇÃO, CIÊNCIA E TECNOLOGIA DA BAHIA
+                   Campus Vitória da Conquista
+
+
+
+
+    RELATÓRIO FINAL DE ESTÁGIO CURRICULAR
+
+
+                         Relatório Final de Estágio Curricular de (nome do
+                         aluno), aluno(a) do Curso de Bacharelado em
+                         Sistemas de Informação do Campus de Vitória da
+                         Conquista do Instituto Federal de Educação, Ciência
+                         e Tecnologia da Bahia, desenvolvido sob orientação
+                         do Prof(ª). (nome do professor/professora), no
+                         período de (dia de início) de (mês de início) de (ano
+                         de início a (dia de término) de (mês de término) de
+                         (ano de término), com duração de (número) horas,
+                         no(a) (nome da empresa) sob a supervisão de
+                         (nome do supervisor).
+
+
+
+
+                    Vitória da Conquista, Bahia
+                                Ano
+
+                                                                            13
+                                  BACHARELADO EM SISTEMAS DE INFORMAÇÃO
+                    REGULAMENTO DE ATIVIDADES COMPLEMENTARES
+                                        APÊNDICE B
+                          RELATÓRIO FINAL DE ESTÁGIO CURRICULAR
+                                                          SUMÁRIO
+Lista de Siglas e Abreviaturas...............................................................................................X
+1. Introdução........................................................................................................................X
+2. Ambiente de Estágio........................................................................................................X
+3. Fundamentação Teórica...................................................................................................X
+4. Materiais Utilizados..........................................................................................................X
+5. Metodologia......................................................................................................................X
+6. Atividades Desenvolvidas................................................................................................X
+7. Considerações Finais.......................................................................................................X
+8. Referências Bibliográficas................................................................................................X
+Apêndices..............................................................................................................................X
+
+
+
+
+                                                                                                                                    14
+               BACHARELADO EM SISTEMAS DE INFORMAÇÃO
+        REGULAMENTO DE ATIVIDADES COMPLEMENTARES
+                        APÊNDICE B
+          RELATÓRIO FINAL DE ESTÁGIO CURRICULAR
+              LISTA DE ABREVIATURAS E SIGLAS
+
+SIGLA    SIGNIFICADO
+
+EDS      Exemplo de Sigla
+
+
+
+
+                                                       15
+                       BACHARELADO EM SISTEMAS DE INFORMAÇÃO
+             REGULAMENTO DE ATIVIDADES COMPLEMENTARES
+                               APÊNDICE B
+                 RELATÓRIO FINAL DE ESTÁGIO CURRICULAR
+                                   1. INTRODUÇÃO
+Nesta seção, caberá ao Aluno Estagiário descrever expectativas em relação ao estágio.
+Além disso, também deverão ser incluídas informações sobre forma de seleção ou
+processo seletivo do qual Aluno Estagiário participou para ter acesso à oportunidade de
+estágio e agente de integração envolvido (Instituto Euvaldo Lodi, por exemplo).
+
+
+                            2. AMBIENTE DE ESTÁGIO
+Nesta seção, caberá ao Aluno Estagiário descrever o local de estágio (departamento ou
+setor específico da empresa e/ou a própria empresa ou ambiente organizacional em si).
+Ao fazê-lo, deverá ser incluído organograma.
+
+
+                         3. FUNDAMENTAÇÃO TEÓRICA
+Nesta seção, caberá ao Aluno Estagiário referenciar e descrever fundamentos que
+apoiaram o estágio, inclusive associando-os com as disciplinas cursadas). Também
+deverá conter breve pesquisa sobre as teorias que embasam as atividades executadas no
+estágio (lembrando que tais atividades estão definidas no PLANO DE ESTÁGIO). Por fim,
+o Aluno Estagiário deverá se atentar em referenciar autores e obras bibliográficas
+relacionados à área na qual atuou no estágio realizado.
+
+
+                            4. MATERIAIS UTILIZADOS
+Nesta seção, caberá ao Aluno Estagiário citar elementos de hardware e software e outros
+materiais utilizados durante o estágio. Citação deverão ser acompanhadas de descrição
+de formas de utilização ou ilustrações, fotografias e imagens, por exemplo.
+
+
+                                  5. METODOLOGIA
+
+
+
+
+                                                                                     16
+                          BACHARELADO EM SISTEMAS DE INFORMAÇÃO
+              REGULAMENTO DE ATIVIDADES COMPLEMENTARES
+                                 APÊNDICE B
+                   RELATÓRIO FINAL DE ESTÁGIO CURRICULAR
+Nesta seção, caberá ao Aluno Estagiário descrever metodologia de trabalho desenvolvida
+de forma científica classificando-o. Neste sentido, recomenda-se consulta de títulos de
+metodologia científica.
+
+
+                           6. ATIVIDADES DESENVOLVIDAS
+Nesta seção, caberá ao Aluno Estagiário citar e detalhar atividades desenvolvidas, pela
+inclusão de ilustrações e descrição de ações executadas. Também deverão ser descritos
+problemas encontrados, soluções adotadas e dificuldades em relação ao estágio em si.
+
+
+                             7. CONSIDERAÇÕES FINAIS
+Nesta seção, caberá ao Aluno Estagiário descrever considerações finais, incluindo, entre
+outros aspectos:
+•   Competências e habilidades assimiladas ao longo do estágio;
+•   Disciplinas do Curso de Bacharelado em Sistemas de Informação que se mostraram
+    úteis para a realização do estágio;
+•   Importância do estágio para sua vida profissional;
+•   Sugestões que possam acarretar melhorias para o departamento, setor ou área da
+    organização na qual realizaram-se as atividades de estágio (aqui cabe novamente
+    lembrar que tais atividades estão definidas no PLANO DE ESTÁGIO).
+
+
+                          8. REFERÊNCIAS BIBLIOGRÁFICAS
+Nesta seção, caberá ao Aluno Estagiário descrever referências de títulos e demais obras
+citadas ao longo das seções anteriores. Ao fazê-lo, deverão ser consideradas normas em
+vigor publicadas pela Associação Brasileira de Normas Técnicas (ABNT).
+
+
+
+
+                                                                                       17
+                      BACHARELADO EM SISTEMAS DE INFORMAÇÃO
+             REGULAMENTO DE ATIVIDADES COMPLEMENTARES
+                               APÊNDICE B
+                 RELATÓRIO FINAL DE ESTÁGIO CURRICULAR
+                                    APÊNDICES
+Nesta seção, caberá ao Aluno Estagiário incluir imagens, formulários e outros elementos
+não referenciados ao longo das seções anteriores que se julguem necessárias.
+
+
+
+
+                                                                                     18
+

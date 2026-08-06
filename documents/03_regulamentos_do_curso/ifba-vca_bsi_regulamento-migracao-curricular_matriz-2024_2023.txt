@@ -1,0 +1,158 @@
+                        BACHARELADO EM SISTEMAS DE INFORMAÇÃO
+         REGULAMENTO DE MIGRAÇÃO PARA MATRIZ CURRICULAR DE NOVO PROJETO
+         PEDAGÓGICO DE CURSO EM VIGOR A PARTIR DO 1º SEMESTRE LETIVO DE 2024
+                                Aprovação pelo Colegiado de Curso em 04/12/2023
+
+A partir do 1º semestre letivo de 2024, será facultada, ao(à)s discentes ingressantes em semestres letivos
+anteriores, a migração para a matriz curricular definida por novo Projeto Pedagógico de Curso em vigor a
+partir daquele semestre letivo independentemente do percentual de integralização de carga horária
+prevista em matriz curricular à qual tais discentes se encontram até então vinculado(a)s. Para
+operacionalização da migração, deverão ser observados os seguintes aspectos:
+•   Ao migrar para a nova matriz curricular, o(a) discente terá que cumpri-la integralmente mesmo que isso
+    implique em aumento de carga horária e duração do curso em relação à matriz curricular anterior a(à)
+    qual estava vinculado(a);
+•   Caberá à Coordenação de Curso encaminhar à Coordenação de Registros Escolares a relação de
+    discentes a serem migrado(a)s para a nova matriz curricular, para fins de lançamento junto ao SUAP;
+•   A migração curricular poderá ocorrer de duas formas:
+    I.    Opcional, pelo preenchimento de requerimento de migração que consta no Anexo A deste
+          Regulamento, a ser protocolado pelo(a) discente e no qual ele(a) expressa sua intenção livre e
+          consentida de migrar para a nova matriz curricular;
+    II. Obrigatória, quando o(a) discente for reprovado(a) ou possuir sua matrícula cancelada em
+          componente curricular previsto em matriz curricular em extinção/extinta para o qual não há
+          componente curricular equivalente na matriz curricular do novo Projeto Pedagógico de Curso ou
+          ainda, a critério do Colegiado de Curso, em caso de deferimento de reintegração de curso com
+          fundamento no §3º do Art. 90 das Normas Acadêmicas de Ensino Superior em vigor.
+•   Entende-se como matriz matriz curricular em extinção/extinta aquela definida por Projeto Pedagógico de
+    Curso em vigor até o 2º semestre letivo de 2023;
+•   O quadro de equivalência entre a matriz curricular em extinção/extinta e a nova matriz curricular consta
+    no Anexo B deste Regulamento;
+•   O quadro de equivalência deve ser devidamente cadastrado no SUAP;
+•   A nova matriz curricular estará disponível no endereço https://portal.ifba.edu.br/conquista/capas-e-
+    paginas-menu-cursos/sistemas-de-informacao;
+•   Os casos omissos neste Regulamento serão tratados em primeira instância pelo Colegiado de Curso e,
+    após isso, se necessário, pela Direção Acadêmica.
+
+
+
+
+                                                                                                           1
+                    BACHARELADO EM SISTEMAS DE INFORMAÇÃO
+    REGULAMENTO DE MIGRAÇÃO PARA MATRIZ CURRICULAR DE NOVO PROJETO
+    PEDAGÓGICO DE CURSO EM VIGOR A PARTIR DO 1º SEMESTRE LETIVO DE 2024
+                                         ANEXO A
+                                 REQUERIMENTO DE MIGRAÇÃO
+
+                                  IDENTIFICAÇÃO DO(A) DISCENTE
+
+Nome Completo:
+
+Matrícula:                              Nº Documento Identidade:
+
+E-mail:                                                                 Telefone:
+
+
+                                         TERMO DE CIÊNCIA
+
+Eu, acima identificado(a), regularmente matriculado(a) no Curso de Bacharelado em Sistemas de
+Informação, do Instituto Federal de Educação, Ciência e Tecnologia da Bahia, Campus Vitória da
+Conquista, ao solicitar em caráter irrevogável e irretratável, por meio deste, migração para nova matriz
+curricular, declaro plena ciência do REGULAMENTO DE MIGRAÇÃO PARA MATRIZ CURRICULAR DE
+NOVO PROJETO PEDAGÓGICO DE CURSO EM VIGOR A PARTIR DO 1º SEMESTRE LETIVO DE
+2024, que veio a ser aprovado pelo Colegiado de Curso em 04/12/2023.
+
+                                    LOCAL, DATA E ASSINATURA
+
+
+
+
+  Vitória da Conquista, _____/_____/__________      __________________________________________
+                                                                 Assinatura do(a) Discente
+
+
+
+
+                                                                                                       2
+                   BACHARELADO EM SISTEMAS DE INFORMAÇÃO
+   REGULAMENTO DE MIGRAÇÃO PARA MATRIZ CURRICULAR DE NOVO PROJETO
+   PEDAGÓGICO DE CURSO EM VIGOR A PARTIR DO 1º SEMESTRE LETIVO DE 2024
+                                        ANEXO B
+                                 QUADRO DE EQUIVALÊNCIA
+      COMPONENTE(S) CURRICULAR(ES)                     COMPONENTE(S) CURRICULAR(ES)
+                    ANTERIOR(ES)                                  EQUIVALENTE(S)
+                  Administração (60h)                            Administração (60h)
+          Algoritmos e Programação (60h)                  Algoritmos e Programação (60h)
+      Análise e Modelagem de Sistemas (60h)            Análise e Modelagem de Sistemas (60h)
+   Auditoria de Sistemas (60h) e Segurança da
+                                                             Auditoria de Sistemas (60h)
+                   Informação (60h)
+               Banco de Dados I (60h)                           Banco de Dados I (60h)
+               Banco de Dados II (60h)                         Banco de Dados II (60h)
+ Cabeamento Estruturado e Redes Ópticas (60h)      Cabeamento Estruturado e Redes Ópticas (60h)
+ Cálculo Diferencial Aplicado à Computação (60h)   Cálculo Diferencial Aplicado à Computação (60h)
+              Comércio Eletrônico (60h)                       Comércio Eletrônico (60h)
+         Complexidade de Algoritmos (60h)                 Complexidade de Algoritmos (60h)
+       Computador, Ética e Sociedade (60h)              Computador, Ética e Sociedade (60h)
+  Desenvolvimento Distribuído na Internet (60h)     Desenvolvimento Distribuído na Internet (60h)
+     Direito e Legislação em Informática (60h)                 Direito Cibernético (60h)
+                    Economia (60h)                                 Economia (60h)
+              Empreendedorismo (60h)                           Empreendedorismo (60h)
+            Engenharia de Software (60h)                    Engenharia de Software (60h)
+              Estruturas de Dados (60h)                       Estruturas de Dados (60h)
+      Frameworks de Desenvolvimento (60h)              Frameworks de Desenvolvimento (60h)
+ Fundamentos de Sistemas de Informação (60h)       Fundamentos de Sistemas de Informação (60h)
+              Gestão de Projetos (60h)                         Gestão de Projetos (60h)
+          Gestão e Governança de TI (60h)                 Gestão e Governança de TI (60h)
+Gestão Estratégica de Informação (60h) e Gestão
+                                                        Gestão Estratégica Aplicada a TI (60h)
+             Estratégica Executiva (60h)
+        Inglês Aplicado à Computação (60h)                 Inglês Aplicado à Computação (60h)
+Instalação e Configuração de Servidores de Rede    Instalação e Configuração de Servidores de Rede
+                         (60h)                                               (60h)
+              Inteligência Artificial (60h)                       Inteligência Artificial (60h)
+            Inteligência do Negócio (60h)                       Inteligência do Negócio (60h)
+          Interface Homem-Máquina (60h)                       Interface Homem-Máquina (60h)
+    Introdução a Ciência da Computação (60h)           Introdução a Ciência da Computação (60h)
+Leitura e Produção de Gêneros Acadêmicos (60h)     Leitura e Produção de Gêneros Acadêmicos (60h)
+          Língua Brasileira de Sinais (60h)                  Língua Brasileira de Sinais (60h)
+         Linguagem de Programação I (60h)                   Linguagem de Programação I (60h)
+        Linguagem de Programação II (60h)                  Linguagem de Programação II (60h)
+             Matemática Discreta I (60h)                         Matemática Discreta I (60h)
+             Matemática Discreta II (60h)                        Matemática Discreta II (60h)
+
+
+                                                                                                     3
+                  BACHARELADO EM SISTEMAS DE INFORMAÇÃO
+   REGULAMENTO DE MIGRAÇÃO PARA MATRIZ CURRICULAR DE NOVO PROJETO
+   PEDAGÓGICO DE CURSO EM VIGOR A PARTIR DO 1º SEMESTRE LETIVO DE 2024
+                                       ANEXO B
+                                QUADRO DE EQUIVALÊNCIA
+     COMPONENTE(S) CURRICULAR(ES)                       COMPONENTE(S) CURRICULAR(ES)
+                ANTERIOR(ES)                                       EQUIVALENTE(S)
+              Meio Ambiente (60h)                                 Meio Ambiente (60h)
+    Metodologia da Pesquisa Científica (60h)           Metodologia da Pesquisa Científica (60h)
+Organização e Arquitetura de Computadores (60h)   Organização e Arquitetura de Computadores (60h)
+    Organização, Sistemas e Métodos (60h)              Organização, Sistemas e Métodos (60h)
+        Probabilidade e Estatística (60h)                  Probabilidade e Estatística (60h)
+Processo de Desenvolvimento de Software (60h)      Processo de Desenvolvimento de Software (60h)
+  Programação para Dispositivos Móveis (60h)         Programação para Dispositivos Móveis (60h)
+                                                   Programação Web I (60h) e Programação Web II
+            Programação Web (60h)
+                                                                        (60h)
+    Projeto e Administração de Redes (60h)             Projeto e Administração de Redes (60h)
+          Qualidade de Software (60h)                        Qualidade de Software (60h)
+         Redes de Computadores (60h)                        Redes de Computadores (60h)
+Redes Sem Fio e Sistemas de Comunicação Móvel     Redes Sem Fio e Sistemas de Comunicação Móvel
+                     (60h)                                              (60h)
+        Segurança da Informação (60h)                      Segurança da Informação (60h)
+  Segurança de Redes de Computadores (60h)          Segurança de Redes de Computadores (60h)
+       Sistemas de Apoio a Decisão (60h)                  Sistemas de Apoio a Decisão (60h)
+           Sistemas Distribuídos (60h)                        Sistemas Distribuídos (60h)
+          Sistemas Operacionais (60h)                        Sistemas Operacionais (60h)
+    Trabalho de Conclusão de Curso I (60h)             Trabalho de Conclusão de Curso I (30h)
+    Trabalho de Conclusão de Curso II (60h)            Trabalho de Conclusão de Curso II (30h)
+
+
+
+
+                                                                                                    4
+

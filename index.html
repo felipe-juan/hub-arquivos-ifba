@@ -25,107 +25,17 @@
       } catch (_) {}
     })();
   </script>
-  <link rel="stylesheet" href="assets/build/styles.888976578efc.css" />
+  <link rel="stylesheet" href="assets/build/styles.775d981aa66b.css" />
   <link rel="stylesheet" href="assets/build/enhancements.254c728974fb.css" />
   <link rel="stylesheet" href="assets/build/sidebar-quick-search.ea5032187b1e.css" />
   <link rel="stylesheet" href="assets/build/design-system.afe11aadcef7.css" />
+  <link rel="stylesheet" href="sidebar/sidebar.css" />
 </head>
 <body>
   <a class="skip-link" href="#mainContent">Pular para o conteúdo</a>
   <div class="ambient" aria-hidden="true"></div>
 
-  <header class="mobile-topbar">
-    <a class="brand" href="#inicio" aria-label="Ir para o início">
-      <span class="brand-mark"><img src="assets/logo-pixel.png" alt="Logo HUB SI" /></span>
-      <span class="brand-text"><strong>HUB SI</strong><small>IFBA · VCA</small></span>
-    </a>
-    <div class="mobile-header-actions">
-      <button id="mobileThemeButton" class="mobile-icon-button" type="button" aria-controls="mobileThemeMenu" aria-expanded="false" aria-label="Escolher tema" title="Tema automático">◐</button>
-      <div id="mobileThemeMenu" class="mobile-theme-menu" hidden aria-label="Escolher tema">
-        <button type="button" data-theme-choice="auto" aria-label="Tema automático" title="Tema automático"><span aria-hidden="true">◐</span></button>
-        <button type="button" data-theme-choice="dark" aria-label="Modo escuro" title="Modo escuro"><span aria-hidden="true">☾</span></button>
-        <button type="button" data-theme-choice="light" aria-label="Modo claro" title="Modo claro"><span aria-hidden="true">☀</span></button>
-      </div>
-      <button id="mobileSidebarToggle" class="mobile-icon-button" type="button" aria-controls="siteSidebar" aria-expanded="false" aria-label="Abrir menu">☰</button>
-    </div>
-  </header>
-
-  <aside id="siteSidebar" class="site-sidebar" aria-label="Menu principal">
-    <div class="sidebar-head">
-      <a class="brand sidebar-brand" href="#inicio" aria-label="Ir para o início">
-        <span class="brand-mark"><img src="assets/logo-pixel.png" alt="Logo HUB SI" /></span>
-        <span class="brand-text sidebar-label"><strong>HUB SI</strong><small>IFBA · Vitória da Conquista</small></span>
-      </a>
-      <button id="sidebarCollapseButton" class="sidebar-collapse" type="button" aria-label="Ocultar menu" title="Ocultar menu">‹</button>
-      <button id="mobileSidebarClose" class="sidebar-mobile-close" type="button" aria-label="Fechar menu">×</button>
-    </div>
-
-    <nav class="sidebar-nav" aria-label="Navegação principal">
-      <form id="sidebarSearchForm" class="sidebar-search-form" role="search" aria-label="Buscar no HUB">
-        <button id="sidebarSearchButton" class="sidebar-search-submit" type="submit" aria-label="Buscar" title="Buscar"><span aria-hidden="true">🔍</span></button>
-        <input id="sidebarSearchInput" type="search" autocomplete="off" placeholder="Buscar no HUB..." aria-label="Buscar documentos, apps, links e contatos" />
-      </form>
-      <a href="#inicio"><span class="nav-icon" aria-hidden="true">🏠</span><span class="sidebar-label">Início</span></a>
-      <a href="#acervo"><span class="nav-icon" aria-hidden="true">🗂️</span><span class="sidebar-label">Acervo</span></a>
-
-      <div class="sidebar-menu-group" data-sidebar-group="apps">
-        <div class="sidebar-menu-row">
-          <a id="appsSectionLink" class="sidebar-menu-link" href="#apps">
-            <span class="nav-icon" aria-hidden="true">🧰</span><span class="sidebar-label">Apps</span>
-          </a>
-          <button id="appsMenuToggle" class="sidebar-submenu-toggle" type="button" aria-expanded="true" aria-controls="appsMenu" aria-label="Mostrar ou ocultar apps">
-            <span class="sidebar-menu-chevron" aria-hidden="true">⌄</span>
-          </button>
-        </div>
-        <div id="appsMenu" class="sidebar-submenu sidebar-apps-list" aria-label="Aplicativos"></div>
-      </div>
-
-      <div class="sidebar-menu-group sidebar-links-group" data-sidebar-group="links">
-        <div class="sidebar-menu-row">
-          <a id="linksSectionLink" class="sidebar-menu-link" href="#links">
-            <span class="nav-icon" aria-hidden="true">🔗</span><span class="sidebar-label">Links</span>
-          </a>
-          <button id="linksMenuToggle" class="sidebar-submenu-toggle" type="button" aria-expanded="false" aria-controls="sidebarLinksList" aria-label="Mostrar ou ocultar links">
-            <span class="sidebar-menu-chevron" aria-hidden="true">⌄</span>
-          </button>
-        </div>
-        <div id="sidebarLinksList" class="sidebar-submenu sidebar-links-list" aria-label="Links externos"></div>
-      </div>
-
-      <div class="sidebar-menu-group" data-sidebar-group="favorites">
-        <button id="favoritesMenuToggle" class="sidebar-menu-toggle" type="button" aria-expanded="true" aria-controls="sidebarFavoritesList">
-          <span class="nav-icon" aria-hidden="true">⭐</span><span class="sidebar-label">Favoritos</span><span id="sidebarFavoritesCount" class="sidebar-count" aria-label="0 favoritos">0</span><span class="sidebar-menu-chevron" aria-hidden="true">⌄</span>
-        </button>
-        <div id="sidebarFavoritesList" class="sidebar-submenu sidebar-favorites-list" aria-live="polite"></div>
-      </div>
-    </nav>
-
-    <div class="sidebar-bottom">
-      <div class="sidebar-utility-actions">
-        <button id="reportIssueButton" class="reset-preferences" type="button" aria-label="Relatar problema" title="Relatar problema"><span class="reset-preferences-icon" aria-hidden="true">🐞</span><span class="preference-label">Reportar</span></button>
-        <button id="resetPreferencesButton" class="reset-preferences" type="button" aria-label="Restaurar preferências" title="Restaurar preferências"><span class="reset-preferences-icon" aria-hidden="true">↺</span><span class="preference-label">Redefinir</span></button>
-      </div>
-      <div class="theme-panel">
-        <span class="theme-label">Tema</span>
-        <div class="theme-switch" role="group" aria-label="Tema do site">
-          <button type="button" data-theme-choice="auto" aria-label="Tema automático" title="Tema automático"><span aria-hidden="true">◐</span></button>
-          <button type="button" data-theme-choice="dark" aria-label="Modo escuro" title="Modo escuro"><span aria-hidden="true">☾</span></button>
-          <button type="button" data-theme-choice="light" aria-label="Modo claro" title="Modo claro"><span aria-hidden="true">☀</span></button>
-        </div>
-      </div>
-      <div class="sidebar-external-links" aria-label="Sistemas institucionais">
-        <a class="campus-portal sidebar-external-link" href="https://portal.ifba.edu.br/conquista" target="_blank" rel="noopener" title="Portal do Campus">
-          <span aria-hidden="true">🏫</span><span class="sidebar-label">Portal</span>
-        </a>
-        <a class="campus-portal sidebar-external-link" href="https://suap.ifba.edu.br" target="_blank" rel="noopener" title="SUAP">
-          <span aria-hidden="true">🔐</span><span class="sidebar-label">SUAP</span>
-        </a>
-      </div>
-    </div>
-    <div id="sidebarResizeHandle" class="sidebar-resize-handle" role="separator" aria-orientation="vertical" aria-label="Redimensionar menu lateral" tabindex="0"></div>
-  </aside>
-  <button id="sidebarReopenButton" class="sidebar-reopen" type="button" aria-label="Mostrar menu" title="Mostrar menu">›</button>
-  <div id="sidebarOverlay" class="sidebar-overlay" aria-hidden="true"></div>
+  <div id="hubSidebarMount"></div>
 
   <main id="mainContent" class="page-main" tabindex="-1">
     <span id="inicio" class="page-start-anchor" aria-hidden="true"></span>
@@ -465,13 +375,14 @@
   </div>
 
   <footer class="footer">
-    <span>HUB SI · v0.2.54 · protótipo livre · sempre confira a fonte oficial.</span>
+    <span>HUB SI · v0.2.59 · protótipo livre · sempre confira a fonte oficial.</span>
   </footer>
 
-  <script src="assets/build/data.955b99e3aae2.js"></script>
+  <script src="assets/build/data.e091feef07af.js"></script>
   <script src="assets/build/storage.aade70adc118.js"></script>
-  <script src="assets/build/design-system.63bcb7fec392.js"></script>
+  <script src="assets/build/design-system.a9cdd7bc54a7.js"></script>
   <script src="assets/build/where-data.2815ed20f527.js"></script>
-  <script src="assets/build/app.81dcebd04081.js"></script>
+<script src="assets/build/app.7891c4810919.js"></script>
+  <script src="sidebar/sidebar.js"></script>
 </body>
 </html>

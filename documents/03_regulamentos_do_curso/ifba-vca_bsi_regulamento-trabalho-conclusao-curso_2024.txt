@@ -1,0 +1,813 @@
+ BACHARELADO EM SISTEMAS DE INFORMAÇÕES
+
+
+
+
+       REGULAMENTO DE
+TRABALHO DE CONCLUSÃO DE CURSO
+
+
+
+
+           Vitória da Conquista, Bahia
+                  Agosto de 2024
+ BACHARELADO EM SISTEMAS DE INFORMAÇÕES
+
+
+
+
+       REGULAMENTO DE
+TRABALHO DE CONCLUSÃO DE CURSO
+
+                Homologado pelo Colegiado de Curso em reunião
+                ocorrida no dia 05/08/2024, conforme autos de
+                processo nº 23281.004182/2024-60
+
+
+
+
+           Vitória da Conquista, Bahia
+                  Agosto de 2024
+                                 BACHARELADO EM SISTEMAS DE INFORMAÇÃO
+             REGULAMENTO DE TRABALHO DE CONCLUSÃO DE CURSO
+
+                                                         SUMÁRIO
+
+I.     Das Disposições Iniciais................................................................................................3
+II.    Das Características.......................................................................................................3
+III.   Das Atribuições dos Docentes dos Componentes Curriculares de TCC I e TCC II.....6
+IV.    Da Orientação...............................................................................................................7
+V.     Da Apresentação Final..................................................................................................8
+VI.    Da Avaliação Final.........................................................................................................9
+VII. Das Instituições Referenciadas...................................................................................11
+VIII. Das Pesquisas Envolvendo Seres Humanos..............................................................11
+IX.    Das Disposições Finais...............................................................................................11
+Anexo I       Termo de Aceite de Orientação..........................................................................13
+Anexo II      Súmula de Projeto de Pesquisa.........................................................................14
+Anexo III Ata de Defesa de Trabalho de Conclusão de Curso..........................................17
+Anexo IV Barema de Avaliação..........................................................................................18
+Anexo V Termo de Autorização de Realização da Pesquisa............................................20
+                       BACHARELADO EM SISTEMAS DE INFORMAÇÃO
+         REGULAMENTO DE TRABALHO DE CONCLUSÃO DE CURSO
+
+                            I. DAS DISPOSIÇÕES INICIAIS
+Art 1º O presente Regulamento baseia-se na obrigatoriedade do cumprimento dos
+componentes curriculares de Trabalho de Conclusão de Curso I (TCC I) e Trabalho de
+Conclusão de Curso II (TCC II), que compõem a matriz curricular prevista no Projeto
+Pedagógico do Curso de Bacharelado em Sistemas de Informação.
+Art 2º O Trabalho De Conclusão De Curso (Tcc) Tem Como Objetivos:
+I.     Orientar os discentes para que a escolha do tema e a metodologia do seu
+       desenvolvimento sejam caracterizadas pelo enfrentamento da realidade do
+       Bacharel em Sistemas de Informação e pela preocupação de contribuir para o seu
+       aperfeiçoamento.
+II.    Capacitar o discente na elaboração e exposição de trabalhos e pesquisas
+       sistematizadas através de metodologia adequada.
+III.   Analisar, explicar e avaliar o objeto de estudo, apresentando a sua visão sobre o
+       problema de pesquisa e, eventualmente, apresentando novas propostas.
+IV.    Revisar e aplicar conceitos e conhecimentos básicos ministrados no decorrer do
+       Curso de Bacharelado em Sistemas de Informação.
+
+
+                              II. DAS CARACTERÍSTICAS
+Art 3º O TCC caracteriza-se por ser um exercício de reflexão, de modo a garantir uma
+produção investigativa e devendo sua elaboração implicar em rigor metodológico e
+científico, organização e contribuição para a ciência e sistematização e aprofundamento
+do tema abordado sem ultrapassar, contudo, o nível de graduação.
+Art 4º O TCC é uma exigência curricular na formação acadêmica e profissional do
+Bacharel em Sistemas de Informação e consiste no desenvolvimento de trabalho escrito,
+com devida apresentação oral pública sobre temas dentre as linhas de pesquisa
+propostas pelo curso, e seguirá as seguintes etapas:
+I.     No componente curricular de TCC I deverá ser desenvolvido um projeto de
+       pesquisa contendo o referencial teórico completo para o desenvolvimento de uma
+       pesquisa na área de sistemas de informação;
+II.    No Componente Curricular de TCC II deverá ser redigida uma monografia ou
+       artigo como relatório da pesquisa, trabalho ou projeto desenvolvido.
+Art 5º O TCC deverá ser realizada de forma individual e deverá ter caráter prático somado
+ao trabalho teórico.
+Art 6º Os componentes curriculares de TCC I e TCC II deverão ser organizados sob
+condução dos docentes responsáveis por eles e de modo a obedecer às seguintes fases:
+
+
+                                                                                        3
+                      BACHARELADO EM SISTEMAS DE INFORMAÇÃO
+         REGULAMENTO DE TRABALHO DE CONCLUSÃO DE CURSO
+
+I.     Apresentação, aos discentes aptos a serem matriculados, de Termo de Aceite de
+       Orientação para submissão aos docentes orientadores;
+II.    Apresentação deste Regulamento aos discentes matriculados;
+III.   Apresentação de cronograma de entregas das etapas do trabalho escrito e das
+       apresentações orais;
+IV.    Orientação coletiva e, eventualmente, individual, sobre procedimentos para
+       elaboração e apresentação do TCC.
+Art 7º O desenvolvimento das atividades por cada discente no componente curricular de
+TCC I obedecerá às seguintes etapas:
+I.     Pedido formal de matrícula no componente curricular através da entrega de Termo
+       de Aceite de Orientação e súmula de projeto de pesquisa contendo 3 (três) a 5
+       (cinco) páginas, conforme, respectivamente, Anexos I e II deste Regulamento;
+II.    Encaminhamento, pela Coordenação de Curso, de Termo de Aceite de Orientação
+       e de súmula de projeto de pesquisa, ao Colegiado do Curso para fins de avaliação
+       e, após isso, emissão de parecer de homologação em momento oportuno;
+III.   Desenvolvimento processual do projeto de pesquisa, se homologado pelo
+       Colegiado de Curso e mediante orientação do docente orientador do discente
+       considerando-se diretrizes estabelecidas neste Regulamento e pelo docente do
+       componente curricular;
+IV.    Apresentação oral e pública, pelo discente, de status de seu projeto de pesquisa
+       em seminário organizado pelo docente do componente curricular e de modo a
+       incluir artefatos construídos, a serem examinados por banca examinadora que
+       indicará suas contribuições para o bom andamento do trabalho;
+V.     Julgamento dos resultados do projeto de pesquisa e avaliação das correções
+       propostas pela banca examinadora, cabendo ao docente do componente curricular
+       proceder com a análise do documento final gerado, de modo a resultar, desta
+       etapa, em nota final para o discente naquele componente curricular.
+§1º O Termo de Aceite de Orientação deverá estar assinado pelos respectivos discente e
+docente orientador e deverá conter resumo com 250 a 500 palavras no qual conste
+definição e justificação de tema escolhido, bem como objetivos do trabalho.
+§2º O desenvolvimento do projeto de pesquisa deverá incluir levantamento exaustivo de
+todo o referencial necessário para a sua execução, bem como demais elementos
+metodológicos previstos no Anexo III deste Regulamento.
+Art 8º O desenvolvimento das atividades por cada discente no componente curricular de
+TCC II obedecerá às seguintes etapas:
+
+
+
+                                                                                      4
+                      BACHARELADO EM SISTEMAS DE INFORMAÇÃO
+         REGULAMENTO DE TRABALHO DE CONCLUSÃO DE CURSO
+
+I.     Pedido formal de matrícula no componente curricular através da entrega de Termo
+       de Aceite de Orientação (Anexo I deste Regulamento) e projeto de pesquisa
+       elaborado de acordo com requisitos estabelecidos no componente curricular de
+       TCC I;
+II.    De forma análoga ao disposto no Inciso II do Art. 4º, encaminhamento, pela
+       Coordenação de Curso, de Termo de Aceite de Orientação e de projeto de
+       pesquisa, ao Colegiado de Curso, para fins de avaliação alterando-se somente as
+       exigências de complexidade e, após isso, emissão de parecer de homologação em
+       momento oportuno;
+III.   Elaboração de TCC baseado em projeto de pesquisa homologado pelo Colegiado
+       de Curso e de modo que sua apresentação, para fins de organização e
+       padronização, seja restrita ao formato de monografia ou artigo;
+IV.    Apresentação oral do TCC desenvolvido para fins de arguição por banca
+       examinadora, que se incumbirá da avaliação geral daquele trabalho e da emissão
+       da nota final do discente no componente curricular.
+§1º Só será permitido ao discente matricular-se no componente curricular de TCC II se o
+mesmo tiver sido aprovado no componente curricular de TCC I.
+§2º O Termo de Aceite de Orientação deverá estar assinado pelos respectivos discente e
+docente orientador e deverá conter resumo com 250 a 500 palavras no qual conste
+definição e justificação de tema escolhido, bem como objetivos, metodologia a ser
+empregada em sua execução e resultados esperados.
+§3º Se o TCC for apresentado no formato de monografia, deverão ser observadas as
+normas técnicas NBR 14724:2011 (Informação e documentação - Trabalhos acadêmicos -
+Apresentação), NBR 6023:2018 (Informação e documentação - Referências -
+Elaboração), NBR 10520:2023 (Informação e documentação - Citações em documentos -
+Apresentação), NBR 6024:2012 (Informação e documentação - Numeração progressiva
+das seções de um documento escrito - Apresentação), NBR 6028:2021 (Informação e
+documentação - Resumo – Apresentação) e IBGE 1993 (Normas de Apresentação
+Tabular), .
+§4º Se o for apresentado no formato de artigo, este deverá ser baseado em template
+elaborado pela Sociedade Brasileira de Computação (SBC) ou, no caso de submissão do
+mesmo para alguma conferência ou periódico, deverá ser seguido template adotado por
+aquela conferência ou periódico como forma alternativa de apresentação do trabalho.
+§5º Caso ocorra mudança em tema de projeto de pesquisa após homologação, pelo
+Colegiado de Curso, de Termo de Aceite de Orientação e de súmula de projeto de
+pesquisa submetido pelo discente para fins de matrícula no componente curricular de
+TCC I, novo projeto de pesquisa deverá ser submetido ao Colegiado de Curso para
+avaliação, ficando o discente obrigado a realizar eventuais ajustes solicitados naquele
+projeto pelo Colegiado de Curso para continuidade de seu TCC.
+
+                                                                                      5
+                        BACHARELADO EM SISTEMAS DE INFORMAÇÃO
+          REGULAMENTO DE TRABALHO DE CONCLUSÃO DE CURSO
+
+§6º No caso de mudança somente de docente orientador em relação àquele que se
+prontificou a orientar o discente no componente curricular de TCC I, o projeto de pesquisa
+deverá ser submetido à aprovação pelo novo docente orientador e pelo Colegiado de
+Curso mediante Termo de Aceite de Orientação devidamente atualizado e assinado.
+Art 9º Caberá ao Colegiado de Curso fixar, em cada semestre letivo, prazo limite para
+entrega, pelos discentes aptos a serem matriculados nos componentes curriculares de
+TCC I e TCC II, de documentos citados, respectivamente, no Inciso I do Art. 4º e no Inciso
+I do Art. 5º deste Regulamento.
+
+
+ III. DAS ATRIBUIÇÕES DOS DOCENTES DOS COMPONENTES CURRICULARES DE
+                              TCC I E TCC II
+Art 10º São atribuições dos docentes vinculados aos componentes curriculares de TCC I
+e TCC II:
+I.      Reapresentar as linhas de pesquisa do curso aos discentes aptos a se
+        matricularem nos componentes curriculares;
+II.     Articular-se com a Coordenação de Curso e o Colegiado de Curso para garantir a
+        compatibilização de diretrizes, organização e desenvolvimento dos TCC’s;
+III.    Orientar os discentes em relação aos procedimentos de desenvolvimento dos
+        TCC’s;
+IV.     Convocar, sempre que necessário, os orientadores para discutir questões relativas
+        à organização, planejamento, desenvolvimento e avaliação dos TCC’s em
+        andamento;
+V.      Administrar, quando for o caso, trâmites de substituição de orientadores,
+        encaminhando-os à Coordenação de Curso para homologação pelo Colegiado de
+        Curso;
+VI.     A cada semestre letivo, coordenar o processo de constituição das bancas
+        examinadoras e definir o cronograma de apresentação dos projetos de pesquisa
+        em seminário previsto no componente curricular de TCC I com a devida
+        homologação da Coordenação de Curso;
+VII.    Acompanhar a composição das bancas examinadoras e o cronograma de
+        realização das defesas dos TCC’s do discentes matriculados no componente
+        curricular de TCC II;
+VIII.   Organizar o arquivamento dos documentos referentes aos TCC’s;
+IX.     Encaminhar, à Coordenação de Curso, no início de cada semestre letivo, a relação
+        de discentes matriculados nos componentes curriculares distribuídos por
+        orientador;
+
+                                                                                         6
+                        BACHARELADO EM SISTEMAS DE INFORMAÇÃO
+          REGULAMENTO DE TRABALHO DE CONCLUSÃO DE CURSO
+
+X.      Organizar, acompanhar e viabilizar a avaliação dos TCC’s;
+XI.     Encaminhar, à Coordenação de Curso, ao final de cada semestre letivo, os
+        artefatos produzidos pelos discentes matriculados nos componentes curriculares,
+        bem como relatório de notas.
+
+
+                                   IV. DA ORIENTAÇÃO
+Art. 10 A orientação do TCC, entendida como processo de acompanhamento didático-
+pedagógico, será de responsabilidade de docente vinculado ao curso mediante
+concordância registrada por Termo de Aceite de Orientação (Anexo I deste Regulamento).
+Art. 11 A orientação do TCC pelo orientador poderá ser realizada através de:
+I.      Plantão informativo e de orientação;
+II.     Reuniões periódicas semanais de orientação.
+Art. 12 Compete ao docente orientador:
+
+I.      Analisar, avaliar e assinar o Termo de Aceite de Orientação após preenchido pelo
+        discente;
+II.     Orientar, acompanhar e avaliar o desenvolvimento do TCC em todas as suas fases;
+III.    Estabelecer o plano de trabalho para desenvolvimento do TCC em conjunto com o
+        discente orientando;
+IV.     Informar o discente orientando sobre as normas, procedimentos e critérios de
+        avaliação de seu TCC;
+V.      Coordenar a composição da banca examinadora do TCC;
+VI.     Agendar e divulgar defesa do TCC após articulação com a banca examinadora
+        designada;
+VII.    Avaliar o TCC e, quando aprovado por ele para apresentação, encaminhá-lo para a
+        banca examinadora;
+VIII.   Presidir a banca examinadora do TCC;
+IX.     Providenciar ata de defesa do TCC (Anexo IV deste Regulamento) e encaminhá-la
+        ao docente do componente curricular de TCC II para fins de registro formal das
+        notas e arquivamento.
+Art. 13 Compete ao discente orientando:
+
+
+
+
+                                                                                       7
+                       BACHARELADO EM SISTEMAS DE INFORMAÇÃO
+         REGULAMENTO DE TRABALHO DE CONCLUSÃO DE CURSO
+
+I.     Definir a temática de seu TCC de acordo com áreas de conhecimento e linhas de
+       pesquisa propostas pelo curso e entregar o Termo de Aceite de Orientação
+       devidamente assinado em prazo estipulado pelo Colegiado de Curso;
+II.    Informar-se sobre as normas e regulamentos aplicáveis ao seu TCC;
+III.   Cumprir as normas e regulamentos aplicáveis ao seu TCC;
+IV.    Cumprir o plano de trabalho estabelecido em conjunto com o seu orientador;
+V.     Verificar e cumprir os horários de orientação;
+VI.    Elaborar seu trabalho final (monografia ou artigo) utilizando-se de normas de
+       escrita elencadas nos §3º e §4º do Art. 8º deste Regulamento.
+Art. 14 O vínculo de orientação entre docente e orientado só será consumado mediante
+entrega, ao docente do componente curricular de TCC I ou TCC II, de Termo de Aceite de
+Orientação (Anexo I deste Regulamento) devidamente assinado por ambos.
+
+
+                               V. DA APRESENTAÇÃO FINAL
+Art. 15 A avaliação do TCC no componente curricular de TCC II compreenderá:
+I.     Acompanhamento contínuo pelo docente orientador;
+II.    Avaliação final por banca examinadora.
+§1º Ao docente orientador compete acompanhar e avaliar o desenvolvimento do TCC
+acadêmico, encaminhando-o à banca examinadora em caso de aprovação para
+apresentação.
+§2º No caso de não aprovação do TCC pelo docente orientador, o discente não poderá
+apresentar o TCC e deverá matricular-se novamente no componente curricular de TCC II
+em semestre letivo posterior.
+Art. 16 A apresentação final do TCC consistirá em 2 (duas) etapas:
+I.     Apresentação escrita;
+II.    Apresentação oral.
+Art. 17 A apresentação escrita do TCC se dará sob a forma de monografia ou artigo, de
+modo a obedecer normas de escrita elencadas nos §3º e §4º do Art. 8º deste
+Regulamento e à metodologia que rege a produção escrita do conhecimento científico
+para estes tipos de produção.
+§1º Os trabalhos escritos deverão ser entregues de acordo com cronograma a ser
+divulgado pelo docente do componente curricular de TCC II.
+
+
+                                                                                     8
+                      BACHARELADO EM SISTEMAS DE INFORMAÇÃO
+         REGULAMENTO DE TRABALHO DE CONCLUSÃO DE CURSO
+
+§2º Cada trabalho escrito deverá ser entregue aos membros de banca examinadora com
+antecedência mínima de dez dias corridos em relação à data programada para a
+defesa do TCC.
+Art. 18 A apresentação oral do TCC, perante banca examinadora, para fins de arguição,
+será pública e em período estabelecido pelo Colegiado de Curso (de acordo com
+calendário acadêmico da instituição), a ser divulgado pela Coordenação de Curso.
+§1º A banca examinadora deverá ser composta pelo docente orientador do TCC e outros
+2 (dois) docentes, sendo um destes, obrigatoriamente, membro do corpo docente interno
+da instituição.
+§2º Caso um dos membros da banca examinadora seja externo, este deverá ser
+obrigatoriamente um docente de nível superior, seja de instituição pública ou privada.
+§3º O discente terá 40 (quarenta) minutos para a exposição oral de seu TCC.
+§4º Cada membro da banca examinadora terá 20 (vinte minutos) para arguição e
+comentários.
+§5º Não haverá segunda chamada para a apresentação oral de TCC pelo discente, salvo
+impedimento decorrente de força maior, devidamente comprovado junto à Coordenação
+de Curso e ao docente orientador.
+Art. 19 A instituição disponibilizará para as apresentações orais sala munida de quadro
+branco, pincel, projetor multimídia e microcomputador, cabendo aos discentes a
+responsabilidade pela solicitação e acompanhamento da instalação e configuração de
+quaisquer softwares necessários para a realização das apresentações.
+Parágrafo único. Os discentes também são responsáveis pela verificação, com
+antecedência, das condições dos locais e dos requisitos da suas apresentações.
+Art. 20 O discente, com aval de seu orientador, poderá requerer apresentação de seu
+TCC em período posterior àquele estabelecido pelo Colegiado de Curso, cabendo à
+Coordenação de Curso decidir pelo deferimento ou não da solicitação com base nas
+razões apresentadas.
+
+
+                              VI. DA AVALIAÇÃO FINAL
+Art. 21 Para fins de avaliação final do TCC por parte de banca examinadora, serão
+consideradas ambas as apresentações oral e escrita do trabalho no âmbito do
+componente curricular de TCC II e sua relevância.
+Art. 22 No tocante à apresentação escrita do TCC, a banca examinadora avaliará
+quesitos relacionados à forma, estilo, introdução, revisão de literatura, metodologia,
+resultados e discussão.
+
+
+                                                                                      9
+                      BACHARELADO EM SISTEMAS DE INFORMAÇÃO
+         REGULAMENTO DE TRABALHO DE CONCLUSÃO DE CURSO
+
+Parágrafo único. A apresentação escrita será avaliada individualmente por cada membro
+da banca examinadora, cabendo a cada um deles atribuir nota de 0 (zero) a (10) dez
+pontos e seguindo-se a isso cômputo de média aritmética entre as três notas para se
+chegar à Nota do Trabalho Escrito (NTE).
+Art. 23 Na apresentação oral do TCC, serão avaliados aspectos relacionados ao domínio,
+segurança, postura, qualidade dos recursos audiovisuais utilizados (sequência, nitidez e
+organização), adequação do tempo e expressão oral.
+Parágrafo único. A apresentação oral será avaliada igualmente de forma individual por
+cada membro da banca examinadora, cabendo a cada um deles atribuir nota de 0 (zero) a
+(10) dez pontos e seguindo-se a isso cômputo de média aritmética entre as três notas
+para se chegar à Nota da Apresentação Oral (NAO).
+Art. 24 Em relação à relevância do TCC, serão observados, dentre outros aspectos,
+eventual contribuição do mesmo para o desenvolvimento de trabalhos futuros ou potencial
+para se tornar uma peça acadêmica publicável ou produto ou serviço útil para a sociedade
+ou empresas, chegando-se assim à Nota de Relevância (NR).
+Art. 25 A Nota Final (NF) do TCC será resultante da aplicação da fórmula NF = (NTE ×
+0,4) + (NAO × 0,2) + (NR × 0,4).
+§1º Será aprovado no componente curricular de TCC II o discente que obtiver NF igual ou
+superior a 7 (sete) pontos.
+§2º A banca examinadora terá o prazo limite de 24 (vinte e quatro) horas para divulgar o
+resultado da avaliação.
+§3º A avaliação da banca examinadora é soberana, não estando sujeita à revisão das
+notas atribuídas e à aplicação, em caso do discente não alcançar NF igual ou superior a 7
+(sete) pontos, de exame final.
+Art. 26 Os discentes serão previamente informados dos critérios de avaliação oral e
+escrita do TCC, mediante apresentação do barema constante no Anexo V deste
+Regulamento.
+Art. 27 Em caso de constatação, pela banca examinadora, de plágio ou violação de
+direito autoral, a apresentação oral do TCC será recusada e o discente estará
+sumariamente reprovado no componente curricular de TCC II, estando sujeito às sanções
+previstas em lei.
+Art. 28 Após a divulgação do resultado da avaliação da banca examinadora, o discente
+terá 15 (quinze) dias para entregar versão definitiva do TCC que contemple todas as
+correções e sugestões solicitadas por aquela banca.
+Parágrafo único. Poderá ser concedido ao discente extensão de prazo para entrega das
+correções, desde que acordado com seu docente orientador e a Coordenação de Curso.
+
+
+                                                                                       10
+                       BACHARELADO EM SISTEMAS DE INFORMAÇÃO
+         REGULAMENTO DE TRABALHO DE CONCLUSÃO DE CURSO
+
+                      VII. DAS INSTITUIÇÕES REFERENCIADAS
+Art. 29 Em sendo o caso, será garantido ao discente o direito de omitir ou criar nomes
+fictícios para as instituições referenciadas na elaboração do TCC, de modo a resguardar
+suas identidades na eventualidade do trabalho vir a ser publicado virtualmente ou em livro
+ou mesmo usado como referência bibliográfica por outro autor.
+§1º Nestes casos, o docente orientador deverá ter conhecimento dos nomes reais das
+instituições referenciadas na elaboração do trabalho, para fins de autorização da omissão
+ou substituição deles por nomes fictícios e comprometimento com a guarda de sigilo
+sobre a identidade de tais instituições.
+§2º Se houver interesse na divulgação dos nomes das instituições associadas ao TCC,
+deverá haver autorização expressa das mesmas, pela apresentação de termo
+devidamente assinado conforme modelo constante no Anexo VI deste Regulamento.
+
+
+               VIII. DAS PESQUISAS ENVOLVENDO SERES HUMANOS
+Art. 30 Caso o TCC inclua pesquisas que envolvam seres humanos, estas deverão ser
+previamente apreciadas pelo Comitê de Ética em Pesquisa (CEP) da instituição, tratando-
+se este de órgão colegiado multidisciplinar, transdisciplinar e independente que, nos
+termos da Resolução nº 466/2012/CNS, de 12/12/2012, destina-se a defender os
+interesses dos sujeitos da pesquisa em sua integridade e dignidade e a contribuir no
+desenvolvimento da pesquisa dentro de padrões éticos.
+Art. 31 Caberá ao CEP avaliar os elementos metodológicos e os objetivos das pesquisas,
+autorizando-as, negando-as ou propondo modificações nos pedidos de propostas de
+pesquisas protocolados.
+§1º Os pedidos de apreciação de propostas de pesquisa com seres humanos deverão ser
+exclusivamente realizados através da Plataforma Brasil, estando ela disponível no
+endereço https://plataformabrasil.saude.gov.br.
+Art. 32 O uso, no TCC, de dados coletados junto a seres humanos só será aceito se
+acompanhados de respectivos Termos de Consentimento Livre e Esclarecido (TCLE).
+Art. 33 Serão reprovados sumariamente TCC’s que apresentarem pesquisas que
+envolvam seres humanos e que não possuam aprovação do CEP.
+
+
+                             IX. DAS DISPOSIÇÕES FINAIS
+Art. 34 As eventuais omissões do presente Regulamento serão dirimidas pelo Colegiado
+do Curso de Bacharelado em Sistemas de Informação.
+
+
+
+                                                                                        11
+                     BACHARELADO EM SISTEMAS DE INFORMAÇÃO
+        REGULAMENTO DE TRABALHO DE CONCLUSÃO DE CURSO
+
+Art. 35 Em virtude do deliberado em reunião do Colegiado do Curso de Bacharelado em
+Sistemas de Informação ocorrida no dia 04/09/2023, o presente Regulamento tem efeitos
+retroativos desde aquele dia.
+
+
+
+
+                                                                                   12
+                          BACHARELADO EM SISTEMAS DE INFORMAÇÃO
+          REGULAMENTO DE TRABALHO DE CONCLUSÃO DE CURSO
+                                       ANEXO I
+                            TERMO DE ACEITE DE ORIENTAÇÃO
+                                        DADOS DE DISCENTE
+NOME:
+E-MAIL:
+TELEFONE:
+                      PROPOSTA DE TRABALHO DE CONCLUSÃO DE CURSO
+TÍTULO PROVISÓRIO:
+RESUMO (250 a 500 palavras):
+                                      DECLARAÇÃO DE ACEITE
+Eu, abaixo identificado(a), aceito orientar e acompanhar o processo de pesquisa e elaboração de trabalho
+de conclusão de curso acima descrito, bem como sua apresentação junto à bancas examinadoras de
+acordo com cronogramas definidos pelo(a)s docentes dos componentes curriculares de Trabalho de
+Conclusão de Curso I e II, a serem devidamente aprovados pelo Colegiado de Curso e estando ciente,
+portanto, de minhas obrigações decorrentes do presente termo.
+                                     DADOS DE ORIENTADOR(A)
+NOME:
+E-MAIL:
+                                            ASSINATURAS
+
+
+                 Vitória da Conquista, Bahia, ____ de _______________ de ________
+
+
+
+
+  _______________________________________             _______________________________________
+                  Discente                                       Docente Orientador(a)
+
+
+
+
+                                                                                                     13
+        BACHARELADO EM SISTEMAS DE INFORMAÇÃO
+REGULAMENTO DE TRABALHO DE CONCLUSÃO DE CURSO
+                    ANEXO II
+         SÚMULA DE PROJETO DE PESQUISA
+
+
+          NOME COMPLETO DO(A) DISCENTE
+
+
+
+
+   Título (Projeto): Subtítulo (Projeto)
+
+
+
+                        Pré-projeto de pesquisa desenvolvido na linha
+                        de pesquisa de Desenvolvimento de
+                        Sistemas, Gestão e Governança de
+                        Tecnologia da Informação ou Infraestrutura
+                        de      Ambientes    Computacionais,      sob
+                        orientação do(a) Prof(ª). Nome Completo
+                        do(a) Orientador(a) e coorientação do(a)
+                        Prof(ª).     Nome       Completo       do(a)
+                        Coorientador(a), como requisito de inscrição
+                        no componente curricular de Trabalho de
+                        Conclusão de Curso I, do Curso de
+                        Bacharelado em Sistemas de Informação, do
+                        Instituto Federal de Educação, Ciência e
+                        Tecnologia da Bahia, Campus Vitória da
+                        Conquista
+
+
+
+
+               Vitória da Conquista, Ano
+
+
+
+                                                                   14
+                       BACHARELADO EM SISTEMAS DE INFORMAÇÃO
+         REGULAMENTO DE TRABALHO DE CONCLUSÃO DE CURSO
+                                   ANEXO II
+                        SÚMULA DE PROJETO DE PESQUISA
+1. Introdução
+Em forma de texto corrido, esta seção deverá apresentar contextualização, referencial
+teórico e justificativa. Considerando esta e seções seguintes, devem ser redigidas de 3
+(três) a 5 (cinco) páginas de elementos textuais (elementos pré-textuais e seção de
+referências não devem ser contabilizados).
+Os trabalhos só podem ser desenvolvidos se estiverem de acordo com as áreas de
+conhecimento previstas no Projeto Pedagógico de Curso, a saber:
+•   Desenvolvimento de sistemas;
+•   Gestão e governança de Tecnologia da Informação;
+•   Infraestrutura de ambientes computacionais.
+Essas áreas caracterizam as linhas de pesquisa do curso. Deverá ser apresentado
+referencial teórico mínimo para o desenvolvimento do trabalho, citando ao menos 10 (dez)
+autores diferentes sobre o tema escolhido. As citações devem ser adequadas à subárea
+de conhecimento do curso escolhida. Todas as citações devem estar de acordo com a
+norma técnica NBR 10520:2023.
+
+
+2. Objetivos
+Nesta seção, devem ser apresentados o objetivo geral e os objetivos específicos do
+trabalho. Consideram-se suficientes 3 (três) objetivos específicos. Menos que essa
+quantidade, considera-se que o trabalho é de escopo insuficiente; acima disso, o tamanho
+do escopo pode ser considerado excessivamente grande para um trabalho de graduação.
+
+
+3. Procedimentos Metodológicos
+Nesta seção, devem ser apresentadas as metodologias científicas adequadas a serem
+utilizadas durante o trabalho, além de técnicas próprias da área de Sistemas de
+Informação. Por se tratar de importante parte do trabalho, a metodologia deverá ser bem
+delineada e, se possível, exaustiva, de modo a não permitir lacunas metodológicas.
+
+
+
+                                                                                      15
+                       BACHARELADO EM SISTEMAS DE INFORMAÇÃO
+         REGULAMENTO DE TRABALHO DE CONCLUSÃO DE CURSO
+                                   ANEXO II
+                        SÚMULA DE PROJETO DE PESQUISA
+4. Cronograma
+Nesta seção, poderá ser proposto pelo(a) discente um cronograma para a condução do
+trabalho no componente curricular de Trabalho de Conclusão de Curso I. Em virtude da
+esperada relativa falta de experiência do(a) discente na escrita científica neste estágio,
+esta seção é facultativa.
+
+
+5. Referências
+Nesta seção, deverá ser observada a norma técnica NBR 6023:2018. Alguns exemplos:
+
+BROOKSHEAR, J. Glenn. Ciência da Computação: Uma Visão Abrangente. 11. ed.
+Porto Alegre: Bookman, 2013.
+
+COELHO, Gustavo Brasileiro. Análise e Simulação de Transformação de Chuva em
+Vazão com Suporte de Sistema de Informações Geográficas (SIG). 2003. Dissertação
+(Doutorado em Ciências Geodésicas e Tecnologias da Geoinformação) - Universidade
+Federal de Pernambuco, Recife, 2003.
+
+STAIR, Ralph M. et al. Princípios de Sistemas de Informação. Tradução: Edson
+Furmankiewicz. 4. ed. São Paulo: Cengage Learning, 2021. Título original: Principles of
+Information Systems 14. ed. norte-americana.
+
+
+
+
+                                                                                        16
+                        BACHARELADO EM SISTEMAS DE INFORMAÇÃO
+         REGULAMENTO DE TRABALHO DE CONCLUSÃO DE CURSO
+                                 ANEXO III
+            ATA DE DEFESA DE TRABALHO DE CONCLUSÃO DE CURSO
+
+Às ___h___min do dia ___ de _____________ de ______, banca examinadora composta pelo(a)s
+docentes _____________________________________________ (na condição de orientador(a)),
+_____________________________________________________________ e _______________
+___________________________________________________, todo(a)s pertencentes ao quadro
+permanente de servidores do Instituto Federal de Educação, Ciência e Tecnologia da Bahia,
+Campus Vitória da Conquista, se reuniu em sessão de defesa pública de Trabalho de Conclusão
+de Curso intitulado _______________________________________________________________
+______________________________________________________________________________
+_________________________________________________________________, do(a) discente
+______________________________________________________________, sendo ele requisito
+para a obtenção de Grau de Bacharel em Sistemas de Informação.
+
+Após abertura da sessão pelo(a) orientador(a) e presidente da banca examinadora, Prof(ª).
+________________________________________________________________________, deu-se
+conhecimento ao(à)s presentes sobre teor das Normas Regulamentares de Trabalho de
+Conclusão de Curso e passou-se a palavra ao(à) discente _______________________________
+______________________________________________________________________________,
+para apresentação de seu trabalho. Após isso, seguiu-se arguição pelos membros da banca
+examinadora e respectiva defesa do(a) discente. Na ocasião, algumas correções em texto escrito
+do trabalho foram solicitadas e entregues ao(à) discente, que as acatou de imediato. Logo após,
+sem a presença do(a) discente e do público, banca examinadora se reuniu para julgamento e
+expedição do resultado final. Por unanimidade, o(a) discente foi considerado
+APROVADO(A)/REPROVADO(A) pelos membros da banca examinadora, tendo sido atribuída
+nota _____ (_______________________ pontos) ao seu Trabalho de Conclusão de Curso. Após
+isso, o resultado foi comunicado publicamente ao(à) discente pelo(a) presidente da banca
+examinadora. Foi concedido prazo máximo de 15 (quinze) dias para o(a) discente proceder com
+as correções sugeridas pela banca examinadora e para apresentar o trabalho em sua redação
+definitiva, sob pena de não expedição de diploma de Bacharel em Sistemas de Informação. E,
+para constar, foi lavrada a presente ata, sendo ela assinada pelos membros da banca
+examinadora. Nada mais havendo a tratar, o(a) presidente da banca examinadora deu por
+encerrado o julgamento que tem por conteúdo o teor desta ata, que, após lida e achada conforme,
+foi assinada por todos os membros da banca para fins de produção de seus efeitos legais.
+
+
+
+
+ ________________________        ________________________       ________________________
+  Professor(a) Orientador(a)         Professor(a) Membro            Professor(a) Membro
+
+
+
+
+                                                                                            17
+                        BACHARELADO EM SISTEMAS DE INFORMAÇÃO
+         REGULAMENTO DE TRABALHO DE CONCLUSÃO DE CURSO
+                                      ANEXO IV
+                                 BAREMA DE AVALIAÇÃO
+                                    TRABALHO ESCRITO
+                                                                                     NOTA
+CRITÉRIO        SUBCRITÉRIO                                                        MÁXIMA
+                                                                                (OU CONCEITO)
+               Está de acordo com as normas de Trabalho de Conclusão de
+                                                                                    0,50
+               Curso (TCC)?
+               O resumo é claro? Contempla a justificativa, os objetivos, os
+                                                                                    0,50
+               métodos, os principais resultados e as conclusões?
+Forma e Estilo
+               As referências bibliográficas seguem as normas? Todas as
+                                                                                    0,50
+               citações constam das referências e vice-versa?
+               O texto tem correção, clareza e coerência de linguagem? O
+                                                                                    0,50
+               título é conciso e reflete com precisão o conteúdo?
+               A introdução foi escrita de forma sequencial, encaminhando
+                                                                                    0,50
+Introdução,    logicamente o leitor aos objetivos?
+Objetivos e    A justificativa é bem construída e relevante?                        0,50
+Trabalhos
+               Há definição clara dos objetivos?                                    0,50
+Correlatos
+(Investigação  É feita relação do trabalho com outros na área? A natureza
+do Estado da   dos trabalhos correlatos é condizente com a justificativa e os       0,50
+Arte e/ou      objetivos elencados?
+Revisão da     As obras/trabalhos/citações consultadas e utilizadas para
+Literatura)    embasar os conhecimentos teóricos e práticos são relevantes          0,50
+               e/ou atualizadas?
+               Os passos previstos na metodologia proposta foram
+                                                                                    1,50
+               devidamente obedecidos e descritos?
+               A obtenção dos dados necessários (avaliações, testes,
+               provas de conceito, entrevistas, simulações, etc.) para o
+                                                                                    1,50
+               desenvolvimento do trabalho foram quantitativa e/ou
+Desenvolviment qualitativamente suficientes?
+o do Trabalho
+               A visualização/apresentação/descrição dos dados obtidos
+                                                                                    1,00
+               contribuiu para a clareza do trabalho?
+               Se houve levantamento de dados pessoais, foi solicitado e
+               aprovado pelo Comitê de Ética em Pesquisa da instituição,           Sim/Não
+               bem como apresentadas comprovações em anexo?
+               Na discussão, há relação de forma satisfatória dos resultados
+                                                                                    0,50
+Resultados,    obtidos com trabalhos/produtos correlatos?
+Discussão e    As considerações finais (conclusões) são claras e descrevem
+                                                                                    0,50
+Trabalhos      bem o trabalho realizado e os resultados obtidos?
+Futuros        Foram apontados novos caminhos para a continuidade do
+                                                                                    0,50
+               trabalho?
+
+
+
+
+                                                                                             18
+                          BACHARELADO EM SISTEMAS DE INFORMAÇÃO
+          REGULAMENTO DE TRABALHO DE CONCLUSÃO DE CURSO
+                                         ANEXO IV
+                                    BAREMA DE AVALIAÇÃO
+                             APRESENTAÇÃO ORAL DO TRABALHO
+                                                                                          NOTA
+CRITÉRIO
+                                                                                         MÁXIMA
+Domina o conteúdo do trabalho?                                                             5,00
+Demonstrou com clareza o trabalho desenvolvido? Destacou a sua
+                                                                                           2,00
+relevância?
+Obedeceu ao tempo limite destinado à apresentação?                                         1,00
+Demonstrou ter segurança, postura e expressão oral?                                        1,00
+Utilizou adequadamente os recursos audiovisuais e multimídia?                              1,00
+                               RELEVÂNCIA DO TRABALHO
+                                                                                          NOTA
+CRITÉRIO
+                                                                                         MÁXIMA
+O que foi produzido corresponde ao que se espera de pelo menos um dos
+                                                                                           4,00
+perfis de egresso do curso?
+Houve avanços ou resultados, mesmo que parciais ou incompletos, que
+                                                                                           2,00
+podem contribuir para o desenvolvimento de trabalhos futuros?
+Tem potencial de se tornar uma peça acadêmica publicável? Ou pode se
+                                                                                           2,00
+tornar um produto ou um serviço útil para a sociedade ou empresas?
+Demonstra ser o resultado do conjunto de habilidades teóricas e práticas
+                                                                                           2,00
+obtidas pelo(a) discente durante sua formação?
+
+                                               OBSERVAÇÕES
+•   O trabalho escrito valerá de 0 (zero) a 10 (dez) pontos, sendo ele avaliado individualmente pelos 3
+    (três) membros da banca examinadora de acordo com respectiva seção do barema acima, seguindo-se
+    a isso cálculo de média aritmética entre as três notas aferidas para se chegar à Nota do Trabalho
+    Escrito (NTE);
+•   A apresentação oral do trabalho também valerá de 0 (zero) a 10 (dez) pontos, sendo ela igualmente
+    avaliada de forma individual pelos 3 (três) membros da banca examinadora de acordo com respectiva
+    seção do barema acima, seguindo-se a isso cálculo de média aritmética entre as três notas aferidas
+    para se chegar à Nota da Apresentação Oral (NAE);
+•   A relevância do trabalho valerá de 0 (zero) a 10 (dez) pontos, sendo ela também avaliada de forma
+    individual pelos 3 (três) membros da banca examinadora de acordo com respectiva seção do barema
+    acima, seguindo-se a isso cálculo de média aritmética entre as três notas aferidas para se chegar à
+    Nota de Relevância (NR);
+•   A Nota Final (NF) do trabalho será resultante da aplicação da fórmula NF = (NTE × 0,4) + (NAO × 0,2)
+    + (NR × 0,4);
+•   Será aprovado no componente curricular de Trabalho de Conclusão de Curso II o(a) discente que
+    obtiver Nota Final igual ou superior a 7 (sete) pontos;
+•   Será reprovado sumariamente o trabalho que apresentar pesquisas que envolvam seres humanos e
+    que não possuam aprovação do Comitê de Ética em Pesquisa da instituição.
+
+
+
+
+                                                                                                     19
+                          BACHARELADO EM SISTEMAS DE INFORMAÇÃO
+          REGULAMENTO DE TRABALHO DE CONCLUSÃO DE CURSO
+                                 ANEXO V
+              TERMO DE AUTORIZAÇÃO DE REALIZAÇÃO DA PESQUISA
+                                RESPONSÁVEL PELA AUTORIZAÇÃO
+NOME:
+DOCUMENTO DE IDENTIDADE:                                               CPF:
+INSTITUIÇÃO COPARTICIPANTE:
+CARGO NA INSTITUIÇÃO COPARTICIPANTE:
+                                  PROJETO DE PESQUISA (TÍTULO)
+
+
+                                      OBJETIVO DA PESQUISA
+
+
+                              PESQUISADORES(AS) AUTORIZADO(A)S
+NOME                                      DOC. IDENT.           CPF         VÍNCULO Nº MATRÍCULA
+
+
+
+
+                                 PROCEDIMENTO METODOLÓGICOS
+Exemplo: realização de observação e/ou entrevista e/ou aplicação de questionário
+                                   GRUPO(S) DE PARTICIPANTE(S)
+
+
+                      DECLARAÇÃO DE RESPONSÁVEL PELA AUTORIZAÇÃO
+Eu, acima identificado(a), AUTORIZO a realização de pesquisa em termos igualmente acima qualificados
+considerando que o(a)s pesquisadores(as) indicado(a)s se comprometem a:
+I. Iniciarem a coleta de dados somente após o projeto de pesquisa ser aprovado pelo Comitê de Ética
+     em Pesquisa do Instituto Federal de Educação, Ciência e Tecnologia da Bahia;
+II. Obedecerem às disposições éticas de proteger o(a)s participantes da pesquisa, garantindo-lhes o
+     máximo de benefícios e o mínimo de riscos;
+III. Assegurarem a privacidade das pessoas citadas nos documentos institucionais e/ou contatadas
+     diretamente, de modo a proteger suas imagens, bem como garantirem que não utilizarão as
+     informações coletadas em prejuízo dessas pessoas e/ou da instituição coparticipante, respeitando
+     deste modo as diretrizes éticas da pesquisa envolvendo seres humanos, nos termos estabelecidos na
+     Resolução nº 466/2012/CNS, e obedecendo às disposições legais estabelecidas pelos pelos incisos X
+     e XIV do Art. 5º da Constituição Federal Brasileira e pelo Art. 20 do novo Código Civil Brasileiro
+     instituído pela Lei Federal nº 10.406, de 10/01/2002.
+
+
+
+
+ __________________________, ___/___/______           ________________________________________
+              Localidade e Data                                 Assinatura de Responsável
+                                                      Carimbo com Nome, Cargo e Ato de Indicação do
+                                                                          Cargo
+
+
+
+                                                                                                     20
+                              BACHARELADO EM SISTEMAS DE INFORMAÇÃO
+           REGULAMENTO DE TRABALHO DE CONCLUSÃO DE CURSO
+                                   ANEXO V
+                TERMO DE AUTORIZAÇÃO DE REALIZAÇÃO DA PESQUISA
+
+
+                                                   OBSERVAÇÕES
+•   Todos o(a)s pesquisadores(as)s envolvido(a)s na pesquisa devem ter nome, número de documento de identidade e
+    de CPF, vínculo institucional (discente, docente ou técnico-administrativo) e número de matrícula institucional ou
+    funcional informados em seção para este fim no corpo do termo;
+•   Apenas o (a)responsável pela instituição coparticipante deve apor carimbo e assinatura no termo.
+
+
+
+
+                                                                                                                   21
+

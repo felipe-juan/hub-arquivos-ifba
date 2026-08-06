@@ -1,4 +1,4 @@
-const VERSION = "hub-ifba-v0.2.54";
+const VERSION = "hub-ifba-v0.2.59";
 const STATIC_CACHE = `${VERSION}-static`;
 const METADATA_CACHE = `${VERSION}-metadata`;
 const IMAGE_CACHE = `${VERSION}-images`;
@@ -7,28 +7,57 @@ const RUNTIME_CACHE = `${VERSION}-runtime`;
 const KNOWN_CACHES = [STATIC_CACHE, METADATA_CACHE, IMAGE_CACHE, DOCUMENT_CACHE, RUNTIME_CACHE];
 
 const CORE = [
-  "./", "./index.html", "./offline.html", "./document-viewer.html",
-  "assets/build/styles.888976578efc.css", "assets/build/enhancements.254c728974fb.css", "assets/build/sidebar-quick-search.ea5032187b1e.css", "assets/build/design-system.afe11aadcef7.css",
-  "assets/build/data.955b99e3aae2.js", "assets/build/app.81dcebd04081.js", "assets/build/storage.aade70adc118.js", "assets/build/design-system.63bcb7fec392.js", "assets/build/where-data.2815ed20f527.js",
-  "./assets/logo-pixel.png", "./assets/logo-pixel-64.png", "./assets/apple-touch-icon.png", "./favicon.ico",
-  "apps/build/app-shell.cd41ed34fb82.css", "apps/build/app-shell.1cf8a835c191.js", "./apps/catalog.json",
+  "./",
+  "./index.html",
+  "./offline.html",
+  "./document-viewer.html",
+  "assets/build/styles.775d981aa66b.css",
+  "assets/build/enhancements.254c728974fb.css",
+  "assets/build/sidebar-quick-search.ea5032187b1e.css",
+  "assets/build/design-system.afe11aadcef7.css",
+  "assets/build/data.e091feef07af.js",
+  "assets/build/app.7891c4810919.js",
+  "assets/build/storage.aade70adc118.js",
+  "assets/build/design-system.a9cdd7bc54a7.js",
+  "assets/build/where-data.2815ed20f527.js",
+  "./assets/logo-pixel.png",
+  "./assets/logo-pixel-64.png",
+  "./assets/apple-touch-icon.png",
+  "./favicon.ico",
+  "./apps/catalog.json",
   "./apps/assistente/",
   "./apps/assistente/index.html",
   "./apps/assistente/config.js",
   "./apps/assistente/app.css",
   "./apps/assistente/app.js",
   "./apps/assistente/offline-data.json",
-  "./apps/calendario/", "./apps/calendario/index.html", "apps/build/calendar-data.84ae485c16ae.js", "./apps/calendario/data/source-metadata.json",
-  "./apps/fluxogramas/", "./apps/fluxogramas/index.html", "apps/build/fluxogramas-data.a37b87063d78.js", "./apps/fluxogramas/data/source-metadata.json",
-  "./apps/barema/", "./apps/barema/index.html", "apps/build/barema-data.33efba1c5da4.js", "./apps/barema/data/source-metadata.json",
-  "./apps/doom/", "./apps/doom/index.html", "apps/build/doom.62c68b1a02c4.css", "apps/build/doom.98841ed189c1.js",
-  "./apps/doom/vendor/runtime-manifest.json", "./apps/doom/coi-serviceworker.js"
+  "./sidebar/sidebar.css",
+  "./sidebar/sidebar.js",
+  "./sidebar/apps-registry.json",
+  "./apps/calendario/",
+  "./apps/calendario/index.html",
+  "apps/build/calendar-data.84ae485c16ae.js",
+  "./apps/calendario/data/source-metadata.json",
+  "./apps/fluxogramas/",
+  "./apps/fluxogramas/index.html",
+  "apps/build/fluxogramas-data.a37b87063d78.js",
+  "./apps/fluxogramas/data/source-metadata.json",
+  "./apps/barema/",
+  "./apps/barema/index.html",
+  "apps/build/barema-data.33efba1c5da4.js",
+  "./apps/barema/data/source-metadata.json",
+  "./apps/doom/",
+  "./apps/doom/index.html",
+  "apps/build/doom.62c68b1a02c4.css",
+  "apps/build/doom.98841ed189c1.js",
+  "./apps/doom/vendor/runtime-manifest.json",
+  "./apps/doom/coi-serviceworker.js",
 ];
 
 const REQUIRED_CORE = new Set([
   "./", "./index.html", "./offline.html", "./document-viewer.html",
-  "assets/build/styles.888976578efc.css", "assets/build/enhancements.254c728974fb.css", "assets/build/sidebar-quick-search.ea5032187b1e.css", "assets/build/design-system.afe11aadcef7.css",
-  "assets/build/data.955b99e3aae2.js", "assets/build/app.81dcebd04081.js", "assets/build/storage.aade70adc118.js", "assets/build/design-system.63bcb7fec392.js", "assets/build/where-data.2815ed20f527.js",
+  "assets/build/styles.775d981aa66b.css", "assets/build/enhancements.254c728974fb.css", "assets/build/sidebar-quick-search.ea5032187b1e.css", "assets/build/design-system.afe11aadcef7.css",
+  "assets/build/data.e091feef07af.js", "assets/build/app.7891c4810919.js", "assets/build/storage.aade70adc118.js", "assets/build/design-system.a9cdd7bc54a7.js", "assets/build/where-data.2815ed20f527.js",
 ]);
 
 async function installCoreResources() {

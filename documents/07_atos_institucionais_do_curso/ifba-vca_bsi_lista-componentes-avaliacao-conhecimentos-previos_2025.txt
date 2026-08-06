@@ -1,0 +1,242 @@
+                  INSTITUTO FEDERAL DE EDUCAÇÃO, CIÊNCIA E TECNOLOGIA DA BAHIA
+       Av. Sérgio Vieira de Mello, 3150 - Bairro Zabelê - CEP 45078-900 - Vitória da Conquista - BA - www.portal.ifba.edu.br
+
+                                          DESPACHO SEM NÚMERO
+
+
+
+
+À DIREÇÃO ACADÊMICA - DAC
+A/C DO SR. RODRIGO DE ASSIS BONFIM
+
+Assunto: Lista de disciplinas homologadas pelo Colegiado do curso de BSI que estão aptas e inaptas ao
+exame de aproveitamento prévio
+
+Prezado Diretor Rodrigo, espero encontrá-lo bem.
+Com base na RESOLUÇÃO CONSEPE/IFBA Nº 153, DE 12 DE DEZEMBRO DE 2024, que trata-se da
+regulamentação do Aproveitamento de Conhecimento Prévio, em reunião ordinária do Colegiado do Curso
+de BSI realizada em 24/09/2025 (ata disponível no documento SEI nº 4432274), o colegiado avaliou quais
+disciplinas do curso seriam passíveis de convalidação de conhecimento prévio e elaborou a lista de
+disciplinas abaixo, consideradas aptas e inaptas ao exame de convalidação.
+
+                         DISCIPLINA                           PPC (Ano) CARACTERÍSTICA
+                                                                                   APTA?
+                         Arquitetura de Software                 2017           Optativa          SIM
+                         Banco de Dados II                       2017         Obrigatória        NÃO
+                         Cabeamento Estruturado e
+                         Redes Opticas                           2017           Optativa          SIM
+                         Comércio Eletrônico                     2017           Optativa          SIM
+                         Complexidade de Algoritmos              2017         Obrigatória         SIM
+                         Contabilidade Geral e
+                         Custos                                  2017         Obrigatória         SIM
+                         Desenvolvimento Distribuído
+                         na Internet                             2017         Obrigatória        NÃO
+                         Economia                                2017         Obrigatória         SIM
+                         Engenharia de Software                  2017         Obrigatória         SIM
+                         Estágio Supervisionado
+                                                                 2017         Obrigatória        NÃO
+                         Frameworks de
+                         Desenvolvimento                         2017           Optativa          SIM
+                         Gestão de Projetos                      2017         Obrigatória         SIM
+                         Gestão e Governança de TI               2017         Obrigatória         SIM
+                         Gestão Estratégica da
+                         Informação                              2017           Optativa          SIM
+                         Gestão Estratégica
+                         Executiva                               2017           Optativa          SIM
+                         Instalação e Configuração de
+                         Servidores de Rede                      2017           Optativa          SIM
+                         Inteligência Artificial                 2017         Obrigatória        NÃO
+                         Inteligência do Negócio                 2017           Optativa          SIM
+                         Interface Homem-Máquina                 2017         Obrigatória         SIM
+
+
+                      Despacho sem número 4432283                  SEI 23281.006478/2025-04 / pg. 1
+  Legislação de TI e Gestão
+  de Contratos                   2017      Optativa      SIM
+  Libras (Lingua Brasileira de
+  Sinais)                        2017      Optativa      SIM
+  Meio Ambiente                  2017     Obrigatória    SIM
+  Paradigmas de Linguagens
+  de Programação                 2017     Obrigatória    NÃO
+  Processo de
+  Desenvolvimento de
+  Software                       2017     Obrigatória    NÃO
+  Programação para
+                                 2017      Optativa      NÃO
+  Dispositivos Móveis
+  Programação Web                2017     Obrigatória    SIM
+  Projeto e Administração de
+  Redes                          2017     Obrigatória    SIM
+  Qualidade de Software          2017     Obrigatória    SIM
+  Redes e Aplicações de TV
+  Digital e Interativa           2017      Optativa      SIM
+  Redes sem Fio e Sistemas
+  de Comunicação Móvel           2017      Optativa      SIM
+  Segurança de Redes de
+  Computadores                   2017      Optativa      SIM
+  Segurança e Auditoria de
+  Sistemas                       2017     Obrigatória    SIM
+  Sistemas de Apoio a
+  Decisão                        2017     Obrigatória    SIM
+  Sistemas Distribuídos          2017     Obrigatória    NÃO
+  Trabalho de Conclusão de
+  Curso I                        2017     Obrigatória    NÃO
+  Trabalho de Conclusão de
+  Curso II                       2017     Obrigatória    NÃO
+  ACEX I                         2024     Obrigatória    NÃO
+  ACEX II                        2024     Obrigatória    NÃO
+  ACEX III                       2024     Obrigatória    NÃO
+  ACEX IV                        2024     Obrigatória    NÃO
+  Administração                  2024     Obrigatória    SIM
+  Algoritmos e Programação       2024     Obrigatória    SIM
+  Análise e Modelagem de
+  Sistemas                       2024     Obrigatória    NÃO
+  Arquitetura de Software        2024      Optativa      SIM
+  Auditoria de Sistemas          2024      Optativa      SIM
+  Banco de Dados I               2024     Obrigatória    NÃO
+  Banco de Dados II              2024     Obrigatória    NÃO
+  Cabeamento Estruturado e
+  Redes Opticas                  2024      Optativa      SIM
+  Cálculo Diferencial Aplicado
+  à Computação                   2024     Obrigatória    SIM
+  Ciência de Dados               2024      Optativa      SIM
+  Comércio Eletrônico            2024      Optativa      SIM
+  Complexidade de Algoritmos     2024     Obrigatória    SIM
+  Computação em Nuvem e
+  Automação na Infraestrutura    2024      Optativa      SIM
+  Computador, Ética e
+  Sociedade                      2024     Obrigatória    SIM
+
+Despacho sem número 4432283       SEI 23281.006478/2025-04 / pg. 2
+  Desenvolvimento Distribuído
+  na Internet                    2024     Obrigatória    NÃO
+  Direito Cibernético            2024     Obrigatória    NÃO
+  Economia                       2024     Obrigatória    SIM
+  Empreendedorismo               2024     Obrigatória    SIM
+  Engenharia de Software         2024     Obrigatória    SIM
+  Estruturas de Dados            2024     Obrigatória    NÃO
+  Frameworks de
+  Desenvolvimento                2024      Optativa      SIM
+  Fundamentos de Sistemas
+  de Informação                  2024     Obrigatória    SIM
+  Gestão Ágil de Projetos        2024      Optativa      SIM
+  Gestão de Projetos             2024     Obrigatória    SIM
+  Gestão e Governança de TI      2024     Obrigatória    SIM
+  Gestão Estratégica Aplicada
+  a TI                           2024      Optativa      SIM
+  Inglês Aplicado à
+  Computação                     2024     Obrigatória    SIM
+  Instalação e Configuração de
+  Servidores de Rede             2024      Optativa      SIM
+  Inteligência Artificial        2024     Obrigatória    NÃO
+  Interface Homem-Máquina        2024     Obrigatória    SIM
+  Introdução a Ciência da
+  Computação                     2024     Obrigatória    SIM
+  Jogos Digitais                 2024      Optativa      SIM
+  Leitura e Produção de
+  Gêneros Acadêmicos             2024     Obrigatória    SIM
+  Libras (Lingua Brasileira de
+  Sinais)                        2024      Optativa      SIM
+  Linguagem de Programação
+  I                              2024     Obrigatória    SIM
+  Linguagem de Programação
+  II                             2024     Obrigatória    SIM
+  Matemática Discreta I          2024     Obrigatória    SIM
+  Matemática Discreta II         2024     Obrigatória    SIM
+  Meio Ambiente                  2024     Obrigatória    SIM
+  Metodologia da Pesquisa
+  Científica                     2024     Obrigatória    SIM
+  Organização e Arquitetura
+  de Computadores                2024     Obrigatória    SIM
+  Organização, Sistemas e
+  Métodos                        2024     Obrigatória    SIM
+  Probabilidade e Estatística    2024     Obrigatória    SIM
+  Processo de
+  Desenvolvimento de
+  Software                       2024     Obrigatória    NÃO
+  Programação Web I              2024     Obrigatória    SIM
+  Programação Web II             2024     Obrigatória    SIM
+  Projeto e Administração de
+  Redes                          2024     Obrigatória    SIM
+  Qualidade de Software          2024     Obrigatória    SIM
+  Redes de Computadores          2024     Obrigatória    SIM
+
+
+
+Despacho sem número 4432283       SEI 23281.006478/2025-04 / pg. 3
+                           Redes sem Fio e Sistemas
+                           de Comunicação Móvel         2024       Optativa      SIM
+                           Segurança da Informação      2024      Obrigatória    SIM
+                           Segurança de Redes de
+                           Computadores                 2024       Optativa      SIM
+                           Sistemas de Apoio a
+                           Decisão                      2024      Obrigatória    SIM
+                           Sistemas Distribuídos        2024      Obrigatória    NÃO
+                           Sistemas Operacionais        2024      Obrigatória    SIM
+                           Trabalho de Conclusão de
+                           Curso I                      2024      Obrigatória    NÃO
+                           Trabalho de Conclusão de
+                           Curso II                     2024      Obrigatória    NÃO
+
+                       Atenciosamente,
+
+
+                                        Cláudio Rodolfo Sousa de Oliveira
+                                         Presidente de Colegiado de Curso
+                                     Bacharelado em Sistemas de Informação
+                                 Portaria 056/2025/DG, de 23/04/2025 (4125366)
+
+
+
+
+                Documento assinado eletronicamente por CLAUDIO RODOLFO SOUSA DE OLIVEIRA ,
+                Presidente do Colegiado do Curso de Bacharelado em Sistemas de Informação , em 25/09/2025, às
+                02:48, conforme decreto nº 8.539/2015.
+
+               A autenticidade do documento pode ser conferida no site
+               http://sei.ifba.edu.br/sei/controlador_externo.php?
+               acao=documento_conferir&acao_origem=documento_conferir&id_orgao_acesso_externo=0 informando
+               o código verificador 4432283 e o código CRC 4C899460.
+
+
+23281.006478/2025-04                                                                                 4432283v2
+
+
+
+
+                         Despacho sem número 4432283     SEI 23281.006478/2025-04 / pg. 4
+                       INSTITUTO FEDERAL DE EDUCAÇÃO, CIÊNCIA E TECNOLOGIA DA BAHIA
+               Av. Sérgio Vieira de Mello, 3150 - Bairro Zabelê - CEP 45078-900 - Salvador - BA - www.portal.ifba.edu.br
+
+                            ENCAMINHAMENTO - VDC/DG.VDC/DAC.VDC
+
+                       Coordenação de Sistemas da Informação - CSI.VDC
+                       A/C: Cláudio Rodolfo Sousa de Oliveira
+
+
+                       Prezado Coordenador,
+                 Com os devidos cumprimentos e de ordem desta Direção Acadêmica, em atenção a
+ Despacho sem número (4432283), solicitamos a divulgação ampla aos alunos e publicação no site das
+ componentes curriculares aptas para Avaliação de Conhecimentos Prévios.
+
+
+                       Cordialmente,
+
+
+                Documento assinado eletronicamente por DANIELLE DE ALBUQUERQUE COROA,
+                Recepcionista da Direção Acadêmica , em 06/10/2025, às 12:07, conforme decreto nº 8.539/2015.
+
+
+               A autenticidade do documento pode ser conferida no site
+               http://sei.ifba.edu.br/sei/controlador_externo.php?
+               acao=documento_conferir&acao_origem=documento_conferir&id_orgao_acesso_externo=0 informando
+               o código verificador 4454103 e o código CRC E51B2E6E.
+
+
+23281.006478/2025-04                                                                                                       4454103v4
+
+
+
+
+                           Encaminhamento 4454103                 SEI 23281.006478/2025-04 / pg. 5
+

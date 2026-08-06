@@ -66,9 +66,9 @@ html[data-theme="light"] .btn.primary,html[data-theme="light"] .progress>i{backg
 html[data-theme="light"] .btn.green{background:linear-gradient(135deg,#087f5b,#087fa3)!important;color:#fff!important;text-shadow:0 1px 1px rgba(0,0,0,.2)}
 
 </style>
-  <link rel="stylesheet" href="../build/app-shell.cd41ed34fb82.css" />
   <link rel="stylesheet" href="../../assets/build/sidebar-quick-search.ea5032187b1e.css" />
   <link rel="stylesheet" href="../../assets/build/design-system.afe11aadcef7.css" />
+  <link rel="stylesheet" href="../../sidebar/sidebar.css" />
 </head>
 <body>
   <main class="page">
@@ -128,9 +128,9 @@ html[data-theme="light"] .btn.green{background:linear-gradient(135deg,#087f5b,#0
     matchMedia("(prefers-color-scheme: light)").addEventListener?.("change",()=>{let mode="auto";try{mode=localStorage.getItem("hubThemeMode")||"auto"}catch{}if(mode==="auto")syncSharedTheme();});
     window.addEventListener("storage",e=>{if(e.key==="hubThemeMode")syncSharedTheme();});
 </script>
-<script src="../../assets/build/data.955b99e3aae2.js"></script>
-<script src="../../assets/build/design-system.63bcb7fec392.js"></script>
-<script src="../build/app-shell.1cf8a835c191.js"></script>
+<script src="../../assets/build/data.e091feef07af.js"></script>
+<script src="../../assets/build/design-system.a9cdd7bc54a7.js"></script>
 <script src="../../assets/build/sidebar-quick-search.f0e1ed1ead1c.js"></script>
+  <script src="../../sidebar/sidebar.js"></script>
 </body>
 </html>

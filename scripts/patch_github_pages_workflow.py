@@ -54,29 +54,16 @@ jobs:
       - name: Configure GitHub Pages
         uses: actions/configure-pages@v5
 
-      - name: Rebuild and normalize production assets
+      - name: Build and validate through the canonical pipeline
         shell: bash
         run: |
           set -Eeuo pipefail
-          python3 scripts/sync_assistente_offline_cache.py .
-          if [[ -f scripts/build_production_assets.py ]]; then
-            python3 scripts/build_production_assets.py
-          fi
-          python3 scripts/sync_assistente_offline_cache.py .
-
-      - name: Validate the generated site
-        shell: bash
-        run: |
-          set -Eeuo pipefail
-          [[ -f scripts/validate_site.py ]] && python3 scripts/validate_site.py
-          [[ -f scripts/check_inline_scripts.py ]] && python3 scripts/check_inline_scripts.py
-          if [[ -f scripts/update_content.py ]]; then
-            python3 scripts/update_content.py --check-only --skip-inline
-          fi
-          python3 scripts/sync_assistente_offline_cache.py .
+          python3 scripts/build_and_validate_hub.py .
           node --check service-worker.js
           node --check apps/assistente/app.js
           node --check apps/assistente/config.js
+          node --check sidebar/sidebar.js
+          python3 scripts/test_assistente_web.py .
 
       - name: Verify deterministic build
         shell: bash
@@ -128,10 +115,10 @@ def is_pages_workflow(text: str) -> bool:
 
 def unique_destination(name: str) -> Path:
     DISABLED.mkdir(parents=True, exist_ok=True)
-    candidate = DISABLED / f"{name}.disabled-v1.3.4"
+    candidate = DISABLED / f"{name}.disabled-v1.4.4"
     index = 2
     while candidate.exists():
-        candidate = DISABLED / f"{name}.disabled-v1.3.4-{index}"
+        candidate = DISABLED / f"{name}.disabled-v1.4.4-{index}"
         index += 1
     return candidate
 

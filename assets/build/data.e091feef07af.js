@@ -381,7 +381,7 @@ window.HUB_DATA = {
     {
       "id": "app-assistente-hub",
       "title": "Assistente do HUB",
-      "description": "Chat conversacional independente para consultar salas, horários, professores, setores, documentos e serviços usando o motor de regras do antigo HUB Bot.",
+      "description": "Consulta direta de salas, horários, professores, setores e documentos do IFBA.",
       "url": "apps/assistente/",
       "category": "Assistente",
       "openMode": "new-tab",
@@ -390,13 +390,9 @@ window.HUB_DATA = {
       "tags": [
         "assistente",
         "chat",
-        "chatbot",
-        "hub bot",
         "horários",
         "salas",
         "professores",
-        "setores",
-        "contatos",
         "documentos",
         "IFBA"
       ]

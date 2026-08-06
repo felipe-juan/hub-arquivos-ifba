@@ -1,0 +1,1872 @@
+23/12/2022 09:18                                            SEI/IFBA - 2688344 - Resolução CONSUP/IFBA
+
+
+
+
+                         INSTITUTO FEDERAL DE EDUCAÇÃO, CIÊNCIA E TECNOLOGIA DA BAHIA
+                         Av. Araújo Pinho, 39 - Bairro Canela - CEP 40110-150 - Salvador - BA - www.portal.ifba.edu.br
+
+
+                    RESOLUÇÃO CONSUP/IFBA Nº 86, DE 22 DE DEZEMBRO DE 2022
+
+
+                                                             Dispõe sobre a aprovação do Regulamento Discente do Instituto Federal
+                                                             de Educação, Ciência e Tecnologia da Bahia.
+
+
+
+
+                    A PRESIDENTE DO CONSELHO SUPERIOR DO INSTITUTO FEDERAL DE
+   EDUCAÇÃO, CIÊNCIA E TECNOLOGIA DA BAHIA – CONSUP/IFBA, nomeada pelo Decreto do
+   Ministério da Educação de 23 de dezembro de 2019, publicado no Diário Oficial da União de 24 de
+   dezembro de 2019, Seção2, página 1, no uso de suas atribuições legais, que lhe confere o Art. 12 da Lei nº
+   11.892, de 29 de dezembro de 2008,
+
+
+                         Considerando o Processo SEI nº 23282.000161/2018-17, e
+                    Considerando o que foi deliberado na 5ª Reunião Ordinária do CONSUP do IFBA,
+   realizada em 21/10/2022, resolve:
+
+
+                   Art. 1º - Aprovar o Regulamento Discente do Instituto Federal de Educação, Ciência e
+   Tecnologia da Bahia, nos termos em anexo e revogar a Resolução CONSUP/IFBA nº 73, de 22/11/2013.
+
+
+                     Art. 2º - Esta Resolução entra em vigor em 23 de dezembro de 2022, por se tratar de
+   urgência justificada nos autos do expediente administrativo.
+
+
+
+
+                                                   Professora Luzia Matos Mota
+
+                                                   Presidente do CONSUP/IFBA
+
+
+                         PUBLIQUE-SE. REGISTRE-SE. CUMPRA-SE.
+
+
+                    Documento assinado eletronicamente por LUZIA MATOS MOTA, Presidente do Conselho
+                    Superior, em 22/12/2022, às 19:07, conforme decreto nº 8.539/2015.
+
+
+                    A autenticidade do documento pode ser conferida no site
+                    http://sei.ifba.edu.br/sei/controlador_externo.php?
+                    acao=documento_conferir&acao_origem=documento_conferir&id_orgao_acesso_externo=0
+                    informando o código verificador 2688344 e o código CRC AE5989AF.
+
+
+
+
+https://sei.ifba.edu.br/sei/controlador.php?acao=documento_imprimir_web&acao_origem=arvore_visualizar&id_documento=3163700&infra_siste…   1/2
+23/12/2022 09:18                                            SEI/IFBA - 2688344 - Resolução CONSUP/IFBA
+
+
+
+  23282.000161/2018-17                                                                                                         2688344v2
+
+
+
+
+https://sei.ifba.edu.br/sei/controlador.php?acao=documento_imprimir_web&acao_origem=arvore_visualizar&id_documento=3163700&infra_siste…   2/2
+REGULAMENTO DISCENTE
+
+
+
+
+        Salvador
+         2022
+                                    LISTA DE SIGLAS
+
+
+CONSUP – Conselho Superior
+
+
+CORES – Coordenação de Registros Escolares
+
+
+COTEP – Coordenação Técnico-Pedagógica
+
+
+DEPAE – Departamento Pedagógico e de Assistência ao Estudante
+
+
+ECA – Estatuto da Criança e do Adolescente
+
+
+GRA – Gerência de Registros Acadêmicos
+
+
+IFBA – Instituto Federal da Bahia
+
+
+LDB – Lei de Diretrizes e Bases
+
+
+PCD – Pessoa com deficiência
+
+
+PROJUR – Procuradoria Federal Junto ao IFBA
+
+
+SEI – Sistema Eletrônico de Informações
+
+
+TCA – Termo Circunstanciado Administrativo
+                                                          SUMÁRIO
+
+PREÂMBULO..................................................................................................................................3
+
+
+CAPÍTULO I – DISPOSIÇÕES PRELIMINARES ....................................................................4
+
+
+CAPÍTULO II – DO CORPO DISCENTE....................................................................................5
+
+
+CAPÍTULO III – DOS DIREITOS E DEVERES DO ESTUDANTE DO IFBA.......................5
+Seção I – Dos Direitos.......................................................................................................................5
+Seção II – Dos Deveres dos Estudantes..........................................................................................7
+Seção III – Das Proibições e Responsabilidades............................................................................9
+
+
+CAPÍTULO              IV       –     MEDIDAS              RELATIVAS                 AOS         DESCUPRIMENTOS                        DOS
+DEVERES DO ESTUDANTE.....................................................................................................11
+
+
+CAPÍTULO V – DO TERMO CIRCUNSTANCIADO ADMINISTRATIVO (TCA)..............14
+
+
+CAPÍTULO VI – DA ANÁLISE DOS ATOS, FATOS E RESPONSABILIDADES
+DO/A ESTUDANTE .....................................................................................................................15
+
+
+CAPÍTULO               VII      –     DO        PROCESSO               DE       ANÁLISE             DAS         PROIBIÇÕES                E
+RESPONSABILIDADES DO/A ESTUDANTE – PAPRE .......................................................16
+
+
+CAPÍTULO VIII – DA MEDIAÇÃO E CONCILIAÇÃO....................................................... 18
+
+
+CAPÍTULO IX – DAS DISPOSIÇÕES GERAIS..................................................................... 20
+
+
+APÊNDICES.................................................................................................................................21
+                                                                                                     3
+                                            PREÂMBULO
+
+
+      Os integrantes da comunidade acadêmica do IFBA possuem os mesmos direitos e deveres que
+os demais membros da sociedade, em relação à Lei. Além disso, devem respeitar os interesses
+do IFBA que estão contidos nos regulamentos e normativas internas. Entendendo que a academia é
+um lugar em que devem ser cultivados valores como: respeitar a vida, rejeitar, combater e denunciar
+todas as formas de violências, discriminação, preconceitos e assédios; respeitar as diferenças, ser
+generoso(a), desenvolver a empatia, ouvir para compreender, preservar o planeta e praticar a
+solidariedade. O Regulamento Discente objetiva contribuir para o desenvolvimento humano e
+formação integral do(a) discente, para o exercício da cidadania e a qualificação para o trabalho.
+Assim como respeitar o Estatuto da Criança e do Adolescente - ECA (Lei 8.069/90), a Lei de
+Diretrizes e Bases da Educação - LDB (Lei 9.394/96), a Constituição Federal no que se refere a temas
+relacionados à educação e aos direitos fundamentais inerentes à pessoa humana, e, por fim, a
+identidade e política institucional do IFBA.
+
+
+
+
+        Resolução CONSUP/IFBA nº 86, de 20 de dezembro de 2022 - Aprovação do Regulamento Discente
+                                                                                                       4
+                                               CAPÍTULO I
+                                      DISPOSIÇÕES PRELIMINARES
+
+
+Art. 1º - O presente regulamento dispõe sobre orientações quanto ao respeito e cumprimento das
+normas institucionais, acerca dos direitos, deveres e responsabilidades em direção à atitude ética,
+formação humana, participação ativa, responsável e cidadã com a comunidade escolar no âmbito do
+Instituto Federal da Bahia (IFBA).
+
+
+Art. 2º - Esse Regulamento aplica-se a todos(as) os(as) estudantes regularmente matriculados(as), com
+matrícula ativa, ou que realizam atividades acadêmicas de ensino, pesquisa e extensão ligadas ao
+IFBA, quaisquer que sejam suas formas e duração, em todos os níveis e modalidades de ensino,
+inclusive as ocorridas fora de suas dependências, desde que nessas situações esteja a atuação ou
+atividade dos estudantes ligadas ao nome do IFBA.
+
+
+Art. 3° - Constitui-se objetivo do presente Regulamento assegurar aos(as) estudantes, condições
+adequadas ao desenvolvimento humano, à permanência e à conclusão com êxito, com o compromisso
+de formação cidadã, garantindo a plena participação e integração no processo acadêmico e de
+aprendizagem, sendo o(a) discente um(a) participante da construção do processo, coibindo condutas
+incompatíveis, que se caracterizem como desrespeito às normas sociais e institucionais.
+Parágrafo Único: No caso em que as condutas incompatíveis se configurem como ato definido como
+infração pelas leis civis e criminais vigentes, o IFBA deverá encaminhar, oficialmente, às instâncias
+competentes, agindo paralelamente conforme as medidas redigidas no Regulamento Discente às
+tratativas internas da instituição.
+
+
+Art. 4° - Com base na finalidade educacional do IFBA, a aplicação dessa Normativa adotará como
+princípios norteadores:
+I - A ética, a equidade e a justiça social;
+II - O respeito, o diálogo e a solidariedade nas relações humanas;
+III - O desenvolvimento humano, educacional e cultural pleno e integral do(a) estudante, voltado à
+formação de cidadãos histórico-críticos;
+IV - O acesso à educação, com qualidade socialmente referenciada, constituído como um dos
+direitos constitucionalmente garantidos;
+V - A promoção das condições individuais e especiais de desenvolvimento e de aprendizagem voltados
+à autonomia intelectual e moral do(a) estudante, assim como de seu bem-estar físico, mental e
+emocional;
+
+          Resolução CONSUP/IFBA nº 86, de 20 de dezembro de 2022 - Aprovação do Regulamento Discente
+                                                                                                      5
+VI - A garantia do direito de ser tratado(a) com dignidade e com respeito àindividualidade, livre de
+qualquer discriminação;
+VII - A superação do capacitismo, preconceito racial, de classe, de gênero, geracional, de credo e
+orientação sexual.
+VIII - A garantia das condições especiais para pessoas com deficiências (PCD) e necessidades
+educacionais específicas.
+
+
+Art. 5° - É dever de toda a comunidade do IFBA contribuir para o cumprimento do disposto neste
+Regulamento Discente, resguardadas as atribuições específicas.
+
+
+                                             CAPÍTULO II
+                                       DO CORPO DISCENTE
+
+
+Art. 6° - O corpo discente do Instituto Federal da Bahia é constituído por(pelas) estudantes
+matriculados nos diversos cursos e programas oferecidos pela Instituição, classificados(as) nos
+seguintes regimes:
+I - Regular – estudantes matriculados nos cursos técnicos de nível médio, nos cursos de graduação,
+presenciais e à distância, e nos cursos de pós-graduação;
+II - Temporário – estudantes matriculados em cursos de extensão e educaçãocontinuada;
+III - Especial – estudantes matriculados especificamente em disciplinas isoladas, em cursos de
+graduação e pós-graduação.
+
+
+                                             CAPÍTULO III
+                  DOS DIREITOS E DEVERES DO(A) ESTUDANTE DO IFBA
+
+
+                                         Seção I – Dos Direitos
+
+
+Art. 7º - Constituem direitos dos(as) estudantes:
+I - Ter sua integridade física, psicológica, intelectual, moral, étnica, de crença, de gênero e de
+arbítrio respeitada em qualquer ambiente físico ou virtual que esteja vinculado ao IFBA;
+II - Ter sua integridade física, psicológica, intelectual, moral, étnica, de crença, de gênero e de
+arbítrio respeitada em qualquer ambiente físico ou virtual que esteja vinculado ao IFBA;
+III - Ser informado(a) sobre o Regulamento Discente por meio de ações socioeducativas promovidas
+pela Setor de Assistência Estudantil, ou setor equivalente do campus, no início do período letivo;
+IV - Ter acesso ao Regulamento Discente junto à biblioteca e no endereço eletrônico do IFBA;
+
+         Resolução CONSUP/IFBA nº 86, de 20 de dezembro de 2022 - Aprovação do Regulamento Discente
+                                                                                                       6
+V - Ser tratado(a) com respeito, atenção e urbanidade por todos(as) os(as) servidores(as),
+prestadores(as) de serviço e demais discentes do IFBA;
+VI - Expressar-se e manifestar opinião com respeito, atenção e urbanidade, observando os dispositivos
+constitucionais;
+VII - Utilizar as instalações e espaços de convivência do campus onde está matriculado(a), de acordo
+com o currículo pleno ou atividades complementares, nos horários estabelecidos, observando as normas
+de acesso e permanência;
+VIII - Usufruir de ambiente limpo e organizado, livre de ruídos, adequado à realização das atividades
+propostas;
+IX – Participar de atividades curriculares obrigatórias e optativas destinadas aos(às) discentes, desde
+que atendidas às normas e as instruções existentes.
+§ 1º. Os discentes devem ter acesso aos laboratórios dos campi para suasatividades curriculares, com
+autorização da gestão do campus.
+§ 2º. Os discentes, dentro das condições de cada campus, devem ter máquinas com acesso a
+Internet para fazerem suas pesquisas.
+X - Participar de atividades científicas, artísticas, culturais, cívicas, esportivas e religiosas, desde que
+estas não venham a prejudicar o processo de ensino-aprendizagem, obedecendo aos trâmites legais;
+XI - Participar de eleições e atividades de órgãos de representação (conselhos, colegiados e
+grêmios estudantis), votando ou sendo votado(a), conforme regulamentação vigente do IFBA;
+XII - Promover e organizar eventos do campus no qual está matriculado(a), ou ainda de qualquer outro
+campus do IFBA, com a devida autorização;
+XIII - Ter acesso aos serviços social, psicológico, pedagógico e de saúde, de acordo com a estrutura
+disponível no campus, incluindo as prerrogativas dispostas nas Políticas de Assistência Estudantil e de
+Inclusão, bem como à Norma de Uso do Nome Social;
+XIV - Ser comunicado(a) de qualquer acusação que lhe seja feita, assim como recorrer de quaisquer
+das medidas educativas aplicadas, bem como contestar processos avaliativos e outros atos que possam
+prejudicar o seu processo educativo,sendo-lhe garantido o direito de ampla defesa e do contraditório;
+XV - Ser acompanhado(a) pelos pais ou responsáveis, se menor de idade, quando precisar prestar
+esclarecimentos de sua conduta, tipiﬁcadas nesta resolução (citado em ocorrências);
+XVI - Apresentar sugestões para a melhoria dos recursos humanos, materiais e do processo de ensino-
+aprendizagem;
+XVII – Ausentar-se do campus, desde que apresentada justificativa prévia dos pais ou responsáveis, e
+respeitadas as normas vigentes do campus, se menor de idade;
+XVIII - Tomar conhecimento do processo e dos resultados de todos os instrumentos de avaliação
+aplicados pelos(as) docentes, conforme previsto nas normas vigentes;
+
+         Resolução CONSUP/IFBA nº 86, de 20 de dezembro de 2022 - Aprovação do Regulamento Discente
+                                                                                                       7
+XIX - Representar o IFBA ou o campus, no qual está matriculado(a) em atividades científicas,
+técnicas, artísticas, culturais e esportivas, entre outras – se autorizado(a) pelo(a) representante legal
+e acompanhado(a) de servidor(a) designado(a) para tal, no caso de discentes menores de idade –,
+obedecidas as normas vigentes;
+XX - Ter acesso às informações e poder participar das atividades de ensino, pesquisa, extensão,
+editais de projetos e assistência estudantil desenvolvidas na instituição, por meio de diversos canais de
+comunicação e/ou ações socioeducativas;
+XXI - Ter acesso ao plano de ensino, contendo destacadamente as orientações detalhadas quanto
+aos critérios e instrumentos de avaliação de acordo com as normas acadêmicas;
+XXII – Requerer revisão de avaliação; segunda oportunidade de avaliação; renovação; cancelamento
+ou trancamento de matrícula; dispensa da prática de Educação Física; exercício/atendimento
+domiciliar; diplomas; certificados; certidões; declarações ou outros documentos e solicitações que
+correspondem à sua vida acadêmica, respeitando os prazos e as exigências estabelecidos em
+regulamentos;
+XXIII - Ser informado/a sobre a Política de Combate ao Assédio do IFBA;
+XXIV - Ser informado/a sobre a Política de Permanência e Êxito;
+XXV - Solicitar ao setor competente documentação necessária para a realização de estágio
+supervisionado da profissão;
+XXVI - Outros direitos não constantes neste rol, mas que estão previstos e assegurados por outras
+normativas.
+
+
+                                Seção II – Dos Deveres dos Estudantes
+
+
+Art. 8º. Constituem deveres dos(as) estudantes:
+I - Conhecer, respeitar e cumprir os regulamentos, as normas, as diretrizes e as instruções
+relativas às atividades vinculadas ao IFBA, desenvolvidas interna e externamente à instituição;
+II - Respeitar a integridade física, moral, étnica, de crença, de gênero/orientação sexual e de arbítrio
+dos(as) discentes, dos(as) servidores(as), dos(as) prestadores(as)de serviço e dos(as) visitantes do
+IFBA, tratando todos(as) com sociabilidade,igualdade e equidade em qualquer ambiente físico ou
+virtual que esteja vinculadoao IFBA:
+a) Contribuindo para a construção e promoção de uma instituição mais inclusiva e mais solidária,
+   respeitando às diferenças;
+b) Rejeitando, combatendo e denunciando todas as formas de violências, discriminação, preconceitos
+   e assédios;
+III - Proceder com integridade, respeito e honestidade em todas as atividades educativas, inclusive em
+
+         Resolução CONSUP/IFBA nº 86, de 20 de dezembro de 2022 - Aprovação do Regulamento Discente
+                                                                                                      8
+momentos de lazer e descanso, para uma convivência harmônica, colaborando para a melhoria da
+qualidade de vida de todos;
+IV - Desempenhar, com assiduidade e responsabilidade, todas as atividades curriculares
+obrigatórias ou optativas que assumir, respeitadas as normas vigentes;
+V - Comparecer, quando convocado(a), às reuniões de órgãos colegiados, diretoria, e coordenações,
+para conhecimento ou deliberação de seu interesse ou do coletivo de estudantes;
+VI - Justificar seus afastamentos das atividades acadêmicas junto aos setores responsáveis (exemplo:
+CORES, Protocolo, GRA), conforme as normas vigentes no campus;
+VII - Elaborar e apresentar proposta/projeto para apreciação da Diretoria de Ensino,a fim de promover
+toda e qualquer atividade com finalidade de integração estudantil no espaço físico do IFBA,
+respeitada a autonomia do Movimento Estudantil;
+VIII - Fazer uso do uniforme escolar, de acordo com a padronização estabelecida pelo IFBA;
+XIX - Cumprir as normas de utilização dos ambientes e equipamentos do campus, e as orientações
+sobre prevenção de acidentes do IFBA;
+X - Zelar pela segurança própria, da comunidade do IFBA e visitantes, sendo proibido o uso de
+materiais explosivos ou inflamáveis, armas de qualquer natureza, substâncias tóxicas ou ilícitas;
+XI - Comunicar a qualquer servidor/a do campus sobre atos que coloquem em risco a segurança da
+comunidade do IFBA e seus visitantes, ou a conservação do patrimônio do IFBA;
+XII - Manter atitude ética quanto ao uso de saberes, informações e materiais em qualquer suporte
+(impresso, digital, magnético, entre outros):
+a) Respeitando os direitos patrimoniais e morais de autoria, uso e/ou cópia a que estão reservados,
+   observados os critérios de elaboração de trabalhos dirigidos pelos(as) docentes nas diferentes fases
+   da aprendizagem escolar, não praticando atos que atentem contra o direito autoral e o uso de nome
+   alheio;
+XIII - Zelar pela preservação do meio ambiente, primando pela racionalidade no uso de recursos
+naturais, como água, alimentos, insumos, etc. Além de contribuir com a economia de energia elétrica
+e outros produtos de uso comum;
+XIV - Respeitar a área destinada ao estacionamento, de modo a eximir o IFBA de qualquer
+responsabilidade em caso de infração, ou ocorrência, relativa à guarda de carro próprio ou outro meio
+de transporte;
+XV - Zelar pela conservação das instalações e dependências, dos materiais, dos móveis e utensílios,
+dos equipamentos e máquinas, e de todo o material de uso individual e coletivo da instituição;
+XVI - Responsabilizar-se pela guarda de seus pertences particulares em geral, trazidos para as
+dependências do IFBA;
+XVII - Manter a organização e a limpeza no local de estudo/atividades, bem como das máquinas e
+
+         Resolução CONSUP/IFBA nº 86, de 20 de dezembro de 2022 - Aprovação do Regulamento Discente
+                                                                                                       9
+equipamentos;
+XVIII - Reparar os prejuízos quando produzir danos à instituição ou a objetos de propriedade alheia,
+desde que apurada e identificada a responsabilidade;
+XIX - Contribuir para a construção e promoção de uma instituição mais inclusiva e mais solidária,
+eliminando todo o tipo de barreiras;
+XX - Apresentar ao setor responsável, quando requerido, laudo que comprove o tipo de necessidade
+educacional especial, em caso de Pessoa com Deficiência (PcD), a fim de que a instituição possa
+adotar medidas de acessibilidade compatíveis às características do(a) estudante;
+XXI - Responsabilizar-se pelo zelo e devolução dos livros didáticos recebidos, bem como pelos
+pertences da biblioteca do campus ou polo, pelos materiais esportivos ou por qualquer outro material
+que lhe for confiado temporariamente, procedendo à devida anotação e baixa em registro, quando
+houver.
+
+
+                            Seção III – Das Proibições e Responsabilidades
+
+
+Art. 9º - É proibido todo e qualquer comportamento que, embora não constitua crime ou contravenção
+penal, fira o presente regulamento e comprometa a convivência no âmbito educativo. Em qualquer
+atividade de ensino, pesquisa e extensão – interna ou externa – do IFBA, deste modo é vedado aos
+discentes:
+I - Estabelecer, explorar ou praticar jogo de azar de qualquer natureza ou que envolva valores
+pecuniários;
+II - Exercer atividades comerciais ou de propaganda, no âmbito do IFBA, excetuando-se os casos
+devidamente autorizados;
+III - Atribuir caráter individual, pessoal ou particular ao uniforme adotado pela instituição;
+IV - Permanecer nas dependências do campus sem estar devidamente uniformizado, nos casos em que
+for exigido;
+V - Utilizar e/ou retirar de qualquer ambiente, sem estarem legalmente autorizados, documentos,
+livros, equipamentos ou bens pertencentes ao patrimônio público ou a terceiros;
+VI - Cometer ofensa, dano moral, dano psicológico, agressão física, causar lesão corporal de qualquer
+natureza/morte ou proceder de forma desrespeitosa contra qualquer pessoa no âmbito da Instituição;
+VII - Manifestar ações preconceituosas relacionadas às categorias de gênero, raça/cor/etnia, orientação
+sexual, situação socioeconômica, crença/religião, origem e aspectos regionais, aparência, pessoas com
+deficiência e/ou necessidades específicas, dentre outras, no âmbito do IFBA;
+VIII - Fumar nas dependências do IFBA nos termos da legislação vigente;
+IX - Facilitar o acesso de terceiros à instituição, de forma ilícita;
+
+          Resolução CONSUP/IFBA nº 86, de 20 de dezembro de 2022 - Aprovação do Regulamento Discente
+                                                                                                      10
+X - Promover coletas, festas, rifas ou outras modalidades de arrecadação de dinheiro e doações,
+usando o nome do IFBA/Campus sem expressa autorização da direção geral do campus;
+XI - Distribuir impressos, folhetos ou dar declarações em meios de comunicação em nome da
+Instituição, sem autorização expressa da Direção do campus;
+XII - Destruir a área verde nos campi do IFBA;
+XIII – Fazer uso de instrumentos cortantes para fins violentos;
+XIV – Usar de meios ilícitos ou agir de forma fraudulenta e antiética para auferir frequência, nota ou
+conceito e/ou realizar atividades avaliativas em benefício próprio ou de terceiros;
+XV - Depredar o patrimônio público;
+XVI - Fazer uso de drogas ilícitas, bebidas alcoólicas e psicotrópicos, sem autorização médica nas
+dependências do IFBA. Caso seja identificado discentes nesta situação ou sob efeito destas, deve ser
+possibilitado o acolhimento necessário observado no que se aplicar o Estatuto da Criança e do
+Adolescente;
+XVII - Praticar “bullying” ou “cyberbullying” - prática repetida e/ou por tempo prolongado de atos de
+violência física e/ou psicológica que causem humilhação ou constrangimento a outrem;
+XVIII - Portar qualquer tipo de arma, e, caso o discente possua porte de arma de fogo autorizado por
+lei, deverá comunicar expressamente a direção do campus ou da unidade, com guarda obrigatória da
+mesma durante a permanência no campus/unidade em cofre mantido pela área de segurança do
+campus/unidade;
+XIX - Causar transtorno e ou impedir a realização de qualquer atividade institucional;
+XX - Praticar atividade de cunho sexual nas dependências do IFBA;
+XXI - Portar ou fazer uso indevido de materiais inflamáveis ou explosivos de qualquer natureza,
+ressalvados os casos de atividades previstas em cursos e pesquisas;
+XXII - Alterar, falsificar ou deturpar o teor de documentos oficiais do IFBA;
+XXIII - Organizar, incitar e/ou praticar trotes ou desafios cibernéticos ou presencial que promovam
+risco à integridade física ou à saúde de qualquer pessoa;
+XXIV - Praticar maus-tratos, de qualquer ordem, aos animais que se encontrarem na área dos campi
+do IFBA;
+XXV - Ausentar-se da instituição sem prévia justificativa e autorização do setor de atendimento ao
+Estudante, ou equivalente, e/ou coordenação do curso, quando menor de idade;
+XXVI - Cometer irregularidade que atente contra o direito autoral e o uso de nome alheio;
+XXVII - Dirigir veículo automotivo, nas dependências do campus, com velocidade acima da
+permitida, colocando em risco a integridade física de outros(as) e/ou causando danos materiais;
+XXVIII - Transgredir normas de funcionamento ou de segurança da biblioteca, do refeitório, do
+laboratório, da sala de aula, bem como dos ambientes das visitas técnicas e aulas de campo;
+
+         Resolução CONSUP/IFBA nº 86, de 20 de dezembro de 2022 - Aprovação do Regulamento Discente
+                                                                                                         11
+XXIX - Promover ou participar de atos de vandalismo;
+XXX - Outras não constantes neste rol e que podem ser equiparadas.
+§ 1º. O discente responderá administrativamente pelo não cumprimento dos atos tipificados neste
+Regulamento;
+§ 2º. Quando comprovada sua autoria, o discente, ou seu responsável, terá obrigação de reparar os
+danos causados no âmbito do IFBA;
+§ 3º. Ocorrendo faltas diversas às que foram listadas neste artigo, estas devem ser encaminhadas, para
+a Direção de Ensino, podendo ser enquadradas neste regulamento;
+§ 4º. Entende-se por "âmbito da Instituição" as dependências internas ou qualquer situação que vincule
+o nome da Instituição IFBA, inclusive no ambiente virtual.
+
+
+                                               CAPÍTULO IV
+              MEDIDAS RELATIVAS AO DESCUPRIMENTO DOS DEVERES DO(A)
+                                 ESTUDANTE – AÇÕES EDUCATIVAS
+
+
+Art. 10. As ações educativas adotadas apresentam caráter educativo pedagógico. Visam à
+estabelecimento de limites, a fim de promover a conscientização, o exercício da cidadania e a
+qualificação para o ambiente profissional, embasados pelos princípios da legalidade, do contraditório e
+da ampla defesa, e pela consideração da condição de pessoa em desenvolvimento, nos casos de
+menores de 18 anos.
+Parágrafo único: A aplicação de ações educativas previstas neste Regulamento não exclui a
+responsabilização civil ou penal do(a) discente ou, se menor de 18 anos, de seu(sua) responsável,
+inclusive para fins de responsabilização prevista no Estatuto da Criança e do Adolescente — ECA,
+com encaminhamento de documentos e elementos ao juizado competente.
+
+
+Art. 11. Constituem ações educativas:
+I - Advertência verbal;
+II - Advertência escrita, com notificação à família, em caso de estudantes com menos de 18 anos
+de idade;
+III - Retratação verbal;
+IV - Retratação escrita, com notificação à família, em caso de estudantes com menos de 18 anos de
+idade;
+V - Participação ativa na elaboração e execução de atividade pedagógica específica, relacionada ao ato
+proibido praticado, com notificação à família, em caso de estudantes com menos de 18 anos de idade;
+VI - Reparação do dano causado ao patrimônio público ou particular;
+
+            Resolução CONSUP/IFBA nº 86, de 20 de dezembro de 2022 - Aprovação do Regulamento Discente
+                                                                                                      12
+VII - Suspensão do acesso ao campus e das atividades estudantis, com notificação à família, em caso
+de estudantes com menos de 18 anos de idade, por período inferior a 15 (quinze) dias corridos.
+Durante esse período haverá perda dos direitos estudantis.
+Parágrafo único: As medidas relativas ao descumprimento dos deveres do(a) estudante poderão ser
+conjugadas a depender da gravidade das condutas incompatíveis.
+
+
+Art. 12. As ações educativas aqui descritas destinam-se a coibir atos/ações incompatíveis com este
+Regulamento. Entende-se por condutas incompatíveis aquele comportamento que, embora não
+constitua crime ou contravenção penal, fere o Regulamento Discente ou as normas sociais,
+compromete a convivência e a ordem no ambiente educativo.
+Parágrafo único: No caso da infração, que é conduta caracterizada pelo desrespeito às leis, à ordem
+pública, aos direitos dos(as) cidadãos(ãs) e/ou ao patrimônio, conforme o ordenamento jurídico pátrio,
+não cabe ao IFBA apurar e penalizar, mas sim às instâncias judiciais competentes.
+
+
+Art. 13. Mediante registro da ocorrência, em formulário próprio, perante a Direção de Ensino por
+qualquer membro da comunidade acadêmica do IFBA, poderá ser aberto um Processo de Análise das
+Proibições e Responsabilidades do Estudante (PAPRE).
+§ 1º. Nos casos de condutas incompatíveis de baixa e média gravidade, deve-se evitar a abertura de
+PAPRE e priorizar a orientação e as formas alternativas de equalização de conflitos, por meio da
+mediação e conciliação, assim como a orientação e comunicação aos(às) responsáveis, se discente
+menor de idade, realizadas pelo setor pedagógico, coordenação de curso ou equivalente. Os(As)
+discentes devem ser cientificados(as), por escrito, de todos os fatos ocorridos, sem prejuízo da
+instauração de PAPRE, caso não seja aceita a forma alternativa de resolução de conflitos;
+§ 2º. A reincidência em ações incompatíveis com este regulamento será considerada circunstância
+agravante, conforme Apêndice M deste documento.
+
+
+Art. 14. No caso de aplicação das ações educativas previstas nos incisos de I a V, do art. 11, dever-se-
+á seguir o disposto:
+I - A advertência verbal será registrada em documento próprio (Apêndice I) e enviada ao setor
+pedagógico, ou equivalente, devendo ser assinada pelo estudante e/ou responsável (quando menor de
+18 anos) ou, caso ele se negue, por testemunhasdo fato;
+a) A advertência verbal, quando aplicada pelo Diretor Geral ou Reitor, deverá ser acompanhada
+devidamente pelo setor pedagógico.
+II - A advertência escrita será registrada em documento próprio (Apêndice M) e o registro será
+enviado ao setor pedagógico ou equivalente e à Coordenação deRegistros Escolares;
+
+         Resolução CONSUP/IFBA nº 86, de 20 de dezembro de 2022 - Aprovação do Regulamento Discente
+                                                                                                      13
+III - A retratação verbal, quando aplicada, será conduzida pela Direção Geral ou Reitor, após a
+convocação das partes envolvidas no ato de condutas incompatíveis, com a presença de pelo menos um
+membro do setor pedagógico. O registro dessa ação deverá ser feito em documento específico,
+conforme apêndice I;
+IV - A retratação escrita deverá ser feita conforme documento específico (apêndice I);
+V - A Suspensão do acesso ao campus e das atividades estudantis, será conduzida pela Direção Geral
+ou Reitoria, após a convocação das partes envolvidas no ato de condutas incompatíveis com alta
+gravidade e/ou reincidência pelo discente, com a presença de pelo menos um membro do setor
+pedagógico e/ou responsável (quando menor de 18 anos). O registro dessa ação deverá ser feito em
+documento específico, conforme apêndice I.
+Parágrafo único: Ações educativas que comprometam, de forma direta e/ou indireta, a concretização
+do semestre letivo estudantil e a realização de atividades com relacionamento comprovado de emprego
+e trabalho do discente, serão conduzidas pela Direção de Ensino em conformidade com a necessidade
+Campus-Discente, de modo a promover sua execução sem ônus as partes pelo processo.
+
+
+Art. 15. Nos casos de estudantes menores de idade, as advertências escritas deverão ser assinadas
+pelos pais/responsáveis.
+
+
+Art. 16. As ações educativas previstas neste Regulamento só poderão ser aplicadas mediante abertura
+de Processo de Análise das Proibições e Responsabilidades do Estudante (PAPRE).
+
+
+. São consideradas circunstâncias atenuantes:
+I - Ser assíduo(a), comprometido(a) e responsável com as atividades pedagógicas obrigatórias e/ou
+optativas;
+II - Participar de atividades, em caráter voluntário, de cunho socioculturaldesenvolvidas no IFBA;
+III - Não ser reincidente nas práticas previstas no Art. 9º deste Regulamento;
+IV - Condutas incompatíveis com este Regulamento motivadas por relevantes fatores biopsicossociais,
+devidamente comprovados;
+V - Admitir responsabilidade espontaneamente e procurar, logo após o cometimento de ato proibido,
+evitar-lhe ou minorar-lhe as consequências;
+VI - Ter reparado o dano antes do fim do PAPRE;
+VII - Participar de atividades extracurriculares de ensino, pesquisa e extensão, desenvolvidas e/ou
+apoiadas pelo IFBA.
+Parágrafo único: A ocorrência de atenuante pode determinar a aplicação de ação educativa
+hierarquicamente inferior ou o arquivamento do processo, a critério da Direção de Ensino, Setor
+
+         Resolução CONSUP/IFBA nº 86, de 20 de dezembro de 2022 - Aprovação do Regulamento Discente
+                                                                                                       14
+Multidisciplinar e Coordenação de curso.
+
+
+Art. 18. Os(As) docentes e técnicos(as) administrativos(as) têm autonomia didático-pedagógica para
+resolver as situações ocorridas durante as atividades pedagógicas, observando as diretrizes e normas da
+Instituição.
+Parágrafo único: Os(a) docentes e técnicos(a) administrativos(a) devem comunicar, por meio de
+relatório, à equipe multidisciplinar ou à coordenação de curso a ocorrência de situações conflituosas.
+
+
+                                              CAPÍTULO V
+                 DO TERMO CIRCUNSTANCIADO ADMINISTRATIVO (TCA)
+
+
+Art. 19. O Termo Circunstanciado Administrativo (TCA) apresenta-se como uma solução
+alternativa de problemas relacionados com dano ou extravio de bens de pequeno valor e visa
+possibilitar ao(à) discente, que se declara culpado(a), a possibilidade de ressarcir ao erário o valor
+correspondente ao prejuízo causado, encerrando, com isso, a apuração para fins disciplinares.
+Parágrafo único: Para os fins do disposto neste artigo, considera-se prejuízo de pequeno valor aquele
+cujo preço de mercado, para aquisição, pelo IFBA, do bem extraviado ou danificado seja igual ou
+inferior ao limite estabelecido como de licitação dispensável, conforme lei 8.666/96 (Lei de Licitações
+e Contratos da Administração pública).
+
+
+Art. 20. Pode ser realizado o TCA nas situações em que o extravio ou dano de bens foi decorrente de:
+I - Uso regular/autorizado de bens ou de fatores que independeram da ação do(a) discente;
+II - Conduta culposa do(a) discente, ou seja, sem a intenção de gerar tal resultado.
+
+
+Art. 21. O TCA é apenas uma possibilidade, nunca uma imposição, uma vez que o ressarcimento via
+TCA só ocorre de maneira consensual, quando há aceitação de ressarcimento pelo(a) responsável.
+
+
+Art. 22. O TCA deverá ser lavrado pelo(a) chefe do setor responsável pela gerência de bens e
+materiais nos campi ou seu(sua) substituto(a), conforme apêndice L.
+
+
+Art. 23. O TCA deverá conter, necessariamente, o nome do(a) discente envolvido(a) e a descrição
+sucinta dos fatos que acarretaram o extravio ou o dano do bem, assim como o parecer conclusivo do(a)
+responsável pela sua lavratura.
+
+
+Art. 24. Concluído o TCA, o(a) responsável pela sua lavratura o encaminhará ao(à) diretor(a) geral do
+
+          Resolução CONSUP/IFBA nº 86, de 20 de dezembro de 2022 - Aprovação do Regulamento Discente
+                                                                                                          15
+campus, o(a) qual decidirá quanto ao acolhimento da proposta e devolvê-lo-á ao setor de administração
+e patrimônio do campus, para prosseguimento quanto aos demais controles patrimoniais internos.
+Parágrafo único: O(A) responsável pelo setor de administração e patrimônio do campus deverá
+comunicar a decisão do(a) diretor(a) geral do campus ao(à) discente, caso haja acolhimento da
+proposta, no prazo de 5 (cinco) dias úteis, contados a partir do recebimento do documento.
+
+
+Art. 25. O encerramento do TCA está condicionado ao ressarcimento ao erário do valor
+correspondente ao prejuízo causado, que deverá ser feito pelo(a) discente no prazo de 15 dias,
+contados a partir da comunicação sobre a decisão do(a) diretor(a) geral, das seguintes formas:
+I - Por meio de pagamento;
+II - Pela entrega de um bem de características iguais ou superiores ao danificado ouextraviado.
+Parágrafo único: O prazo estabelecido pode ser prorrogado por igual período, ante justificativa
+explícita.
+
+
+                                                CAPÍTULO VI
+      DA ANÁLISE DOS ATOS, FATOS E RESPONSABILIDADES DO(A) ESTUDANTE
+
+
+Art. 26. A Direção de Ensino tem a responsabilidade de recepcionar as ocorrências listadas no
+capítulo III, seção III e notificar, as referidas ocorrências, via SEI, ao Setor multidisciplinar ou
+equivalente (COTEP, DEPAE, entre outros) e Coordenação do Curso à qual os(as) estudantes
+envolvidos(as) nas ocorrências estão vinculados(as).
+
+
+Art. 27. A Direção de Ensino, o Setor multidisciplinar (ou equivalente) e a Coordenação de Curso
+farão a primeira análise da ocorrência e indicarão as ações compatíveis com os atos, fatos e
+responsabilidades dos(as) estudantes.
+§ 1º. A Direção de Ensino, o Setor multidisciplinar (ou equivalente) e a Coordenação de Curso têm a
+responsabilidade de deliberar se a ocorrência será registrada e arquivada,encaminhada para a Mediação
+e Conciliação (Capítulo VIII) ou para abertura do PAPRE (Capítulo VII).
+§ 2º. A análise a que se refere o caput desse artigo deve ser feita por um(a) servidor(a) de cada um dos
+respectivos setores.
+§ 3º. A Direção de Ensino, ao ser acionada, tem o prazo de até 5 (cinco) dias letivos para notificar o
+Setor Multidisciplinar (ou equivalente) e Coordenação de Curso sobre a ocorrência. Os três setores,
+coordenados pela Direção de Ensino, por sua vez, têm o prazo de até 10 (dez) dias letivos, contados a
+partir da notificação para, conjuntamente, deliberar e encaminhar as ações futuras.
+
+
+
+             Resolução CONSUP/IFBA nº 86, de 20 de dezembro de 2022 - Aprovação do Regulamento Discente
+                                                                                                       16
+                                             CAPÍTULO VII
+      DO PROCESSO DE ANÁLISE DAS PROIBIÇÕES E RESPONSABILIDADES DO
+                                     (DA) ESTUDANTE - PAPRE
+
+
+Art. 28. A instauração do Processo de Análise das Proibições e Responsabilidades do Estudante
+(PAPRE) será solicitada com base na recomendação do setor multidisciplinar (ou equivalente),
+Coordenação de Curso e DEPEN (capítulo VI), de acordo com o art. 16 do Capítulo IV.
+
+
+Art. 29. O PAPRE será instaurado por meio de portaria do(a) Diretor(a) Geral do campus ou do(a)
+Reitor(a) - nos casos de comprovada suspeição do dirigente da unidade), solicitada pela Direção de
+Ensino.
+§ 1º. A comissão instituída por portaria realizará a apuração de responsabilidade do(a) discente por
+suposto ato praticado no exercício de suas atividades acadêmicas de ensino, pesquisa, extensão e
+inovação ou que, com elas, tenha relação.
+§ 2º. O PAPRE obedecerá às normas e princípios constitucionais e legais para o seu regular
+processamento, observando os princípios da administração pública.
+§ 3º. A Comissão deverá ser constituída por três servidores/as do campus, tendo no mínimo 1
+(um/uma) servidor/a do quadro docente e um(uma) servidor(a) do quadro Técnico Administrativo do
+setor multidisciplinar.
+§ 4º. É impedido de atuar no PAPRE o(a) servidor(a) que:
+I - Tenha interesse direto ou indireto na matéria;
+II - Tenha participado ou venha participar como perito, testemunha ou representanteou se tais situações
+envolverem o cônjuge, companheiro ou parente e afins até o terceiro grau;
+III- Esteja litigando judicial ou administrativamente com o interessado ou com o respectivo cônjuge ou
+companheiro;
+§ 5º. Em caso de suspeição de autoridade do servidor, será verificado se o mesmo possui amizade
+íntima ou inimizade notória com algum dos interessados ou com os respectivos cônjuges,
+companheiros, parentes e afins até o terceiro grau.
+
+
+Art. 30. O PAPRE se desenvolverá nas seguintes etapas:
+I – Instauração do PAPRE, com a publicação da portaria pelo Gabinete da Direção Geral ou Reitoria;
+II – Comunicação da instauração do PAPRE, pelo Gabinete da Direção Geral ou da Reitoria, à Direção
+de Ensino, setor multidisciplinar (ou equivalente) e coordenaçãode curso;
+III – Processo de análise, que compreende instrução, defesa e parecer;
+§ 1º. O(a) discente ou seu(ua) representante legal deverá ser notificado da abertura do PAPRE que
+
+          Resolução CONSUP/IFBA nº 86, de 20 de dezembro de 2022 - Aprovação do Regulamento Discente
+                                                                                                       17
+procederá à apuração do ato em conflito com as normas, especificadas no art. 9º, seção III.
+§ 2º. É assegurado ao discente o direito de acompanhar o PAPRE, pessoalmente, se maior de idade;
+por intermédio de seu responsável, se menor de idade; ou por procurador legalmente constituído.
+§ 3º. Na fase de análise, a comissão promoverá a tomada de depoimentos e demais procedimentos
+necessários à elucidação dos fatos.
+§ 4º. Os depoimentos deverão ser prestados oralmente e reduzidos a termos pela comissão. As
+citações para depoimento durante o processo deverão ser expedidas no prazo mínimo de 48 horas
+anteriores à data da oitiva.
+§ 5º. Tipificado o ato em conflito com as normas, de acordo com as proibições previstas no art. 9º e
+no apêndice A deste regulamento, será formulada a notificação do discente, com a especificação do
+fato a eles imputados.
+§ 6º. O(A) notificado(a) será citado pelo(a) presidente da comissão, para apresentar defesa escrita no
+prazo de dez (10) dias, assegurando-lhe vistas e/ou cópia dos registros do processo.
+§ 7º. No PAPRE, será garantido ao(à) discente o exercício do contraditório e da ampla defesa, com a
+utilização de todos os meios e recursos admitidos em direito.
+§ 8º. Em caso de não comparecimento e não apresentação de defesa pelo(a) discente, a comissão
+analisará a denúncia nos fatos arrolados.
+§ 9º. Analisados os fatos, a comissão elaborará parecer minucioso, em que apresentará as peças
+principais dos registros e mencionará as provas em que se baseou, para formar a sua convicção;
+§ 10. O parecer do PAPRE será remetido à autoridade competente do campus ou reitoria,para que,
+de acordo com as recomendações, sejam aplicadas as devidas ações educativas;
+§ 11. Em caso de necessidade, as recomendações resultantes do PAPRE podem sersubmetidas a
+PROJUR como instância de assessoramento.
+
+
+Art. 31. O prazo para a conclusão do PAPRE não excederá 30 (trinta) dias, contados da data de
+publicação do ato que constituir a comissão, admitida a sua prorrogação por igual prazo, quando as
+circunstâncias o exigirem.
+
+
+Art. 32. Do PAPRE poderá resultar:
+I – Arquivamento do processo;
+II – Aplicação de ação educativa de acordo com o apêndice I.
+
+
+ Art. 33. O estudante que solicitar trancamento de matrícula ou transferência, em decorrência do
+ PAPRE, deverá ser acompanhado pela psicologia e/ou serviço social do campus para que lhe seja
+ assegurado o apoio necessário à sua permanência na instituição.
+
+          Resolução CONSUP/IFBA nº 86, de 20 de dezembro de 2022 - Aprovação do Regulamento Discente
+                                                                                                      18
+
+
+ Art. 34. Ao discente, está garantido o direito a recurso, após notificação oficial da conclusão do
+ PAPRE pelo(a) Diretor(a) do Campus, podendo este direito ser exercido pelo próprio discente ou
+ por seu procurador legalmente constituído, em razões de legalidade e de mérito.
+I – Salvo disposição legal específica, o prazo para interposição do pedido de recurso administrativo
+por escrito ao(à) Reitor/a, quando se tratar de ato do/a Diretor(a) Geral, e ao Conselho Superior
+(CONSUP), quando se tratar de ato do(a) Reitor(a) será de dez (10) dias, e no caso de mais de um
+denunciado será de vinte (20) dias;
+II - O recurso, uma vez interposto terá efeito suspensivo, devendo ser decidido dentro de trinta (30)
+dias consecutivos e terá preferência na pauta, quando submetido ao CONSUP;
+III- O recurso será interposto por meio de requerimento conforme apêndice N, no qual o recorrente
+deverá expor os fundamentos do pedido de reexame;
+IV – O recurso não será conhecido quando interposto:
+a) fora do prazo;
+b) perante outro órgão que não seja o Gabinete da Reitoria ou ConselhoSuperior;
+c) por quem não seja legitimado;
+d) após exaurida a última esfera executiva, de acordo com o inciso I desteartigo.
+V – O(A) Reitor(a) do IFBA e/ou CONSUP do IFBA poderá confirmar, modificar, atenuar, anular ou
+revogar, total ou parcialmente, a decisão recorrida;
+VI – Os PAPRE de que resultem em ações educativas poderão ser revistos, a qualquer tempo, a
+pedido, ou de ofício quando surgirem fatos novos ou circunstâncias relevantes suscetíveis de
+justificativa à inadequação da medida aplicada.
+
+
+                                           CAPÍTULO VIII
+                                DA MEDIAÇÃO E CONCILIAÇÃO
+
+
+Art. 35. A mediação é uma forma de resolver conflitos. O mediador busca articular e facilitar o
+diálogo entre as partes interessadas, para que elas construam, com autonomia e solidariedade, o melhor
+resultado para o problema. O objetivo é indicar um caminho para a ação de educadores, ação essa
+voltada a uma formação integral, compreendendo o papel da escola e do trabalho colaborativo que
+devem ser inerentes ao cotidiano dessa instituição. Neste sentido, se consideram e valorizam todos(as)
+os(as) envolvidos(as) no processo de ensino-aprendizagem, a partir de uma visão de intervenção
+educativa que tem na colaboração um meio de reflexão e ação.
+
+
+Art. 36. A conciliação é um método alternativo de equalização de conflitos e problemas, conduzida
+
+         Resolução CONSUP/IFBA nº 86, de 20 de dezembro de 2022 - Aprovação do Regulamento Discente
+                                                                                                      19
+por um(a) conciliador(a). É um processo que deverá ser consensual, na busca de uma efetiva superação
+do conflito e restabelecimento, dentro dos limites possíveis, da boa relação social entre as partes
+interessadas.
+
+
+Art. 37. A mediação e a conciliação são norteadas por princípios como celeridade; autonomia da
+vontade; confidencialidade; decisão informada; imparcialidade; empatia; disseminação da cultura do
+diálogo e pacificação social. É recomendado que o mediador ou conciliador possua formação em
+Mediação de Conflitos.
+
+
+Art. 38. Sendo o princípio da autonomia da vontade um dos alicerces para a mediação/conciliação, é
+direito das partes decidirem por este método alternativo de equalização de conflitos. As partes ficam
+livres para pactuar, como desejarem, em qualquer etapa do processo.
+
+
+Art. 39. O setor multidisciplinar (ou equivalentes nos campi) e o setor pedagógico devem orientar as
+partes envolvidas sobre o processo de mediação/conciliação e verificar a disponibilidade destas em
+participar. Tendo a concordância dos(as) envolvidos(as), deve-se dar prosseguimento à ação de
+mediação/conciliação. Efetivada a mediação/conciliação, esta deve ser registrada em formulário
+específico, conforme Apêndice J. Não havendo concordância das partes com relação à solução
+alternativa, deverá ser aberto o PAPRE.
+Parágrafo único: O setor pedagógico, por meio dos profissionais que o compõem, poderá realizar ele
+mesmo a mediação/conciliação e/ou convidar outros profissionais da escola, que tenham perfil
+adequado para a tarefa, para realizá-la.
+
+
+Art. 40. A qualquer momento, o(a) participante da mediação/conciliação pode manifestar o desejo de
+interromper     o   processo   –    fato   que    implica    o    encaminhamento,       por   parte   do(a)
+mediador(a)/conciliador(a), de relatório do ocorrido, até o momento da interrupção da
+mediação/conciliação, e do registro da ocorrência à Direção de Ensino.
+
+
+Art. 41. São atribuições do(a) mediador(a)/conciliador(a):
+I - Atuar como facilitador(a) da comunicação, criando um contexto propício ao entendimento mútuo, à
+aproximação de interesses, à manutenção do respeito entre todos e à empatia, ou seja, ao estímulo
+para que ambas as partes reflitam sobre a situação na perspectiva da outra;
+II - Estimular as partes a encontrarem alternativas de solucionar o conflito/problema e, se necessário,
+propor soluções, no caso da conciliação;
+III - Oportunizar um acordo entre as partes que possibilite o restabelecimento da relação interpessoal;
+
+         Resolução CONSUP/IFBA nº 86, de 20 de dezembro de 2022 - Aprovação do Regulamento Discente
+                                                                                                      20
+IV- Redigir relatório, ao final do processo de mediação/conciliação, qualquer que seja o resultado, com
+assinatura dos(as) envolvidos(as), e encaminhá-lo a quem solicitou a mediação/conciliação e à Direção
+de Ensino.
+
+
+Art. 42. O prazo de conclusão do processo de mediação/conciliação será de 10 (dez) dias, prorrogáveis
+pelo mesmo período.
+
+
+Art. 43. Nos casos em que não houver mediação/conciliação, o relatório e o registro da ocorrência
+deverão ser encaminhados à Direção de Ensino.
+
+
+                                            CAPÍTULO IX
+                                    DAS DISPOSIÇÕES GERAIS
+
+
+Art. 44. Aos campi e a reitoria é facultado a criação de normas específicas para utilização de todas as
+suas dependências e de acordos de convivência.
+§ 1º. Entende-se, por acordo de convivência, um conjunto de regras combinadas entre professores,
+discentes e técnicos com a finalidade de estabelecer a boa convivência no ambiente escolar e que não
+contrariem o presente regulamento.
+§ 2º. O acordo de convivência poderá ser estabelecido por modalidade.
+§ 3º. O acordo de convivência deverá ser acessível a todos os(as) discentes.
+
+
+Art. 45. É facultado aos campi a criação de Comissão ou Comitê permanente para Análise dos Atos,
+Fatos e Responsabilidades dos(das) discente(s), formado por equipe multidisciplinar.
+
+
+Art. 46. Esta resolução deverá ser revisada a cada 4 anos, a contar da data de sua publicação, com
+possibilidade de revisão a pedido do CONSUP a qualquer tempo.
+
+
+Art. 47. Os casos omissos serão analisados pela Direção de Ensino, Equipe Multidisciplinar e
+Coordenação de curso.
+
+
+Art. 48. Este regulamento entra em vigor após 90 dias corridos da data de sua publicação, revogadas
+as disposições em contrário.
+
+
+Art. 49. As Diretorias Gerais dos campi e Reitoria podem, em exercício de suas atividades
+regulamentares, propor ao CONSUP instauração de ações educacionais omissas no documento para
+
+         Resolução CONSUP/IFBA nº 86, de 20 de dezembro de 2022 - Aprovação do Regulamento Discente
+                                                                                                      21
+situações de alta gravidade ou recorrência.
+
+
+Art. 50 - Será de responsabilidade da Coordenação de Registros Escolares ou setor equivalente o
+arquivamento das ocorrências e ações aplicadas nas pastas dos respectivos estudantes.
+
+
+Art. 51. Os campi terão o prazo máximo de 90 dias para implementação deste regulamento.
+
+
+
+
+         Resolução CONSUP/IFBA nº 86, de 20 de dezembro de 2022 - Aprovação do Regulamento Discente
+                                                                                             22
+
+
+
+
+                                   APÊNDICES
+
+
+
+
+Resolução CONSUP/IFBA nº 86, de 20 de dezembro de 2022 - Aprovação do Regulamento Discente
+                                                                                                                                                       23
+
+
+                                                                APÊNDICE A
+                                                                TIPIFICAÇÃO
+
+
+                                                     Grau de
+            Proibições e Responsabilidades                                Medidas relativas ao descumprimento dos deveres do Estudante
+                                                    Gravidade
+  I. Estabelecer, explorar ou praticar jogo de         Baixa     1. Advertência verbal;
+       azar de qualquer natureza ou que envolva                  2. Advertência escrita, em caso de reincidência, com notificação à família, em caso
+       valores pecuniários                                       de estudantes com menos de 18 anos de idade;
+                                                                 3. Retratação escrita, no caso de ocorrência da segunda reincidência, com
+                                                                 notificação à família, em caso de estudantes com menos de 18 anos de idade;
+                                                                 4. Participação ativa na elaboração e execução de atividade pedagógica específica,
+                                                                 relacionada ao ato proibido praticado, no caso de ocorrência da terceira
+                                                                 reincidência, com notificação à família, em caso de estudantes com menos de 18
+                                                                 anos de idade.
+ II.    Exercer atividades comerciais ou de            Baixa     1. Advertência verbal;
+       propaganda, no âmbito do IFBA, excetuando-                2. Advertência escrita, em caso de reincidência, com notificação à família, em caso
+       se os casos devidamenteautorizados.                       de estudantes com menos de 18 anos de idade;
+                                                                 3. Retratação escrita, no caso de ocorrência da segunda reincidência, com
+                                                                 notificação à família, em caso de estudantes com menos de 18 anos de idade;
+                                                                 4. Participação ativa na elaboração e execução de atividade pedagógica específica,
+                                                                 relacionada ao ato proibido praticado, no caso de ocorrência da terceira
+                                                                 reincidência, com notificação à família, em caso de estudantes com menos de 18
+                                                                 anos de idade.
+III.    Atribuir caráter individual, pessoal ou        Baixa     1. Advertência verbal;
+       particular ao uniforme adotado pela                       2. Advertência escrita, em caso de reincidência, com notificação à família, em caso
+       instituição.                                              de estudantes com menos de 18 anos de idade;
+                                                                 3. Retratação escrita, no caso de ocorrência da segunda reincidência, com
+                                                                 notificação à família, em caso de estudantes com menos de 18 anos de idade;
+                                                                 4. Participação ativa na elaboração e execução de atividade pedagógica específica,
+                                                                 relacionada ao ato proibido praticado, no caso de ocorrência da terceira
+                                                                 reincidência, com notificação à família, em caso de estudantes com menos de 18
+                                                                 anos de idade.
+
+
+
+                             Resolução CONSUP/IFBA nº 86, de 20 de dezembro de 2022 - Aprovação do Regulamento Discente
+                                                                                                                                                     24
+
+
+
+
+IV. Permanecer nas dependências do campus         Baixa     1. Advertência verbal;
+    sem estar devidamente uniformizado, nos                 2. Advertência escrita, em caso de reincidência, com notificação à família, em caso
+    casos em que for exigido;                               de estudantes com menos de 18 anos de idade;
+                                                            3. Retratação escrita, no caso de ocorrência da segunda reincidência, com notificação
+                                                            à família, em caso de estudantes com menos de 18 anos de idade;
+                                                            4. Participação ativa na elaboração e execução de atividade pedagógica específica,
+                                                            relacionada ao ato proibido praticado, no caso de ocorrência da terceira reincidência,
+                                                            com notificação à família, em caso de estudantes com menos de 18 anos de idade.
+V. Utilizar e/ou retirar de qualquer ambiente, Gravíssima 1. Reparação, no caso de haver dano e/ou prejuízo;
+   sem      estar    legalmente     autorizado,           2. Encaminhamento do caso às instâncias judiciais competentes.
+   documentos, livros, equipamentos ou bens
+   pertencentes ao patrimônio público ou a
+   terceiros.
+ VI. Cometer ofensa ou proceder de forma          Média     1. Retratação verbal;
+     desrespeitosa contra qualquer pessoa no                2. Retratação escrita, no caso de ocorrência da segunda reincidência, com notificação
+     âmbito da Instituição.                                 à família, em caso de estudantes com menos de 18 anos de idade;
+                                                            3.Participação ativa na elaboração e execução de atividade pedagógica específica,
+                                                            relacionada ao ato proibido praticado, no caso de ocorrência da terceira reincidência,
+                                                            com notificação à família, em caso de estudantes com menos de 18 anos de idade.
+VII. Agredir fisicamente qualquer pessoa no Gravíssima 1. Participação ativa na elaboração e execução de atividade pedagógica específica,
+     âmbito da Instituição ou causar lesão             relacionada ao ato proibido praticado, com notificação à família, em caso de
+     corporal de qualquer natureza ou morte;           estudantes com menos de 18 anos de idade;
+                                                       2. Encaminhamento do caso às instâncias judiciais competentes.
+
+
+
+
+                          Resolução CONSUP/IFBA nº 86, de 20 de dezembro de 2022 - Aprovação do Regulamento Discente
+                                                                                                                                                         25
+
+VIII. Provocar dano moral, psicológico contra                   1. Retratação escrita, com notificação à família, em caso de estudantes com menos
+qualquer pessoa no âmbito da Instituição.     Gravíssima        de 18 anos de idade;
+                                                                2. Participação ativa na elaboração e execução de atividade pedagógica específica,
+                                                                relacionada ao ato proibido praticado, no caso de reincidência, com notificação à
+                                                                família, em caso de estudantes com menos de 18 anos de idade.
+                                                                Obs.: Poderá haver encaminhamento do caso às instâncias judiciais competentes a
+                                                                depender das circunstâncias verificadas.
+
+IX - Manifestar ações preconceituosas Grave (Se 1. Retratação escrita, com notificação à família, em caso de estudantes com menos
+relacionadas às categorias de gênero, menor de 18 de 18 anos de idade;
+raça/cor/etnia, orientação sexual, situação          anos)     2. Participação ativa na elaboração e execução de atividade pedagógica específica,
+socioeconômica, crença/religião, origem e                      relacionada ao ato proibido praticado, no caso de reincidência.
+aspectos regionais, aparência, pessoas com
+                                                   Gravíssima 1. Retratação escrita;
+deficiência e/ou necessidades específicas, dentre
+                                                  (Se maior de 2. Participação ativa na elaboração e execução de atividade pedagógica específica,
+outras, no âmbito do IFBA.
+                                                    18 anos) relacionada ao ato proibido praticado, no caso de reincidência.
+                                                               Obs.: Cabe à administração o encaminhamento do caso às instâncias judiciais
+                                                               competentes, independente das ações educativas pedagógicas aplicadas.
+
+
+X. Fumar nas dependências do IFBA nos termos         Baixa      1. Advertência verbal;
+da legislação vigente.                                          2. Advertência escrita, em caso de reincidência, com notificação à família, em caso
+                                                                de estudantes com menos de 18 anos de idade;
+                                                                3. Retratação escrita, no caso de ocorrência da segunda reincidência, com
+                                                                notificação à família, em caso de estudantes com menos de 18 anos de idade;
+                                                                4. Participação ativa na elaboração e execução de atividade pedagógica específica,
+                                                                relacionada ao ato proibido praticado, no caso de ocorrência da terceira reincidência,
+                                                                com notificação à família, em caso de estudantes com menos de 18 anos de idade.
+XI. Facilitar o acesso de terceiros à instituição,   Média      1. Advertência escrita, com notificação à família, em caso de estudantes com menos
+de forma ilícita.                                               de 18 anos de idade.
+                                                                Obs.: Cabe à administração, caso haja, desta conduta incompatível, consequências
+                                                                previstas no ordenamento jurídico pátrio, o encaminhamento do caso às instâncias
+                                                                judiciais competentes, independente das ações educativas pedagógicas aplicadas.
+
+
+
+
+                             Resolução CONSUP/IFBA nº 86, de 20 de dezembro de 2022 - Aprovação do Regulamento Discente
+                                                                                                                                                         26
+
+XII. Promover coletas, festas, rifas ou outras       Baixa      1. Advertência verbal;
+modalidades de arrecadação de dinheiro e                        2. Advertência escrita, em caso de reincidência, com notificação à família, em caso
+doações, usando o nome do IFBA/Campus sem                       de estudantes com menos de 18 anos de idade;
+expressa autorização da direção geral do                        3. Retratação escrita, no caso de ocorrência da segunda reincidência, com
+campus.                                                         notificação à família, em caso de estudantes com menos de 18 anos de idade;
+                                                                4. Participação ativa na elaboração e execução de atividade pedagógica específica,
+                                                                relacionada ao ato proibido praticado, no caso de ocorrência da terceira reincidência,
+                                                                com notificação à família, em caso de estudantes com menos de 18 anos de idade.
+                                                     Média      1. Advertência escrita, conjugada com retratação verbal, com notificação à família,
+XIII. Impedir o direito de ir e vir dos colegas às              em caso de estudantes com menos de 18 anos de idade;
+aulas.                                                         Retratação escrita, em caso de reincidência, com notificação à família, em caso de
+                                                               estudantes com menos de 18 anos de idade;
+                                                                2. Participação ativa na elaboração e execução de atividade pedagógica específica,
+                                                                relacionada ao ato proibido praticado, no caso de ocorrência da segunda
+                                                                reincidência, com notificação à família, em caso de estudantes com menos de 18
+                                                                anos de idade.
+
+
+                                                     Baixa      1. Advertência verbal;
+XIV. Distribuir impressos, folhetos ou dar                      2. Advertência escrita, em caso de reincidência, com notificação à família, em caso
+declarações em meios de comunicação em nome                     de estudantes com menos de 18 anos de idade;
+da Instituição, sem autorização expressa da                     3. Retratação escrita, no caso de ocorrência da segunda reincidência, com
+Direção do campus.                                              notificação à família, em caso de estudantes com menos de 18 anos de idade;
+                                                                4. Participação ativa na elaboração e execução de atividade pedagógica específica,
+                                                                relacionada ao ato proibido praticado, no caso de ocorrência da terceira reincidência,
+                                                                com notificação à família, em caso de estudantes com menos de 18 anos de idade.
+                                                     Baixa      1. Advertência verbal;
+XV. Destruir a área verde nos campi do IFBA;                    2. Advertência escrita, em caso de reincidência, com notificação à família, em caso
+                                                                de estudantes com menos de 18 anos de idade;
+                                                                3. Retratação escrita, no caso de ocorrência da segunda reincidência, com
+                                                                notificação à família, em caso de estudantes com menos de 18 anos de idade;
+                                                                4. Participação ativa na elaboração e execução de atividade pedagógica específica,
+                                                                relacionada ao ato proibido praticado, no caso de ocorrência da terceira reincidência,
+                                                                com notificação à família, em caso de estudantes com menos de 18 anos de idade.
+
+
+
+                             Resolução CONSUP/IFBA nº 86, de 20 de dezembro de 2022 - Aprovação do Regulamento Discente
+                                                                                                                                                         27
+
+                                                    Gravíssima 1. Retratação escrita, com notificação à família, em caso de estudantes com menos
+XVI. Fazer uso de instrumentos cortantes para                  de 18 anos de idade.
+fins violentos.                                                Obs.: Cabe à administração, caso haja, desta conduta incompatível, consequências
+                                                               previstas no ordenamento jurídico pátrio, o encaminhamento do caso às instâncias
+                                                               judiciais competentes, independente das ações educativas pedagógicas aplicadas.
+                                                                1. Advertência escrita, conjugada com retratação verbal, com notificação à família,
+XVII. Usar de meios ilícitos ou agir de forma         Média     em caso de estudantes com menos de 18 anos de idade;
+fraudulenta e antiética para auferir frequência,                2. Retratação escrita, em caso de reincidência, com notificação à família, em caso de
+nota ou conceito e/ou realizar atividades                       estudantes com menos de 18 anos de idade.
+avaliativas em benefício próprio ou de terceiros.               3. Participação ativa na elaboração e execução de atividade pedagógica específica,
+                                                                relacionada ao ato proibido praticado, no caso de ocorrência da segunda
+                                                                reincidência, com notificação à família, em caso de estudantes com menos de 18
+                                                                anos de idade.
+
+
+                                                                1. Advertência escrita, com notificação à família, em caso de estudantes com menos
+XVIII. Depredar o patrimônio público.                 Média     de 18 anos de idade;
+                                                                2. Reparação do dano causado ao patrimônio público ou particular;
+                                                                3. Participação ativa na elaboração e execução de atividade pedagógica específica,
+                                                                relacionada ao ato proibido praticado, no caso de reincidência, com notificação à
+                                                                família, em caso de estudantes com menos de 18 anos de idade.
+                                                                Obs.: A reparação do dano, de que trata o item 2, só poderá ocorrer de maneira
+                                                                consensual, quando há aceitação de ressarcimento pelo responsável.
+                                                                1. Retratação verbal;
+XIX. Desrespeitar, ofender, provocar, desacatar       Média     2. Retratação escrita, no caso de ocorrência da segunda reincidência, com
+com palavras, gestos ou atos que ameacem ou                     notificação à família, em caso de estudantes com menos de 18 anos de idade;
+causem danos físicos, morais ou psicológicos                    3. Participação ativa na elaboração e execução de atividade pedagógica específica,
+contra qualquer pessoa no âmbito da instituição.                relacionada ao ato proibido praticado, no caso de ocorrência da terceira reincidência,
+                                                                com notificação à família, em caso de estudantes com menos de 18 anos de idade.
+                                                                1. Advertência escrita, conjugado com a participação na elaboração e execução de
+XX. Fazer uso de drogas ilícitas, bebidas             Grave     atividade pedagógica específica, relacionada ao ato proibido praticado, com
+alcoólicas, psicotrópicos sem autorização médica,               notificação à família, em caso de estudantes com menos de 18 anos de idade.
+bem como acessar as dependências da escola sob
+o efeito dos mesmos.
+
+
+                            Resolução CONSUP/IFBA nº 86, de 20 de dezembro de 2022 - Aprovação do Regulamento Discente
+                                                                                                                                                     28
+
+                                                          1. Participação ativa na elaboração e execução de atividade pedagógica específica,
+XXI. Praticar cyberbullying - prática repetida Gravíssima relacionada ao ato proibido praticado, com notificação à família, em caso de
+e/ou por tempo prolongado de atos de dano moral           estudantes com menos de 18 anos de idade.
+e/ou violência psicológica que causem                     Obs.: Cabe à administração, caso haja, desta conduta incompatível, consequências
+humilhação ou constrangimento a outrem,                   previstas no ordenamento jurídico pátrio, o encaminhamento do caso às instâncias
+utilizando a internet e/ou outras tecnologias             judiciais competentes, independente das ações educativas pedagógicas aplicadas.
+relacionadas.
+                                                           1. Participação ativa na elaboração e execução de atividade pedagógica específica,
+XXII. Portar qualquer tipo de arma, ainda que o Gravíssima relacionada ao ato proibido praticado, com notificação à família, em caso de
+discente possua porte de arma de fogo autorizado           estudantes com menos de 18 anos de idade.
+por lei, salvo autorização expressa da direção e           2. Encaminhamento do caso às instâncias judiciais competentes;
+do conselho do campus.
+
+
+                                                               1. Advertência verbal;
+XXIII. Causar transtorno e ou impedir a             Baixa      2. Advertência escrita, em caso de reincidência, com notificação à família, em caso
+realização de qualquer atividade institucional.                de estudantes com menos de 18 anos de idade;
+                                                               3.Participação ativa na elaboração e execução de atividade pedagógica específica,
+                                                               relacionada ao ato proibido praticado, com notificação à família, em caso de
+                                                               estudantes com menos de 18 anos de idade.
+
+
+
+                                                               1.Advertência escrita, conjugado com a participação na elaboração e execução de
+XXIV. Praticar atividade de cunho sexual nas        Grave      atividade pedagógica específica, relacionada ao ato proibido praticado, com
+dependências do IFBA.                                          notificação à família, em caso de estudantes com menos de 18 anos de idade.
+
+
+XXV. Portar ou fazer uso indevido de materiais             1. Participação ativa na elaboração e execução de atividade pedagógica específica,
+inflamáveis ou explosivos de qualquer natureza, Gravíssima relacionada ao ato proibido praticado, com notificação à família, em caso de
+                                                           estudantes com menos de 18 anos de idade;
+ressalvados os casos de atividades previstas em
+                                                           2. Encaminhamento do caso às instâncias judiciais competentes.
+cursos e pesquisas.
+
+                                                               1. Advertência escrita, conjugado com a participação na elaboração e execução de
+XXVI. Alterar ou deturpar o teor de documentos      Grave      atividade pedagógica específica, relacionada ao ato proibido praticado, com
+oficiais do IFBA.                                              notificação à família, em caso de estudantes com menos de 18 anos de idade.
+
+                           Resolução CONSUP/IFBA nº 86, de 20 de dezembro de 2022 - Aprovação do Regulamento Discente
+                                                                                                                                                      29
+
+                                                                Obs.: Cabe à administração, caso haja, desta conduta incompatível, consequências
+                                                                previstas no ordenamento jurídico pátrio, o encaminhamento do caso às instâncias
+                                                                judiciais competentes, independente das ações educativas pedagógicas aplicadas.
+                                                                1. Advertência escrita, conjugado com a participação na elaboração e execução de
+XXVII. Organizar, incitar e/ou praticar trotes ou    Grave      atividade pedagógica específica, relacionada ao ato proibido praticado, com
+desafios cibernéticos ou presencial que                         notificação à família, em caso de estudantes com menos de 18 anos de idade.
+promovam risco à integridade física ou à saúde                  Obs.: Cabe à administração, caso haja, desta conduta incompatível, consequências
+de qualquer pessoa.                                             previstas no ordenamento jurídico pátrio, o encaminhamento do caso às instâncias
+                                                                judiciais competentes, independente das ações educativas pedagógicas aplicadas.
+                                                                1. Advertência verbal;
+XXVIII. Praticar maus-tratos, de qualquer ordem,     Média      2. Advertência escrita, conjugado com a participação na elaboração e execução de
+aos animais que se encontrarem na área dos campi                atividade pedagógica específica, em caso de reincidência, relacionada ao ato
+do IFBA.                                                        proibido praticado, com notificação à família, em caso de estudantes com menos de
+                                                                18 anos de idade.
+                                                                1. Advertência verbal;
+XXIX. Ausentar-se da instituição sem prévia          Baixa      2. Advertência escrita, em caso de reincidência, com notificação à família, em caso
+justificativa e autorização do setor         de                 de estudantes com menos de 18 anos de idade.
+Atendimento ao Estudante, ou equivalente, e/ou
+coordenação do curso, quando menor de idade.
+                                                                1. Advertência verbal;
+XXX. Cometer irregularidade que atente contra o      Média      2. Advertência escrita, conjugado com a participação na elaboração e execução de
+direito autoral e o uso de nome alheio.                         atividade pedagógica específica, relacionada ao ato proibido praticado, com
+                                                                notificação à família, em caso de estudantes com menos de 18 anos de idade.
+
+                                                 1. Participação ativa na elaboração e execução de atividade pedagógica específica,
+XXXI. Dirigir veículo automotivo, nas Gravíssima relacionada ao ato proibido praticado, com notificação à família, em caso de
+dependências do campus, com velocidade acima     estudantes com menos de 18 anos de idade;
+da permitida, colocando em risco a integridade   2. Encaminhamento do caso às instâncias judiciais competentes.
+física de outros e/ou causando danos materiais.
+
+
+
+
+                            Resolução CONSUP/IFBA nº 86, de 20 de dezembro de 2022 - Aprovação do Regulamento Discente
+                                                                                                                                                      30
+
+                                                                1. Advertência verbal;
+XXXII. Transgredir normas de funcionamento ou        Baixa      2. Advertência escrita, em caso de reincidência, com notificação à família, em caso
+de segurança da biblioteca, do refeitório, do                   de estudantes com menos de 18 anos de idade.
+laboratório, da sala de aula, bem como dos
+ambientes das visitas técnicas e aulas de campo.
+
+                                                                1. Advertência escrita, conjugado com a participação na elaboração e execução de
+XXXIII. Adulterar    ou falsificar pareceres e       Grave      atividade pedagógica específica, relacionada ao ato proibido praticado, com
+documentos.                                                     notificação à família, em caso de estudantes com menos de 18 anos de idade.
+                                                                Obs.: Cabe à administração, caso haja, desta conduta incompatível, consequências
+                                                                previstas no ordenamento jurídico pátrio, o encaminhamento do caso às instâncias
+                                                                judiciais competentes, independente das ações educativas pedagógicas aplicadas.
+
+                                                                1. Advertência escrita, conjugado com a participação na elaboração e execução de
+XXXIV. Promover ou participar de atos de             Grave      atividade pedagógica específica, relacionada ao ato proibido praticado, com
+vandalismo.                                                     notificação à família, em caso de estudantes com menos de 18 anos de idade.
+                                                                Obs.: Cabe à administração, caso haja, desta conduta incompatível, consequências
+                                                                previstas no ordenamento jurídico pátrio, o encaminhamento do caso às instâncias
+                                                                judiciais competentes, independente das ações educativas pedagógicas aplicadas.
+
+
+
+
+                            Resolução CONSUP/IFBA nº 86, de 20 de dezembro de 2022 - Aprovação do Regulamento Discente
+                                                                                                       31
+                                              APÊNDICE B
+
+                          MODELO DE REGISTRO DA OCORRÊNCIA
+
+
+Nome do(a)denunciante:
+Curso:                                                           Turma:
+Turno:
+Nome                 dos(as)                   estudantes                    envolvidos               nos
+atos:
+Curso:                                             Turma:               Turno:
+           Descrição              do            (os)             fato             (os)           Ocorridos
+
+
+
+
+                         /BA,       de                      de          .
+
+
+
+Assinatura:
+
+
+
+
+         Resolução CONSUP/IFBA nº 86, de 20 de dezembro de 2022 - Aprovação do Regulamento Discente
+                                                                                                     32
+
+                                           APÊNDICE C
+
+
+
+                                  COMUNICAÇÃO AO(À) DISCENTE
+
+
+
+
+Ao(À) discente                                                  (nome), matriculado(a) no IFBA -
+Campus                               , sob número de matrícula                           , turma
+       .                                                                   . O(A) presidente da
+Comissão para análise de proibições e responsabilidades do/a estudante, designada pela Portaria
+Nº       /     de      de                          de 20     ), tendo em vista a aplicação do
+Regulamento Discente, COMUNICA que, no dia              de                        de dois mil e
+                         ,            foi           recebida             denúncia             de
+                                           (ato    elencado     no   rol    de    proibições   e
+responsabilidades/apêndice A), ocorrido no dia           de                           de 20     ,
+referente
+(descrever ato denunciado), no qual seu nome figura na condição de denunciado(a). Essa
+denúncia será apurada, e seu direito à ampla defesa e ao contraditório serão garantidos em
+momento oportuno, em relação ao qual será previamente comunicado(a).
+Os atos                                                                  serão realizados nas
+dependências do Campus                     , do IFBA, onde lhe será facultada vista dos autos ou
+dos trabalhos.
+
+
+                           /BA,       de                       de       .
+
+
+
+
+     Presidente da Comissão para análise de proibições e responsabilidades do(a) estudante
+
+
+
+
+                              Recebi em             /         de 20         .
+
+
+
+
+                                               Discente
+
+                          Responsável legal (se discente menor de idade)
+
+
+
+
+        Resolução CONSUP/IFBA nº 86, de 20 de dezembro de 2022 - Aprovação do Regulamento Discente
+                                                                                                     33
+
+                                            APÊNDICE D
+
+
+                                            CONVOCAÇÃO
+
+
+Ao(À)         discente                                                                (nome),
+turma                 matriculado(a)            no           IFBA         -          Campus
+                                                   . A Comissão para análise de proibições e
+responsabilidades do/a estudante, designado pela Portaria nº          /      de          de
+                            de 20, tendo em vista a aplicação do Regulamento Discente,
+CONVOCA-O(A) a comparecer no dia               de                      de 20 , às
+horas, perante esse Comitê, a fim de prestar depoimento a respeito de
+
+
+
+
+        (descrever o fato).
+
+
+
+
+                              /BA,    de                       de       .
+
+
+
+
+     Presidente da Comissão para análise de proibições e responsabilidades do(a) estudante
+
+
+
+
+                                Recebi em           /         de 20         .
+
+
+
+
+                                               Discente
+
+                          Responsável legal (se discente menor de idade)
+
+
+
+
+        Resolução CONSUP/IFBA nº 86, de 20 de dezembro de 2022 - Aprovação do Regulamento Discente
+                                                                                                     34
+
+                                            APÊNDICE E
+
+
+                                           AUTORIZAÇÃO
+
+
+Eu,                                                                   , autorizo a Comissão
+para Análise das Proibições e Responsabilidades do Estudante a ouvir o(a) discente sob minha
+responsabilidade, sem a minha presença, tendo em vista que não comparecerei ao depoimento.
+Estou ciente de que ele(a) será ouvido pela Comissão de Análise das Proibições e
+Responsabilidades           do           Estudante         na        presença          do(a)
+servidor(a)                                                                                (
+cargo, nome do(a) servidor/a), que me representará como responsável.
+
+
+
+
+Obs.: O(a) servidor(a) deverá, preferencialmente, ser um membro do Setor Pedagógico.
+
+
+
+
+                                          Responsável legal
+
+
+
+
+        Resolução CONSUP/IFBA nº 86, de 20 de dezembro de 2022 - Aprovação do Regulamento Discente
+                                                                                                         35
+
+                                              APÊNDICE F
+
+
+        TERMO DE INSTALAÇÃO DOS TRABALHOS (PROCESSO DE ANÁLISE DAS
+      PROIBIÇÕES E RESPONSABILIDADES DO ESTUDANTE - PAPRE) Nº /20                                    .
+
+
+Aos        dias do mês de                             do ano de 20       , reuniram-se os membros
+ da Comissão de Análise das Proibições e Responsabilidades do Estudante, nomeado por meio da
+Portaria nº          /       de                                   , pelo(a) diretor(a)-geral do
+Campus                        , com a finalidade de INSTALAR os trabalhos da Comissão que
+investiga as denúncias encaminhadas                                                           (pelo/a
+coordenador/a do setor pedagógico, diretor/a de ensino ou coordenador/a de curso) por meio do
+(número       do       documento        e        setor        expedidor)                .       O(A)
+                                             (ato    tipificado no rol         de    Proibições     e
+responsabilidades)     a      ser       investigado(a)         refere-se       ao(à)       discente
+                                             (nome),              com            relação            a
+
+(descrever a
+situação motivadora do processo), no Campus                                 , no dia      de
+                                   de   20        .    O(A)      presidente    da    Comissão
+                                         (nome), com os demais membros da Comissão de
+Análise das Proibições e Responsabilidades do Estudante, deu por instalados os trabalhos. E,
+para constar, foi lavrado o presente TERMO, que vai assinado por mim e pelos demais membros.
+
+
+
+
+      Presidente da Comissão de Análise das Proibições e Responsabilidades do(a) Estudante
+
+
+      Membros da Comissão de Análise das Proibições e Responsabilidades do(a) Estudante
+
+
+
+
+        Resolução CONSUP/IFBA nº 86, de 20 de dezembro de 2022 - Aprovação do Regulamento Discente
+                                                                                                     36
+
+                                           APÊNDICE G
+
+
+                       TERMO DE PRESTAÇÃO DE ESCLARECIMENTOS
+
+
+Aos                              dias do mês de                              do ano de dois mil
+e                               , perante a Comissão de Análise das Proibições e
+Responsabilidades do Estudante, nomeada por meio da Portaria nº         / , de              de
+                                  de dois mil e                                               ,
+compareceu                                      o/a                                   discente
+                                                                 (nome), na condição de
+                                        (denunciado/a, denunciante ou testemunha),
+que passou a ser inquirido (a) pelos membros da Comissão de Análise das Proibições e
+Responsabilidades do Estudante, dando-se na forma que segue. Compromissado/a sob ao que
+está previsto no Regulamento Discente, quando perguntado/a, respondeu que:
+
+
+
+
+               Nada mais disse, nem lhe foi perguntado. Lido e achado conforme o presente
+TERMO, vai assinado pelo/a secretário/a da Comissão de Análise das Proibições e
+Responsabilidades do Estudante e pelo estudante, bem como pelos demais membros da
+sobredita Comissão
+
+
+
+
+                           /BA,       de                       de       . (local e data)
+
+
+
+
+     Presidente da Comissão de Análise das Proibições e Responsabilidades do(a) Estudante
+
+
+      Membros da Comissão de Análise das Proibições e Responsabilidades do(a) Estudante
+
+
+                                               Discente
+
+
+                          Responsável legal (se discente menor de idade)
+
+
+
+
+        Resolução CONSUP/IFBA nº 86, de 20 de dezembro de 2022 - Aprovação do Regulamento Discente
+                                                                                                     37
+
+                                           APÊNDICE H
+
+
+                                         RELATÓRIO FINAL
+
+
+Aos                                dias do mês de                             do ano de dois mil e
+                                      , reuniram-se os membros da Comissão de Análise das
+Proibições e Responsabilidades do Estudante, nomeados/as por meio da Portaria nº              /      ,
+de                                de                                         de     dois    mil     e
+                          , para redigir o presente relatório circunstanciado nos tópicos a seguir:
+
+DO HISTÓRICO
+O    presente      Processo       Administrativo Discente,    envolvendo     o(a)     discente
+                                                         (nome),     foi    instalado      aos
+                      dias de                        de dois mil e                             ,
+pela Comissão de Análise das Proibições e Responsabilidades do Estudante, tendo recebido o
+número /20;
+À folha n.º    , encontra-se a capa do Processo de Análise das Proibições e Responsabilidades
+do Estudante - PAPRE;
+À     folha    n.º         ,    encontra-se   o    MEMO/Nº       /20    ,   que     encaminha
+
+                                                                     (a conduta incompatível ou
+a infração);
+À folha n.º      , encontra-se o Termo de Instalação do PAPRE;
+À folha n.º             , encontra-se a Notificação ao(à) responsável legal do/a discente
+                                                                           (nome), se menor de
+idade;
+À       folha       n.º          ,     encontra-se      a     Convocação      do/a     discente
+                                                                                            (no
+me);
+À folha n.º, encontra-se autorização do/a responsável legal para a Comissão de Análise das
+Proibições e Responsabilidades do Estudante ouvir o(a) discente na ausência daquele/a, sendo
+representado/a                                                                             pelo
+servidor/a
+         (nome);
+À folha n. º            , encontra-se TERMO DE PRESTAÇÃO DE ESCLARECIMENTOS
+                                                                                            (no
+me);
+À      folha     n.º          ,     encontra-se     a     Defesa    Escrita    do/a    discente
+                                                                                            (no
+me);
+À folha n.º, encontra-se o Relatório Final membros da Comissão de Análise das Proibições e
+Responsabilidades do Estudante (Incluir todos os documentos que fazem parte do rito
+processual).
+
+DOS FATOS
+O presente feito foi instalado com a finalidade de apurar a situação ocorrida, envolvendo o/a
+discente
+
+        Resolução CONSUP/IFBA nº 86, de 20 de dezembro de 2022 - Aprovação do Regulamento Discente
+                                                                                                          38
+
+                                                                    (nome), turma           , no dia     de
+                  ,                                       em                                     decorrência
+de
+
+
+                                          (descrever o fato motivador do processo).
+
+DA DEFESA
+Em                     defesa                      escrita,                   o/a discente
+                                                                        (nome), que, após
+ter sido ouvido/a em reunião para esclarecimentos, sua conduta foi tipificada como
+
+                                                                          (descrever o fato motivador do
+processo),                    por                   este                    Comitê,                alegou
+
+
+                                                                                        (descrever         o
+conteúdo da defesa).
+
+DO PARECER
+Examinados os         fatos   apresentados     e     observados
+                                                          o memorando encaminhado por
+                                                             e
+                                                           depoimento      apresentado     pelo
+discente                                                            (nome), ficou evidente,
+para      o     Comitê,      que,     apesar      das      circunstâncias,     o/a     discente
+                                                         (nome)      descumpriu     o     artigo
+               do    Regulamento     Discente.     Consideramos,      então,    o/a   discente
+                                                          (nome)
+    (responsável ou isento de responsabilidade sobre o ato). Sendo assim, somos favoráveis à
+aplicação da consequente medida educativa
+
+      (descrever o grau da medida), conforme artigo do Regulamento Discente, que, em seu inciso
+        ,
+diz
+                                                                                                (transcrever
+o artigo e inciso).
+
+DA CONCLUSÃO
+A Comissão de Análise das Proibições e Responsabilidades do Estudante chegou à conclusão de
+que o/a discente                                                             (nome), autor/a
+de
+
+                                                                              (descrever o fato), realizou
+(ato            tipificado           no            art.           10).            Essa          conclusão
+deve-se
+
+
+(descrever      razões       de     seu   convencimento).       Considerando          que     o/a    discente
+
+                                                       (descrever        atenuantes    e/ou     agravantes),
+
+
+          Resolução CONSUP/IFBA nº 86, de 20 de dezembro de 2022 - Aprovação do Regulamento Discente
+                                                                                                        39
+
+recomendamos, no estrito cumprimento do que diz o Regulamento Discente:
+
+1) A aplicação do artigo                   , inciso            :
+
+                                                                                  (transcrever o artigo e
+inciso);
+2)                                A                                execução                             de
+
+
+         (descrever ação educativa proposta). Fica definido que o/a discente
+                                             (nome) retorna à condição de primariedade no
+prazo de                        (apresentar a duração).
+
+
+
+
+                               /BA,       de                       de         .
+(Local e data)
+
+
+
+
+      Presidente da Comissão de Análise das Proibições e Responsabilidades do(a) Estudante
+
+
+       Membros da Comissão de Análise das Proibições e Responsabilidades do(a) Estudante
+
+
+
+
+Obs.: Numerar as páginas sequencialmente e rubricá-las
+
+
+
+
+           Resolução CONSUP/IFBA nº 86, de 20 de dezembro de 2022 - Aprovação do Regulamento Discente
+                                                                                                     40
+
+                                        APÊNDICE I
+
+
+               AÇÃO EDUCATIVA N°            , de       de                     de 20     .
+
+
+O(A) diretor(a)-geral do Instituto Federal da Bahia– Campus                               , no uso
+de suas atribuições legais, considerando o relatório recebido pela Comissão de Análise das
+Proibições e Responsabilidades do Estudante, datado de \ \20 , referente ao processo
+                         ,em que está recomendada a aplicação de medida educativa ao(à)
+discente                                                                                   (nome),
+RESOLVE:
+DETERMINAR a aplicação do Regulamento de Conduta Discente em face do descumprimento de
+seu artigo        inciso         (descrever a conduta incompatível ou infração).
+DETERMINAR                                                                                    ao/a
+discente                                                       (nome)
+                                                 (descrever a medida educativa aplicada).
+
+Obs.:
+1. No caso de retratação escrita, anexar o documento ao processo.
+2. No caso de retratação verbal e advertência verbal, anexar relatório descrevendo como ocorreu
+e os sujeitos envolvidos.
+
+Dá-se ciência aos/as responsáveis legais que deverão assinar esta medida e devolvê-la para
+arquivamento na ficha individual do(a) discente.
+Conforme o artigo          do Regulamento Discente, o/a discente terá 10 (dez) dias, a contar do
+dia da ciência da medida educativa, para apresentar recurso.
+
+
+
+
+                                     Diretor(a)-geral do campus
+                                    Recebido em        /   /20
+
+
+                                               Discente
+
+
+                          Responsável legal (se discente menor de idade)
+
+
+
+
+        Resolução CONSUP/IFBA nº 86, de 20 de dezembro de 2022 - Aprovação do Regulamento Discente
+                                                                                                     41
+
+                                              APÊNDICE J
+
+
+                     ENCAMINHAMENTO PARA MEDIAÇÃO/CONCILIAÇÃO
+
+
+De:                                                           (Direção de Ensino, Coordenação
+de curso, setor pedagógico ou a Comissão de Análise das Proibições e Responsabilidades do
+Estudante.
+Para:               Mediador/a-conciliador/a
+(Coordenação de curso, setor pedagógico ou a Comissão de Análise das Proibições e
+Responsabilidadesdo             Estudante)   encaminha              os/as
+discentes                                                              (nomes)     e      os/as
+servidores/as                                                               (nomes) para o
+processo de mediação/conciliação decorrente de denúncia recebida, de conduta incompatível,
+conforme registro anexo. Ressalta-se que os/as envolvidos/as foram esclarecidos/as sobre o
+processo de mediação/conciliação e manifestaram concordância em participar do processo
+alternativo de resolução de conflitos.
+Solicita-se que, imediatamente após o término do processo de mediação/conciliação, seja enviado
+relatório, com descrição dos procedimentos e conclusão, ao setor de origem.
+
+(Enviar, anexa a este requerimento, cópia do registro da denúncia e, se houver, outros
+documentos).
+
+
+                           /,      de                      de          .
+
+
+
+
+    Direção de Ensino, Coordenação de curso, setor pedagógico ou Comissão de Análise das
+                         Proibições e Responsabilidades do(a) Estudante
+
+
+
+
+                                             Discente
+                          Responsável legal (se discente menor de idade)
+
+
+
+
+        Resolução CONSUP/IFBA nº 86, de 20 de dezembro de 2022 - Aprovação do Regulamento Discente
+                                                                                                     42
+
+                                              APÊNDICE K
+
+
+PLANO       DE       ATIVIDADES   PEDAGÓGICAS                  ESPECÍFICAS          PROCESSO         Nº
+                            MEDIDA EDUCATIVA N°               , de   de                de 20 .
+
+
+Nome do/a discente
+
+
+Foi aplicada a medida de suspensão ao(à) discente?
+( )Não ( )Sim:                dias
+
+Atividades a serem realizadas:
+
+
+
+
+Carga Horária Semanal:
+
+Data de Finalização:
+
+Servidor(a) responsável:
+
+(Apresentar cronograma)
+
+
+
+
+            Comissão de Análise das Proibições e Responsabilidades do(a) Estudante
+
+
+
+
+                                       Servidor/a Responsável
+
+                              Recebi em             /         de 20      .
+
+
+
+
+                                               Discente
+
+                           Responsável legal (se discente menor de idade)
+
+
+
+
+        Resolução CONSUP/IFBA nº 86, de 20 de dezembro de 2022 - Aprovação do Regulamento Discente
+                                                                                                     43
+
+                                             APÊNDICE L
+
+
+                        TERMO CIRCUNSTANCIADO ADMINISTRATIVO (TCA)
+
+
+Nome do(a) discente:
+Curso:                                                    Turma:          Turno:               O
+prejuízo foi proveniente de (   )              extravio    ou    (    )
+                                                                      dano    Especificação    do
+bem:                                                                         Valor de mercado
+para aquisição ou reparação do              bem atingido: R$                                   Nº
+patrimônio:                   .                     Descrição                do              fato
+                                                                                o(a)     discente
+propõe-se a realizar o ressarcimento do prejuízo causado ao erário por meio de:
+
+( )Pagamento
+
+( )Entrega de um bem de características iguais ou superiores ao danificado ou extraviado
+
+( )Encaminhamento para abertura de Processo De Análise Das Proibições E Responsabilidades
+Do Estudante - PAPRE
+
+
+Parecer do/a Responsável pelo setor de gerência de bens e materiais:
+
+
+
+
+Diante do exposto, concluo o presente Termo Circunstanciado Administrativo e remeto os autos
+para julgamento do(a) diretor(a)-geral do campus.
+
+
+
+
+Responsável pelo setor de gerência de patrimônio
+Servidor(a) Responsável
+
+Recebi em           /         de 20      .
+
+
+
+
+                                               Discente
+
+
+
+
+                           Responsável legal (se discente menor de idade)
+
+        Resolução CONSUP/IFBA nº 86, de 20 de dezembro de 2022 - Aprovação do Regulamento Discente
+                                                                                                     44
+
+                                             APÊNDICE M
+
+                           NOTIFICAÇÃO DE ADVERTÊNCIA ESCRITA
+
+
+Considerando o deferimento do Processo de Análise das Proibições e Responsabilidades do
+Estudante - PAPRE, o(a) Diretor(a) Geral do Campus Xxxxxx do IFBA, no exercício de suas
+funções regimentais, faz:
+
+Notificar o discente                              matrícula nº              , que à prática da
+infração ao Regulamento Discente do IFBA conforme consta o artigo xxx, inciso xxx, Parágrafo
+xxx, foi imputada a medida de ADVERTÊNCIA, no período de xx/xx/xxxx a xx/xx/xxxx. (Definir o
+termo do artigo)
+
+Esclarecemos que a reincidência em procedimentos análogos poderá, por sua repetição, acarretar
+ações educativas mais severas. Dessa forma, alertamos maior observância ao Regulamento
+Discente do IFBA, evitando prejuízos à vida acadêmica enquanto discente na Instituição.
+
+Atenciosamente,
+
+
+
+
+                                     Diretor(a)-geral do campus
+                                   Câmpus xx de xxxxxx de 20XX.
+
+
+                                           Discente Xxxxxx
+
+
+
+
+        Resolução CONSUP/IFBA nº 86, de 20 de dezembro de 2022 - Aprovação do Regulamento Discente
+                                                                                                     44
+
+                                             APÊNDICE N
+
+
+    REQUERIMENTO DE RECURSO PARA O PROCESSO ADMINISTRATIVO DISCENTE Nº
+                                   /20
+
+
+Para: Diretor(a)-geral do campus
+Eu,                                                                         (nome),       venho,
+perante o(a) Reitor(a)-geral/ Conselho Superior                                     , do Instituto
+Federal da Bahia, Prof(a).                                                       (nome), interpor
+recurso contra a decisão do julgamento do processo supracitado, solicitando sua análise em razão
+de
+
+                                                                      (apresentar     fundamentos    do
+pedido de reexame).
+
+
+                           /BA,       de                       de         . (local e data)
+
+
+
+
+                                              Solicitante
+
+                  Responsável legal do(a) discente (se discente menor de idade)
+
+
+FORMULÁRIO PARA RECURSOS (comprovante / via do(a) estudante)
+Nome do(a) estudante:
+Curso:
+Objeto do Recurso:
+
+
+
+
+Nome do(a) servidor(a) que recebeu o documento:                           ,      /     /
+
+
+
+
+        Resolução CONSUP/IFBA nº 86, de 20 de dezembro de 2022 - Aprovação do Regulamento Discente
+

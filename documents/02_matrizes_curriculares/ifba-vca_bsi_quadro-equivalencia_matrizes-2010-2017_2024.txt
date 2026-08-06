@@ -1,0 +1,55 @@
+                             BACHARELADO EM SISTEMAS DE INFORMAÇÃO
+         QUADRO DE EQUIVALÊNCIA ENTRE MATRIZES CURRICULARES DE 2010 E 2017
+                              Atualização aprovada pelo Colegiado de Curso em 04/03/2024
+
+                MATRIZ CURRICULAR DE 2017                                      MATRIZ CURRICULAR DE 2010
+                                                    CARGA                                                            CARGA
+SEM COMPONENTE CURRICULAR                                  SEM COMPONENTE CURRICULAR
+                                                   HORÁRIA                                                          HORÁRIA
+ 1   Algoritmo e Programação                           60      1   Introdução à Programação                           60
+ 1   Leitura e Produção de Gêneros Acadêmicos          60      1   Língua Portuguesa                                  45
+ 1   Fundamentos de Sistemas de Informação             60      2   Fundamentos de Sistemas de Informação              60
+ 1   Introdução à Ciência da Computação                60      1   Introdução à Informática                           60
+ 1   Inglês Aplicado a Computação                      60      1   Inglês Técnico Instrumental                        60
+ 2   Linguagem de Programação I                        60      2   Linguagem de Programação I                         60
+ 2   Organização e Arquitetura de Computadores         60      2   Organização e Arquitetura de Computadores          60
+ 2   Cálculo Diferencial Aplicado a Computação         60      1   Cálculo I                                          60
+ 2   Administração                                     60      2   Administração                                      45
+ 3   Linguagem de Programação II                       60      3   Linguagem de Programação II                        60
+ 3   Estruturas de Dados                               60      3   Estruturas de Dados                                60
+ 3   Sistemas Operacionais                             60      3   Sistemas Operacionais                              60
+ 3   Probabilidade e Estatística                       60      3   Probabilidade e Estatística                        60
+ 3   Direito e Legislação em Informática               60      1   Direito e Legislação em Informática                30
+ 3   Organizações, Sistemas e Métodos                  60      3   Organizações, Sistemas e Métodos                   60
+ 4   Análise e Modelagem de Sistemas                   60      6   Análise e Modelagem de Sistemas I                  60
+ 4   Banco de Dados I                                  60      4   Banco de Dados I                                   60
+ 4   Redes de Computadores                             60      4   Redes de Computadores I                            60
+ 4   Empreendedorismo                                  60      4   Empreendedorismo                                   30
+ 5   Programação para a Web                            60      5   Programação Web                                    60
+ 5   Processo de Desenvolvimento de Software           60      7   Análise e Modelagem de Sistemas II                 60
+ 5   Banco de Dados II                                 60      5   Banco de Dados II                                  60
+ 5   Projeto e Administração de Redes                  60      5   Redes de Computadores II                           60
+ 5   Complexidade de Algoritmos                        60      4   Computação e Algoritmos                            60
+ 5   Economia                                          60      3   Economia                                           45
+ 6   Contabilidade Geral e de Custos                   60      4   Contabilidade Geral                                60
+ 6   Engenharia de Software                            60      6   Engenharia de Software                             60
+ 6   Segurança e Auditoria de Sistemas                 60      4   Segurança e Auditoria de Sistemas                  60
+ 6   Sistemas Distribuídos                             60      6   Sistemas Distribuídos I                            60
+ 7   Trabalho de Conclusão de Curso I                  60      7   Trabalho de Conclusão de Curso I                   60
+ 7   Interface Homem-Máquina                           60      6   Interface Homem-Máquina                            60
+ 7   Estágio Supervisionado                           330      8   Estágio Supervisionado                             375
+ 7   Gestão de Projetos                                60      5   Gestão de Projetos e Qualidade de Software         60
+ 7   Gestão e Governança de TI                         60      6   Gestão e Avaliação de Sistemas                     60
+ 8   Meio Ambiente                                     60      -   Meio Ambiente                                      60
+ 8   Trabalho de Conclusão de Curso II                 60      8   Trabalho de Conclusão de Curso II                  60
+ 8   Sistemas de Apoio a Decisão                       60      7   Sistemas de Apoio à Decisão                        60
+ -   Programação para Dispositivos Móveis              60      -   Programação Móvel                                  60
+     Redes Sem Fio e Sistemas de Comunicação
+ -                                                     60      -   Redes Sem Fio                                      60
+     Móvel
+
+
+
+           INSTITUTO FEDERAL DE EDUCAÇÃO, CIÊNCIA E TECNOLOGIA DA BAHIA | CAMPUS VITÓRIA DA CONQUISTA
+               Avenida Sérgio Vieira de Mello, 3.150, Bairro Zabelê, Vitória da Conquista, Bahia | CEP 45.078-900
+

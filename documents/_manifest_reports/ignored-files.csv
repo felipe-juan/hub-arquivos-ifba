@@ -1,5 +1,61 @@
 path,reason
+documents/01_ppc/ifba-vca_bsi_ppc_2017.txt,sidecar for same-name primary document
+documents/01_ppc/ifba-vca_bsi_ppc_2024.txt,sidecar for same-name primary document
+documents/01_ppc/ifba-vca_bsi_projeto-curso_ppc_2013.txt,sidecar for same-name primary document
+documents/02_matrizes_curriculares/ifba-vca_bsi_fluxograma-curricular_ppc-2013.txt,sidecar for same-name primary document
+documents/02_matrizes_curriculares/ifba-vca_bsi_matriz-curricular_obrigatoria_2017.txt,sidecar for same-name primary document
+documents/02_matrizes_curriculares/ifba-vca_bsi_matriz-curricular_obrigatoria_2024.txt,sidecar for same-name primary document
+documents/02_matrizes_curriculares/ifba-vca_bsi_matriz-curricular_optativas_2024.txt,sidecar for same-name primary document
+documents/02_matrizes_curriculares/ifba-vca_bsi_quadro-equivalencia_matrizes-2010-2017_2024.txt,sidecar for same-name primary document
+documents/03_regulamentos_do_curso/ifba-vca_bsi_regimento-colegiado-curso_2024.txt,sidecar for same-name primary document
+documents/03_regulamentos_do_curso/ifba-vca_bsi_regulamento-atividades-complementares_ppc-2010-2017_2024.txt,sidecar for same-name primary document
+documents/03_regulamentos_do_curso/ifba-vca_bsi_regulamento-atividades-complementares_ppc-2024_2024.txt,sidecar for same-name primary document
+documents/03_regulamentos_do_curso/ifba-vca_bsi_regulamento-atividades-curriculares-extensao_2023.txt,sidecar for same-name primary document
+documents/03_regulamentos_do_curso/ifba-vca_bsi_regulamento-estagio-curricular-supervisionado_2023.txt,sidecar for same-name primary document
+documents/03_regulamentos_do_curso/ifba-vca_bsi_regulamento-migracao-curricular_matriz-2024_2023.txt,sidecar for same-name primary document
+documents/03_regulamentos_do_curso/ifba-vca_bsi_regulamento-trabalho-conclusao-curso_2024.txt,sidecar for same-name primary document
+documents/04_portarias/ifba-vca_bsi_portaria-colegiado-curso_184-2025-dg.txt,sidecar for same-name primary document
+documents/04_portarias/ifba-vca_bsi_portaria-nde_083-2025-dg.txt,sidecar for same-name primary document
+documents/04_portarias/ifba-vca_portaria-171-2025_luto-oficial.txt,sidecar for same-name primary document
+documents/05_normas_ifba/ifba-vca_concam_resolucao-004-2025_avaliacao-conhecimentos-previos.txt,sidecar for same-name primary document
+documents/05_normas_ifba/ifba_consepe_resolucao-023-2019_normas-academicas-ensino-superior.txt,sidecar for same-name primary document
+documents/05_normas_ifba/ifba_consepe_resolucao-024-2021_curricularizacao-extensao.txt,sidecar for same-name primary document
+documents/05_normas_ifba/ifba_consup_resolucao-022-2017_uso-nome-social.txt,sidecar for same-name primary document
+documents/05_normas_ifba/ifba_consup_resolucao-030-2017_politica-inclusao-pessoas-deficiencia-necessidades-especificas.txt,sidecar for same-name primary document
+documents/05_normas_ifba/ifba_consup_resolucao-086-2022_regulamento-discente.txt,sidecar for same-name primary document
+documents/05_normas_ifba/ifba_consup_resolucao-090-2023_politica-assistencia-estudantil.txt,sidecar for same-name primary document
+documents/05_normas_ifba/ifba_consup_resolucao-178-2025_alteracao-norma-ausencia-docente-reposicao-aulas.txt,sidecar for same-name primary document
+documents/05_normas_ifba/ifba_proen_instrucao-normativa-003-2025_guarda-religiosa-prestacao-alternativa.txt,sidecar for same-name primary document
+documents/06_diretrizes_cne/cne-ces_resolucao-002-2007_carga-horaria-integralizacao-bacharelados.txt,sidecar for same-name primary document
+documents/06_diretrizes_cne/cne-ces_resolucao-005-2016_diretrizes-computacao.txt,sidecar for same-name primary document
+documents/06_diretrizes_cne/cne-ces_resolucao-007-2018_diretrizes-extensao-educacao-superior.txt,sidecar for same-name primary document
+documents/06_diretrizes_cne/conaes_resolucao-001-2010_nucleo-docente-estruturante.txt,sidecar for same-name primary document
+documents/07_atos_institucionais_do_curso/ifba-vca_bsi_colegiado_convocatoria-eleicao-representantes_2025-2027.txt,sidecar for same-name primary document
+documents/07_atos_institucionais_do_curso/ifba-vca_bsi_colegiado_homologacao-candidaturas-eleicao_2025-2027.txt,sidecar for same-name primary document
+documents/07_atos_institucionais_do_curso/ifba-vca_bsi_colegiado_resultado-definitivo-eleicao-representantes_2025-2027.txt,sidecar for same-name primary document
+documents/07_atos_institucionais_do_curso/ifba-vca_bsi_colegiado_resultado-eleicao-representantes_2024-2026.txt,sidecar for same-name primary document
+documents/07_atos_institucionais_do_curso/ifba-vca_bsi_colegiado_resultado-preliminar-eleicao-representantes_2025-2027.txt,sidecar for same-name primary document
+documents/07_atos_institucionais_do_curso/ifba-vca_bsi_convocacao-reuniao-colegiado_2026-02-25.txt,sidecar for same-name primary document
+documents/07_atos_institucionais_do_curso/ifba-vca_bsi_demandas-discentes-ajustes-horarios_2026-2.txt,sidecar for same-name primary document
+documents/07_atos_institucionais_do_curso/ifba-vca_bsi_despacho-018-2026_lista-aptos-colacao-grau_2025-2.txt,sidecar for same-name primary document
+documents/07_atos_institucionais_do_curso/ifba-vca_bsi_lista-componentes-avaliacao-conhecimentos-previos_2025.txt,sidecar for same-name primary document
+documents/07_atos_institucionais_do_curso/ifba-vca_bsi_nde_atas-reunioes_2025.txt,sidecar for same-name primary document
+documents/07_atos_institucionais_do_curso/ifba-vca_bsi_resultado-consulta-oferta-optativas_2025-1.txt,sidecar for same-name primary document
+documents/07_atos_institucionais_do_curso/ifba-vca_concam_resolucao-012-2024_aprovacao-regimento-colegiado-bsi.txt,sidecar for same-name primary document
+documents/07_atos_institucionais_do_curso/ifba_consepe_resolucao-005-2017_aprovacao-ppc-bsi-vca.txt,sidecar for same-name primary document
+documents/07_atos_institucionais_do_curso/ifba_consepe_resolucao-124-2023_aprovacao-ppc-bsi-vca.txt,sidecar for same-name primary document
+documents/07_atos_institucionais_do_curso/ifba_consup_resolucao-008-2010_aprovacao-implantacao-bsi-vca.txt,sidecar for same-name primary document
+documents/08_comunicados_e_resultados/ifba-vca_bsi_week-it_comunicado-adiamento_2026.txt,sidecar for same-name primary document
+documents/08_comunicados_e_resultados/ifba-vca_comunicado-reforma-cantina_2026.txt,sidecar for same-name primary document
+documents/08_comunicados_e_resultados/ifba-vca_edital-020-2025_resultado-final_bolsistas-acoes-direcao-geral.txt,sidecar for same-name primary document
+documents/08_comunicados_e_resultados/ufba-ifba_petsaude_resultado-selecao-monitores_gt3-big-data_2025.txt,sidecar for same-name primary document
+documents/09_calendarios_e_horarios/ifba-vca_alocacao-salas_2025.txt,sidecar for same-name primary document
+documents/09_calendarios_e_horarios/ifba-vca_calendario-academico-graduacao_2026.txt,sidecar for same-name primary document
+documents/10_dasi_representacao_discente/ifba-vca_bsi_dasi_estatuto_2026-02-24.txt,sidecar for same-name primary document
+documents/10_dasi_representacao_discente/ifba-vca_bsi_dasi_estatuto_2026-02-27_canva.txt,sidecar for same-name primary document
+documents/11_documentos_academicos_operacionais/ifba-vca_graduacao_lista-alunos-regulares_2026-1.txt,sidecar for same-name primary document
 documents/README.md,ignored pattern: ^readme.*
+documents/_manifest_reports/assistant-metadata-report.json,ignored folder
 documents/_manifest_reports/duplicates-ignored.csv,ignored folder
 documents/_manifest_reports/ignored-files.csv,ignored folder
 documents/_manifest_reports/update-summary.json,ignored folder

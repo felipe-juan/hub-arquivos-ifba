@@ -1,0 +1,540 @@
+{
+  "schemaVersion": 1,
+  "generatedBy": "hub-assistente-v1.4.4",
+  "apps": [
+    {
+      "id": "app-assistente-hub",
+      "title": "Assistente do HUB",
+      "description": "Consulta direta de salas, horários, professores, setores e documentos do IFBA.",
+      "url": "apps/assistente/",
+      "category": "Assistente",
+      "openMode": "new-tab",
+      "emoji": "🤖",
+      "icon": "🤖",
+      "tags": [
+        "assistente",
+        "chat",
+        "horários",
+        "salas",
+        "professores",
+        "documentos",
+        "IFBA"
+      ]
+    },
+    {
+      "id": "app-media-final",
+      "title": "Média e Prova Final",
+      "description": "Um único app com calculadora de média parcial e final, além da tabela rápida para consultar quanto é necessário tirar na prova final.",
+      "url": "#media-final",
+      "category": "Calculadora e tabela",
+      "tags": [
+        "média",
+        "média final",
+        "nota",
+        "notas",
+        "prova final",
+        "tabela da final",
+        "quanto preciso tirar",
+        "calculadora",
+        "consulta rápida",
+        "app",
+        "ferramenta",
+        "MP",
+        "PF",
+        "MF"
+      ]
+    },
+    {
+      "id": "app-onde-resolvo",
+      "title": "Onde resolvo isso?",
+      "description": "Ajuda o estudante a descobrir qual setor, link, contato ou documento usar para problemas comuns: protocolo, estágio, segunda chamada, TCC, matriz, atendimento e documentos comprobatórios.",
+      "url": "#onde-resolvo",
+      "category": "Assistente",
+      "tags": [
+        "onde resolvo",
+        "resolver",
+        "setor",
+        "problema",
+        "protocolo",
+        "segunda chamada",
+        "perdi prova",
+        "estágio",
+        "tcc",
+        "matriz",
+        "coordenação",
+        "caens",
+        "capne",
+        "cores",
+        "serviços sociais",
+        "documento comprova",
+        "whatsapp",
+        "contato"
+      ]
+    },
+    {
+      "id": "app-barema",
+      "title": "Barema de Atividades Complementares",
+      "description": "Explorador e simulador das versões do Barema de Atividades Complementares, com consulta compacta, modo planilha e cálculo de limites por categoria.",
+      "url": "apps/barema/",
+      "category": "Barema",
+      "openMode": "new-tab",
+      "tags": [
+        "barema",
+        "atividades complementares",
+        "horas complementares",
+        "certificados",
+        "PPC 2024",
+        "estágio",
+        "monitoria",
+        "curso de idioma",
+        "artigo",
+        "evento",
+        "doação de sangue",
+        "DCE",
+        "colegiado",
+        "simulador",
+        "app",
+        "ferramenta"
+      ]
+    },
+    {
+      "id": "app-calendario",
+      "title": "Calendário Acadêmico 2026",
+      "description": "App independente para consultar o calendário acadêmico IFBA VCA 2026 por busca, tipo de curso, cards, linha do tempo, mês, ano completo e exportação .ics.",
+      "url": "apps/calendario/",
+      "category": "Calendário",
+      "openMode": "new-tab",
+      "tags": [
+        "calendário",
+        "calendario",
+        "acadêmico",
+        "academico",
+        "datas",
+        "2026",
+        "graduação",
+        "graduacao",
+        "subsequente",
+        "integrado",
+        "matrícula",
+        "matricula",
+        "trancamento",
+        "provas finais",
+        "feriado",
+        "feriados",
+        "SUAP",
+        "notas",
+        "colação",
+        "colacao",
+        "jornada pedagógica",
+        "são joão",
+        "sao joao",
+        "app",
+        "ferramenta"
+      ]
+    },
+    {
+      "id": "app-fluxogramas",
+      "title": "Fluxogramas Curriculares",
+      "description": "App independente para navegar pelos fluxogramas curriculares dos cursos do IFBA VCA em modo interativo e também conferir os PDFs originais.",
+      "url": "apps/fluxogramas/",
+      "category": "Fluxogramas",
+      "openMode": "new-tab",
+      "tags": [
+        "fluxograma",
+        "fluxogramas",
+        "grade curricular",
+        "matriz curricular",
+        "disciplinas",
+        "pré-requisitos",
+        "pre requisitos",
+        "curso",
+        "sistemas de informação",
+        "engenharia elétrica",
+        "engenharia mecânica",
+        "engenharia civil",
+        "engenharia ambiental",
+        "licenciatura em química",
+        "app",
+        "ferramenta"
+      ]
+    }
+  ],
+  "links": [
+    {
+      "id": "link-protocolo",
+      "title": "Protocolo",
+      "description": "Formulário de protocolo para solicitações acadêmicas.",
+      "url": "https://docs.google.com/forms/d/e/1FAIpQLSfLEx2SPGF76TRT7I31dQ8ZR3N8k038rKTqti36rOpWCVjynQ/viewform?pli=1",
+      "category": "Formulário",
+      "tags": [
+        "protocolo",
+        "formulário",
+        "solicitação",
+        "requerimento"
+      ]
+    },
+    {
+      "id": "link-fluxograma-atual",
+      "title": "Fluxograma atual",
+      "description": "Fluxograma interativo da matriz 2024 de Sistemas de Informação.",
+      "url": "apps/fluxogramas/#sistemas-de-informacao/matriz-2024",
+      "category": "Fluxograma",
+      "tags": [
+        "fluxograma",
+        "matriz atual",
+        "grade atual",
+        "PPC 2024",
+        "currículo",
+        "disciplinas",
+        "pré-requisitos",
+        "guia do universitário"
+      ]
+    },
+    {
+      "id": "link-fluxograma-antigo",
+      "title": "Fluxograma antigo",
+      "description": "Fluxograma interativo da matriz 2017 de Sistemas de Informação.",
+      "url": "apps/fluxogramas/#sistemas-de-informacao/matriz-2017",
+      "category": "Fluxograma",
+      "tags": [
+        "fluxograma",
+        "matriz antiga",
+        "grade antiga",
+        "PPC 2017",
+        "currículo",
+        "disciplinas",
+        "pré-requisitos"
+      ]
+    },
+    {
+      "id": "link-quadro-horario-2026-2",
+      "title": "Quadro de horário 2026.2",
+      "description": "Planilha oficial compartilhada com o quadro de horários do semestre 2026.2.",
+      "url": "https://ifbaedubr-my.sharepoint.com/:x:/g/personal/rodrigobonfim_ifba_edu_br/IQCsaQq5LEbpRbrN4aQdTsRLAYgmR5gmpZ1PZu_wD9dlFmg?rtime=Qo_J-yvO3kg",
+      "category": "Horários",
+      "tags": [
+        "quadro de horário",
+        "quadro de horarios",
+        "horário",
+        "horario",
+        "2026.2",
+        "aulas",
+        "disciplinas",
+        "planilha",
+        "sharepoint",
+        "semestre"
+      ]
+    },
+    {
+      "id": "link-calendario-app",
+      "title": "Calendário Acadêmico 2026",
+      "description": "Atalho direto para o app de calendário acadêmico do HUB, com busca, visualização mensal/anual e eventos do calendário IFBA VCA 2026.",
+      "url": "apps/calendario/",
+      "category": "App",
+      "openMode": "new-tab",
+      "tags": [
+        "calendário",
+        "calendario",
+        "acadêmico",
+        "academico",
+        "2026",
+        "datas",
+        "eventos",
+        "app",
+        "ferramenta",
+        "IFBA",
+        "VCA"
+      ]
+    },
+    {
+      "id": "link-calculadora-media-app",
+      "title": "Média e Prova Final",
+      "description": "Atalho direto para a calculadora de média parcial, prova final e média final do HUB.",
+      "url": "#media-final",
+      "category": "App",
+      "tags": [
+        "calculadora",
+        "média",
+        "media",
+        "nota",
+        "notas",
+        "prova final",
+        "média final",
+        "MP",
+        "PF",
+        "MF",
+        "app",
+        "ferramenta"
+      ]
+    },
+    {
+      "id": "link-barema-app",
+      "title": "Barema Explorer",
+      "description": "App do HUB para consultar e simular atividades complementares nas versões Barema PPC 2024 e PPC 2010-2017, com visualização interativa e planilha.",
+      "url": "apps/barema/",
+      "category": "App",
+      "openMode": "new-tab",
+      "tags": [
+        "barema",
+        "barema explorer",
+        "atividades complementares",
+        "horas complementares",
+        "certificados",
+        "PPC 2024",
+        "PPC 2010",
+        "PPC 2017",
+        "planilha",
+        "simulador",
+        "app",
+        "ferramenta"
+      ]
+    },
+    {
+      "id": "link-barema-atual-planilha",
+      "title": "Planilha do Barema atual",
+      "description": "Arquivo XLSX do Barema de Atividades Complementares aplicável ao PPC 2024.",
+      "url": "apps/barema/docs/barema-ppc-2024.xlsx",
+      "category": "Planilha",
+      "tags": [
+        "barema",
+        "barema atual",
+        "atividades complementares",
+        "horas complementares",
+        "certificados",
+        "PPC 2024",
+        "planilha",
+        "google sheets"
+      ]
+    },
+    {
+      "id": "link-barema-antigo-planilha",
+      "title": "Planilha do Barema antigo",
+      "description": "Arquivo XLSX do Barema de Atividades Complementares aplicável aos PPCs 2010-2017.",
+      "url": "apps/barema/docs/barema-ppc-2010-2017.xlsx",
+      "category": "Planilha",
+      "tags": [
+        "barema",
+        "barema antigo",
+        "atividades complementares",
+        "horas complementares",
+        "certificados",
+        "PPC antigo",
+        "PPC 2017",
+        "planilha",
+        "google sheets"
+      ]
+    },
+    {
+      "id": "link-email-coordenacao",
+      "title": "E-mail da Coordenação",
+      "description": "Contato oficial da Coordenação do curso: csi.vdc@ifba.edu.br. Telefone: 0800 077 0084, ramal 1261.",
+      "url": "mailto:csi.vdc@ifba.edu.br",
+      "category": "Contato",
+      "tags": [
+        "coordenação",
+        "contato",
+        "e-mail",
+        "curso",
+        "SI"
+      ]
+    },
+    {
+      "id": "link-instagram-bsi",
+      "title": "Instagram do curso: @bsi.vdc",
+      "description": "Perfil do Bacharelado em Sistemas de Informação do IFBA Vitória da Conquista.",
+      "url": "https://www.instagram.com/bsi.vdc/",
+      "category": "Rede social",
+      "tags": [
+        "instagram",
+        "curso",
+        "SI",
+        "notícias",
+        "comunicação"
+      ]
+    },
+    {
+      "id": "link-instagram-dasi",
+      "title": "Instagram DASI",
+      "description": "Diretório Acadêmico de Sistemas de Informação.",
+      "url": "https://www.instagram.com/dasi.ifba/",
+      "category": "Rede social",
+      "tags": [
+        "instagram",
+        "DASI",
+        "diretório acadêmico",
+        "estudantes"
+      ]
+    },
+    {
+      "id": "link-instagram-btech",
+      "title": "Instagram BTECH",
+      "description": "Empresa Júnior do curso.",
+      "url": "https://www.instagram.com/btechjr/",
+      "category": "Rede social",
+      "tags": [
+        "instagram",
+        "BTECH",
+        "empresa júnior",
+        "estudantes"
+      ]
+    },
+    {
+      "id": "link-instagram-sinistra",
+      "title": "Instagram SINISTRA",
+      "description": "Atlética Acadêmica.",
+      "url": "https://www.instagram.com/sinistraifba/",
+      "category": "Rede social",
+      "tags": [
+        "instagram",
+        "SINISTRA",
+        "atlética",
+        "esportes",
+        "estudantes"
+      ]
+    },
+    {
+      "id": "link-caens-estagios",
+      "title": "CAENS — Estágios",
+      "description": "Página com informações e atualizações relacionadas a estágios.",
+      "url": "https://ifbaconquista.blogspot.com/?m=1",
+      "category": "Estágios",
+      "tags": [
+        "CAENS",
+        "estágio",
+        "estágios",
+        "blog",
+        "setor"
+      ]
+    },
+    {
+      "id": "link-whatsapp-capne",
+      "title": "WhatsApp do CAPNE",
+      "description": "Contato por WhatsApp do CAPNE.",
+      "url": "https://wa.me/5577998447168",
+      "category": "WhatsApp",
+      "tags": [
+        "CAPNE",
+        "whatsapp",
+        "acessibilidade",
+        "inclusão",
+        "contato"
+      ]
+    },
+    {
+      "id": "link-whatsapp-caens",
+      "title": "WhatsApp do CAENS",
+      "description": "Contato por WhatsApp do CAENS.",
+      "url": "https://wa.me/5577991318174",
+      "category": "WhatsApp",
+      "tags": [
+        "CAENS",
+        "whatsapp",
+        "estágio",
+        "contato"
+      ]
+    },
+    {
+      "id": "link-whatsapp-cores",
+      "title": "WhatsApp da CORES",
+      "description": "Contato por WhatsApp da CORES.",
+      "url": "https://wa.me/5577999299331",
+      "category": "WhatsApp",
+      "tags": [
+        "CORES",
+        "whatsapp",
+        "contato"
+      ]
+    },
+    {
+      "id": "link-whatsapp-servicos-sociais",
+      "title": "WhatsApp de Serviços Sociais",
+      "description": "Contato por WhatsApp de Serviços Sociais.",
+      "url": "https://wa.me/5577991318185",
+      "category": "WhatsApp",
+      "tags": [
+        "serviços sociais",
+        "assistência estudantil",
+        "whatsapp",
+        "contato"
+      ]
+    },
+    {
+      "id": "link-linktree-dasi",
+      "title": "Linktree DASI",
+      "description": "Página com links úteis do Diretório Acadêmico de Sistemas de Informação.",
+      "url": "https://linktr.ee/dasi.ifba",
+      "category": "Linktree",
+      "tags": [
+        "DASI",
+        "diretório acadêmico",
+        "linktree",
+        "estudantes",
+        "instagram"
+      ]
+    },
+    {
+      "id": "link-linktree-btech",
+      "title": "Linktree BTECH",
+      "description": "Página com links úteis da Empresa Júnior BTECH.",
+      "url": "https://linktr.ee/btechjr",
+      "category": "Linktree",
+      "tags": [
+        "BTECH",
+        "empresa júnior",
+        "linktree",
+        "estudantes",
+        "instagram"
+      ]
+    },
+    {
+      "id": "link-linktree-sinistra",
+      "title": "LinkMe SINISTRA",
+      "description": "Página com links úteis da Atlética Acadêmica SINISTRA.",
+      "url": "https://linkme.bio/Sinistra",
+      "category": "Linktree",
+      "tags": [
+        "SINISTRA",
+        "atlética",
+        "linktree",
+        "esportes",
+        "instagram"
+      ]
+    },
+    {
+      "id": "link-ensalamento-professores",
+      "title": "Ensalamento dos Professores",
+      "description": "Painel do Power BI para consultar ensalamento/horários de professores.",
+      "url": "https://app.powerbi.com/view?r=eyJrIjoiN2JhMWNmYjMtOWRiNy00OTFlLTg5ODItMWU1ZWZhYzVhNWFjIiwidCI6IjZmZjM3NGY1LWUzZWItNGM2Zi1iN2I1LTUwOTE2NDA5MzdmOCJ9",
+      "category": "Power BI",
+      "tags": [
+        "ensalamento",
+        "professores",
+        "horários",
+        "horario",
+        "aulas",
+        "power bi",
+        "painel",
+        "salas"
+      ]
+    },
+    {
+      "id": "link-provas-atividades-passadas",
+      "title": "Provas e Atividades Passadas",
+      "description": "Pasta no Google Drive com provas, listas e atividades antigas compartilhadas para consulta estudantil.",
+      "url": "https://drive.google.com/drive/folders/1WC7rQ6et4OiSq_4eZ9rLbKqGNeUm37dA",
+      "category": "Drive",
+      "tags": [
+        "provas passadas",
+        "atividades passadas",
+        "listas",
+        "exercícios",
+        "drive",
+        "google drive",
+        "materiais",
+        "estudo",
+        "prova"
+      ]
+    }
+  ],
+  "externalLinks": []
+}

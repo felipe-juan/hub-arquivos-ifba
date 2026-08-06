@@ -5,23 +5,33 @@
   const STORAGE_KEY = 'hubAssistantStateV1';
   const SETTINGS_KEY = 'hubAssistantSettingsV1';
   const DB_NAME = 'hubAssistantHistoryV1';
+  const DB_VERSION = 2;
   const DB_STORE = 'state';
   const $ = id => document.getElementById(id);
   const state = {
     conversation: null,
     sending: false,
+    activeRequest: null,
     requestSerial: 0,
     settings: loadSettings(),
     offlineCatalog: null,
-    typingWatchdog: 0,
-    toastTimer: 0
+    toastTimer: 0,
+    renderLimit: 80,
+    messageFingerprints: new Map()
+  };
+  const historyStore = {
+    dbPromise: null,
+    queue: Promise.resolve(),
+    persistTimer: 0,
+    pendingState: null,
+    draftTimer: 0,
+    pendingDraft: ''
   };
   const composerGuard = {
     area: null,
     workspace: null,
     observer: null,
-    resizeObserver: null,
-    timer: 0
+    resizeObserver: null
   };
 
   function uuid() {
@@ -30,75 +40,112 @@
 
   function openHistoryDatabase() {
     if (!('indexedDB' in globalThis)) return Promise.resolve(null);
-    return new Promise(resolve => {
+    if (historyStore.dbPromise) return historyStore.dbPromise;
+    historyStore.dbPromise = new Promise(resolve => {
       let request;
       let settled = false;
       const finish = value => {
-        if (settled) {
-          try { value?.close?.(); } catch {}
-          return;
-        }
+        if (settled) return;
         settled = true;
         clearTimeout(timer);
         resolve(value || null);
       };
-      const timer = setTimeout(() => finish(null), 1500);
-      try { request = indexedDB.open(DB_NAME, 1); } catch { finish(null); return; }
+      const timer = setTimeout(() => finish(null), 1800);
+      try { request = indexedDB.open(DB_NAME, DB_VERSION); } catch { finish(null); return; }
       request.onupgradeneeded = () => {
         const database = request.result;
         if (!database.objectStoreNames.contains(DB_STORE)) database.createObjectStore(DB_STORE);
       };
-      request.onsuccess = () => finish(request.result);
+      request.onsuccess = () => {
+        const database = request.result;
+        database.onversionchange = () => { try { database.close(); } catch {} historyStore.dbPromise = null; };
+        finish(database);
+      };
       request.onerror = () => finish(null);
       request.onblocked = () => finish(null);
     });
+    return historyStore.dbPromise;
+  }
+
+  async function databaseGet(key) {
+    const database = await openHistoryDatabase();
+    if (!database) return null;
+    return new Promise(resolve => {
+      try {
+        const transaction = database.transaction(DB_STORE, 'readonly');
+        const request = transaction.objectStore(DB_STORE).get(key);
+        request.onsuccess = () => resolve(request.result ?? null);
+        request.onerror = () => resolve(null);
+        transaction.onabort = () => resolve(null);
+      } catch { resolve(null); }
+    });
+  }
+
+  function enqueueDatabaseWrite(operation, fallback) {
+    historyStore.queue = historyStore.queue.then(async () => {
+      const database = await openHistoryDatabase();
+      if (!database) { fallback?.(); return; }
+      await new Promise(resolve => {
+        try {
+          const transaction = database.transaction(DB_STORE, 'readwrite');
+          operation(transaction.objectStore(DB_STORE));
+          transaction.oncomplete = resolve;
+          transaction.onerror = resolve;
+          transaction.onabort = resolve;
+        } catch { fallback?.(); resolve(); }
+      });
+    }).catch(() => fallback?.());
+    return historyStore.queue;
   }
 
   async function loadSavedState() {
-    const database = await openHistoryDatabase();
-    if (database) {
-      const saved = await new Promise(resolve => {
-        const transaction = database.transaction(DB_STORE, 'readonly');
-        const request = transaction.objectStore(DB_STORE).get('main');
-        request.onsuccess = () => resolve(request.result || null);
-        request.onerror = () => resolve(null);
-      });
-      database.close();
-      if (saved) return saved;
-    }
+    const saved = await databaseGet('main');
+    if (saved) return saved;
     try { return JSON.parse(localStorage.getItem(STORAGE_KEY) || '{}'); } catch { return {}; }
   }
 
-  async function persistSavedState(value) {
-    const database = await openHistoryDatabase();
-    if (database) {
-      await new Promise(resolve => {
-        const transaction = database.transaction(DB_STORE, 'readwrite');
-        transaction.objectStore(DB_STORE).put(value, 'main');
-        transaction.oncomplete = resolve;
-        transaction.onerror = resolve;
-        transaction.onabort = resolve;
+  async function loadDraft() {
+    const saved = await databaseGet('draft');
+    if (typeof saved === 'string') return saved;
+    try { return localStorage.getItem(`${STORAGE_KEY}:draft`) || ''; } catch { return ''; }
+  }
+
+  function persistSavedState(value, { immediate = false } = {}) {
+    historyStore.pendingState = value;
+    clearTimeout(historyStore.persistTimer);
+    const flush = () => {
+      const payload = historyStore.pendingState;
+      historyStore.pendingState = null;
+      return enqueueDatabaseWrite(store => store.put(payload, 'main'), () => {
+        try { localStorage.setItem(STORAGE_KEY, JSON.stringify(payload)); } catch {}
       });
-      database.close();
-      try { localStorage.removeItem(STORAGE_KEY); } catch {}
-      return;
-    }
-    try { localStorage.setItem(STORAGE_KEY, JSON.stringify(value)); } catch {}
+    };
+    if (immediate) return flush();
+    historyStore.persistTimer = setTimeout(flush, 120);
+    return historyStore.queue;
+  }
+
+  function persistDraft(value, { immediate = false } = {}) {
+    historyStore.pendingDraft = String(value || '').slice(0, 3000);
+    clearTimeout(historyStore.draftTimer);
+    const flush = () => {
+      const payload = historyStore.pendingDraft;
+      return enqueueDatabaseWrite(store => store.put(payload, 'draft'), () => {
+        try { localStorage.setItem(`${STORAGE_KEY}:draft`, payload); } catch {}
+      });
+    };
+    if (immediate) return flush();
+    historyStore.draftTimer = setTimeout(flush, 160);
+    return historyStore.queue;
   }
 
   async function clearSavedState() {
-    const database = await openHistoryDatabase();
-    if (database) {
-      await new Promise(resolve => {
-        const transaction = database.transaction(DB_STORE, 'readwrite');
-        transaction.objectStore(DB_STORE).delete('main');
-        transaction.oncomplete = resolve;
-        transaction.onerror = resolve;
-        transaction.onabort = resolve;
-      });
-      database.close();
-    }
-    try { localStorage.removeItem(STORAGE_KEY); } catch {}
+    clearTimeout(historyStore.persistTimer);
+    clearTimeout(historyStore.draftTimer);
+    historyStore.pendingState = null;
+    historyStore.pendingDraft = '';
+    await enqueueDatabaseWrite(store => { store.delete('main'); store.delete('draft'); }, () => {});
+    try { localStorage.removeItem(STORAGE_KEY); localStorage.removeItem(`${STORAGE_KEY}:draft`); } catch {}
   }
 
   function defaultSettings() {
@@ -170,9 +217,9 @@
     state.conversation = normalizeConversation(source);
   }
 
-  function saveState() {
+  function saveState(options = {}) {
     if (!state.conversation) state.conversation = freshConversation();
-    persistSavedState({ conversation: state.conversation });
+    return persistSavedState({ conversation: state.conversation }, options);
   }
 
   function currentConversation() {
@@ -187,18 +234,6 @@
   function safeText(value) { return String(value || ''); }
 
 
-  function removeVisibilityBlockers(element) {
-    if (!element) return;
-    if (element.hidden) element.hidden = false;
-    if (element.hasAttribute('hidden')) element.removeAttribute('hidden');
-    if (element.hasAttribute('inert')) element.removeAttribute('inert');
-    if (element.getAttribute('aria-hidden') === 'true') element.removeAttribute('aria-hidden');
-    for (const property of ['display', 'visibility', 'opacity', 'transform', 'pointer-events']) {
-      const value = element.style.getPropertyValue(property);
-      if (value && /(?:none|hidden|^0$)/i.test(value)) element.style.removeProperty(property);
-    }
-  }
-
   function updateComposerMetrics() {
     const area = composerGuard.area || $('composerArea');
     if (!area?.isConnected) return;
@@ -206,45 +241,31 @@
     document.documentElement.style.setProperty('--assistant-composer-height', `${height}px`);
   }
 
-  function ensureComposerVisible() {
+  function ensureComposerAttached() {
     const workspace = composerGuard.workspace || document.querySelector('.assistant-workspace');
     const area = composerGuard.area || $('composerArea');
     if (!workspace || !area) return false;
     composerGuard.workspace = workspace;
     composerGuard.area = area;
     if (!area.isConnected || area.parentElement !== workspace) workspace.append(area);
-    removeVisibilityBlockers(area);
-    removeVisibilityBlockers($('composer'));
-    removeVisibilityBlockers($('messageInput'));
-    removeVisibilityBlockers($('sendMessage'));
-    area.classList.add('composer-always-visible');
     updateComposerMetrics();
     return true;
-  }
-
-  function scheduleComposerGuard(delay = 0) {
-    clearTimeout(composerGuard.timer);
-    composerGuard.timer = setTimeout(() => {
-      ensureComposerVisible();
-      requestAnimationFrame(updateComposerMetrics);
-    }, delay);
   }
 
   function bindComposerGuard() {
     composerGuard.workspace = document.querySelector('.assistant-workspace');
     composerGuard.area = $('composerArea');
-    ensureComposerVisible();
+    ensureComposerAttached();
     if (typeof MutationObserver === 'function' && composerGuard.workspace) {
-      composerGuard.observer = new MutationObserver(() => scheduleComposerGuard(0));
-      composerGuard.observer.observe(composerGuard.workspace, {
-        childList: true,
-        subtree: true,
-        attributes: true,
-        attributeFilter: ['hidden', 'inert', 'aria-hidden', 'style', 'class']
+      composerGuard.observer = new MutationObserver(records => {
+        if (records.some(record => record.type === 'childList' && !composerGuard.area?.isConnected)) {
+          ensureComposerAttached();
+        }
       });
+      composerGuard.observer.observe(composerGuard.workspace, { childList: true });
     }
     if (typeof ResizeObserver === 'function' && composerGuard.area) {
-      composerGuard.resizeObserver = new ResizeObserver(() => updateComposerMetrics());
+      composerGuard.resizeObserver = new ResizeObserver(updateComposerMetrics);
       composerGuard.resizeObserver.observe(composerGuard.area);
     }
   }
@@ -350,33 +371,42 @@
     state.toastTimer = setTimeout(() => { toast.hidden = true; }, 1800);
   }
 
-  function actionButton(action = {}) {
-    const kind = escapeHtml(action.kind || (String(action.value || '').startsWith('http') ? 'open-url' : 'message'));
-    const value = escapeHtml(action.value || '');
-    const title = escapeHtml(action.title || '');
-    const page = escapeHtml(action.page || '');
-    const meta = escapeHtml(action.meta || '');
-    const icon = escapeHtml(action.icon || '');
-    return `<button type="button" data-hub-action data-action-kind="${kind}" data-action-value="${value}" data-action-title="${title}" data-action-page="${page}" data-action-meta="${meta}">${icon ? `<span aria-hidden="true">${icon}</span>` : ''}${escapeHtml(action.label || 'Abrir')}</button>`;
+  function safeExternalUrl(value = '') {
+    try {
+      const url = new URL(String(value || ''), location.href);
+      return ['http:', 'https:', 'mailto:'].includes(url.protocol) ? url.href : '';
+    } catch { return ''; }
   }
 
   function renderComponents(message) {
-    const components = Array.isArray(message.components) ? message.components : [];
+    const components = (Array.isArray(message.components) ? message.components : [])
+      .filter(component => component && component.type !== 'hub-actions');
     if (!components.length) return '';
-    return `<div class="structured-components">${components.map(component => {
+    const rendered = components.map(component => {
       const type = escapeHtml(component.type || 'information');
       if (component.type === 'sources') {
         const items = Array.isArray(component.items) ? component.items : [];
-        return `<section class="structured-card sources-card" data-component="${type}"><strong>${escapeHtml(component.title || 'Fontes no HUB')}</strong>${items.map(item => `<div class="source-row"><a href="${escapeHtml(item.url || '#')}" target="_blank" rel="noopener noreferrer"><span>📄 ${escapeHtml(item.title || 'Documento')}</span><small>${escapeHtml(item.label || `Página ${item.page || 1}`)}</small>${item.snippet ? `<em>${escapeHtml(item.snippet)}</em>` : ''}</a><button type="button" data-hub-action data-action-kind="favorite-document" data-action-value="${escapeHtml(item.url || '#')}" data-action-title="${escapeHtml(item.title || 'Documento')}" data-action-page="${escapeHtml(item.page || 1)}" data-action-meta="${escapeHtml(item.label || 'Documento')}">☆</button></div>`).join('')}</section>`;
+        const rows = items.map(item => {
+          const href = safeExternalUrl(item.url || '');
+          const body = `<span>📄 ${escapeHtml(item.title || 'Documento')}</span><small>${escapeHtml(item.label || `Página ${item.page || 1}`)}</small>${item.snippet ? `<em>${escapeHtml(item.snippet)}</em>` : ''}`;
+          return href ? `<div class="source-row"><a href="${escapeHtml(href)}" target="_blank" rel="noopener noreferrer">${body}</a></div>` : `<div class="source-row source-row-static">${body}</div>`;
+        }).join('');
+        return rows ? `<section class="structured-card sources-card" data-component="${type}"><strong>${escapeHtml(component.title || 'Fontes')}</strong>${rows}</section>` : '';
       }
       const rows = [];
       if (component.email) rows.push(`<a href="mailto:${escapeHtml(component.email)}">✉ ${escapeHtml(component.email)}</a>`);
       if (component.phone) rows.push(`<span>☎ ${escapeHtml(component.phone)}</span>`);
       if (Array.isArray(component.subjects) && component.subjects.length) rows.push(`<span>Disciplinas: ${escapeHtml(component.subjects.join(', '))}</span>`);
-      if (Array.isArray(component.links)) rows.push(...component.links.map(link => `<a href="${escapeHtml(link)}" target="_blank" rel="noopener noreferrer">Abrir link</a>`));
-      const actions = Array.isArray(component.actions) ? component.actions : [];
-      return `<section class="structured-card" data-component="${type}"><strong>${escapeHtml(component.title || 'Informação')}</strong>${rows.join('')}${actions.length ? `<div class="structured-actions">${actions.map(action => component.type === 'hub-actions' ? actionButton(action) : `<button type="button" data-option-value="${escapeHtml(action.value)}">${escapeHtml(action.label)}</button>`).join('')}</div>` : ''}</section>`;
-    }).join('')}</div>`;
+      if (Array.isArray(component.links)) {
+        for (const raw of component.links) {
+          const href = safeExternalUrl(raw);
+          if (href) rows.push(`<a href="${escapeHtml(href)}" target="_blank" rel="noopener noreferrer">Abrir link</a>`);
+        }
+      }
+      const actions = Array.isArray(component.actions) ? component.actions.filter(action => action?.value && action.kind !== 'open-url' && action.kind !== 'hub-search' && action.kind !== 'locate-sector' && action.kind !== 'favorite-document') : [];
+      return `<section class="structured-card" data-component="${type}"><strong>${escapeHtml(component.title || 'Informação')}</strong>${rows.join('')}${actions.length ? `<div class="structured-actions">${actions.map(action => `<button type="button" data-option-value="${escapeHtml(action.value)}">${escapeHtml(action.label || 'Continuar')}</button>`).join('')}</div>` : ''}</section>`;
+    }).filter(Boolean);
+    return rendered.length ? `<div class="structured-components">${rendered.join('')}</div>` : '';
   }
 
   function renderAmbiguity(message) {
@@ -405,52 +435,105 @@
     return `<section class="progressive-answer"><div class="progressive-summary">${formatMessage(presentation.summary || message.text)}</div>${presentation.details ? `<details><summary>Detalhes</summary><div class="progressive-details">${formatMessage(presentation.details)}</div></details>` : ''}${presentation.source ? `<details><summary>Fonte</summary><div class="progressive-source">${formatMessage(presentation.source)}</div></details>` : ''}</section>`;
   }
 
+  function isNearBottom(viewport = $('messageScroll'), threshold = 120) {
+    if (!viewport) return true;
+    return viewport.scrollHeight - viewport.scrollTop - viewport.clientHeight <= threshold;
+  }
+
   function scrollToBottom(smooth = true) {
     const viewport = $('messageScroll');
     if (!viewport) return;
     const top = Math.max(0, viewport.scrollHeight - viewport.clientHeight);
     try {
-      viewport.scrollTo({
-        top,
-        behavior: smooth && !matchMedia('(prefers-reduced-motion: reduce)').matches ? 'smooth' : 'auto'
-      });
+      viewport.scrollTo({ top, behavior: smooth && !matchMedia('(prefers-reduced-motion: reduce)').matches ? 'smooth' : 'auto' });
     } catch { viewport.scrollTop = top; }
   }
 
+  function messageFingerprint(message) {
+    return JSON.stringify([
+      message.role, message.text, message.error, message.feedback, message.copied,
+      message.attachment, message.options, message.components, message.ambiguity,
+      message.knowledge, message.citation, message.presentation
+    ]);
+  }
+
+  function messageHtml(message) {
+    if (message.role === 'user') {
+      return `<article class="message-row user" data-message-id="${escapeHtml(message.id)}"><div class="message-content">${escapeHtml(message.text)}</div></article>`;
+    }
+    const attachment = message.attachment
+      ? `<a class="attachment-link" href="${escapeHtml(safeExternalUrl(message.attachment.url) || '#')}" target="_blank" rel="noopener noreferrer">📎 ${escapeHtml(message.attachment.fileName || 'Abrir anexo')}</a>`
+      : '';
+    const options = message.options?.length
+      ? `<div class="message-actions">${message.options.map(option => `<button type="button" class="${option.kind === 'exit' ? 'exit-option' : ''}" data-option-kind="${escapeHtml(option.kind)}" data-option-value="${escapeHtml(option.value)}">${escapeHtml(option.label)}</button>`).join('')}</div>`
+      : '';
+    return `<article class="message-row assistant" data-message-id="${escapeHtml(message.id)}"><div class="assistant-avatar" aria-hidden="true">🤖</div><div class="message-content ${message.error ? 'error-card' : ''}">${renderMessageBody(message)}${renderAmbiguity(message)}${renderComponents(message)}${renderKnowledge(message)}${attachment}${options}${assistantActions(message)}</div></article>`;
+  }
+
+  function createNodeFromHtml(html) {
+    const template = document.createElement('template');
+    template.innerHTML = html.trim();
+    return template.content.firstElementChild;
+  }
+
   function renderMessages() {
-    ensureComposerVisible();
+    ensureComposerAttached();
     const conversation = currentConversation();
+    const container = $('messages');
+    const viewport = $('messageScroll');
+    const keepBottom = isNearBottom(viewport);
     $('welcome').hidden = Boolean(conversation.messages.length);
-    $('messages').innerHTML = conversation.messages.map(message => {
-      if (message.role === 'user') {
-        return `<article class="message-row user" data-message-id="${escapeHtml(message.id)}"><div class="message-content">${escapeHtml(message.text)}</div></article>`;
+
+    const visible = conversation.messages.slice(-state.renderLimit);
+    const visibleIds = new Set(visible.map(message => message.id));
+    container.querySelectorAll('[data-message-id]').forEach(node => {
+      if (!visibleIds.has(node.dataset.messageId)) {
+        state.messageFingerprints.delete(node.dataset.messageId);
+        node.remove();
       }
-      const attachment = message.attachment
-        ? `<a class="attachment-link" href="${escapeHtml(message.attachment.url)}" target="_blank" rel="noopener noreferrer">📎 ${escapeHtml(message.attachment.fileName || 'Abrir anexo')}</a>`
-        : '';
-      const options = message.options?.length
-        ? `<div class="message-actions">${message.options.map(option => `<button type="button" class="${option.kind === 'exit' ? 'exit-option' : ''}" data-option-kind="${escapeHtml(option.kind)}" data-option-value="${escapeHtml(option.value)}">${escapeHtml(option.label)}</button>`).join('')}</div>`
-        : '';
-      return `
-        <article class="message-row assistant" data-message-id="${escapeHtml(message.id)}">
-          <div class="assistant-avatar" aria-hidden="true">🤖</div>
-          <div class="message-content ${message.error ? 'error-card' : ''}">
-            ${renderMessageBody(message)}${renderAmbiguity(message)}${renderComponents(message)}${renderKnowledge(message)}${attachment}${options}${assistantActions(message)}
-          </div>
-        </article>`;
-    }).join('');
+    });
+
+    let loadEarlier = container.querySelector('[data-load-earlier]');
+    const hiddenCount = Math.max(0, conversation.messages.length - visible.length);
+    if (hiddenCount > 0) {
+      if (!loadEarlier) {
+        loadEarlier = document.createElement('button');
+        loadEarlier.type = 'button';
+        loadEarlier.className = 'load-earlier-messages';
+        loadEarlier.dataset.loadEarlier = 'true';
+        container.prepend(loadEarlier);
+      }
+      loadEarlier.textContent = `Mostrar ${Math.min(80, hiddenCount)} mensagem(ns) anterior(es)`;
+    } else if (loadEarlier) loadEarlier.remove();
+
+    const typing = container.querySelector('[data-typing="true"]');
+    for (const message of visible) {
+      const fingerprint = messageFingerprint(message);
+      let node = container.querySelector(`[data-message-id="${CSS.escape(message.id)}"]`);
+      if (!node) {
+        node = createNodeFromHtml(messageHtml(message));
+      } else if (state.messageFingerprints.get(message.id) !== fingerprint) {
+        const replacement = createNodeFromHtml(messageHtml(message));
+        node.replaceWith(replacement);
+        node = replacement;
+      }
+      state.messageFingerprints.set(message.id, fingerprint);
+      container.insertBefore(node, typing || null);
+    }
+
     if (state.sending) showTyping();
+    else hideTyping();
     requestAnimationFrame(() => {
-      ensureComposerVisible();
-      scrollToBottom(false);
+      ensureComposerAttached();
+      if (keepBottom) scrollToBottom(false);
     });
   }
 
   function render() {
-    ensureComposerVisible();
+    ensureComposerAttached();
     renderMessages();
-    setSending(state.sending);
-    ensureComposerVisible();
+    syncSendingUi();
+    ensureComposerAttached();
   }
 
   function hideTyping() {
@@ -458,17 +541,8 @@
     $('messageScroll')?.setAttribute('aria-busy', 'false');
   }
 
-  function setSending(active) {
-    ensureComposerVisible();
-    state.sending = Boolean(active);
-    clearTimeout(state.typingWatchdog);
-    if (state.sending) state.typingWatchdog = setTimeout(() => {
-      state.requestSerial += 1;
-      state.sending = false;
-      hideTyping();
-      setConnection('offline', 'Resposta interrompida por tempo limite');
-      renderMessages();
-    }, Math.max(30000, Number(CONFIG.requestTimeoutMs || 25000) + 5000));
+  function syncSendingUi() {
+    state.sending = Boolean(state.activeRequest);
     const input = $('messageInput');
     const sendButton = $('sendMessage');
     if (!state.sending) hideTyping();
@@ -483,39 +557,79 @@
       ? 'O assistente está escrevendo. Você pode continuar digitando; o envio será liberado após a resposta.'
       : 'Enter envia · Shift + Enter quebra a linha';
     document.querySelectorAll('[data-prompt], [data-option-value]').forEach(button => { button.disabled = state.sending; });
-    scheduleComposerGuard(0);
+    ensureComposerAttached();
   }
 
   function showTyping() {
-    if (!state.sending || document.querySelector('[data-typing="true"]')) return;
+    if (!state.activeRequest || document.querySelector('[data-typing="true"]')) return;
     $('messages').append($('typingTemplate').content.cloneNode(true));
-    $('messageScroll').setAttribute('aria-busy', 'true');
-    scrollToBottom(false);
+    $('messageScroll')?.setAttribute('aria-busy', 'true');
+    if (isNearBottom()) scrollToBottom(false);
+  }
+
+  function beginMessageRequest(timeoutMs = Number(CONFIG.requestTimeoutMs || 25000)) {
+    abortMessageRequest('superseded');
+    const id = ++state.requestSerial;
+    const controller = new AbortController();
+    const active = { id, controller, reason: '', timer: 0 };
+    active.timer = setTimeout(() => {
+      if (state.activeRequest?.id !== id) return;
+      active.reason = 'timeout';
+      controller.abort('timeout');
+    }, Math.max(1000, Number(timeoutMs || 25000)));
+    state.activeRequest = active;
+    syncSendingUi();
+    showTyping();
+    return active;
+  }
+
+  function finishMessageRequest(id) {
+    const active = state.activeRequest;
+    if (!active || active.id !== id) return false;
+    clearTimeout(active.timer);
+    state.activeRequest = null;
+    syncSendingUi();
+    return true;
+  }
+
+  function abortMessageRequest(reason = 'cancelled') {
+    const active = state.activeRequest;
+    if (!active) return false;
+    active.reason = reason;
+    clearTimeout(active.timer);
+    try { active.controller.abort(reason); } catch {}
+    state.activeRequest = null;
+    syncSendingUi();
+    return true;
   }
 
   function setConnection(status, label) {
     const element = $('connectionState');
+    if (!element) return;
     element.dataset.state = status;
     const textNode = [...element.childNodes].find(node => node.nodeType === Node.TEXT_NODE);
     if (textNode) textNode.textContent = ` ${label}`;
     else element.append(document.createTextNode(` ${label}`));
   }
 
-  async function request(path, payload, timeoutMs = Number(CONFIG.requestTimeoutMs || 25000)) {
+  async function request(path, payload, options = {}) {
     if (!CONFIG.apiBaseUrl) throw new Error('A API do Assistente não está configurada nesta versão.');
-    const controller = new AbortController();
-    const timer = setTimeout(() => controller.abort(), timeoutMs);
+    const normalized = typeof options === 'number' ? { timeoutMs: options } : (options || {});
+    const timeoutMs = Number(normalized.timeoutMs || CONFIG.requestTimeoutMs || 25000);
+    const ownController = normalized.signal ? null : new AbortController();
+    const signal = normalized.signal || ownController.signal;
+    const timer = ownController ? setTimeout(() => ownController.abort('timeout'), timeoutMs) : 0;
     try {
       const response = await fetch(apiUrl(path), {
         method: 'POST',
         headers: { 'content-type': 'application/json' },
         body: JSON.stringify(payload),
-        signal: controller.signal
+        signal
       });
       const data = await response.json().catch(() => ({}));
       if (!response.ok) throw new Error(data.error || `Erro HTTP ${response.status}`);
       return data;
-    } finally { clearTimeout(timer); }
+    } finally { if (timer) clearTimeout(timer); }
   }
 
   async function checkHealth() {
@@ -569,73 +683,36 @@
   }
 
   function offlineAnswer(text) {
-    const value = normalizeOffline(text);
-    const hubRoot = new URL('../../', location.href).href;
     const updated = state.offlineCatalog?.updatedAt || '';
-    const answer = (body, actions = [], extra = {}) => ({
-      text: `Modo offline — algumas informações podem não estar atualizadas.\n\n${body}${updated ? `\n\nAtualizado em ${updated}.` : ''}`,
-      components: actions.length ? [{ type: 'hub-actions', title: 'Ações disponíveis', actions }] : [],
-      knowledge: extra.knowledge || null,
-      presentation: { progressive: false, summary: body, details: '', source: updated ? `Dados locais atualizados em ${updated}.` : '', defaultExpanded: false }
-    });
     const item = findOfflineItem(text);
-    if (item) {
-      const actions = [];
-      if (item.url) actions.push({ label:'Abrir no HUB', kind:'open-url', value:item.url, icon:'↗' });
-      if (item.kind === 'document' && item.url) actions.push({ label:'Favoritar documento', kind:'favorite-document', value:item.url, title:item.title, page:item.page || 1, meta:item.category || 'Documento', icon:'☆' });
-      return answer(item.summary || item.description || `Encontrei “${item.title}” nos dados locais do HUB.`, actions, { knowledge: item.knowledge || null });
-    }
-    if (/suap/.test(value)) return answer('Acesse o SUAP pelo sistema institucional.', [{ label:'Abrir SUAP',kind:'open-url',value:'https://suap.ifba.edu.br',icon:'↗' }]);
-    if (/portal|campus/.test(value)) return answer('O Portal do Campus Vitória da Conquista reúne notícias, setores e editais.', [{ label:'Abrir Portal',kind:'open-url',value:'https://portal.ifba.edu.br/conquista',icon:'↗' }]);
-    if (/biblioteca/.test(value)) return answer('Contato local salvo: biblioteca.vdc@ifba.edu.br. A página da Biblioteca reúne catálogo e serviços.', [{ label:'Abrir Biblioteca',kind:'open-url',value:'https://portal.ifba.edu.br/conquista/ensino/biblioteca',icon:'📚' },{label:'Copiar e-mail',kind:'copy',value:'biblioteca.vdc@ifba.edu.br',icon:'✉'}]);
-    if (/caens|estagio/.test(value)) return answer('Contato local salvo da CAENS: caens.vdc@ifba.edu.br. Para dados atualizados, confirme na página oficial do setor.', [{ label:'Abrir CAENS',kind:'open-url',value:'https://portal.ifba.edu.br/conquista/coordenacao-de-apoio-ao-ensino-caens',icon:'↗' },{label:'Copiar e-mail',kind:'copy',value:'caens.vdc@ifba.edu.br',icon:'✉'}]);
-    if (/setor|contato|coordenacao|localizacao/.test(value)) return answer('A busca local do HUB pode localizar páginas, contatos e documentos de setores.', [{ label:'Buscar no HUB',kind:'open-url',value:`${hubRoot}?q=${encodeURIComponent(text)}`,icon:'⌕' }]);
-    if (/calendario|feriado|recesso|data/.test(value)) return answer('Consulte o calendário acadêmico salvo no HUB.', [{ label:'Ver calendário',kind:'open-url',value:`${hubRoot}apps/calendario/`,icon:'📅' }]);
-    if (/horario|aula|semestre/.test(value)) return answer('Os horários recentes podem ser localizados pela busca do HUB.', [{ label:'Ver horários',kind:'open-url',value:`${hubRoot}?q=${encodeURIComponent('horários '+text)}`,icon:'🕒' }]);
-    if (/documento|regulamento|resolucao|ppc|matriz|trancamento|jubilamento/.test(value)) return answer('A busca do HUB continua disponível para localizar documentos oficiais armazenados no dispositivo.', [{ label:'Buscar documentos',kind:'open-url',value:`${hubRoot}?q=${encodeURIComponent(text)}`,icon:'📄' }]);
-    if (/ajuda|o que voce|pode fazer/.test(value)) return answer('Posso ajudar offline com cards mais consultados, documentos recentes, calendário, contatos, setores, links e horários sincronizados.');
-    return null;
-  }
-
-  const FAVORITES_KEY = 'hubFavoritesV1';
-  function readFavorites() { try { const value=JSON.parse(localStorage.getItem(FAVORITES_KEY)||'[]'); return Array.isArray(value)?value:[]; } catch { return []; } }
-  function favoriteKey(item={}) { return `${item.kind||'document'}:${item.id||item.url||item.title}`; }
-  function toggleDocumentFavorite({ value='', title='Documento', page='1', meta='Documento', button=null } = {}) {
-    const item={ id:value, kind:'document', title, url:value, meta:meta || `Página ${page}` };
-    const items=readFavorites(); const key=favoriteKey(item); const index=items.findIndex(saved=>favoriteKey(saved)===key);
-    const active=index<0;
-    if(active) items.unshift(item); else items.splice(index,1);
-    try { localStorage.setItem(FAVORITES_KEY,JSON.stringify(items.slice(0,30))); } catch {}
-    if(button){button.classList.toggle('is-favorite',active);button.textContent=active?'★':'☆';button.setAttribute('aria-pressed',String(active));}
-    window.dispatchEvent(new CustomEvent('hub:favorites-changed'));
-    showToast(active?'Documento adicionado aos favoritos':'Documento removido dos favoritos');
-  }
-
-  async function handleHubAction(button) {
-    const kind=button.dataset.actionKind||'message'; const value=button.dataset.actionValue||'';
-    if(kind==='favorite-document'){toggleDocumentFavorite({value,title:button.dataset.actionTitle||'Documento',page:button.dataset.actionPage||'1',meta:button.dataset.actionMeta||'Documento',button});return true;}
-    if(kind==='copy'){try{await navigator.clipboard.writeText(value);}catch{const area=document.createElement('textarea');area.value=value;document.body.append(area);area.select();document.execCommand('copy');area.remove();}showToast('Copiado');return true;}
-    if(kind==='open-url'||kind==='hub-search'||kind==='locate-sector'){window.open(new URL(value,location.href).href,'_blank','noopener,noreferrer');return true;}
-    if(kind==='message'){if(!state.sending)send(value);return true;}
-    return false;
+    if (!item) return null;
+    const sourceLabel = item.kind === 'document' && item.page ? `\n\nFonte relacionada: ${item.title}, página ${item.page}.` : '';
+    return {
+      text: `Modo offline — algumas informações podem não estar atualizadas.\n\n${item.summary || item.description || `Encontrei “${item.title}” nos dados locais do HUB.`}${sourceLabel}${updated ? `\n\nDados locais atualizados em ${updated}.` : ''}`,
+      components: [],
+      knowledge: item.knowledge || null,
+      presentation: { progressive: false, summary: item.summary || item.description || item.title, details: '', source: sourceLabel.trim(), defaultExpanded: false }
+    };
   }
 
   function openOrSendAction(value) {
-    if (/^(?:https?:\/\/|\.\.?\/|\/|#)/i.test(value)) { window.open(new URL(value, location.href).href, '_blank', 'noopener,noreferrer'); return true; }
-    return false;
+    const href = safeExternalUrl(value);
+    if (!href) return false;
+    window.open(href, '_blank', 'noopener,noreferrer');
+    return true;
   }
-
 
 
   async function send(text) {
     text = safeText(text).trim();
-    if (!text || state.sending) return;
-    const serial = ++state.requestSerial;
+    if (!text) return;
+    if (state.activeRequest) abortMessageRequest('superseded');
+    const active = beginMessageRequest();
     addMessage('user', text);
     const input = $('messageInput');
     if (input) input.value = '';
+    persistDraft('', { immediate: true });
     resizeInput();
-    setSending(true);
     renderMessages();
     try {
       const conversation = currentConversation();
@@ -643,8 +720,8 @@
         sessionId: conversation.sessionId,
         message: text,
         senderName: state.settings.senderName
-      });
-      if (serial !== state.requestSerial) return;
+      }, { signal: active.controller.signal });
+      if (state.activeRequest?.id !== active.id) return;
       if (data.sessionId) conversation.sessionId = data.sessionId;
       const replies = Array.isArray(data.replies) ? data.replies : [];
       if (!replies.length) {
@@ -654,7 +731,7 @@
           serverId: reply.id,
           attachment: reply.attachment,
           options: index === replies.length - 1 ? (data.options || data.suggestions || []) : [],
-          components: index === replies.length - 1 ? (data.components || []) : [],
+          components: index === replies.length - 1 ? (data.components || []).filter(component => component?.type !== 'hub-actions') : [],
           sources: index === replies.length - 1 ? (data.sources || []) : [],
           context: null,
           ambiguity: index === replies.length - 1 ? data.ambiguity : null,
@@ -665,48 +742,47 @@
       }
       setConnection('online', 'Conectado');
     } catch (error) {
-      if (serial !== state.requestSerial) return;
+      if (state.activeRequest?.id !== active.id) return;
+      const reason = active.reason || (error.name === 'AbortError' ? 'aborted' : 'error');
+      if (reason === 'superseded' || reason === 'reset' || reason === 'unload') return;
       const offline = offlineAnswer(text);
-      if (offline) addMessage('assistant', offline.text, { components: offline.components, knowledge: offline.knowledge, presentation: offline.presentation, error: false });
+      if (offline) addMessage('assistant', offline.text, { components: [], knowledge: offline.knowledge, presentation: offline.presentation, error: false });
       else {
-        const message = error.name === 'AbortError'
+        const message = reason === 'timeout' || error.name === 'AbortError'
           ? 'A resposta demorou demais. Verifique a conexão e tente novamente.'
           : `Não foi possível falar com o assistente. ${error.message}`;
         addMessage('assistant', message, { error: true });
       }
       setConnection('offline', offline ? 'Modo offline' : 'API indisponível');
     } finally {
-      if (serial === state.requestSerial) {
-        setSending(false);
-        saveState();
+      if (finishMessageRequest(active.id)) {
+        saveState({ immediate: true });
         renderMessages();
         if (matchMedia('(pointer: fine)').matches && document.activeElement !== $('messageInput')) {
-          $('messageInput').focus({ preventScroll: true });
+          $('messageInput')?.focus({ preventScroll: true });
         }
       }
     }
   }
 
   function resizeInput() {
-    ensureComposerVisible();
+    ensureComposerAttached();
     const input = $('messageInput');
-    if (!input) {
-      scheduleComposerGuard(0);
-      return;
-    }
+    if (!input) return;
     input.style.height = 'auto';
     input.style.height = `${Math.min(180, input.scrollHeight)}px`;
     updateComposerMetrics();
-    setSending(state.sending);
+    syncSendingUi();
   }
 
   async function resetCurrent() {
     const previous = currentConversation();
-    state.requestSerial += 1;
-    setSending(false);
+    abortMessageRequest('reset');
     try { await request(CONFIG.resetPath || '/api/assistant/reset', { sessionId: previous.sessionId }, 8000); } catch {}
     state.conversation = freshConversation();
-    saveState();
+    state.renderLimit = 80;
+    state.messageFingerprints.clear();
+    await clearSavedState();
     render();
   }
 
@@ -772,7 +848,7 @@
 
   function bind() {
     $('sendMessage').addEventListener('click', () => send($('messageInput').value));
-    $('messageInput').addEventListener('input', resizeInput);
+    $('messageInput').addEventListener('input', event => { resizeInput(); persistDraft(event.currentTarget.value); });
     $('messageInput').addEventListener('keydown', event => {
       if (event.key === 'Enter' && !event.shiftKey) {
         event.preventDefault();
@@ -784,13 +860,17 @@
       if (button) send(button.dataset.prompt);
     });
     $('messages').addEventListener('click', event => {
-      const hubAction = event.target.closest('[data-hub-action]');
       const option = event.target.closest('[data-option-value]');
       const copy = event.target.closest('[data-copy-message]');
       const feedback = event.target.closest('[data-feedback]');
       const retry = event.target.closest('[data-retry-message]');
-      if (hubAction) {
-        handleHubAction(hubAction);
+      const loadEarlier = event.target.closest('[data-load-earlier]');
+      if (loadEarlier) {
+        const viewport = $('messageScroll');
+        const previousHeight = viewport?.scrollHeight || 0;
+        state.renderLimit += 80;
+        renderMessages();
+        requestAnimationFrame(() => { if (viewport) viewport.scrollTop += viewport.scrollHeight - previousHeight; });
       } else if (option) {
         if (!state.sending && !openOrSendAction(option.dataset.optionValue)) send(option.dataset.optionValue);
       } else if (copy) copyMessage(copy.dataset.copyMessage);
@@ -807,15 +887,14 @@
     window.addEventListener('online', checkHealth);
     window.addEventListener('offline', () => setConnection('offline', 'Sem internet'));
     window.addEventListener('pageshow', () => {
-      ensureComposerVisible();
-      setSending(false);
+      ensureComposerAttached();
+      syncSendingUi();
       renderMessages();
-      scheduleComposerGuard(0);
     });
     document.addEventListener('focusin', event => {
-      if (event.target === $('messageInput')) scheduleComposerGuard(0);
+      if (event.target === $('messageInput')) ensureComposerAttached();
     });
-    document.addEventListener('focusout', () => scheduleComposerGuard(80));
+    document.addEventListener('focusout', () => setTimeout(ensureComposerAttached, 80));
   }
 
   let viewportSyncTimer = 0;
@@ -827,14 +906,14 @@
     document.documentElement.style.setProperty('--assistant-window-height', `${height}px`);
     document.documentElement.style.setProperty('--assistant-viewport-top', `${Math.max(0, Math.round(visualTop))}px`);
     document.body?.classList.toggle('assistant-compact-height', height < 300);
-    ensureComposerVisible();
+    ensureComposerAttached();
   }
 
   function scheduleViewportSync(delay = 0) {
     clearTimeout(viewportSyncTimer);
     viewportSyncTimer = setTimeout(() => {
       syncViewportHeight();
-      ensureComposerVisible();
+      ensureComposerAttached();
       requestAnimationFrame(() => {
         updateComposerMetrics();
         scrollToBottom(false);
@@ -849,32 +928,34 @@
     globalThis.addEventListener('orientationchange', () => scheduleViewportSync(140));
     document.addEventListener('visibilitychange', () => {
       if (!document.hidden) {
-        ensureComposerVisible();
-        setSending(false);
+        ensureComposerAttached();
+        syncSendingUi();
         scheduleViewportSync(0);
       }
     });
+    window.addEventListener('pagehide', () => { persistDraft($('messageInput')?.value || '', { immediate: true }); });
   }
 
   async function bootstrap() {
     bindComposerGuard();
     bindViewport();
     bind();
-    await Promise.all([loadState(), loadOfflineCatalog()]);
-    ensureComposerVisible();
-    setSending(false);
+    const [, , draft] = await Promise.all([loadState(), loadOfflineCatalog(), loadDraft()]);
+    const input = $('messageInput');
+    if (input && draft) input.value = String(draft).slice(0, 3000);
+    ensureComposerAttached();
+    syncSendingUi();
     render();
     resizeInput();
     checkHealth();
-    if (matchMedia('(pointer: fine)').matches) $('messageInput').focus({ preventScroll: true });
+    if (matchMedia('(pointer: fine)').matches) input?.focus({ preventScroll: true });
   }
 
   bootstrap().catch(error => {
     console.error('Falha ao iniciar o Assistente:', error);
     state.conversation = freshConversation();
-    ensureComposerVisible();
-    setSending(false);
+    ensureComposerAttached();
+    syncSendingUi();
     render();
-    scheduleComposerGuard(0);
   });
 })();

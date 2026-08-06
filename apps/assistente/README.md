@@ -1,4 +1,4 @@
-# Assistente do HUB v1.3.4
+# Assistente do HUB v1.4.4
 
 Frontend do Assistente integrado ao HUB Arquivos IFBA.
 
