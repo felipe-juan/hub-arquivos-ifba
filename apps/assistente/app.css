@@ -240,7 +240,7 @@ button:focus-visible, a:focus-visible, textarea:focus-visible, input:focus-visib
 }
 
 
-/* v1.3.0 — ações, componentes estruturados e estabilidade visual. */
+/* v1.3.1 — ações, componentes estruturados e estabilidade visual. */
 .message-toolbar { min-height: 32px; align-items: center; }
 .message-toolbar button { position: relative; transition: background .16s ease, color .16s ease, border-color .16s ease, transform .12s ease; }
 .message-toolbar button:active { transform: scale(.92); }
@@ -265,7 +265,7 @@ button:focus-visible, a:focus-visible, textarea:focus-visible, input:focus-visib
 @media (max-width: 620px) { .message-action-status { flex-basis: 100%; } .structured-card { padding: .62rem; } }
 
 
-/* v1.3.0 — contexto visível, respostas progressivas e ações híbridas */
+/* v1.3.1 — contexto visível, respostas progressivas e ações híbridas */
 .active-context {
   min-width: 0;
   display: flex;
