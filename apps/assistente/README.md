@@ -1,14 +1,5 @@
-# Assistente do HUB v1.3.3
+# Assistente do HUB v1.3.4
 
-Frontend independente do WhatsApp, integrado ao design e à sidebar do HUB.
+Frontend do Assistente integrado ao HUB Arquivos IFBA.
 
-Recursos desta versão:
-
-- conversa única persistente;
-- contexto ativo visível e limpável;
-- explicação de ambiguidades;
-- respostas progressivas e híbridas;
-- ações diretas no HUB;
-- modo offline sincronizado em `offline-data.json`;
-- componentes de conhecimento, citação e conflito;
-- interface mobile e desktop estável.
+Nesta versão, o composer é uma região permanente fora da rolagem. O CSS flexível e a guarda JavaScript impedem o desaparecimento do campo em desktop, celular, teclado virtual, rotação, troca de aba e restauração da página.

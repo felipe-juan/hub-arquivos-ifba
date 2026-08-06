@@ -16,6 +16,13 @@
     typingWatchdog: 0,
     toastTimer: 0
   };
+  const composerGuard = {
+    area: null,
+    workspace: null,
+    observer: null,
+    resizeObserver: null,
+    timer: 0
+  };
 
   function uuid() {
     return globalThis.crypto?.randomUUID?.() || `${Date.now()}-${Math.random().toString(16).slice(2)}`;
@@ -178,6 +185,69 @@
   }
 
   function safeText(value) { return String(value || ''); }
+
+
+  function removeVisibilityBlockers(element) {
+    if (!element) return;
+    if (element.hidden) element.hidden = false;
+    if (element.hasAttribute('hidden')) element.removeAttribute('hidden');
+    if (element.hasAttribute('inert')) element.removeAttribute('inert');
+    if (element.getAttribute('aria-hidden') === 'true') element.removeAttribute('aria-hidden');
+    for (const property of ['display', 'visibility', 'opacity', 'transform', 'pointer-events']) {
+      const value = element.style.getPropertyValue(property);
+      if (value && /(?:none|hidden|^0$)/i.test(value)) element.style.removeProperty(property);
+    }
+  }
+
+  function updateComposerMetrics() {
+    const area = composerGuard.area || $('composerArea');
+    if (!area?.isConnected) return;
+    const height = Math.max(58, Math.ceil(area.getBoundingClientRect().height || area.offsetHeight || 0));
+    document.documentElement.style.setProperty('--assistant-composer-height', `${height}px`);
+  }
+
+  function ensureComposerVisible() {
+    const workspace = composerGuard.workspace || document.querySelector('.assistant-workspace');
+    const area = composerGuard.area || $('composerArea');
+    if (!workspace || !area) return false;
+    composerGuard.workspace = workspace;
+    composerGuard.area = area;
+    if (!area.isConnected || area.parentElement !== workspace) workspace.append(area);
+    removeVisibilityBlockers(area);
+    removeVisibilityBlockers($('composer'));
+    removeVisibilityBlockers($('messageInput'));
+    removeVisibilityBlockers($('sendMessage'));
+    area.classList.add('composer-always-visible');
+    updateComposerMetrics();
+    return true;
+  }
+
+  function scheduleComposerGuard(delay = 0) {
+    clearTimeout(composerGuard.timer);
+    composerGuard.timer = setTimeout(() => {
+      ensureComposerVisible();
+      requestAnimationFrame(updateComposerMetrics);
+    }, delay);
+  }
+
+  function bindComposerGuard() {
+    composerGuard.workspace = document.querySelector('.assistant-workspace');
+    composerGuard.area = $('composerArea');
+    ensureComposerVisible();
+    if (typeof MutationObserver === 'function' && composerGuard.workspace) {
+      composerGuard.observer = new MutationObserver(() => scheduleComposerGuard(0));
+      composerGuard.observer.observe(composerGuard.workspace, {
+        childList: true,
+        subtree: true,
+        attributes: true,
+        attributeFilter: ['hidden', 'inert', 'aria-hidden', 'style', 'class']
+      });
+    }
+    if (typeof ResizeObserver === 'function' && composerGuard.area) {
+      composerGuard.resizeObserver = new ResizeObserver(() => updateComposerMetrics());
+      composerGuard.resizeObserver.observe(composerGuard.area);
+    }
+  }
 
   function escapeHtml(value) {
     return safeText(value).replace(/[&<>'"]/g, char => ({
@@ -348,6 +418,7 @@
   }
 
   function renderMessages() {
+    ensureComposerVisible();
     const conversation = currentConversation();
     $('welcome').hidden = Boolean(conversation.messages.length);
     $('messages').innerHTML = conversation.messages.map(message => {
@@ -369,12 +440,17 @@
         </article>`;
     }).join('');
     if (state.sending) showTyping();
-    requestAnimationFrame(() => scrollToBottom(false));
+    requestAnimationFrame(() => {
+      ensureComposerVisible();
+      scrollToBottom(false);
+    });
   }
 
   function render() {
+    ensureComposerVisible();
     renderMessages();
     setSending(state.sending);
+    ensureComposerVisible();
   }
 
   function hideTyping() {
@@ -383,6 +459,7 @@
   }
 
   function setSending(active) {
+    ensureComposerVisible();
     state.sending = Boolean(active);
     clearTimeout(state.typingWatchdog);
     if (state.sending) state.typingWatchdog = setTimeout(() => {
@@ -395,14 +472,18 @@
     const input = $('messageInput');
     const sendButton = $('sendMessage');
     if (!state.sending) hideTyping();
-    sendButton.disabled = state.sending || !input.value.trim();
-    sendButton.setAttribute('aria-busy', state.sending ? 'true' : 'false');
-    sendButton.title = state.sending ? 'Aguarde o assistente responder' : 'Enviar';
-    $('messageScroll').setAttribute('aria-busy', state.sending ? 'true' : 'false');
-    $('composerHint').textContent = state.sending
+    if (input && sendButton) {
+      sendButton.disabled = state.sending || !input.value.trim();
+      sendButton.setAttribute('aria-busy', state.sending ? 'true' : 'false');
+      sendButton.title = state.sending ? 'Aguarde o assistente responder' : 'Enviar';
+    }
+    $('messageScroll')?.setAttribute('aria-busy', state.sending ? 'true' : 'false');
+    const hint = $('composerHint');
+    if (hint) hint.textContent = state.sending
       ? 'O assistente está escrevendo. Você pode continuar digitando; o envio será liberado após a resposta.'
       : 'Enter envia · Shift + Enter quebra a linha';
     document.querySelectorAll('[data-prompt], [data-option-value]').forEach(button => { button.disabled = state.sending; });
+    scheduleComposerGuard(0);
   }
 
   function showTyping() {
@@ -551,7 +632,8 @@
     if (!text || state.sending) return;
     const serial = ++state.requestSerial;
     addMessage('user', text);
-    $('messageInput').value = '';
+    const input = $('messageInput');
+    if (input) input.value = '';
     resizeInput();
     setSending(true);
     renderMessages();
@@ -606,9 +688,15 @@
   }
 
   function resizeInput() {
+    ensureComposerVisible();
     const input = $('messageInput');
+    if (!input) {
+      scheduleComposerGuard(0);
+      return;
+    }
     input.style.height = 'auto';
     input.style.height = `${Math.min(180, input.scrollHeight)}px`;
+    updateComposerMetrics();
     setSending(state.sending);
   }
 
@@ -719,24 +807,38 @@
     window.addEventListener('online', checkHealth);
     window.addEventListener('offline', () => setConnection('offline', 'Sem internet'));
     window.addEventListener('pageshow', () => {
+      ensureComposerVisible();
       setSending(false);
       renderMessages();
+      scheduleComposerGuard(0);
     });
+    document.addEventListener('focusin', event => {
+      if (event.target === $('messageInput')) scheduleComposerGuard(0);
+    });
+    document.addEventListener('focusout', () => scheduleComposerGuard(80));
   }
 
   let viewportSyncTimer = 0;
   function syncViewportHeight() {
     const visualHeight = Number(globalThis.visualViewport?.height || 0);
+    const visualTop = Number(globalThis.visualViewport?.offsetTop || 0);
     const layoutHeight = Number(globalThis.innerHeight || document.documentElement.clientHeight || 0);
-    const height = Math.max(320, Math.round(visualHeight > 0 ? visualHeight : layoutHeight));
+    const height = Math.max(180, Math.round(visualHeight > 0 ? visualHeight : layoutHeight));
     document.documentElement.style.setProperty('--assistant-window-height', `${height}px`);
+    document.documentElement.style.setProperty('--assistant-viewport-top', `${Math.max(0, Math.round(visualTop))}px`);
+    document.body?.classList.toggle('assistant-compact-height', height < 300);
+    ensureComposerVisible();
   }
 
   function scheduleViewportSync(delay = 0) {
     clearTimeout(viewportSyncTimer);
     viewportSyncTimer = setTimeout(() => {
       syncViewportHeight();
-      requestAnimationFrame(() => scrollToBottom(false));
+      ensureComposerVisible();
+      requestAnimationFrame(() => {
+        updateComposerMetrics();
+        scrollToBottom(false);
+      });
     }, delay);
   }
 
@@ -747,6 +849,7 @@
     globalThis.addEventListener('orientationchange', () => scheduleViewportSync(140));
     document.addEventListener('visibilitychange', () => {
       if (!document.hidden) {
+        ensureComposerVisible();
         setSending(false);
         scheduleViewportSync(0);
       }
@@ -754,9 +857,11 @@
   }
 
   async function bootstrap() {
-    await Promise.all([loadState(), loadOfflineCatalog()]);
+    bindComposerGuard();
     bindViewport();
     bind();
+    await Promise.all([loadState(), loadOfflineCatalog()]);
+    ensureComposerVisible();
     setSending(false);
     render();
     resizeInput();
@@ -767,7 +872,9 @@
   bootstrap().catch(error => {
     console.error('Falha ao iniciar o Assistente:', error);
     state.conversation = freshConversation();
+    ensureComposerVisible();
     setSending(false);
     render();
+    scheduleComposerGuard(0);
   });
 })();
