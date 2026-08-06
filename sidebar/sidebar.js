@@ -15,11 +15,37 @@
     theme: 'hubThemeMode',
     favoritesData: 'hubFavoritesV1'
   });
+  const DEFAULT_EXTERNAL_LINKS = Object.freeze([
+    { id: 'portal', title: 'Portal do IFBA', url: 'https://portal.ifba.edu.br/conquista', emoji: '🏫' },
+    { id: 'suap', title: 'SUAP', url: 'https://suap.ifba.edu.br', emoji: '🔐' }
+  ]);
   const FALLBACK_REGISTRY = Object.freeze({
     apps: [{ id: 'app-assistente-hub', title: 'Assistente do HUB', url: 'apps/assistente/', emoji: '🤖' }],
     links: [],
-    externalLinks: []
+    externalLinks: DEFAULT_EXTERNAL_LINKS
   });
+  const GENERIC_APP_ICONS = new Set(['', '💼', '🧰', '📦', '🗃️', '🗂️']);
+  const FORCED_APP_EMOJI_RULES = Object.freeze([
+    [['assistente', 'chatbot', 'bot do hub'], '🤖'],
+    [['media final', 'prova final', 'calculadora', 'calculo da media'], '🧮'],
+    [['barema', 'atividade complementar'], '🎓'],
+    [['calendario'], '📅'],
+    [['fluxograma', 'matriz curricular'], '🗺️'],
+    [['doom', 'jogo'], '🎮']
+  ]);
+  const APP_EMOJI_RULES = Object.freeze([
+    [['horario'], '🕒'],
+    [['sala'], '🚪'],
+    [['professor', 'docente'], '👨‍🏫'],
+    [['biblioteca'], '📚'],
+    [['documento', 'acervo', 'arquivo', 'leitor pdf'], '📄'],
+    [['estagio'], '💼'],
+    [['tcc', 'trabalho de conclusao'], '📝'],
+    [['setor', 'contato'], '☎️'],
+    [['mapa'], '🗺️'],
+    [['acessibilidade'], '♿'],
+    [['link'], '🔗']
+  ]);
 
   const read = (key, fallback = '') => {
     try { return localStorage.getItem(key) ?? fallback; } catch { return fallback; }
@@ -94,16 +120,46 @@
     return mount;
   }
 
+  function normalized(value = '') {
+    return String(value || '').normalize('NFD').replace(/[\u0300-\u036f]/g, '').toLowerCase().replace(/[^a-z0-9]+/g, ' ').trim();
+  }
+
   function appIcon(item = {}) {
-    if (item.id === 'app-assistente-hub' || /assistente/i.test(item.title || '')) return '🤖';
-    return String(item.emoji || item.icon || '🧰');
+    const search = normalized([item.id, item.title, item.name, item.url, item.category].filter(Boolean).join(' '));
+    for (const [keywords, emoji] of FORCED_APP_EMOJI_RULES) if (keywords.some(keyword => search.includes(keyword))) return emoji;
+    const explicit = String(item.emoji || item.icon || '').trim();
+    if (!GENERIC_APP_ICONS.has(explicit)) return explicit;
+    for (const [keywords, emoji] of APP_EMOJI_RULES) if (keywords.some(keyword => search.includes(keyword))) return emoji;
+    return '🧩';
+  }
+
+  function isObsoleteApp(item = {}) {
+    const search = normalized([item.id, item.title, item.name, item.url].filter(Boolean).join(' '));
+    return search.includes('onde resolvo');
+  }
+
+  function externalLinkKind(item = {}) {
+    const search = normalized([item.id, item.title, item.name, item.url].filter(Boolean).join(' '));
+    if (search.includes('suap')) return 'suap';
+    if (search.includes('portal ifba') || search.includes('portal do ifba') || search.includes('portal ifba edu br')) return 'portal';
+    return '';
+  }
+
+  function mergedExternalLinks() {
+    const configured = Array.isArray(registry.externalLinks) ? registry.externalLinks : [];
+    const byKind = new Map(configured.map(item => [externalLinkKind(item), item]).filter(([kind]) => kind));
+    const result = DEFAULT_EXTERNAL_LINKS.map(item => ({ ...item, ...(byKind.get(item.id) || {}), id: item.id, emoji: item.emoji }));
+    const known = new Set(result.map(item => normalized(item.url)));
+    for (const item of configured) if (!externalLinkKind(item) && !known.has(normalized(item.url))) result.push(item);
+    return result;
   }
 
   function renderApps() {
     const box = document.getElementById('appsMenu');
     if (!box) return;
     const current = currentAppId();
-    box.innerHTML = (registry.apps || []).map(item => {
+    const apps = (Array.isArray(registry.apps) ? registry.apps : []).filter(item => !isObsoleteApp(item));
+    box.innerHTML = apps.map(item => {
       const href = rootHref(item.url);
       const active = item.id === current;
       return `<a class="${active ? 'active' : ''}" href="${escapeHtml(href)}"${isExternal(href) ? ' target="_blank" rel="noopener"' : ''}><span aria-hidden="true">${escapeHtml(appIcon(item))}</span><span class="sidebar-label">${escapeHtml(item.title || 'App')}</span></a>`;
@@ -125,8 +181,10 @@
   }
 
   function readFavorites() {
-    try { const value = JSON.parse(read(PREF.favoritesData, '[]')); return Array.isArray(value) ? value : []; }
-    catch { return []; }
+    try {
+      const value = JSON.parse(read(PREF.favoritesData, '[]'));
+      return Array.isArray(value) ? value.filter(item => item?.kind !== 'app' || !isObsoleteApp(item)) : [];
+    } catch { return []; }
   }
 
   function renderFavorites() {
@@ -137,7 +195,7 @@
     if (count) { count.textContent = String(items.length); count.setAttribute('aria-label', `${items.length} favoritos`); }
     box.innerHTML = items.length ? items.slice(0, 30).map((item, index) => {
       const href = rootHref(item.url || '#');
-      const icon = item.kind === 'document' ? '📄' : item.kind === 'app' ? (item.emoji || '🧰') : '🔗';
+      const icon = item.kind === 'document' ? '📄' : item.kind === 'app' ? appIcon(item) : '🔗';
       return `<div class="sidebar-favorite-row"><a href="${escapeHtml(href)}"${isExternal(href) ? ' target="_blank" rel="noopener"' : ''}><span aria-hidden="true">${escapeHtml(icon)}</span><span class="sidebar-label">${escapeHtml(item.title || 'Favorito')}</span></a><button class="sidebar-favorite-remove" type="button" data-remove-favorite="${index}" aria-label="Remover favorito">×</button></div>`;
     }).join('') : '<p class="sidebar-empty">Nenhum favorito salvo.</p>';
   }
@@ -145,7 +203,7 @@
   function renderExternalLinks() {
     const box = document.getElementById('sidebarExternalLinks');
     if (!box) return;
-    box.innerHTML = (registry.externalLinks || FALLBACK_REGISTRY.externalLinks).map(item => `<a class="campus-portal sidebar-external-link" href="${escapeHtml(rootHref(item.url))}" target="_blank" rel="noopener" title="${escapeHtml(item.title || '')}"><span aria-hidden="true">${escapeHtml(linkIcon(item))}</span><span class="sidebar-label">${escapeHtml(item.title || 'Link')}</span></a>`).join('');
+    box.innerHTML = mergedExternalLinks().map(item => `<a class="campus-portal sidebar-external-link" href="${escapeHtml(rootHref(item.url))}" target="_blank" rel="noopener" title="${escapeHtml(item.title || '')}"><span aria-hidden="true">${escapeHtml(linkIcon(item))}</span><span class="sidebar-label">${escapeHtml(item.title || 'Link')}</span></a>`).join('');
   }
 
   function setGroup(buttonId, panelId, key, defaultOpen) {

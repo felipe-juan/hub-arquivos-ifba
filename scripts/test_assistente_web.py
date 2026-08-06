@@ -2,6 +2,7 @@
 from __future__ import annotations
 
 import ast
+import importlib.util
 import json
 import subprocess
 import sys
@@ -64,16 +65,22 @@ assert "visibility: visible !important" not in css
 # Um único ciclo de requisição: abort real, timeout e resposta antiga ignorada.
 for marker in (
     "class ChatController", "AbortController", "this.abort('superseded')",
-    "controller.abort('timeout')", "if (!this.isCurrent(active.id))",
-    "this.finish(active.id)", "get sending()",
+    "controller.abort('timeout')", "Promise.race([execution, aborted])",
+    "if (!this.isCurrent(active.id))", "this.finish(active.id)", "get sending()",
 ):
     assert marker in chat_js, marker
 assert "setSending(false)" not in app_js
 assert "visibilitychange" not in chat_js
 assert "chat.sending" in app_js
 assert "if (!text || chat.sending) return" in app_js
+assert "chat.abort('user-stop')" in app_js
+assert "sendButton.dataset.mode = stopping ? 'stop' : 'send'" in app_js
+assert "Interromper resposta" in app_js and "Resposta interrompida." in app_js
+assert 'button[data-mode="stop"]' in css
 assert "signal => api.request" in app_js
 assert "externalSignal" in api_js and "controller.abort" in api_js
+assert "ASSISTANT_RESPONSE_TIMEOUT" in api_js and "error.status = response.status" in api_js
+assert "timedOut ? 'online' : 'offline'" in app_js
 
 # Resposta primeiro: corpo principal integral, fonte compacta e apenas evidência secundária recolhível.
 assert "presentation.summary || presentation.answer || message.text" in renderer_js
@@ -95,7 +102,7 @@ for marker in ("dbVersion = 3", "this.dbPromise", "this.queue", "saveDraft", "lo
     assert marker in history_js, marker
 assert "loadOfflineCatalog" not in offline_js  # módulo próprio, sem funções herdadas do app monolítico
 assert "fetch(this.path" in offline_js
-assert "version: \"1.5.0\"" in config_js
+assert "version: \"1.5.1\"" in config_js
 
 # O app.js é somente orquestração: não contém classes dos módulos.
 for forbidden in ("class ChatController", "class HistoryStore", "class MessageRenderer", "class ComposerController", "function formatMessage"):
@@ -108,6 +115,24 @@ for name in ("sidebar.js", "sidebar.css", "apps-registry.json"):
 registry = json.loads((sidebar / "apps-registry.json").read_text(encoding="utf-8"))
 assert registry.get("apps") and registry["apps"][0].get("title") == "Assistente do HUB"
 assert registry["apps"][0].get("emoji") == "🤖"
+expected_sidebar_emojis = {
+    "app-assistente-hub": "🤖",
+    "app-media-final": "🧮",
+    "barema": "🎓",
+    "calendario": "📅",
+    "fluxogramas": "🗺️",
+}
+for item in registry["apps"]:
+    if item.get("id") in expected_sidebar_emojis:
+        assert item.get("emoji") == expected_sidebar_emojis[item["id"]]
+        assert item.get("icon") == expected_sidebar_emojis[item["id"]]
+assert all("onde resolvo" not in f"{item.get('id','')} {item.get('title','')} {item.get('url','')}".casefold() for item in registry["apps"])
+assert len(registry.get("externalLinks", [])) == 2
+external_by_id = {item.get("id"): item for item in registry.get("externalLinks", [])}
+assert external_by_id.get("portal", {}).get("url") == "https://portal.ifba.edu.br/conquista"
+assert external_by_id.get("portal", {}).get("emoji") == "🏫"
+assert external_by_id.get("suap", {}).get("url") == "https://suap.ifba.edu.br"
+assert external_by_id.get("suap", {}).get("emoji") == "🔐"
 assert not (root / "apps" / "app-shell.js").exists()
 assert not (root / "apps" / "app-shell.css").exists()
 sidebar_js = (sidebar / "sidebar.js").read_text(encoding="utf-8")
@@ -129,11 +154,13 @@ assert raw.startswith(prefix) and raw.endswith(';')
 data = json.loads(raw[len(prefix):-1])
 assert data.get("apps") and data["apps"][0].get("title") == "Assistente do HUB"
 assert data["apps"][0].get("emoji") == "🤖"
+assert all(item.get("emoji") and item.get("icon") == item.get("emoji") for item in data["apps"])
+assert all("onde resolvo" not in f"{item.get('id','')} {item.get('title','')} {item.get('url','')}".casefold() for item in data["apps"])
 
 # Offline vem somente do catálogo central gerado.
 offline = json.loads((app / "offline-data.json").read_text(encoding="utf-8"))
 assert offline.get("sourcePolicy") == "central-records-only"
-assert offline.get("version") == "1.5.0"
+assert offline.get("version") == "1.5.1"
 assert "generatedAt" not in offline
 assert all(item.get("source") in {"hub-data", "document-metadata"} for item in offline.get("items", []))
 for forbidden in ("offline-suap", "offline-calendar", "offline-help", "portal.ifba.edu.br"):
@@ -161,7 +188,53 @@ scripts = root / "scripts"
 installer = (scripts / "install_assistente_web.py").read_text(encoding="utf-8")
 assert "import re" not in installer and "re." not in installer
 assert "splitlines(keepends=True)" in installer
+assert "GENERIC_APP_ICONS" in installer and "APP_EMOJI_RULES" in installer
+assert "DEFAULT_EXTERNAL_LINKS" in installer and "is_obsolete_app" in installer
+assert "NORMALIZED_OBSOLETE_APP_IDS" in installer
+assert "Os demais links úteis continuam em ``registry.links``" in installer
 assert "Sequência de inicialização da sidebar não reconhecida" not in installer
+assert "isObsoleteApp" in sidebar_js and ".filter(item => !isObsoleteApp(item))" in sidebar_js
+
+# Normalização real da sidebar sobre uma base com ícones genéricos e links ausentes.
+spec = importlib.util.spec_from_file_location("hub_assistente_installer_test", scripts / "install_assistente_web.py")
+assert spec and spec.loader
+installer_module = importlib.util.module_from_spec(spec)
+spec.loader.exec_module(installer_module)
+with tempfile.TemporaryDirectory(prefix="hub-sidebar-registry-") as temp_dir:
+    fixture = Path(temp_dir)
+    (fixture / "sidebar").mkdir()
+    (fixture / "apps").mkdir()
+    fixture_data = {
+        "apps": [
+            {"id": "app-media-final", "title": "Média e Prova Final", "url": "#media-final", "emoji": "💼"},
+            {"id": "barema", "title": "Barema de Atividades Complementares", "url": "apps/barema/", "icon": "💼"},
+            {"id": "calendario", "title": "Calendário Acadêmico 2026", "url": "apps/calendario/", "emoji": "💼"},
+            {"id": "fluxogramas", "title": "Fluxogramas Curriculares", "url": "apps/fluxogramas/", "emoji": "💼"},
+            {"id": "onde-resolvo-isso", "title": "Onde resolvo isso?", "url": "apps/onde-resolvo-isso/", "emoji": "💼"},
+            {"id": "app-personalizado", "title": "Ferramenta personalizada", "url": "apps/personalizado/", "emoji": "🌟"},
+        ],
+        "usefulLinks": [{"title": "Biblioteca", "url": "https://example.invalid/biblioteca"}],
+    }
+    (fixture / "data.js").write_text(
+        installer_module.DATA_PREFIX + json.dumps(fixture_data, ensure_ascii=False) + ";\n",
+        encoding="utf-8",
+    )
+    installer_module.ROOT = fixture
+    installer_module.update_data_and_registry()
+    normalized_data = installer_module.load_hub_data(fixture / "data.js")
+    emoji_by_id = {item["id"]: item["emoji"] for item in normalized_data["apps"]}
+    assert emoji_by_id["app-assistente-hub"] == "🤖"
+    assert emoji_by_id["app-media-final"] == "🧮"
+    assert emoji_by_id["barema"] == "🎓"
+    assert emoji_by_id["calendario"] == "📅"
+    assert emoji_by_id["fluxogramas"] == "🗺️"
+    assert emoji_by_id["app-personalizado"] == "🌟"
+    assert "onde-resolvo-isso" not in emoji_by_id
+    generated_registry = json.loads((fixture / "sidebar" / "apps-registry.json").read_text(encoding="utf-8"))
+    assert [item["id"] for item in generated_registry["externalLinks"]] == ["portal", "suap"]
+    assert generated_registry["externalLinks"][0]["url"] == "https://portal.ifba.edu.br/conquista"
+    assert generated_registry["externalLinks"][1]["url"] == "https://suap.ifba.edu.br"
+    assert generated_registry["links"] == fixture_data["usefulLinks"]
 for name in ("normalize_document_manifests.py", "verify_document_generation.py", "build_and_validate_hub.py"):
     assert (scripts / name).is_file(), name
 verify_text = (scripts / "verify_document_generation.py").read_text(encoding="utf-8")
@@ -208,6 +281,8 @@ if build_script.is_file():
 sw = (root / "service-worker.js").read_text(encoding="utf-8")
 assert "apps/app-shell.js" not in sw and "apps/app-shell.css" not in sw
 assert "apps/assistente/assets/build/" not in sw
+for obsolete_ref in ("apps/onde-resolvo/", "apps/onde-resolvo-isso/", "apps/app-onde-resolvo/"):
+    assert obsolete_ref not in sw, obsolete_ref
 for module in required_modules:
     assert f'"./apps/assistente/{module}"' in sw, module
 assert '"./sidebar/sidebar.js"' in sw
@@ -225,4 +300,4 @@ for marker in (
 for path in [*(app / name for name in required_modules), sidebar / "sidebar.js"]:
     subprocess.run(["node", "--check", str(path)], check=True)
 subprocess.run(["node", str(scripts / "test_frontend_modules.js"), str(root)], check=True)
-print("Assistente web v1.5.0 instalado: OK")
+print("Assistente web v1.5.1 instalado: OK")

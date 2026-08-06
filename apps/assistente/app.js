@@ -132,14 +132,19 @@
     const input = $('messageInput');
     const sendButton = $('sendMessage');
     if (input && sendButton) {
-      sendButton.disabled = chat.sending || !input.value.trim();
-      sendButton.setAttribute('aria-busy', chat.sending ? 'true' : 'false');
-      sendButton.title = chat.sending ? 'Aguarde o assistente responder' : 'Enviar';
+      const stopping = chat.sending;
+      sendButton.disabled = stopping ? false : !input.value.trim();
+      sendButton.dataset.mode = stopping ? 'stop' : 'send';
+      sendButton.setAttribute('aria-label', stopping ? 'Interromper resposta' : 'Enviar mensagem');
+      sendButton.setAttribute('aria-busy', 'false');
+      sendButton.title = stopping ? 'Interromper resposta' : 'Enviar';
+      const icon = sendButton.querySelector('[aria-hidden="true"]');
+      if (icon) icon.textContent = stopping ? '■' : '↑';
     }
     $('messageScroll')?.setAttribute('aria-busy', chat.sending ? 'true' : 'false');
     const hint = $('composerHint');
     if (hint) hint.textContent = chat.sending
-      ? 'O assistente está escrevendo. Você pode continuar digitando; o envio será liberado após a resposta.'
+      ? 'O assistente está escrevendo. Use o botão quadrado para interromper; o texto digitado será preservado.'
       : 'Enter envia · Shift + Enter quebra a linha';
     document.querySelectorAll('[data-prompt], [data-option-value]').forEach(button => { button.disabled = chat.sending; });
     composer.ensure();
@@ -240,11 +245,15 @@
             setConnection('offline', 'Modo offline');
             return;
           }
-          const message = ['timeout', 'aborted'].includes(reason) || error?.name === 'AbortError'
-            ? 'A resposta demorou demais. Verifique a conexão e tente novamente.'
+          const timedOut = ['timeout', 'aborted'].includes(reason)
+            || error?.name === 'AbortError'
+            || error?.code === 'ASSISTANT_RESPONSE_TIMEOUT'
+            || error?.status === 504;
+          const message = timedOut
+            ? (error?.message || 'A resposta demorou demais e foi interrompida. Tente novamente.')
             : `Não foi possível falar com o assistente. ${error?.message || 'Erro desconhecido.'}`;
           addMessage('assistant', message, { error: true });
-          setConnection('offline', 'API indisponível');
+          setConnection(timedOut ? 'online' : 'offline', timedOut ? 'Conectado' : 'API indisponível');
         },
         onFinally: () => {
           saveState({ immediate: true });
@@ -253,6 +262,15 @@
         }
       }
     );
+  }
+
+  function stopCurrentResponse() {
+    if (!chat.abort('user-stop')) return false;
+    saveState({ immediate: true });
+    renderer.render();
+    showToast('Resposta interrompida.');
+    requestAnimationFrame(() => $('messageInput')?.focus({ preventScroll: true }));
+    return true;
   }
 
   async function resetCurrent() {
@@ -275,7 +293,10 @@
   }
 
   function bind() {
-    $('sendMessage')?.addEventListener('click', () => send($('messageInput')?.value));
+    $('sendMessage')?.addEventListener('click', () => {
+      if (chat.sending) stopCurrentResponse();
+      else send($('messageInput')?.value);
+    });
     $('messageInput')?.addEventListener('input', event => {
       composer.resizeInput();
       storage.saveDraft(event.currentTarget.value);

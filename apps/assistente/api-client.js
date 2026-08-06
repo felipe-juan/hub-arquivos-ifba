@@ -36,7 +36,12 @@
           signal: controller.signal
         });
         const data = await response.json().catch(() => ({}));
-        if (!response.ok) throw new Error(data.error || `Erro HTTP ${response.status}`);
+        if (!response.ok) {
+          const error = new Error(data.error || `Erro HTTP ${response.status}`);
+          error.status = response.status;
+          error.code = data.code || (response.status === 504 ? 'ASSISTANT_RESPONSE_TIMEOUT' : 'HTTP_ERROR');
+          throw error;
+        }
         return data;
       } finally {
         clearTimeout(timer);

@@ -6,11 +6,12 @@
       "id": "assistente",
       "title": "Assistente do HUB",
       "url": "apps/assistente/",
-      "internalVersion": "1.5.0",
+      "internalVersion": "1.5.1",
       "sourceFiles": [],
       "status": "uses-independent-assistant-api",
       "reviewedAt": "2026-08-06",
-      "emoji": "🤖"
+      "emoji": "🤖",
+      "icon": "🤖"
     },
     {
       "id": "barema",
@@ -22,7 +23,9 @@
         "apps/barema/docs/barema-ppc-2010-2017.xlsx"
       ],
       "status": "curated",
-      "reviewedAt": "2026-07-10"
+      "reviewedAt": "2026-07-10",
+      "emoji": "🎓",
+      "icon": "🎓"
     },
     {
       "id": "calendario",
@@ -33,7 +36,9 @@
         "apps/calendario/docs/calendario-academico-ifba-vca-2026.pdf"
       ],
       "status": "official-source",
-      "reviewedAt": "2026-07-10"
+      "reviewedAt": "2026-07-10",
+      "emoji": "📅",
+      "icon": "📅"
     },
     {
       "id": "fluxogramas",
@@ -45,7 +50,9 @@
         "apps/fluxogramas/docs/bsi-ppc-2017.pdf"
       ],
       "status": "curated-from-official-documents",
-      "reviewedAt": "2026-07-10"
+      "reviewedAt": "2026-07-10",
+      "emoji": "🗺️",
+      "icon": "🗺️"
     }
   ]
 }

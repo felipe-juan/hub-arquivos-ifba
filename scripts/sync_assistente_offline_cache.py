@@ -43,6 +43,9 @@ def is_managed_or_obsolete(ref: str) -> bool:
     return (
         path in {"apps/app-shell.js", "apps/app-shell.css"}
         or path.startswith("apps/assistente/")
+        or path.startswith("apps/onde-resolvo/")
+        or path.startswith("apps/onde-resolvo-isso/")
+        or path.startswith("apps/app-onde-resolvo/")
         or path.startswith("sidebar/")
     )
 
@@ -197,9 +200,13 @@ def main() -> int:
     for entry in ENTRIES:
         if normalized(entry) not in normalized_refs:
             raise SystemExit(f"Referência ausente após sincronização: {entry}")
-    leftovers = [ref for ref in verified if normalized(ref) in {"apps/app-shell.js", "apps/app-shell.css"}]
+    leftovers = [
+        ref for ref in verified
+        if normalized(ref) in {"apps/app-shell.js", "apps/app-shell.css"}
+        or normalized(ref).startswith(("apps/onde-resolvo/", "apps/onde-resolvo-isso/", "apps/app-onde-resolvo/"))
+    ]
     if leftovers:
-        raise SystemExit("Referência obsoleta do app-shell ainda presente: " + ", ".join(leftovers))
+        raise SystemExit("Referência obsoleta ainda presente: " + ", ".join(leftovers))
     hashed = [ref for ref in verified if normalized(ref).startswith("apps/assistente/assets/build/")]
     if hashed:
         raise SystemExit("Referência hash instável do Assistente ainda presente: " + ", ".join(hashed))

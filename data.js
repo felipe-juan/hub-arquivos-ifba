@@ -418,34 +418,9 @@ window.HUB_DATA = {
         "MP",
         "PF",
         "MF"
-      ]
-    },
-    {
-      "id": "app-onde-resolvo",
-      "title": "Onde resolvo isso?",
-      "description": "Ajuda o estudante a descobrir qual setor, link, contato ou documento usar para problemas comuns: protocolo, estágio, segunda chamada, TCC, matriz, atendimento e documentos comprobatórios.",
-      "url": "#onde-resolvo",
-      "category": "Assistente",
-      "tags": [
-        "onde resolvo",
-        "resolver",
-        "setor",
-        "problema",
-        "protocolo",
-        "segunda chamada",
-        "perdi prova",
-        "estágio",
-        "tcc",
-        "matriz",
-        "coordenação",
-        "caens",
-        "capne",
-        "cores",
-        "serviços sociais",
-        "documento comprova",
-        "whatsapp",
-        "contato"
-      ]
+      ],
+      "emoji": "🧮",
+      "icon": "🧮"
     },
     {
       "id": "app-barema",
@@ -471,7 +446,9 @@ window.HUB_DATA = {
         "simulador",
         "app",
         "ferramenta"
-      ]
+      ],
+      "emoji": "🎓",
+      "icon": "🎓"
     },
     {
       "id": "app-calendario",
@@ -506,7 +483,9 @@ window.HUB_DATA = {
         "sao joao",
         "app",
         "ferramenta"
-      ]
+      ],
+      "emoji": "📅",
+      "icon": "📅"
     },
     {
       "id": "app-fluxogramas",
@@ -532,7 +511,9 @@ window.HUB_DATA = {
         "licenciatura em química",
         "app",
         "ferramenta"
-      ]
+      ],
+      "emoji": "🗺️",
+      "icon": "🗺️"
     }
   ],
   "guides": [],

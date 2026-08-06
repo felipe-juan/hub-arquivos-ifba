@@ -48,14 +48,21 @@ async function delay(ms) { return new Promise(resolve => setTimeout(resolve, ms)
   assert.equal(controller.sending, false);
 
   let timeoutReason = '';
-  const timed = await controller.run(signal => new Promise((resolve, reject) => {
-    signal.addEventListener('abort', () => reject(Object.assign(new Error('timeout'), { name: 'AbortError' })), { once: true });
-  }), { onError: (_error, reason) => { timeoutReason = reason; } });
+  const timed = await controller.run(() => new Promise(() => {}), {
+    onError: (_error, reason) => { timeoutReason = reason; }
+  });
   assert.equal(timed.ok, false);
   assert.equal(timeoutReason, 'timeout');
   assert.equal(controller.sending, false);
+
+  const manual = controller.run(() => new Promise(() => {}));
+  await delay(5);
+  assert.equal(controller.abort('user-stop'), true);
+  const manualResult = await manual;
+  assert.equal(manualResult.ignored, true);
+  assert.equal(controller.sending, false);
   assert.ok(states.includes(true) && states.at(-1) === false);
-  console.log('Módulos do frontend: ciclo de requisição aprovado.');
+  console.log('Módulos do frontend: ciclo, timeout rígido e interrupção aprovados.');
 })().catch(error => {
   console.error(error);
   process.exit(1);

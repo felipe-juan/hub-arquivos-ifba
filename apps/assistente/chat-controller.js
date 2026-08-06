@@ -2,6 +2,13 @@
   'use strict';
   const root = window.HUBAssistant = window.HUBAssistant || {};
 
+  function abortError(reason = 'aborted') {
+    const error = new Error(reason === 'timeout' ? 'Tempo de resposta esgotado.' : 'Requisição interrompida.');
+    error.name = 'AbortError';
+    error.reason = reason;
+    return error;
+  }
+
   class ChatController {
     constructor({ timeoutMs = 25000, onStateChange = null } = {}) {
       this.timeoutMs = Math.max(1000, Number(timeoutMs || 25000));
@@ -52,17 +59,26 @@
 
     async run(executor, { onSuccess = null, onError = null, onFinally = null } = {}) {
       const active = this.begin();
+      let abortListener = null;
+      const aborted = new Promise((_, reject) => {
+        abortListener = () => reject(abortError(active.reason || String(active.controller.signal.reason || 'aborted')));
+        if (active.controller.signal.aborted) Promise.resolve().then(abortListener);
+        else active.controller.signal.addEventListener('abort', abortListener, { once: true });
+      });
+      const execution = Promise.resolve().then(() => executor(active.controller.signal, active.id));
       try {
-        const data = await executor(active.controller.signal, active.id);
+        const data = await Promise.race([execution, aborted]);
         if (!this.isCurrent(active.id)) return { ignored: true, id: active.id };
         await onSuccess?.(data, active);
         return { ok: true, data, id: active.id };
       } catch (error) {
         if (!this.isCurrent(active.id)) return { ignored: true, error, id: active.id };
-        const reason = active.reason || (error?.name === 'AbortError' ? 'aborted' : 'error');
-        if (!['superseded', 'reset', 'unload'].includes(reason)) await onError?.(error, reason, active);
+        const signalReason = active.controller.signal.reason;
+        const reason = active.reason || (typeof signalReason === 'string' ? signalReason : '') || error?.reason || (error?.name === 'AbortError' ? 'aborted' : 'error');
+        if (!['superseded', 'reset', 'unload', 'user-stop'].includes(reason)) await onError?.(error, reason, active);
         return { ok: false, error, reason, id: active.id };
       } finally {
+        if (abortListener) active.controller.signal.removeEventListener('abort', abortListener);
         const finished = this.finish(active.id);
         if (finished) await onFinally?.(active);
       }

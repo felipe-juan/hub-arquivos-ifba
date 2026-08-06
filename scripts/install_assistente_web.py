@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Instala o Assistente v1.5.0 no HUB por cópia determinística.
+"""Instala o Assistente v1.5.1 no HUB por cópia determinística.
 
 Não usa substituições por expressão regular. Estruturas administradas são arquivos
 completos ou blocos delimitados por marcadores de início/fim.
@@ -10,14 +10,125 @@ import json
 import shutil
 import subprocess
 import sys
+import unicodedata
 from pathlib import Path
 from typing import Any
 
 ROOT = Path.cwd()
 PATCH = Path(__file__).resolve().parents[1]
-TARGET_VERSION = "0.2.61"
-APP_VERSION = "1.5.0"
+TARGET_VERSION = "0.2.62"
+APP_VERSION = "1.5.1"
 DATA_PREFIX = "window.HUB_DATA = "
+
+OBSOLETE_APP_IDS = {"app-onde-resolvo", "onde-resolvo", "onde-resolvo-isso"}
+NORMALIZED_OBSOLETE_APP_IDS = {"app onde resolvo", "onde resolvo", "onde resolvo isso"}
+GENERIC_APP_ICONS = {"", "💼", "🧰", "📦", "🗃️", "🗂️"}
+FORCED_APP_EMOJI_RULES = (
+    (("assistente", "chatbot", "bot do hub"), "🤖"),
+    (("media final", "prova final", "calculadora", "calculo da media"), "🧮"),
+    (("barema", "atividade complementar"), "🎓"),
+    (("calendario",), "📅"),
+    (("fluxograma", "matriz curricular"), "🗺️"),
+    (("doom", "jogo"), "🎮"),
+)
+APP_EMOJI_RULES = (
+    (("horario",), "🕒"),
+    (("sala",), "🚪"),
+    (("professor", "docente"), "👨‍🏫"),
+    (("biblioteca",), "📚"),
+    (("documento", "acervo", "arquivo", "leitor pdf"), "📄"),
+    (("estagio",), "💼"),
+    (("tcc", "trabalho de conclusao"), "📝"),
+    (("setor", "contato"), "☎️"),
+    (("mapa",), "🗺️"),
+    (("acessibilidade",), "♿"),
+    (("link",), "🔗"),
+)
+DEFAULT_EXTERNAL_LINKS = (
+    {"id": "portal", "title": "Portal do IFBA", "url": "https://portal.ifba.edu.br/conquista", "emoji": "🏫", "icon": "🏫"},
+    {"id": "suap", "title": "SUAP", "url": "https://suap.ifba.edu.br", "emoji": "🔐", "icon": "🔐"},
+)
+
+
+def normalized(value: object) -> str:
+    text = unicodedata.normalize("NFD", str(value or ""))
+    text = "".join(char for char in text if unicodedata.category(char) != "Mn")
+    return " ".join("".join(char.lower() if char.isalnum() else " " for char in text).split())
+
+
+def app_search_text(item: dict[str, Any]) -> str:
+    return normalized(" ".join(str(item.get(key) or "") for key in ("id", "title", "name", "url", "category")))
+
+
+def is_obsolete_app(item: dict[str, Any]) -> bool:
+    identifier = normalized(item.get("id"))
+    title = normalized(item.get("title") or item.get("name"))
+    url = normalized(item.get("url"))
+    return (
+        str(item.get("id") or "").casefold() in OBSOLETE_APP_IDS
+        or identifier in NORMALIZED_OBSOLETE_APP_IDS
+        or title == "onde resolvo isso"
+        or "onde resolvo" in title
+        or "onde resolvo" in url
+    )
+
+
+def canonical_app_emoji(item: dict[str, Any]) -> str:
+    search = app_search_text(item)
+    for keywords, emoji in FORCED_APP_EMOJI_RULES:
+        if any(keyword in search for keyword in keywords):
+            return emoji
+    explicit = str(item.get("emoji") or item.get("icon") or "").strip()
+    if explicit not in GENERIC_APP_ICONS:
+        return explicit
+    for keywords, emoji in APP_EMOJI_RULES:
+        if any(keyword in search for keyword in keywords):
+            return emoji
+    return "🧩"
+
+
+def normalize_app(item: dict[str, Any]) -> dict[str, Any]:
+    normalized_item = dict(item)
+    emoji = canonical_app_emoji(normalized_item)
+    normalized_item["emoji"] = emoji
+    normalized_item["icon"] = emoji
+    return normalized_item
+
+
+def external_link_kind(item: dict[str, Any]) -> str:
+    search = app_search_text(item)
+    if "suap" in search:
+        return "suap"
+    if "portal ifba" in search or "portal do ifba" in search or "portal ifba edu br" in search:
+        return "portal"
+    return ""
+
+
+def build_external_links(items: list[dict[str, Any]]) -> list[dict[str, Any]]:
+    """Retorna somente os dois atalhos institucionais fixos da base da sidebar.
+
+    Os demais links úteis continuam em ``registry.links`` e não devem virar botões
+    externos automaticamente. Isso evita poluir a área reservada a Portal e SUAP.
+    """
+    found: dict[str, dict[str, Any]] = {}
+    for item in items:
+        kind = external_link_kind(item)
+        if kind and kind not in found:
+            found[kind] = dict(item)
+    result: list[dict[str, Any]] = []
+    for default in DEFAULT_EXTERNAL_LINKS:
+        kind = str(default["id"])
+        merged = {**default, **found.get(kind, {})}
+        merged["id"] = kind
+        merged["emoji"] = default["emoji"]
+        merged["icon"] = default["icon"]
+        if not merged.get("title"):
+            merged["title"] = default["title"]
+        if not merged.get("url"):
+            merged["url"] = default["url"]
+        result.append(merged)
+    return result
+
 SW_START = "  // HUB ASSISTENTE MANAGED CACHE START"
 SW_END = "  // HUB ASSISTENTE MANAGED CACHE END"
 
@@ -76,19 +187,22 @@ def update_data_and_registry() -> None:
     path = ROOT / "data.js"
     data = load_hub_data(path)
     apps = [item for item in (data.get("apps") or []) if isinstance(item, dict)]
-    apps = [item for item in apps if item.get("id") != APP_ENTRY["id"] and item.get("title") != APP_ENTRY["title"] and item.get("url") != APP_ENTRY["url"]]
-    data["apps"] = [APP_ENTRY, *apps]
+    apps = [
+        normalize_app(item) for item in apps
+        if not is_obsolete_app(item)
+        and item.get("id") != APP_ENTRY["id"]
+        and item.get("title") != APP_ENTRY["title"]
+        and item.get("url") != APP_ENTRY["url"]
+    ]
+    data["apps"] = [normalize_app(APP_ENTRY), *apps]
     save_hub_data(path, data)
 
     useful = [item for item in (data.get("usefulLinks") or data.get("links") or []) if isinstance(item, dict)]
-    external: list[dict[str, Any]] = []
-    for item in useful:
-        title = str(item.get("title") or item.get("name") or "")
-        if title.casefold() in {"portal", "portal ifba", "suap"} or "suap" in title.casefold():
-            external.append(item)
+    useful = [item for item in useful if not is_obsolete_app(item)]
+    external = build_external_links(useful)
     registry = {
         "schemaVersion": 1,
-        "generatedBy": "hub-assistente-v1.5.0",
+        "generatedBy": "hub-assistente-v1.5.1",
         "apps": data["apps"],
         "links": useful,
         "externalLinks": external,
@@ -102,8 +216,8 @@ def update_catalog() -> None:
         return
     data = json.loads(read(path))
     apps = [item for item in (data.get("apps") or []) if isinstance(item, dict)]
-    apps = [item for item in apps if item.get("id") != CATALOG_ENTRY["id"] and item.get("title") != CATALOG_ENTRY["title"]]
-    data["apps"] = [CATALOG_ENTRY, *apps]
+    apps = [normalize_app(item) for item in apps if not is_obsolete_app(item) and item.get("id") != CATALOG_ENTRY["id"] and item.get("title") != CATALOG_ENTRY["title"]]
+    data["apps"] = [normalize_app(CATALOG_ENTRY), *apps]
     data["updatedAt"] = "2026-08-06"
     write(path, json.dumps(data, ensure_ascii=False, indent=2) + "\n")
 
@@ -263,6 +377,10 @@ def main() -> None:
     if assistant_target.exists():
         shutil.rmtree(assistant_target)
     shutil.copytree(assistant_source, assistant_target)
+    for obsolete_name in ("onde-resolvo", "onde-resolvo-isso", "app-onde-resolvo"):
+        obsolete_path = ROOT / "apps" / obsolete_name
+        if obsolete_path.exists():
+            shutil.rmtree(obsolete_path)
 
     sidebar_target = ROOT / "sidebar"
     if sidebar_target.exists():

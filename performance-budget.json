@@ -1,5 +1,5 @@
 {
-  "version": "0.2.61",
+  "version": "0.2.62",
   "initialPage": {
     "maxJavaScriptBytes": 274000,
     "maxJavaScriptGzipBytes": 70000,
