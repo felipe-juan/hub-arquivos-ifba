@@ -1,5 +1,5 @@
 window.HUB_ASSISTANT_CONFIG = Object.freeze({
-  version: "1.1.0",
+  version: "1.1.1",
   apiBaseUrl: "https://hub-assistente-163-176-71-236.nip.io/hub-assistente",
   healthPath: "/health",
   messagePath: "/api/assistant/message",

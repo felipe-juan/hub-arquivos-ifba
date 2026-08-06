@@ -17,34 +17,17 @@
 </head>
 <body>
   <div class="assistant-app" id="chatApp">
-    <aside class="conversation-panel" id="chatSidebar" aria-label="Histórico de conversas">
-      <div class="conversation-panel-head">
-        <div class="assistant-identity">
-          <span class="assistant-avatar assistant-avatar-large" aria-hidden="true">🤖</span>
-          <span><strong>Assistente do HUB</strong><small>Histórico neste dispositivo</small></span>
-        </div>
-        <button class="assistant-icon-button conversation-close mobile-conversation-only" id="closeSidebar" type="button" aria-label="Fechar histórico">✕</button>
-      </div>
-
-      <button class="new-chat-button" id="newChat" type="button"><span aria-hidden="true">＋</span><span>Nova conversa</span></button>
-      <nav class="conversation-list" id="conversationList" aria-label="Conversas salvas"></nav>
-
-      <div class="conversation-panel-footer">
-        <button type="button" id="openSettings"><span aria-hidden="true">⚙</span><span>Configurações</span></button>
-        <a href="../../"><span aria-hidden="true">←</span><span>Voltar ao início do HUB</span></a>
-      </div>
-    </aside>
-
-    <button class="conversation-overlay" id="conversationOverlay" type="button" aria-label="Fechar histórico" tabindex="-1"></button>
-
     <main class="assistant-workspace">
       <header class="assistant-header">
-        <button class="assistant-icon-button mobile-conversation-only" id="openSidebar" type="button" aria-label="Abrir histórico" title="Conversas">☰</button>
+        <div class="assistant-header-avatar" aria-hidden="true">🤖</div>
         <div class="header-copy">
-          <strong id="conversationTitle">Nova conversa</strong>
+          <strong>Assistente do HUB</strong>
           <span class="connection-state" id="connectionState" data-state="checking"><i aria-hidden="true"></i> Verificando conexão</span>
         </div>
-        <button class="assistant-icon-button" id="clearConversation" type="button" aria-label="Limpar conversa" title="Limpar conversa">⌫</button>
+        <div class="assistant-header-actions">
+          <button class="assistant-icon-button" id="openSettings" type="button" aria-label="Abrir configurações" title="Configurações">⚙</button>
+          <button class="assistant-icon-button" id="clearConversation" type="button" aria-label="Limpar conversa" title="Limpar conversa">⌫</button>
+        </div>
       </header>
 
       <section class="chat-viewport" id="messageScroll" aria-label="Conversa" aria-live="polite" aria-busy="false">
@@ -62,7 +45,6 @@
           <p class="disclaimer">As respostas usam regras e dados cadastrados. Para decisões acadêmicas, confirme sempre nas fontes oficiais.</p>
         </div>
         <div class="messages" id="messages"></div>
-        <div class="scroll-anchor" id="scrollAnchor" aria-hidden="true"></div>
       </section>
 
       <footer class="composer-area" id="composerArea">
@@ -70,7 +52,7 @@
           <textarea id="messageInput" rows="1" maxlength="3000" placeholder="Pergunte algo ao Assistente do HUB" aria-label="Mensagem" enterkeyhint="send"></textarea>
           <button id="sendMessage" type="button" aria-label="Enviar mensagem" title="Enviar" disabled><span aria-hidden="true">↑</span></button>
         </div>
-        <small id="composerHint">Enter envia · Shift + Enter quebra a linha · O campo continua disponível enquanto o assistente responde</small>
+        <small id="composerHint">Enter envia · Shift + Enter quebra a linha</small>
       </footer>
     </main>
   </div>
@@ -82,7 +64,7 @@
       <p class="field-help">O endereço de produção é configurado automaticamente pelo instalador. Altere somente para testes ou manutenção.</p>
       <label>Como o assistente deve chamar você?<input id="senderName" type="text" maxlength="80" placeholder="Estudante"></label>
       <div class="settings-actions">
-        <button type="button" class="danger-button" id="deleteHistory">Apagar histórico local</button>
+        <button type="button" class="danger-button" id="deleteHistory">Apagar conversa</button>
         <button value="cancel" class="secondary-button">Cancelar</button>
         <button value="default" class="primary-button" id="saveSettings">Salvar</button>
       </div>

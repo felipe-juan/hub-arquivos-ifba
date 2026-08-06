@@ -7,12 +7,16 @@
   const DB_NAME = 'hubAssistantHistoryV1';
   const DB_STORE = 'state';
   const $ = id => document.getElementById(id);
-  const state = { conversations: [], currentId: '', sending: false, sendingConversationId: '', settings: loadSettings() };
+  const state = {
+    conversation: null,
+    sending: false,
+    requestSerial: 0,
+    settings: loadSettings()
+  };
 
   function uuid() {
     return globalThis.crypto?.randomUUID?.() || `${Date.now()}-${Math.random().toString(16).slice(2)}`;
   }
-
 
   function openHistoryDatabase() {
     if (!('indexedDB' in globalThis)) return Promise.resolve(null);
@@ -61,9 +65,9 @@
       await new Promise(resolve => {
         const transaction = database.transaction(DB_STORE, 'readwrite');
         transaction.objectStore(DB_STORE).put(value, 'main');
-        transaction.oncomplete = () => resolve();
-        transaction.onerror = () => resolve();
-        transaction.onabort = () => resolve();
+        transaction.oncomplete = resolve;
+        transaction.onerror = resolve;
+        transaction.onabort = resolve;
       });
       database.close();
       try { localStorage.removeItem(STORAGE_KEY); } catch {}
@@ -78,9 +82,9 @@
       await new Promise(resolve => {
         const transaction = database.transaction(DB_STORE, 'readwrite');
         transaction.objectStore(DB_STORE).delete('main');
-        transaction.oncomplete = () => resolve();
-        transaction.onerror = () => resolve();
-        transaction.onabort = () => resolve();
+        transaction.oncomplete = resolve;
+        transaction.onerror = resolve;
+        transaction.onabort = resolve;
       });
       database.close();
     }
@@ -100,56 +104,68 @@
     try { localStorage.setItem(SETTINGS_KEY, JSON.stringify(state.settings)); } catch {}
   }
 
-  function normalizeConversation(value) {
-    if (!value || typeof value !== 'object') return null;
+  function normalizeOptions(options) {
+    const source = Array.isArray(options) ? options : [];
+    const normalized = source
+      .filter(option => option && typeof option === 'object')
+      .map((option, index) => ({
+        id: String(option.id || `option-${index + 1}`),
+        label: String(option.label || `Opção ${index + 1}`),
+        value: String(option.value ?? index + 1),
+        kind: String(option.kind || 'choice')
+      }));
+    if (normalized.length && !normalized.some(option => option.kind === 'exit' || /^(?:sair|cancelar|0|n)$/i.test(option.value))) {
+      normalized.push({ id: 'exit-menu', label: 'Sair e fazer outra pergunta', value: 'sair', kind: 'exit' });
+    }
+    return normalized;
+  }
+
+  function freshConversation() {
     return {
-      id: String(value.id || uuid()),
+      id: 'single-conversation',
+      sessionId: uuid().replace(/-/g, ''),
+      title: 'Assistente do HUB',
+      createdAt: Date.now(),
+      updatedAt: Date.now(),
+      messages: []
+    };
+  }
+
+  function normalizeConversation(value) {
+    if (!value || typeof value !== 'object') return freshConversation();
+    return {
+      id: 'single-conversation',
       sessionId: String(value.sessionId || uuid().replace(/-/g, '')),
-      title: String(value.title || 'Nova conversa').slice(0, 90),
+      title: 'Assistente do HUB',
       createdAt: Number(value.createdAt || Date.now()),
       updatedAt: Number(value.updatedAt || Date.now()),
-      messages: Array.isArray(value.messages) ? value.messages.slice(-Number(CONFIG.maxMessagesPerConversation || 250)).map(message => ({ ...message, options: normalizeOptions(message.options) })) : []
+      messages: Array.isArray(value.messages)
+        ? value.messages.slice(-Number(CONFIG.maxMessagesPerConversation || 250)).map(message => ({
+            ...message,
+            options: normalizeOptions(message.options)
+          }))
+        : []
     };
   }
 
   async function loadState() {
     const saved = await loadSavedState();
-    state.conversations = Array.isArray(saved?.conversations)
-      ? saved.conversations.map(normalizeConversation).filter(Boolean)
-      : [];
-    state.currentId = String(saved?.currentId || '');
-    if (!currentConversation()) createConversation({ renderNow: false });
+    let source = saved?.conversation;
+    if (!source && Array.isArray(saved?.conversations)) {
+      source = saved.conversations.find(item => item.id === saved.currentId)
+        || [...saved.conversations].sort((a, b) => Number(b.updatedAt || 0) - Number(a.updatedAt || 0))[0];
+    }
+    state.conversation = normalizeConversation(source);
   }
 
   function saveState() {
-    const max = Number(CONFIG.maxStoredConversations || 40);
-    state.conversations = [...state.conversations]
-      .sort((a, b) => b.updatedAt - a.updatedAt)
-      .slice(0, max);
-    persistSavedState({
-      currentId: state.currentId,
-      conversations: state.conversations
-    });
-  }
-
-  function createConversation({ renderNow = true } = {}) {
-    const conversation = {
-      id: uuid(),
-      sessionId: uuid().replace(/-/g, ''),
-      title: 'Nova conversa',
-      createdAt: Date.now(),
-      updatedAt: Date.now(),
-      messages: []
-    };
-    state.conversations.unshift(conversation);
-    state.currentId = conversation.id;
-    saveState();
-    if (renderNow) render();
-    return conversation;
+    if (!state.conversation) state.conversation = freshConversation();
+    persistSavedState({ conversation: state.conversation });
   }
 
   function currentConversation() {
-    return state.conversations.find(item => item.id === state.currentId) || null;
+    if (!state.conversation) state.conversation = freshConversation();
+    return state.conversation;
   }
 
   function apiUrl(path) {
@@ -201,30 +217,8 @@
     return out.join('');
   }
 
-  function normalizeOptions(options) {
-    const source = Array.isArray(options) ? options : [];
-    const normalized = source
-      .filter(option => option && typeof option === 'object')
-      .map((option, index) => ({
-        id: String(option.id || `option-${index + 1}`),
-        label: String(option.label || `Opção ${index + 1}`),
-        value: String(option.value ?? index + 1),
-        kind: String(option.kind || 'choice')
-      }));
-    if (normalized.length && !normalized.some(option => option.kind === 'exit' || /^(?:sair|cancelar|0)$/i.test(option.value))) {
-      normalized.push({ id: 'exit-menu', label: 'Sair do menu e fazer outra pergunta', value: 'sair', kind: 'exit' });
-    }
-    return normalized;
-  }
-
-  function titleFrom(text) {
-    const clean = safeText(text).replace(/\s+/g, ' ').trim();
-    return clean.length > 42 ? `${clean.slice(0, 41)}…` : clean || 'Nova conversa';
-  }
-
-  function addMessage(role, text, extras = {}, targetConversation = currentConversation()) {
-    const conversation = targetConversation;
-    if (!conversation) return null;
+  function addMessage(role, text, extras = {}) {
+    const conversation = currentConversation();
     const message = {
       id: uuid(),
       serverId: String(extras.serverId || ''),
@@ -239,21 +233,8 @@
     conversation.messages.push(message);
     conversation.messages = conversation.messages.slice(-Number(CONFIG.maxMessagesPerConversation || 250));
     conversation.updatedAt = Date.now();
-    if (role === 'user' && conversation.title === 'Nova conversa') conversation.title = titleFrom(text);
     saveState();
     return message;
-  }
-
-  function renderConversations() {
-    const list = $('conversationList');
-    const items = [...state.conversations].sort((a, b) => b.updatedAt - a.updatedAt);
-    list.innerHTML = items.length
-      ? items.map(item => `
-          <div class="conversation-item ${item.id === state.currentId ? 'active' : ''}">
-            <a href="#" data-conversation="${escapeHtml(item.id)}">${escapeHtml(item.title)}</a>
-            <button type="button" data-delete-conversation="${escapeHtml(item.id)}" aria-label="Excluir conversa">×</button>
-          </div>`).join('')
-      : '<p class="sidebar-empty">Nenhuma conversa salva.</p>';
   }
 
   function assistantActions(message) {
@@ -276,8 +257,6 @@
     const viewport = $('messageScroll');
     if (!viewport) return;
     const top = Math.max(0, viewport.scrollHeight - viewport.clientHeight);
-    // Nunca use scrollIntoView aqui: ele pode rolar o body/app-shell e criar o
-    // “vazio infinito” observado no desktop e o desaparecimento no celular.
     try {
       viewport.scrollTo({
         top,
@@ -286,19 +265,10 @@
     } catch { viewport.scrollTop = top; }
   }
 
-  function stabilizeLayout({ scroll = false } = {}) {
-    const viewport = $('messageScroll');
-    const composer = $('composerArea');
-    if (!viewport || !composer) return;
-    document.documentElement.classList.add('assistant-ready');
-    if (scroll) requestAnimationFrame(() => scrollToBottom(false));
-  }
-
   function renderMessages() {
     const conversation = currentConversation();
-    $('conversationTitle').textContent = conversation?.title || 'Nova conversa';
-    $('welcome').hidden = Boolean(conversation?.messages.length);
-    $('messages').innerHTML = (conversation?.messages || []).map(message => {
+    $('welcome').hidden = Boolean(conversation.messages.length);
+    $('messages').innerHTML = conversation.messages.map(message => {
       if (message.role === 'user') {
         return `<article class="message-row user" data-message-id="${escapeHtml(message.id)}"><div class="message-content">${escapeHtml(message.text)}</div></article>`;
       }
@@ -316,39 +286,41 @@
           </div>
         </article>`;
     }).join('');
-    requestAnimationFrame(() => stabilizeLayout({ scroll: true }));
+    if (state.sending) showTyping();
+    requestAnimationFrame(() => scrollToBottom(false));
   }
 
   function render() {
-    renderConversations();
     renderMessages();
-    if (state.sending && state.sendingConversationId === state.currentId) requestAnimationFrame(showTyping);
-    requestAnimationFrame(() => setSending(state.sending, state.sendingConversationId));
+    setSending(state.sending);
   }
 
-  function setSending(active, conversationId = state.sendingConversationId) {
+  function hideTyping() {
+    document.querySelectorAll('[data-typing="true"]').forEach(element => element.remove());
+    $('messageScroll')?.setAttribute('aria-busy', 'false');
+  }
+
+  function setSending(active) {
     state.sending = Boolean(active);
-    state.sendingConversationId = active ? String(conversationId || state.currentId) : '';
     const input = $('messageInput');
     const sendButton = $('sendMessage');
+    if (!state.sending) hideTyping();
     sendButton.disabled = state.sending || !input.value.trim();
     sendButton.setAttribute('aria-busy', state.sending ? 'true' : 'false');
     sendButton.title = state.sending ? 'Aguarde o assistente responder' : 'Enviar';
     $('messageScroll').setAttribute('aria-busy', state.sending ? 'true' : 'false');
     $('composerHint').textContent = state.sending
-      ? 'O assistente está escrevendo. O campo continua disponível; somente o envio está temporariamente bloqueado.'
+      ? 'O assistente está escrevendo. Você pode continuar digitando; o envio será liberado após a resposta.'
       : 'Enter envia · Shift + Enter quebra a linha';
     document.querySelectorAll('[data-prompt], [data-option-value]').forEach(button => { button.disabled = state.sending; });
   }
 
   function showTyping() {
-    if ($('[data-typing="true"]')) return;
+    if (!state.sending || document.querySelector('[data-typing="true"]')) return;
     $('messages').append($('typingTemplate').content.cloneNode(true));
     $('messageScroll').setAttribute('aria-busy', 'true');
     scrollToBottom(false);
   }
-
-  function hideTyping() { $('[data-typing="true"]')?.remove(); $('messageScroll').setAttribute('aria-busy', 'false'); }
 
   function setConnection(status, label) {
     const element = $('connectionState');
@@ -400,45 +372,47 @@
   async function send(text) {
     text = safeText(text).trim();
     if (!text || state.sending) return;
-    const conversation = currentConversation() || createConversation();
-    addMessage('user', text, {}, conversation);
+    const serial = ++state.requestSerial;
+    addMessage('user', text);
     $('messageInput').value = '';
     resizeInput();
-    render();
-    setSending(true, conversation.id);
-    showTyping();
+    setSending(true);
+    renderMessages();
     try {
+      const conversation = currentConversation();
       const data = await request(CONFIG.messagePath || '/api/assistant/message', {
         sessionId: conversation.sessionId,
         message: text,
         senderName: state.settings.senderName
       });
+      if (serial !== state.requestSerial) return;
       if (data.sessionId) conversation.sessionId = data.sessionId;
-      hideTyping();
       const replies = Array.isArray(data.replies) ? data.replies : [];
       if (!replies.length) {
-        addMessage('assistant', 'Não encontrei uma resposta para essa mensagem. Tente reformular em uma frase curta.', { error: true }, conversation);
+        addMessage('assistant', 'Não encontrei uma resposta para essa mensagem. Tente reformular em uma frase curta.', { error: true });
       } else {
         replies.forEach((reply, index) => addMessage('assistant', reply.text, {
           serverId: reply.id,
           attachment: reply.attachment,
           options: index === replies.length - 1 ? (data.options || []) : []
-        }, conversation));
+        }));
       }
       setConnection('online', 'Conectado');
     } catch (error) {
-      hideTyping();
+      if (serial !== state.requestSerial) return;
       const message = error.name === 'AbortError'
         ? 'A resposta demorou demais. Verifique a conexão e tente novamente.'
         : `Não foi possível falar com o assistente. ${error.message}`;
-      addMessage('assistant', message, { error: true }, conversation);
+      addMessage('assistant', message, { error: true });
       setConnection('offline', 'API indisponível');
     } finally {
-      saveState();
-      render();
-      setSending(false);
-      if (matchMedia('(pointer: fine)').matches && document.activeElement !== $('messageInput')) {
-        $('messageInput').focus({ preventScroll: true });
+      if (serial === state.requestSerial) {
+        setSending(false);
+        saveState();
+        renderMessages();
+        if (matchMedia('(pointer: fine)').matches && document.activeElement !== $('messageInput')) {
+          $('messageInput').focus({ preventScroll: true });
+        }
       }
     }
   }
@@ -451,34 +425,21 @@
   }
 
   async function resetCurrent() {
-    const conversation = currentConversation();
-    if (!conversation) return;
-    try { await request(CONFIG.resetPath || '/api/assistant/reset', { sessionId: conversation.sessionId }, 8000); } catch {}
-    conversation.messages = [];
-    conversation.sessionId = uuid().replace(/-/g, '');
-    conversation.title = 'Nova conversa';
-    conversation.updatedAt = Date.now();
-    saveState();
-    render();
-  }
-
-  function deleteConversation(id) {
-    const wasCurrent = id === state.currentId;
-    state.conversations = state.conversations.filter(item => item.id !== id);
-    if (wasCurrent) {
-      state.currentId = state.conversations[0]?.id || '';
-      if (!state.currentId) createConversation({ renderNow: false });
-    }
+    const previous = currentConversation();
+    state.requestSerial += 1;
+    setSending(false);
+    try { await request(CONFIG.resetPath || '/api/assistant/reset', { sessionId: previous.sessionId }, 8000); } catch {}
+    state.conversation = freshConversation();
     saveState();
     render();
   }
 
   function messageById(id) {
-    return currentConversation()?.messages.find(message => message.id === id) || null;
+    return currentConversation().messages.find(message => message.id === id) || null;
   }
 
   function priorUserText(messageId) {
-    const messages = currentConversation()?.messages || [];
+    const messages = currentConversation().messages;
     const index = messages.findIndex(message => message.id === messageId);
     for (let cursor = index - 1; cursor >= 0; cursor -= 1) {
       if (messages[cursor].role === 'user') return messages[cursor].text;
@@ -504,14 +465,13 @@
 
   async function sendFeedback(messageId, value) {
     const message = messageById(messageId);
-    const conversation = currentConversation();
-    if (!message || !conversation) return;
+    if (!message) return;
     message.feedback = value;
     saveState();
     renderMessages();
     try {
       await request(CONFIG.feedbackPath || '/api/assistant/feedback', {
-        sessionId: conversation.sessionId,
+        sessionId: currentConversation().sessionId,
         messageId: message.serverId || message.id,
         value
       }, 8000);
@@ -543,55 +503,18 @@
       const copy = event.target.closest('[data-copy-message]');
       const feedback = event.target.closest('[data-feedback]');
       const retry = event.target.closest('[data-retry-message]');
-      if (option) { if (!state.sending) send(option.dataset.optionValue); }
-      else if (copy) copyMessage(copy.dataset.copyMessage);
+      if (option) {
+        if (!state.sending) send(option.dataset.optionValue);
+      } else if (copy) copyMessage(copy.dataset.copyMessage);
       else if (feedback) sendFeedback(feedback.dataset.message, feedback.dataset.feedback);
       else if (retry) {
         const text = priorUserText(retry.dataset.retryMessage);
         if (text) send(text);
       }
     });
-    $('newChat').addEventListener('click', () => {
-      if (state.sending) return;
-      createConversation();
-      $('chatSidebar').classList.remove('open');
-      $('conversationOverlay').classList.remove('open');
-      document.body.classList.remove('assistant-conversations-open');
-    });
     $('clearConversation').addEventListener('click', () => {
       if (state.sending) return;
-      if (confirm('Limpar esta conversa e começar novamente?')) resetCurrent();
-    });
-    $('conversationList').addEventListener('click', event => {
-      const link = event.target.closest('[data-conversation]');
-      const remove = event.target.closest('[data-delete-conversation]');
-      if (remove) {
-        event.preventDefault();
-        if (state.sending) return;
-        deleteConversation(remove.dataset.deleteConversation);
-        return;
-      }
-      if (link) {
-        event.preventDefault();
-        if (state.sending) return;
-        state.currentId = link.dataset.conversation;
-        saveState();
-        render();
-        $('chatSidebar').classList.remove('open');
-        $('conversationOverlay').classList.remove('open');
-        document.body.classList.remove('assistant-conversations-open');
-      }
-    });
-    const setConversationDrawer = open => {
-      $('chatSidebar').classList.toggle('open', open);
-      $('conversationOverlay').classList.toggle('open', open);
-      document.body.classList.toggle('assistant-conversations-open', open);
-    };
-    $('openSidebar').addEventListener('click', () => setConversationDrawer(true));
-    $('closeSidebar').addEventListener('click', () => setConversationDrawer(false));
-    $('conversationOverlay').addEventListener('click', () => setConversationDrawer(false));
-    document.addEventListener('keydown', event => {
-      if (event.key === 'Escape') setConversationDrawer(false);
+      if (confirm('Limpar a conversa e começar novamente?')) resetCurrent();
     });
     $('openSettings').addEventListener('click', () => {
       $('apiBaseUrl').value = state.settings.apiBaseUrl;
@@ -610,45 +533,50 @@
       saveSettings();
       checkHealth();
     });
-    $('deleteHistory').addEventListener('click', () => {
-      if (!confirm('Apagar todas as conversas salvas neste navegador?')) return;
-      state.conversations = [];
-      state.currentId = '';
-      clearSavedState();
-      createConversation();
+    $('deleteHistory').addEventListener('click', async () => {
+      if (!confirm('Apagar a conversa salva neste navegador?')) return;
+      state.requestSerial += 1;
+      setSending(false);
+      await clearSavedState();
+      state.conversation = freshConversation();
+      saveState();
+      render();
       $('settingsDialog').close('cancel');
     });
     window.addEventListener('online', checkHealth);
     window.addEventListener('offline', () => setConnection('offline', 'Sem internet'));
+    window.addEventListener('pageshow', () => {
+      setSending(false);
+      renderMessages();
+    });
   }
 
   let viewportSyncTimer = 0;
   function syncViewportHeight() {
     const visualHeight = Number(globalThis.visualViewport?.height || 0);
     const layoutHeight = Number(globalThis.innerHeight || document.documentElement.clientHeight || 0);
-    const height = Math.max(360, Math.round(visualHeight > 0 ? visualHeight : layoutHeight));
+    const height = Math.max(320, Math.round(visualHeight > 0 ? visualHeight : layoutHeight));
     document.documentElement.style.setProperty('--assistant-window-height', `${height}px`);
-    stabilizeLayout();
   }
 
   function scheduleViewportSync(delay = 0) {
     clearTimeout(viewportSyncTimer);
     viewportSyncTimer = setTimeout(() => {
       syncViewportHeight();
-      requestAnimationFrame(() => stabilizeLayout({ scroll: true }));
+      requestAnimationFrame(() => scrollToBottom(false));
     }, delay);
   }
 
   function bindViewport() {
     syncViewportHeight();
-    // resize acompanha teclado virtual e rotação. O evento scroll do
-    // visualViewport foi removido porque podia reduzir/deslocar o chat inteiro.
     globalThis.visualViewport?.addEventListener('resize', () => scheduleViewportSync(20));
     globalThis.addEventListener('resize', () => scheduleViewportSync(20));
     globalThis.addEventListener('orientationchange', () => scheduleViewportSync(140));
-    globalThis.addEventListener('pageshow', () => scheduleViewportSync(0));
     document.addEventListener('visibilitychange', () => {
-      if (!document.hidden) scheduleViewportSync(0);
+      if (!document.hidden) {
+        setSending(false);
+        scheduleViewportSync(0);
+      }
     });
   }
 
@@ -656,13 +584,17 @@
     await loadState();
     bindViewport();
     bind();
+    setSending(false);
     render();
     resizeInput();
-    setSending(false);
     checkHealth();
-    stabilizeLayout({ scroll: true });
     if (matchMedia('(pointer: fine)').matches) $('messageInput').focus({ preventScroll: true });
   }
 
-  bootstrap();
+  bootstrap().catch(error => {
+    console.error('Falha ao iniciar o Assistente:', error);
+    state.conversation = freshConversation();
+    setSending(false);
+    render();
+  });
 })();

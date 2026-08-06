@@ -1,4 +1,4 @@
-const VERSION = "hub-ifba-v0.2.47";
+const VERSION = "hub-ifba-v0.2.48";
 const STATIC_CACHE = `${VERSION}-static`;
 const METADATA_CACHE = `${VERSION}-metadata`;
 const IMAGE_CACHE = `${VERSION}-images`;
@@ -8,10 +8,10 @@ const KNOWN_CACHES = [STATIC_CACHE, METADATA_CACHE, IMAGE_CACHE, DOCUMENT_CACHE,
 
 const CORE = [
   "./", "./index.html", "./offline.html", "./document-viewer.html",
-  "assets/build/styles.66a4b6caf231.css", "assets/build/enhancements.254c728974fb.css", "assets/build/sidebar-quick-search.ea5032187b1e.css", "assets/build/design-system.afe11aadcef7.css",
-  "assets/build/data.2036f3435be3.js", "assets/build/app.7dffa40ef518.js", "assets/build/storage.aade70adc118.js", "assets/build/design-system.6a63e5dc28cb.js", "assets/build/where-data.2815ed20f527.js",
+  "assets/build/styles.574b59f8a80e.css", "assets/build/enhancements.254c728974fb.css", "assets/build/sidebar-quick-search.ea5032187b1e.css", "assets/build/design-system.afe11aadcef7.css",
+  "assets/build/data.2036f3435be3.js", "assets/build/app.7c9ef4a910c2.js", "assets/build/storage.aade70adc118.js", "assets/build/design-system.6a39cce4c6bc.js", "assets/build/where-data.2815ed20f527.js",
   "./assets/logo-pixel.png", "./assets/logo-pixel-64.png", "./assets/apple-touch-icon.png", "./favicon.ico",
-  "apps/build/app-shell.f5dcd9311598.css", "apps/build/app-shell.3d1dbe3a18f3.js", "./apps/catalog.json",
+  "apps/build/app-shell.cd41ed34fb82.css", "apps/build/app-shell.a029743f5073.js", "./apps/catalog.json",
   "./apps/assistente/",
   "./apps/assistente/index.html",
   "./apps/assistente/config.js",
@@ -26,8 +26,8 @@ const CORE = [
 
 const REQUIRED_CORE = new Set([
   "./", "./index.html", "./offline.html", "./document-viewer.html",
-  "assets/build/styles.66a4b6caf231.css", "assets/build/enhancements.254c728974fb.css", "assets/build/sidebar-quick-search.ea5032187b1e.css", "assets/build/design-system.afe11aadcef7.css",
-  "assets/build/data.2036f3435be3.js", "assets/build/app.7dffa40ef518.js", "assets/build/storage.aade70adc118.js", "assets/build/design-system.6a63e5dc28cb.js", "assets/build/where-data.2815ed20f527.js",
+  "assets/build/styles.574b59f8a80e.css", "assets/build/enhancements.254c728974fb.css", "assets/build/sidebar-quick-search.ea5032187b1e.css", "assets/build/design-system.afe11aadcef7.css",
+  "assets/build/data.2036f3435be3.js", "assets/build/app.7c9ef4a910c2.js", "assets/build/storage.aade70adc118.js", "assets/build/design-system.6a39cce4c6bc.js", "assets/build/where-data.2815ed20f527.js",
 ]);
 
 async function installCoreResources() {

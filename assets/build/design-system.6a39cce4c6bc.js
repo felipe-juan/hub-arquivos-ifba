@@ -1,7 +1,7 @@
 (() => {
   "use strict";
 
-  const HUB_VERSION = "0.2.47";
+  const HUB_VERSION = "0.2.48";
   const ISSUE_URL = "https://github.com/felipe-juan/hub-arquivos-ifba/issues/new";
   let reloadScheduled = false;
   let promptedWorker = null;

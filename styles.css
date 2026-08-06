@@ -4238,3 +4238,41 @@ body.doom-anomaly-open{overflow:hidden}
     font-size: clamp(.7rem, .72vw, .82rem);
   }
 }
+
+
+/* v0.2.48 — ações compactas da sidebar. */
+.sidebar-utility-actions {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: .38rem;
+  width: 100%;
+}
+.sidebar-utility-actions .reset-preferences {
+  min-width: 0;
+  min-height: 42px;
+  grid-template-columns: 2rem minmax(0, 1fr);
+  gap: .35rem;
+  padding: .36rem .42rem;
+  font-size: .69rem;
+}
+.sidebar-utility-actions .reset-preferences-icon {
+  width: 2rem;
+  height: 2rem;
+  font-size: 1.12rem;
+}
+.sidebar-utility-actions .preference-label {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+body.sidebar-icons-only .sidebar-utility-actions,
+html.sidebar-icons-only-preload .sidebar-utility-actions {
+  grid-template-columns: 1fr;
+}
+@media (max-width: 920px) {
+  body.sidebar-icons-only .sidebar-utility-actions,
+  html.sidebar-icons-only-preload .sidebar-utility-actions {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
