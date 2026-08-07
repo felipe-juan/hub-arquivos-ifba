@@ -4430,7 +4430,7 @@ html.sidebar-icons-only-preload .sidebar-utility-actions {
 }
 
 
-/* v0.2.67 — ações compactas da sidebar. */
+/* v0.2.68 — ações compactas da sidebar. */
 .sidebar-utility-actions {
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));

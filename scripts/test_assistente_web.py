@@ -105,7 +105,7 @@ for marker in ("dbVersion = 3", "this.dbPromise", "this.queue", "saveDraft", "lo
     assert marker in history_js, marker
 assert "loadOfflineCatalog" not in offline_js  # módulo próprio, sem funções herdadas do app monolítico
 assert "fetch(this.path" in offline_js
-assert "version: \"1.5.7\"" in config_js
+assert "version: \"1.5.8\"" in config_js
 
 # O app.js é somente orquestração: não contém classes dos módulos.
 for forbidden in ("class ChatController", "class HistoryStore", "class MessageRenderer", "class ComposerController", "function formatMessage"):
@@ -163,7 +163,7 @@ assert all("onde resolvo" not in f"{item.get('id','')} {item.get('title','')} {i
 # Offline vem somente do catálogo central gerado.
 offline = json.loads((app / "offline-data.json").read_text(encoding="utf-8"))
 assert offline.get("sourcePolicy") == "central-records-only"
-assert offline.get("version") == "1.5.7"
+assert offline.get("version") == "1.5.8"
 assert "generatedAt" not in offline
 assert all(item.get("source") in {"hub-data", "document-metadata"} for item in offline.get("items", []))
 for forbidden in ("offline-suap", "offline-calendar", "offline-help", "portal.ifba.edu.br"):
@@ -297,10 +297,13 @@ workflow_text = workflow.read_text(encoding="utf-8")
 for marker in (
     "needs: build", "cancel-in-progress: true", "actions/deploy-pages@v5",
     "timeout: 1200000", "scripts/build_and_validate_hub.py", "git diff --exit-code",
+    'PYTHONDONTWRITEBYTECODE: "1"',
+    "find . -type d -name __pycache__ -prune -exec rm -rf {} +",
+    "-name '*.pyc' -o -name '*.pyo'",
 ):
     assert marker in workflow_text, marker
 
 for path in [*(app / name for name in required_modules), sidebar / "sidebar.js"]:
     subprocess.run(["node", "--check", str(path)], check=True)
 subprocess.run(["node", str(scripts / "test_frontend_modules.js"), str(root)], check=True)
-print("Assistente web v1.5.7 instalado: OK")
+print("Assistente web v1.5.8 instalado: OK")

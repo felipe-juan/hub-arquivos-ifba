@@ -32,6 +32,11 @@ concurrency:
   group: github-pages
   cancel-in-progress: true
 
+# Python is used only as a build tool. Bytecode caches are not part of the
+# published site and must never make the deterministic tree dirty.
+env:
+  PYTHONDONTWRITEBYTECODE: "1"
+
 jobs:
   build:
     name: Build deterministic Pages artifact
@@ -67,6 +72,11 @@ jobs:
         shell: bash
         run: |
           set -Eeuo pipefail
+          # Defensive cleanup for caches that may have been left by a third-party
+          # Python action/tool despite PYTHONDONTWRITEBYTECODE. They are never
+          # production assets and must not enter the Pages artifact.
+          find . -type d -name __pycache__ -prune -exec rm -rf {} +
+          find . -type f \( -name '*.pyc' -o -name '*.pyo' \) -delete
           git diff --exit-code
           STATUS="$(git status --porcelain=v1 --untracked-files=all)"
           if [[ -n "$STATUS" ]]; then
@@ -113,10 +123,10 @@ def is_pages_workflow(text: str) -> bool:
 
 def unique_destination(name: str) -> Path:
     DISABLED.mkdir(parents=True, exist_ok=True)
-    candidate = DISABLED / f"{name}.disabled-v1.5.7"
+    candidate = DISABLED / f"{name}.disabled-v1.5.8"
     index = 2
     while candidate.exists():
-        candidate = DISABLED / f"{name}.disabled-v1.5.7-{index}"
+        candidate = DISABLED / f"{name}.disabled-v1.5.8-{index}"
         index += 1
     return candidate
 

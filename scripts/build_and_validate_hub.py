@@ -34,6 +34,11 @@ def main() -> int:
     if not (root / "service-worker.js").is_file():
         raise SystemExit("Execute na raiz do HUB Arquivos IFBA.")
 
+    # Python é ferramenta de build: bytecode/cache local não pertence ao site
+    # publicado nem pode sujar a árvore verificada pelo pipeline determinístico.
+    os.environ["PYTHONDONTWRITEBYTECODE"] = "1"
+    sys.dont_write_bytecode = True
+
     # Todos os geradores que precisem de uma data recebem a data estável do
     # commit, nunca o relógio da máquina que executa o build.
     if not os.environ.get("SOURCE_DATE_EPOCH"):

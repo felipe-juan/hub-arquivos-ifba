@@ -104,7 +104,7 @@ def main() -> None:
     year, month, day = reviewed_iso.split("-") if reviewed_iso.count("-") == 2 else ("2026", "08", "06")
     payload = {
         "schemaVersion": 2,
-        "version": "1.5.7",
+        "version": "1.5.8",
         "updatedAt": f"{day}/{month}/{year}",
         "sourcePolicy": "central-records-only",
         "items": unique[:500],
