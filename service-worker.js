@@ -1,4 +1,4 @@
-const VERSION = "hub-ifba-v0.2.62";
+const VERSION = "hub-ifba-v0.2.67";
 const STATIC_CACHE = `${VERSION}-static`;
 const METADATA_CACHE = `${VERSION}-metadata`;
 const IMAGE_CACHE = `${VERSION}-images`;
@@ -11,14 +11,14 @@ const CORE = [
   "./index.html",
   "./offline.html",
   "./document-viewer.html",
-  "assets/build/styles.1736b0e8c187.css",
+  "assets/build/styles.b99d066fd6de.css",
   "assets/build/enhancements.254c728974fb.css",
   "assets/build/sidebar-quick-search.ea5032187b1e.css",
   "assets/build/design-system.afe11aadcef7.css",
   "assets/build/data.74bf9e83114b.js",
-  "assets/build/app.c0f25b363a48.js",
+  "assets/build/app.68ae40d265e5.js",
   "assets/build/storage.aade70adc118.js",
-  "assets/build/design-system.ec7c30de5f80.js",
+  "assets/build/design-system.1c4631c85629.js",
   "assets/build/where-data.2815ed20f527.js",
   "./assets/logo-pixel.png",
   "./assets/logo-pixel-64.png",
@@ -63,8 +63,8 @@ const CORE = [
 
 const REQUIRED_CORE = new Set([
   "./", "./index.html", "./offline.html", "./document-viewer.html",
-  "assets/build/styles.1736b0e8c187.css", "assets/build/enhancements.254c728974fb.css", "assets/build/sidebar-quick-search.ea5032187b1e.css", "assets/build/design-system.afe11aadcef7.css",
-  "assets/build/data.74bf9e83114b.js", "assets/build/app.c0f25b363a48.js", "assets/build/storage.aade70adc118.js", "assets/build/design-system.ec7c30de5f80.js", "assets/build/where-data.2815ed20f527.js",
+  "assets/build/styles.b99d066fd6de.css", "assets/build/enhancements.254c728974fb.css", "assets/build/sidebar-quick-search.ea5032187b1e.css", "assets/build/design-system.afe11aadcef7.css",
+  "assets/build/data.74bf9e83114b.js", "assets/build/app.68ae40d265e5.js", "assets/build/storage.aade70adc118.js", "assets/build/design-system.1c4631c85629.js", "assets/build/where-data.2815ed20f527.js",
 ]);
 
 async function installCoreResources() {

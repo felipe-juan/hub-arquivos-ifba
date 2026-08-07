@@ -113,10 +113,10 @@ def is_pages_workflow(text: str) -> bool:
 
 def unique_destination(name: str) -> Path:
     DISABLED.mkdir(parents=True, exist_ok=True)
-    candidate = DISABLED / f"{name}.disabled-v1.5.1"
+    candidate = DISABLED / f"{name}.disabled-v1.5.7"
     index = 2
     while candidate.exists():
-        candidate = DISABLED / f"{name}.disabled-v1.5.1-{index}"
+        candidate = DISABLED / f"{name}.disabled-v1.5.7-{index}"
         index += 1
     return candidate
 

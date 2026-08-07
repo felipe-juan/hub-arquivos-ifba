@@ -25,16 +25,33 @@
         if (externalSignal.aborted) forwardAbort();
         else externalSignal.addEventListener('abort', forwardAbort, { once: true });
       }
-      const timer = externalSignal ? 0 : setTimeout(() => {
-        try { controller.abort('timeout'); } catch {}
-      }, timeoutMs);
+      let timeoutHandle = null;
+      const timeoutError = new Promise((_, reject) => {
+        timeoutHandle = setTimeout(() => {
+          try { controller.abort('timeout'); } catch {}
+          const error = new Error('Tempo de resposta esgotado.');
+          error.name = 'AbortError';
+          error.reason = 'timeout';
+          error.code = 'ASSISTANT_RESPONSE_TIMEOUT';
+          reject(error);
+        }, timeoutMs);
+      });
       try {
-        const response = await fetch(apiUrl(path), {
+        // text/plain é CORS-safelisted: evita que cada pergunta dependa de uma
+        // requisição OPTIONS prévia. O backend continua recebendo JSON normal.
+        const network = fetch(apiUrl(path), {
           method: 'POST',
-          headers: { 'content-type': 'application/json' },
+          headers: {
+            'accept': 'application/json',
+            'content-type': 'text/plain;charset=UTF-8'
+          },
           body: JSON.stringify(payload),
+          cache: 'no-store',
+          mode: 'cors',
+          credentials: 'omit',
           signal: controller.signal
         });
+        const response = await Promise.race([network, timeoutError]);
         const data = await response.json().catch(() => ({}));
         if (!response.ok) {
           const error = new Error(data.error || `Erro HTTP ${response.status}`);
@@ -44,7 +61,7 @@
         }
         return data;
       } finally {
-        clearTimeout(timer);
+        clearTimeout(timeoutHandle);
         externalSignal?.removeEventListener?.('abort', forwardAbort);
       }
     }

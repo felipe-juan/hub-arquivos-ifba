@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Instala o Assistente v1.5.1 no HUB por cópia determinística.
+"""Instala o Assistente v1.5.7 no HUB por cópia determinística.
 
 Não usa substituições por expressão regular. Estruturas administradas são arquivos
 completos ou blocos delimitados por marcadores de início/fim.
@@ -16,8 +16,8 @@ from typing import Any
 
 ROOT = Path.cwd()
 PATCH = Path(__file__).resolve().parents[1]
-TARGET_VERSION = "0.2.62"
-APP_VERSION = "1.5.1"
+TARGET_VERSION = "0.2.67"
+APP_VERSION = "1.5.7"
 DATA_PREFIX = "window.HUB_DATA = "
 
 OBSOLETE_APP_IDS = {"app-onde-resolvo", "onde-resolvo", "onde-resolvo-isso"}
@@ -202,7 +202,7 @@ def update_data_and_registry() -> None:
     external = build_external_links(useful)
     registry = {
         "schemaVersion": 1,
-        "generatedBy": "hub-assistente-v1.5.1",
+        "generatedBy": "hub-assistente-v1.5.7",
         "apps": data["apps"],
         "links": useful,
         "externalLinks": external,
