@@ -11,37 +11,30 @@ from pathlib import Path
 
 root = Path(sys.argv[1]).resolve() if len(sys.argv) > 1 else Path.cwd()
 app = root / "apps" / "assistente"
-required_modules = (
-    "config.js", "api-client.js", "history-store.js", "offline-search.js",
-    "chat-controller.js", "composer-controller.js", "message-renderer.js",
-    "response-actions.js", "app.js",
-)
+required_modules = ("config.js", "app.js")
 for name in ("index.html", "app.css", "offline-data.json", *required_modules):
     assert (app / name).is_file(), f"arquivo ausente: apps/assistente/{name}"
 
 html = (app / "index.html").read_text(encoding="utf-8")
 css = (app / "app.css").read_text(encoding="utf-8")
 app_js = (app / "app.js").read_text(encoding="utf-8")
-chat_js = (app / "chat-controller.js").read_text(encoding="utf-8")
-composer_js = (app / "composer-controller.js").read_text(encoding="utf-8")
-renderer_js = (app / "message-renderer.js").read_text(encoding="utf-8")
-history_js = (app / "history-store.js").read_text(encoding="utf-8")
-offline_js = (app / "offline-search.js").read_text(encoding="utf-8")
-api_js = (app / "api-client.js").read_text(encoding="utf-8")
 config_js = (app / "config.js").read_text(encoding="utf-8")
-index_html = (app / "index.html").read_text(encoding="utf-8")
-app_js = (app / "app.js").read_text(encoding="utf-8")
-chat_js = (app / "chat-controller.js").read_text(encoding="utf-8")
-for asset in ("config.js", "api-client.js", "history-store.js", "offline-search.js", "chat-controller.js", "composer-controller.js", "message-renderer.js", "response-actions.js", "app.js"):
-    assert f'{asset}?v=1.5.10' in index_html, f'asset sem cache-busting: {asset}'
-assert 'app.css?v=1.5.10' in index_html
-assert 'offline-data.json?v=1.5.10' in config_js
-assert "if (chat.sending) chat.abort('superseded')" in app_js
-assert "chat.sending && !draft.trim()" in app_js
-assert "this.release(active, 'timeout')" in chat_js
-assert 'watchdog libera a UI diretamente' in chat_js
 
-# Estrutura única, sem segunda sidebar nem configurações técnicas expostas.
+# Regressão principal: o fluxo funcional da v1.4.4 voltou a ser monolítico.
+legacy_split_modules = (
+    "api-client.js", "history-store.js", "offline-search.js", "chat-controller.js",
+    "composer-controller.js", "message-renderer.js", "response-actions.js",
+)
+for name in legacy_split_modules:
+    assert not (app / name).exists(), f"módulo regressivo ainda instalado: {name}"
+    assert name not in html, f"HTML ainda carrega módulo regressivo: {name}"
+for asset in required_modules:
+    assert f'{asset}?v=1.5.11' in html, f'asset sem cache-busting: {asset}'
+assert 'app.css?v=1.5.11' in html
+assert 'offline-data.json?v=1.5.11' in config_js
+assert html.index('config.js?v=1.5.11') < html.index('app.js?v=1.5.11')
+assert 'version: "1.5.11"' in config_js
+
 for identifier in ("chatApp", "messages", "messageScroll", "composerArea", "messageInput", "sendMessage", "typingTemplate", "clearConversation"):
     assert f'id="{identifier}"' in html, identifier
 for removed in ("chatSidebar", "conversationList", "newChat", "openSidebar", "activeContext", "clearContext", "settingsDialog", "openSettings"):
@@ -50,79 +43,38 @@ assert '../../sidebar/sidebar.css' in html and '../../sidebar/sidebar.js' in htm
 assert 'app-shell.css' not in html and 'app-shell.js' not in html
 assert "🤖" in html and "🧭" not in html
 
-# Os módulos devem carregar em ordem explícita antes do orquestrador mínimo.
-positions = []
-for module in required_modules:
-    marker = f'<script src="{module}?v=1.5.10"></script>'
-    position = html.find(marker)
-    assert position >= 0, marker
-    positions.append(position)
-assert positions == sorted(positions), "ordem dos módulos do Assistente inválida"
-assert positions[-1] == html.find('<script src="app.js?v=1.5.10"></script>')
-
-# Composer fixo por layout; observador apenas como última salvaguarda de remoção física.
+# O caminho que funcionava na v1.4.4 deve permanecer direto e observável.
 for marker in (
-    "grid-template-rows: auto minmax(0, 1fr) auto",
-    ".chat-viewport", "min-height: 0", "overflow-y: auto",
-    ".composer-area", "grid-row: 3", "flex-shrink: 0", "100dvh",
+    'async function send(text)',
+    'const active = beginMessageRequest()',
+    "if (state.activeRequest) abortMessageRequest('superseded')",
+    "const data = await request(CONFIG.messagePath || '/api/assistant/message'",
+    'if (state.activeRequest?.id !== active.id) return',
+    'finishMessageRequest(active.id)',
+    'function showTyping()',
+    'function hideTyping()',
+    'function stopCurrentResponse()',
+    "if (state.activeRequest && !draft.trim()) stopCurrentResponse()",
+    "sendButton.dataset.mode = replacing ? 'replace' : (stopping ? 'stop' : 'send')",
+    'Interromper resposta atual e enviar',
+):
+    assert marker in app_js, marker
+assert 'class ChatController' not in app_js
+assert 'window.HUBAssistant' not in app_js
+
+# Composer e histórico continuam no mesmo arquivo funcional antigo.
+for marker in (
+    'grid-template-rows: auto minmax(0, 1fr) auto', '.chat-viewport', '.composer-area',
+    'min-height: 0', 'overflow-y: auto', '100dvh',
 ):
     assert marker in css, f"layout estrutural ausente: {marker}"
-assert "MutationObserver" in composer_js
-assert "this.observer.observe(this.workspace, { childList: true })" in composer_js
-assert "attributes: true" not in composer_js
-assert "display: block !important" not in css
-assert "visibility: visible !important" not in css
-
-# Um único ciclo de requisição: abort real, timeout e resposta antiga ignorada.
-for marker in (
-    "class ChatController", "AbortController", "this.abort('superseded')",
-    "this.release(active, 'timeout')", "active.controller.abort(reason)",
-    "Promise.race([execution, aborted])", "if (!this.isCurrent(active.id))",
-    "this.finish(active.id)", "get sending()", "try { this.onStateChange(this.active); }",
-):
-    assert marker in chat_js, marker
-assert "setSending(false)" not in app_js
-assert "visibilitychange" not in chat_js
-assert "chat.sending" in app_js
-assert "if (!text || chat.sending) return" not in app_js
-assert "if (chat.sending) chat.abort('superseded')" in app_js
-assert "chat.abort('user-stop')" in app_js
-assert "sendButton.dataset.mode = replacing ? 'replace' : (stopping ? 'stop' : 'send')" in app_js
-assert "Interromper resposta" in app_js and "Resposta interrompida." in app_js
-assert 'button[data-mode="stop"]' in css
-assert "signal => api.request" in app_js
-assert "externalSignal" in api_js and "controller.abort" in api_js
-assert "Promise.race([network, timeoutError])" in api_js
-assert "text/plain;charset=UTF-8" in api_js and "mode: 'cors'" in api_js
-assert "const timer = externalSignal ? 0" not in api_js
-assert "ASSISTANT_RESPONSE_TIMEOUT" in api_js and "error.status = response.status" in api_js
-assert "timedOut ? 'online' : 'offline'" in app_js
-
-# Resposta primeiro: corpo principal integral, fonte compacta e apenas evidência secundária recolhível.
-assert "presentation.summary || presentation.answer || message.text" in renderer_js
-assert "Ver explicação completa" in renderer_js
-assert "Ver trecho da fonte" in renderer_js
-assert '<summary>Detalhes' not in renderer_js
-assert "renderSource(message)" in renderer_js
-assert "renderComponents(message)" in renderer_js
-assert ".slice(0, 1)" in renderer_js  # no máximo um complemento não duplicado
-assert "return all.slice(0, 2)" in renderer_js
-assert "['hub-actions', 'sources']" in renderer_js
-assert "Ações no HUB" not in renderer_js and "data-hub-action" not in renderer_js
-assert "renderKnowledge" not in renderer_js
-assert "message.feedback === 'helpful' ? '♥' : '♡'" in renderer_js
-assert ".message-toolbar button.helpful" in css
-
-# Histórico: conexão única, schema explícito, fila serial, debounce e rascunho separado.
-for marker in ("dbVersion = 3", "this.dbPromise", "this.queue", "saveDraft", "loadDraft", "clearTimeout(this.stateTimer)", "clearTimeout(this.draftTimer)"):
-    assert marker in history_js, marker
-assert "loadOfflineCatalog" not in offline_js  # módulo próprio, sem funções herdadas do app monolítico
-assert "fetch(this.path" in offline_js
-assert "version: \"1.5.10\"" in config_js
-
-# O app.js é somente orquestração: não contém classes dos módulos.
-for forbidden in ("class ChatController", "class HistoryStore", "class MessageRenderer", "class ComposerController", "function formatMessage"):
-    assert forbidden not in app_js, forbidden
+assert 'MutationObserver' in app_js
+assert "indexedDB.open(DB_NAME, DB_VERSION)" in app_js
+assert 'loadDraft()' in app_js and 'persistDraft(' in app_js
+assert 'loadOfflineCatalog()' in app_js and 'offlineAnswer(text)' in app_js
+assert 'renderComponents(message)' in app_js and 'renderKnowledge(message)' in app_js
+assert "message.feedback === 'helpful' ? '♥' : '♡'" in app_js
+assert '.message-toolbar button.helpful' in css
 
 # Sidebar canônica única em todo o HUB.
 sidebar = root / "sidebar"
@@ -177,11 +129,11 @@ assert all("onde resolvo" not in f"{item.get('id','')} {item.get('title','')} {i
 # Offline vem somente do catálogo central gerado.
 offline = json.loads((app / "offline-data.json").read_text(encoding="utf-8"))
 assert offline.get("sourcePolicy") == "central-records-only"
-assert offline.get("version") == "1.5.10"
+assert offline.get("version") == "1.5.11"
 assert "generatedAt" not in offline
 assert all(item.get("source") in {"hub-data", "document-metadata"} for item in offline.get("items", []))
 for forbidden in ("offline-suap", "offline-calendar", "offline-help", "portal.ifba.edu.br"):
-    assert forbidden not in offline_js, forbidden
+    assert forbidden not in app_js, forbidden
 
 # Manifestos e metadados usam política conservadora.
 metadata_path = root / "documents" / "document-metadata.json"
@@ -277,11 +229,8 @@ build_script = scripts / "build_production_assets.py"
 if build_script.is_file():
     build_tree = ast.parse(build_script.read_text(encoding="utf-8"))
     stable = {
-        "apps/app-shell.js", "apps/app-shell.css", "apps/assistente/app.js",
-        "apps/assistente/api-client.js", "apps/assistente/history-store.js",
-        "apps/assistente/offline-search.js", "apps/assistente/chat-controller.js",
-        "apps/assistente/composer-controller.js", "apps/assistente/message-renderer.js",
-        "apps/assistente/response-actions.js", "apps/assistente/app.css",
+        "apps/app-shell.js", "apps/app-shell.css",
+        "apps/assistente/app.js", "apps/assistente/app.css",
         "apps/assistente/config.js", "apps/assistente/offline-data.json",
         "sidebar/sidebar.js", "sidebar/sidebar.css", "sidebar/apps-registry.json",
     }
@@ -302,7 +251,7 @@ assert "apps/assistente/assets/build/" not in sw
 for obsolete_ref in ("apps/onde-resolvo/", "apps/onde-resolvo-isso/", "apps/app-onde-resolvo/"):
     assert obsolete_ref not in sw, obsolete_ref
 for module in required_modules:
-    assert f'"./apps/assistente/{module}?v=1.5.10"' in sw, module
+    assert f'"./apps/assistente/{module}?v=1.5.11"' in sw, module
 assert '"./sidebar/sidebar.js"' in sw
 
 # No one-click v2, build e testes acontecem no Fedora antes do push.
@@ -347,4 +296,4 @@ if local_runner:
 for path in [*(app / name for name in required_modules), sidebar / "sidebar.js"]:
     subprocess.run(["node", "--check", str(path)], check=True)
 subprocess.run(["node", str(scripts / "test_frontend_modules.js"), str(root)], check=True)
-print("Assistente web v1.5.10 instalado: OK")
+print("Assistente web v1.5.11 instalado: OK")

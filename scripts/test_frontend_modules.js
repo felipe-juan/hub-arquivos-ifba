@@ -1,110 +1,29 @@
 'use strict';
-
 const assert = require('node:assert/strict');
 const fs = require('node:fs');
 const path = require('node:path');
-const vm = require('node:vm');
 
-const rootPath = path.resolve(process.argv[2] || '.');
-const context = vm.createContext({
-  window: { HUBAssistant: {} },
-  globalThis: null,
-  AbortController,
-  setTimeout,
-  clearTimeout,
-  console
-});
-context.globalThis = context;
-const source = fs.readFileSync(path.join(rootPath, 'apps/assistente/chat-controller.js'), 'utf8');
-vm.runInContext(source, context, { filename: 'chat-controller.js' });
-const { ChatController } = context.window.HUBAssistant.chat;
+const root = path.resolve(process.argv[2] || '.');
+const dir = path.join(root, 'apps', 'assistente');
+const app = fs.readFileSync(path.join(dir, 'app.js'), 'utf8');
+const html = fs.readFileSync(path.join(dir, 'index.html'), 'utf8');
 
-async function delay(ms) { return new Promise(resolve => setTimeout(resolve, ms)); }
-
-(async () => {
-  const states = [];
-  const controller = new ChatController({ timeoutMs: 60, onStateChange: active => states.push(Boolean(active)) });
-  let staleSuccess = 0;
-  let freshSuccess = 0;
-
-  const first = controller.run(async signal => {
-    await delay(45);
-    if (signal.aborted) throw Object.assign(new Error('aborted'), { name: 'AbortError' });
-    return 'old';
-  }, { onSuccess: () => { staleSuccess += 1; } });
-
-  await delay(5);
-  const second = controller.run(async signal => {
-    await delay(5);
-    assert.equal(signal.aborted, false);
-    return 'new';
-  }, { onSuccess: value => { assert.equal(value, 'new'); freshSuccess += 1; } });
-
-  const [oldResult, newResult] = await Promise.all([first, second]);
-  assert.equal(oldResult.ignored, true);
-  assert.equal(newResult.ok, true);
-  assert.equal(staleSuccess, 0);
-  assert.equal(freshSuccess, 1);
-  assert.equal(controller.sending, false);
-
-  let timeoutReason = '';
-  const timedPromise = controller.run(() => new Promise(() => {}), {
-    onError: (_error, reason) => { timeoutReason = reason; }
-  });
-  await delay(1100);
-  assert.equal(controller.sending, false, 'watchdog não liberou a UI diretamente');
-  assert.equal(states.at(-1), false, 'estado visual continuou em Escrevendo após timeout');
-  const timed = await timedPromise;
-  assert.equal(timed.ok, false);
-  assert.equal(timeoutReason, 'timeout');
-  assert.equal(controller.sending, false);
-
-  const manual = controller.run(() => new Promise(() => {}));
-  await delay(5);
-  assert.equal(controller.abort('user-stop'), true);
-  const manualResult = await manual;
-  assert.equal(manualResult.ignored, true);
-  assert.equal(controller.sending, false);
-  assert.ok(states.includes(true) && states.at(-1) === false);
-
-  // Uma falha de renderização/onStateChange nunca pode quebrar o ciclo interno
-  // nem impedir o watchdog de liberar o estado de envio.
-  const noisy = new ChatController({ timeoutMs: 60, onStateChange: () => { throw new Error('ui-test'); } });
-  const noisyResult = await noisy.run(() => new Promise(() => {}));
-  assert.equal(noisyResult.reason, 'timeout');
-  assert.equal(noisy.sending, false);
-
-  let capturedOptions = null;
-  const apiContext = vm.createContext({
-    window: { HUBAssistant: {} },
-    globalThis: null,
-    location: { href: 'https://hub.example/apps/assistente/', protocol: 'https:' },
-    URL,
-    AbortController,
-    setTimeout,
-    clearTimeout,
-    console,
-    fetch: (_url, options) => {
-      capturedOptions = options;
-      return new Promise(() => {});
-    }
-  });
-  apiContext.globalThis = apiContext;
-  vm.runInContext(fs.readFileSync(path.join(rootPath, 'apps/assistente/api-client.js'), 'utf8'), apiContext, { filename: 'api-client.js' });
-  const api = apiContext.window.HUBAssistant.api.createApiClient({ apiBaseUrl: 'https://api.example', requestTimeoutMs: 1000 });
-  const outerController = new AbortController();
-  const started = Date.now();
-  await assert.rejects(
-    api.request('/api/assistant/message', { message: 'teste' }, { signal: outerController.signal, timeoutMs: 1000 }),
-    error => error?.code === 'ASSISTANT_RESPONSE_TIMEOUT' && error?.reason === 'timeout'
-  );
-  assert.ok(Date.now() - started < 2500, 'timeout próprio do cliente não encerrou a requisição');
-  assert.equal(capturedOptions.headers['content-type'], 'text/plain;charset=UTF-8');
-  assert.equal(capturedOptions.mode, 'cors');
-  assert.equal(capturedOptions.credentials, 'omit');
-
-  console.log('Módulos do frontend: ciclo, timeout rígido, isolamento de falha visual, CORS simples e interrupção aprovados.');
-})().catch(error => {
-  console.error(error);
-  process.exit(1);
-});
+for (const obsolete of ['api-client.js','history-store.js','offline-search.js','chat-controller.js','composer-controller.js','message-renderer.js','response-actions.js']) {
+  assert.equal(fs.existsSync(path.join(dir, obsolete)), false, `módulo regressivo ainda presente: ${obsolete}`);
+  assert.equal(html.includes(obsolete), false, `HTML ainda carrega módulo regressivo: ${obsolete}`);
+}
+for (const marker of [
+  'async function send(text)',
+  'const active = beginMessageRequest()',
+  "if (state.activeRequest) abortMessageRequest('superseded')",
+  "const data = await request(CONFIG.messagePath || '/api/assistant/message'",
+  'if (state.activeRequest?.id !== active.id) return',
+  'finishMessageRequest(active.id)',
+  'function showTyping()',
+  'function hideTyping()',
+  'function stopCurrentResponse()',
+  "if (state.activeRequest && !draft.trim()) stopCurrentResponse()",
+]) assert.ok(app.includes(marker), `contrato monolítico ausente: ${marker}`);
+assert.ok(html.includes('config.js?v=1.5.11'));
+assert.ok(html.includes('app.js?v=1.5.11'));
+console.log('Frontend monolítico restaurado da v1.4.4: contrato de envio e interrupção aprovado.');

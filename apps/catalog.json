@@ -6,7 +6,7 @@
       "id": "assistente",
       "title": "Assistente do HUB",
       "url": "apps/assistente/",
-      "internalVersion": "1.5.10",
+      "internalVersion": "1.5.11",
       "sourceFiles": [],
       "status": "uses-independent-assistant-api",
       "reviewedAt": "2026-08-06",

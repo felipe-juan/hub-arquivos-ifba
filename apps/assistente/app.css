@@ -199,8 +199,6 @@ button:focus-visible, a:focus-visible, textarea:focus-visible, input:focus-visib
 .composer textarea::placeholder { color: var(--faint); }
 .composer button { width: 40px; height: 40px; min-height: 40px; padding: 0; border: 0; border-radius: 13px; display: grid; place-items: center; background: linear-gradient(135deg, var(--green), var(--cyan)); color: #061015; font-size: 1.15rem; font-weight: 950; box-shadow: 0 8px 20px color-mix(in srgb, var(--green) 16%, transparent); }
 .composer button:hover { transform: none; }
-.composer button[data-mode="stop"] { background: color-mix(in srgb, var(--red) 82%, var(--surface)); color: #fff; box-shadow: 0 8px 20px color-mix(in srgb, var(--red) 18%, transparent); font-size: .82rem; }
-.composer button[data-mode="stop"]:hover { background: color-mix(in srgb, var(--red) 92%, var(--surface)); }
 .composer button:disabled { opacity: .42; cursor: not-allowed; filter: saturate(.5); box-shadow: none; transform: none; }
 .composer-area > small { width: min(var(--assistant-composer-max), 100%); display: block; margin: .38rem auto 0; color: var(--faint); text-align: center; font-size: .62rem; }
 .chat-viewport[aria-busy="true"] + .composer-area .composer { border-color: color-mix(in srgb, var(--cyan) 25%, var(--line)); }
@@ -248,7 +246,7 @@ button:focus-visible, a:focus-visible, textarea:focus-visible, input:focus-visib
 }
 
 
-/* v1.5.8 — ações, componentes estruturados e estabilidade visual. */
+/* v1.4.4 — ações, componentes estruturados e estabilidade visual. */
 .message-toolbar { min-height: 32px; align-items: center; }
 .message-toolbar button { position: relative; transition: background .16s ease, color .16s ease, border-color .16s ease, transform .12s ease; }
 .message-toolbar button:active { transform: scale(.92); }
@@ -272,7 +270,7 @@ button:focus-visible, a:focus-visible, textarea:focus-visible, input:focus-visib
 @media (max-width: 620px) { .message-action-status { flex-basis: 100%; } .structured-card { padding: .62rem; } }
 
 
-/* v1.5.8 — respostas documentais progressivas e ações híbridas. */
+/* v1.4.4 — respostas documentais progressivas e ações híbridas. */
 .progressive-answer { display: grid; gap: .55rem; }
 .progressive-summary { margin: 0; }
 .progressive-answer details {
@@ -326,7 +324,7 @@ button:focus-visible, a:focus-visible, textarea:focus-visible, input:focus-visib
 
 
 
-/* v1.5.8 — layout estrutural e histórico incremental. */
+/* v1.4.4 — layout estrutural e histórico incremental. */
 .assistant-workspace { height: 100%; max-height: 100%; }
 .chat-viewport { min-height: 0; overflow-y: auto; }
 .composer-area { min-height: 72px; }
@@ -350,17 +348,3 @@ body.assistant-compact-height .composer-area { min-height: 58px; padding-top: .4
   body { min-height: var(--assistant-window-height, 100dvh); max-height: var(--assistant-window-height, 100dvh); }
   .composer-area { min-height: 58px; padding-bottom: max(.45rem, env(safe-area-inset-bottom)); }
 }
-
-/* v1.5.8 — resposta principal visível e fonte compacta. */
-.source-block { display: grid; gap: .38rem; margin-top: .55rem; }
-.source-compact { color: var(--muted); font-size: .73rem; line-height: 1.45; }
-.source-compact strong { color: var(--text); }
-.source-compact a { color: var(--cyan); text-decoration: none; }
-.source-excerpt { border: 1px solid var(--line); border-radius: 12px; background: color-mix(in srgb, var(--surface-2) 78%, transparent); overflow: clip; }
-.source-excerpt summary { min-height: 36px; display: flex; align-items: center; padding: .48rem .65rem; cursor: pointer; color: var(--text); font-size: .73rem; font-weight: 830; }
-.source-excerpt blockquote { margin: 0; padding: 0 .65rem .65rem; color: var(--muted); font-size: .72rem; line-height: 1.5; }
-.progressive-summary { color: var(--text); }
-.progressive-answer > details > summary { font-size: .73rem; }
-.structured-components { margin-top: .5rem; }
-.message-actions { max-width: 100%; }
-.message-actions:not(:has(.exit-option)) button:nth-child(n+3) { display: none; }
