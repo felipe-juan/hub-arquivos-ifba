@@ -10,28 +10,34 @@
   }
 
   class ChatController {
-    constructor({ timeoutMs = 25000, onStateChange = null } = {}) {
-      this.timeoutMs = Math.max(1000, Number(timeoutMs || 25000));
+    constructor({ timeoutMs = 20000, onStateChange = null } = {}) {
+      this.timeoutMs = Math.max(1000, Number(timeoutMs || 20000));
       this.onStateChange = typeof onStateChange === 'function' ? onStateChange : () => {};
       this.active = null;
       this.serial = 0;
     }
 
     get sending() { return Boolean(this.active); }
-
     isCurrent(id) { return Boolean(this.active && this.active.id === id); }
+    notify() {
+      try { this.onStateChange(this.active); }
+      catch (error) { console.error('Falha ao sincronizar estado visual do Assistente:', error); }
+    }
 
-    notify() { this.onStateChange(this.active); }
-
-    abort(reason = 'cancelled') {
-      const active = this.active;
+    release(active, reason = 'cancelled') {
       if (!active) return false;
       active.reason = reason;
       clearTimeout(active.timer);
       try { active.controller.abort(reason); } catch {}
-      this.active = null;
-      this.notify();
+      if (this.isCurrent(active.id)) {
+        this.active = null;
+        this.notify();
+      }
       return true;
+    }
+
+    abort(reason = 'cancelled') {
+      return this.release(this.active, reason);
     }
 
     begin() {
@@ -39,13 +45,14 @@
       const id = ++this.serial;
       const controller = new AbortController();
       const active = { id, controller, reason: '', timer: 0 };
-      active.timer = setTimeout(() => {
-        if (!this.isCurrent(id)) return;
-        active.reason = 'timeout';
-        try { controller.abort('timeout'); } catch {}
-      }, this.timeoutMs);
       this.active = active;
       this.notify();
+      active.timer = setTimeout(() => {
+        if (!this.isCurrent(id)) return;
+        // O watchdog libera a UI diretamente. Não dependemos de fetch, do
+        // AbortController nem do backend para remover "Escrevendo...".
+        this.release(active, 'timeout');
+      }, this.timeoutMs);
       return active;
     }
 
@@ -72,9 +79,17 @@
         await onSuccess?.(data, active);
         return { ok: true, data, id: active.id };
       } catch (error) {
-        if (!this.isCurrent(active.id)) return { ignored: true, error, id: active.id };
         const signalReason = active.controller.signal.reason;
         const reason = active.reason || (typeof signalReason === 'string' ? signalReason : '') || error?.reason || (error?.name === 'AbortError' ? 'aborted' : 'error');
+        const anotherRequestIsActive = Boolean(this.active && this.active.id !== active.id);
+
+        // Timeout é especial: o watchdog já liberou a UI. Ainda exibimos a
+        // mensagem de erro se nenhuma nova pergunta tomou o lugar desta.
+        if (reason === 'timeout' && !anotherRequestIsActive) {
+          await onError?.(error, reason, active);
+          return { ok: false, error, reason, id: active.id };
+        }
+        if (!this.isCurrent(active.id)) return { ignored: true, error, reason, id: active.id };
         if (!['superseded', 'reset', 'unload', 'user-stop'].includes(reason)) await onError?.(error, reason, active);
         return { ok: false, error, reason, id: active.id };
       } finally {

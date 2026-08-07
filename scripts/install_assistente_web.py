@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Instala o Assistente v1.5.8 no HUB por cópia determinística.
+"""Instala o Assistente v1.5.10 no HUB por cópia determinística.
 
 Não usa substituições por expressão regular. Estruturas administradas são arquivos
 completos ou blocos delimitados por marcadores de início/fim.
@@ -16,8 +16,8 @@ from typing import Any
 
 ROOT = Path.cwd()
 PATCH = Path(__file__).resolve().parents[1]
-TARGET_VERSION = "0.2.68"
-APP_VERSION = "1.5.8"
+TARGET_VERSION = "0.2.70"
+APP_VERSION = "1.5.10"
 DATA_PREFIX = "window.HUB_DATA = "
 
 OBSOLETE_APP_IDS = {"app-onde-resolvo", "onde-resolvo", "onde-resolvo-isso"}
@@ -45,7 +45,7 @@ APP_EMOJI_RULES = (
     (("link",), "🔗"),
 )
 DEFAULT_EXTERNAL_LINKS = (
-    {"id": "portal", "title": "Portal do IFBA", "url": "https://portal.ifba.edu.br/conquista", "emoji": "🏫", "icon": "🏫"},
+    {"id": "portal", "title": "Portal", "url": "https://portal.ifba.edu.br/conquista", "emoji": "🏫", "icon": "🏫"},
     {"id": "suap", "title": "SUAP", "url": "https://suap.ifba.edu.br", "emoji": "🔐", "icon": "🔐"},
 )
 
@@ -122,8 +122,7 @@ def build_external_links(items: list[dict[str, Any]]) -> list[dict[str, Any]]:
         merged["id"] = kind
         merged["emoji"] = default["emoji"]
         merged["icon"] = default["icon"]
-        if not merged.get("title"):
-            merged["title"] = default["title"]
+        merged["title"] = default["title"]
         if not merged.get("url"):
             merged["url"] = default["url"]
         result.append(merged)
@@ -202,7 +201,7 @@ def update_data_and_registry() -> None:
     external = build_external_links(useful)
     registry = {
         "schemaVersion": 1,
-        "generatedBy": "hub-assistente-v1.5.8",
+        "generatedBy": "hub-assistente-v1.5.10",
         "apps": data["apps"],
         "links": useful,
         "externalLinks": external,

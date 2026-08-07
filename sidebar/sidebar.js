@@ -16,7 +16,7 @@
     favoritesData: 'hubFavoritesV1'
   });
   const DEFAULT_EXTERNAL_LINKS = Object.freeze([
-    { id: 'portal', title: 'Portal do IFBA', url: 'https://portal.ifba.edu.br/conquista', emoji: '🏫' },
+    { id: 'portal', title: 'Portal', url: 'https://portal.ifba.edu.br/conquista', emoji: '🏫' },
     { id: 'suap', title: 'SUAP', url: 'https://suap.ifba.edu.br', emoji: '🔐' }
   ]);
   const FALLBACK_REGISTRY = Object.freeze({

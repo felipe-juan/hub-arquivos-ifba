@@ -119,6 +119,19 @@
     renderLimit: 80
   });
 
+  function forceHideTyping() {
+    document.querySelectorAll('[data-typing="true"]').forEach(element => element.remove());
+    document.getElementById('messageScroll')?.setAttribute('aria-busy', 'false');
+  }
+
+  function safeRender() {
+    try { renderer.render(); }
+    catch (error) {
+      console.error('Falha ao renderizar a conversa:', error);
+      if (!chat.sending) forceHideTyping();
+    }
+  }
+
   function showToast(text) {
     const toast = $('actionToast');
     if (!toast) return;
@@ -132,29 +145,32 @@
     const input = $('messageInput');
     const sendButton = $('sendMessage');
     if (input && sendButton) {
-      const stopping = chat.sending;
-      sendButton.disabled = stopping ? false : !input.value.trim();
-      sendButton.dataset.mode = stopping ? 'stop' : 'send';
-      sendButton.setAttribute('aria-label', stopping ? 'Interromper resposta' : 'Enviar mensagem');
+      const hasDraft = Boolean(input.value.trim());
+      const replacing = chat.sending && hasDraft;
+      const stopping = chat.sending && !hasDraft;
+      sendButton.disabled = !chat.sending && !hasDraft;
+      sendButton.dataset.mode = replacing ? 'replace' : (stopping ? 'stop' : 'send');
+      sendButton.setAttribute('aria-label', replacing ? 'Interromper e enviar nova mensagem' : (stopping ? 'Interromper resposta' : 'Enviar mensagem'));
       sendButton.setAttribute('aria-busy', 'false');
-      sendButton.title = stopping ? 'Interromper resposta' : 'Enviar';
+      sendButton.title = replacing ? 'Interromper resposta atual e enviar' : (stopping ? 'Interromper resposta' : 'Enviar');
       const icon = sendButton.querySelector('[aria-hidden="true"]');
       if (icon) icon.textContent = stopping ? '■' : '↑';
     }
     $('messageScroll')?.setAttribute('aria-busy', chat.sending ? 'true' : 'false');
     const hint = $('composerHint');
     if (hint) hint.textContent = chat.sending
-      ? 'O assistente está escrevendo. Use o botão quadrado para interromper; o texto digitado será preservado.'
+      ? 'Digite outra pergunta e envie para substituir a resposta atual, ou deixe o campo vazio e use ■ para interromper.'
       : 'Enter envia · Shift + Enter quebra a linha';
     document.querySelectorAll('[data-prompt], [data-option-value]').forEach(button => { button.disabled = chat.sending; });
     composer.ensure();
   }
 
   const chat = new ChatController({
-    timeoutMs: Number(CONFIG.requestTimeoutMs || 25000),
+    timeoutMs: Number(CONFIG.requestTimeoutMs || 20000),
     onStateChange: () => {
       syncSendingUi();
-      renderer.render();
+      safeRender();
+      if (!chat.sending) forceHideTyping();
     }
   });
 
@@ -200,21 +216,26 @@
 
   async function send(rawText) {
     const text = safeText(rawText).trim();
-    if (!text || chat.sending) return;
+    if (!text) return;
+    // Uma nova mensagem sempre tem prioridade. Se houver uma resposta em curso,
+    // ela é invalidada antes de registrar/enviar a nova pergunta. Respostas
+    // tardias da solicitação anterior são ignoradas pelo ChatController.
+    if (chat.sending) chat.abort('superseded');
     addMessage('user', text);
     const input = $('messageInput');
     if (input) input.value = '';
     storage.saveDraft('', { immediate: true });
     composer.resizeInput();
-    renderer.render();
+    safeRender();
 
     const conversation = currentConversation();
-    await chat.run(
+    try {
+      await chat.run(
       signal => api.request(CONFIG.messagePath || '/api/assistant/message', {
         sessionId: conversation.sessionId,
         message: text,
         senderName: state.settings.senderName
-      }, { signal, timeoutMs: Number(CONFIG.requestTimeoutMs || 25000) + 1000 }),
+      }, { signal, timeoutMs: Number(CONFIG.requestTimeoutMs || 20000) + 1000 }),
       {
         onSuccess: data => {
           if (data.sessionId) conversation.sessionId = data.sessionId;
@@ -257,17 +278,25 @@
         },
         onFinally: () => {
           saveState({ immediate: true });
-          renderer.render();
+          safeRender();
+          forceHideTyping();
           if (matchMedia('(pointer: fine)').matches && document.activeElement !== $('messageInput')) $('messageInput')?.focus({ preventScroll: true });
         }
       }
-    );
+      );
+    } finally {
+      if (!chat.sending) {
+        forceHideTyping();
+        syncSendingUi();
+      }
+    }
   }
 
   function stopCurrentResponse() {
     if (!chat.abort('user-stop')) return false;
     saveState({ immediate: true });
-    renderer.render();
+    safeRender();
+    forceHideTyping();
     showToast('Resposta interrompida.');
     requestAnimationFrame(() => $('messageInput')?.focus({ preventScroll: true }));
     return true;
@@ -281,7 +310,8 @@
     renderer.renderLimit = 80;
     renderer.fingerprints.clear();
     await storage.clear();
-    renderer.render();
+    safeRender();
+    forceHideTyping();
     syncSendingUi();
   }
 
@@ -294,8 +324,9 @@
 
   function bind() {
     $('sendMessage')?.addEventListener('click', () => {
-      if (chat.sending) stopCurrentResponse();
-      else send($('messageInput')?.value);
+      const draft = $('messageInput')?.value || '';
+      if (chat.sending && !draft.trim()) stopCurrentResponse();
+      else send(draft);
     });
     $('messageInput')?.addEventListener('input', event => {
       composer.resizeInput();
@@ -357,7 +388,7 @@
     composer.ensure();
     composer.resizeInput();
     syncSendingUi();
-    renderer.render();
+    safeRender();
     checkHealth();
     if (matchMedia('(pointer: fine)').matches) input?.focus({ preventScroll: true });
   }
@@ -367,6 +398,7 @@
     state.conversation = freshConversation();
     composer.ensure();
     syncSendingUi();
-    renderer.render();
+    safeRender();
+    forceHideTyping();
   });
 })();

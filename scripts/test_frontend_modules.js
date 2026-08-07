@@ -48,9 +48,13 @@ async function delay(ms) { return new Promise(resolve => setTimeout(resolve, ms)
   assert.equal(controller.sending, false);
 
   let timeoutReason = '';
-  const timed = await controller.run(() => new Promise(() => {}), {
+  const timedPromise = controller.run(() => new Promise(() => {}), {
     onError: (_error, reason) => { timeoutReason = reason; }
   });
+  await delay(1100);
+  assert.equal(controller.sending, false, 'watchdog não liberou a UI diretamente');
+  assert.equal(states.at(-1), false, 'estado visual continuou em Escrevendo após timeout');
+  const timed = await timedPromise;
   assert.equal(timed.ok, false);
   assert.equal(timeoutReason, 'timeout');
   assert.equal(controller.sending, false);
@@ -62,6 +66,13 @@ async function delay(ms) { return new Promise(resolve => setTimeout(resolve, ms)
   assert.equal(manualResult.ignored, true);
   assert.equal(controller.sending, false);
   assert.ok(states.includes(true) && states.at(-1) === false);
+
+  // Uma falha de renderização/onStateChange nunca pode quebrar o ciclo interno
+  // nem impedir o watchdog de liberar o estado de envio.
+  const noisy = new ChatController({ timeoutMs: 60, onStateChange: () => { throw new Error('ui-test'); } });
+  const noisyResult = await noisy.run(() => new Promise(() => {}));
+  assert.equal(noisyResult.reason, 'timeout');
+  assert.equal(noisy.sending, false);
 
   let capturedOptions = null;
   const apiContext = vm.createContext({
@@ -92,7 +103,7 @@ async function delay(ms) { return new Promise(resolve => setTimeout(resolve, ms)
   assert.equal(capturedOptions.mode, 'cors');
   assert.equal(capturedOptions.credentials, 'omit');
 
-  console.log('Módulos do frontend: ciclo, timeout rígido, CORS simples e interrupção aprovados.');
+  console.log('Módulos do frontend: ciclo, timeout rígido, isolamento de falha visual, CORS simples e interrupção aprovados.');
 })().catch(error => {
   console.error(error);
   process.exit(1);

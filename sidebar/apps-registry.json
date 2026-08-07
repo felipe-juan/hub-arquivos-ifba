@@ -1,6 +1,6 @@
 {
   "schemaVersion": 1,
-  "generatedBy": "hub-assistente-v1.5.8",
+  "generatedBy": "hub-assistente-v1.5.10",
   "apps": [
     {
       "id": "app-assistente-hub",
@@ -520,7 +520,7 @@
   "externalLinks": [
     {
       "id": "portal",
-      "title": "Portal do IFBA",
+      "title": "Portal",
       "url": "https://portal.ifba.edu.br/conquista",
       "emoji": "🏫",
       "icon": "🏫"

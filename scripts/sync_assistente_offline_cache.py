@@ -16,18 +16,18 @@ ROOT = Path(sys.argv[1]).resolve() if len(sys.argv) > 1 else Path.cwd()
 SW = ROOT / "service-worker.js"
 ENTRIES = [
     "./apps/assistente/",
-    "./apps/assistente/index.html",
-    "./apps/assistente/config.js",
-    "./apps/assistente/app.css",
-    "./apps/assistente/api-client.js",
-    "./apps/assistente/history-store.js",
-    "./apps/assistente/offline-search.js",
-    "./apps/assistente/chat-controller.js",
-    "./apps/assistente/composer-controller.js",
-    "./apps/assistente/message-renderer.js",
-    "./apps/assistente/response-actions.js",
-    "./apps/assistente/app.js",
-    "./apps/assistente/offline-data.json",
+    "./apps/assistente/index.html?v=1.5.10",
+    "./apps/assistente/config.js?v=1.5.10",
+    "./apps/assistente/app.css?v=1.5.10",
+    "./apps/assistente/api-client.js?v=1.5.10",
+    "./apps/assistente/history-store.js?v=1.5.10",
+    "./apps/assistente/offline-search.js?v=1.5.10",
+    "./apps/assistente/chat-controller.js?v=1.5.10",
+    "./apps/assistente/composer-controller.js?v=1.5.10",
+    "./apps/assistente/message-renderer.js?v=1.5.10",
+    "./apps/assistente/response-actions.js?v=1.5.10",
+    "./apps/assistente/app.js?v=1.5.10",
+    "./apps/assistente/offline-data.json?v=1.5.10",
     "./sidebar/sidebar.css",
     "./sidebar/sidebar.js",
     "./sidebar/apps-registry.json",
@@ -165,7 +165,9 @@ def main() -> int:
     for entry in ENTRIES:
         if entry.endswith("/"):
             continue
-        if not (ROOT / entry.removeprefix("./")).is_file():
+        # Entradas versionadas usam query string apenas na chave HTTP/cache;
+        # a existência deve ser verificada pelo caminho físico sem ?v=.
+        if not (ROOT / normalized(entry)).is_file():
             raise SystemExit(f"Arquivo obrigatório do cache ausente: {entry}")
     if not SW.is_file():
         raise SystemExit("service-worker.js não encontrado.")

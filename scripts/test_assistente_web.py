@@ -29,6 +29,17 @@ history_js = (app / "history-store.js").read_text(encoding="utf-8")
 offline_js = (app / "offline-search.js").read_text(encoding="utf-8")
 api_js = (app / "api-client.js").read_text(encoding="utf-8")
 config_js = (app / "config.js").read_text(encoding="utf-8")
+index_html = (app / "index.html").read_text(encoding="utf-8")
+app_js = (app / "app.js").read_text(encoding="utf-8")
+chat_js = (app / "chat-controller.js").read_text(encoding="utf-8")
+for asset in ("config.js", "api-client.js", "history-store.js", "offline-search.js", "chat-controller.js", "composer-controller.js", "message-renderer.js", "response-actions.js", "app.js"):
+    assert f'{asset}?v=1.5.10' in index_html, f'asset sem cache-busting: {asset}'
+assert 'app.css?v=1.5.10' in index_html
+assert 'offline-data.json?v=1.5.10' in config_js
+assert "if (chat.sending) chat.abort('superseded')" in app_js
+assert "chat.sending && !draft.trim()" in app_js
+assert "this.release(active, 'timeout')" in chat_js
+assert 'watchdog libera a UI diretamente' in chat_js
 
 # Estrutura única, sem segunda sidebar nem configurações técnicas expostas.
 for identifier in ("chatApp", "messages", "messageScroll", "composerArea", "messageInput", "sendMessage", "typingTemplate", "clearConversation"):
@@ -42,12 +53,12 @@ assert "🤖" in html and "🧭" not in html
 # Os módulos devem carregar em ordem explícita antes do orquestrador mínimo.
 positions = []
 for module in required_modules:
-    marker = f'<script src="{module}"></script>'
+    marker = f'<script src="{module}?v=1.5.10"></script>'
     position = html.find(marker)
     assert position >= 0, marker
     positions.append(position)
 assert positions == sorted(positions), "ordem dos módulos do Assistente inválida"
-assert positions[-1] == html.find('<script src="app.js"></script>')
+assert positions[-1] == html.find('<script src="app.js?v=1.5.10"></script>')
 
 # Composer fixo por layout; observador apenas como última salvaguarda de remoção física.
 for marker in (
@@ -65,16 +76,18 @@ assert "visibility: visible !important" not in css
 # Um único ciclo de requisição: abort real, timeout e resposta antiga ignorada.
 for marker in (
     "class ChatController", "AbortController", "this.abort('superseded')",
-    "controller.abort('timeout')", "Promise.race([execution, aborted])",
-    "if (!this.isCurrent(active.id))", "this.finish(active.id)", "get sending()",
+    "this.release(active, 'timeout')", "active.controller.abort(reason)",
+    "Promise.race([execution, aborted])", "if (!this.isCurrent(active.id))",
+    "this.finish(active.id)", "get sending()", "try { this.onStateChange(this.active); }",
 ):
     assert marker in chat_js, marker
 assert "setSending(false)" not in app_js
 assert "visibilitychange" not in chat_js
 assert "chat.sending" in app_js
-assert "if (!text || chat.sending) return" in app_js
+assert "if (!text || chat.sending) return" not in app_js
+assert "if (chat.sending) chat.abort('superseded')" in app_js
 assert "chat.abort('user-stop')" in app_js
-assert "sendButton.dataset.mode = stopping ? 'stop' : 'send'" in app_js
+assert "sendButton.dataset.mode = replacing ? 'replace' : (stopping ? 'stop' : 'send')" in app_js
 assert "Interromper resposta" in app_js and "Resposta interrompida." in app_js
 assert 'button[data-mode="stop"]' in css
 assert "signal => api.request" in app_js
@@ -105,7 +118,7 @@ for marker in ("dbVersion = 3", "this.dbPromise", "this.queue", "saveDraft", "lo
     assert marker in history_js, marker
 assert "loadOfflineCatalog" not in offline_js  # módulo próprio, sem funções herdadas do app monolítico
 assert "fetch(this.path" in offline_js
-assert "version: \"1.5.8\"" in config_js
+assert "version: \"1.5.10\"" in config_js
 
 # O app.js é somente orquestração: não contém classes dos módulos.
 for forbidden in ("class ChatController", "class HistoryStore", "class MessageRenderer", "class ComposerController", "function formatMessage"):
@@ -134,6 +147,7 @@ assert len(registry.get("externalLinks", [])) == 2
 external_by_id = {item.get("id"): item for item in registry.get("externalLinks", [])}
 assert external_by_id.get("portal", {}).get("url") == "https://portal.ifba.edu.br/conquista"
 assert external_by_id.get("portal", {}).get("emoji") == "🏫"
+assert external_by_id.get("portal", {}).get("title") == "Portal"
 assert external_by_id.get("suap", {}).get("url") == "https://suap.ifba.edu.br"
 assert external_by_id.get("suap", {}).get("emoji") == "🔐"
 assert not (root / "apps" / "app-shell.js").exists()
@@ -163,7 +177,7 @@ assert all("onde resolvo" not in f"{item.get('id','')} {item.get('title','')} {i
 # Offline vem somente do catálogo central gerado.
 offline = json.loads((app / "offline-data.json").read_text(encoding="utf-8"))
 assert offline.get("sourcePolicy") == "central-records-only"
-assert offline.get("version") == "1.5.8"
+assert offline.get("version") == "1.5.10"
 assert "generatedAt" not in offline
 assert all(item.get("source") in {"hub-data", "document-metadata"} for item in offline.get("items", []))
 for forbidden in ("offline-suap", "offline-calendar", "offline-help", "portal.ifba.edu.br"):
@@ -236,6 +250,7 @@ with tempfile.TemporaryDirectory(prefix="hub-sidebar-registry-") as temp_dir:
     generated_registry = json.loads((fixture / "sidebar" / "apps-registry.json").read_text(encoding="utf-8"))
     assert [item["id"] for item in generated_registry["externalLinks"]] == ["portal", "suap"]
     assert generated_registry["externalLinks"][0]["url"] == "https://portal.ifba.edu.br/conquista"
+    assert generated_registry["externalLinks"][0]["title"] == "Portal"
     assert generated_registry["externalLinks"][1]["url"] == "https://suap.ifba.edu.br"
     assert generated_registry["links"] == fixture_data["usefulLinks"]
 for name in ("normalize_document_manifests.py", "verify_document_generation.py", "build_and_validate_hub.py"):
@@ -287,7 +302,7 @@ assert "apps/assistente/assets/build/" not in sw
 for obsolete_ref in ("apps/onde-resolvo/", "apps/onde-resolvo-isso/", "apps/app-onde-resolvo/"):
     assert obsolete_ref not in sw, obsolete_ref
 for module in required_modules:
-    assert f'"./apps/assistente/{module}"' in sw, module
+    assert f'"./apps/assistente/{module}?v=1.5.10"' in sw, module
 assert '"./sidebar/sidebar.js"' in sw
 
 # No one-click v2, build e testes acontecem no Fedora antes do push.
@@ -319,7 +334,17 @@ for forbidden in (
 assert workflow_text.count("actions/deploy-pages@") == 1
 assert workflow_text.count("actions/upload-pages-artifact@") == 1
 
+
+# Teste local usa processos reais e portas efêmeras: não pode reutilizar backend/SW antigo.
+local_runner = (root.parent / "testar-local.sh") if (root.parent / "testar-local.sh").is_file() else None
+if local_runner:
+    local_text = local_runner.read_text(encoding="utf-8")
+    for marker in ('pick_port', 'API_PORT="$(pick_port)"', 'WEB_PORT="$(pick_port)"', 'exec env', 'PID real da API', 'sala liojes'):
+        assert marker in local_text, marker
+    assert "ASSISTANT_PORT=3220" not in local_text
+    assert "python3 -m http.server 8003" not in local_text
+
 for path in [*(app / name for name in required_modules), sidebar / "sidebar.js"]:
     subprocess.run(["node", "--check", str(path)], check=True)
 subprocess.run(["node", str(scripts / "test_frontend_modules.js"), str(root)], check=True)
-print("Assistente web v1.5.8 instalado: OK")
+print("Assistente web v1.5.10 instalado: OK")

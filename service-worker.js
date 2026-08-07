@@ -1,4 +1,4 @@
-const VERSION = "hub-ifba-v0.2.68";
+const VERSION = "hub-ifba-v0.2.70";
 const STATIC_CACHE = `${VERSION}-static`;
 const METADATA_CACHE = `${VERSION}-metadata`;
 const IMAGE_CACHE = `${VERSION}-images`;
@@ -11,14 +11,14 @@ const CORE = [
   "./index.html",
   "./offline.html",
   "./document-viewer.html",
-  "assets/build/styles.2db73f6a5815.css",
+  "assets/build/styles.d01893596e84.css",
   "assets/build/enhancements.254c728974fb.css",
   "assets/build/sidebar-quick-search.ea5032187b1e.css",
   "assets/build/design-system.afe11aadcef7.css",
   "assets/build/data.74bf9e83114b.js",
-  "assets/build/app.c64c73206414.js",
+  "assets/build/app.22fea2b4fad1.js",
   "assets/build/storage.aade70adc118.js",
-  "assets/build/design-system.ca3c813aa331.js",
+  "assets/build/design-system.3c0c1dc06866.js",
   "assets/build/where-data.2815ed20f527.js",
   "./assets/logo-pixel.png",
   "./assets/logo-pixel-64.png",
@@ -26,18 +26,18 @@ const CORE = [
   "./favicon.ico",
   "./apps/catalog.json",
   "./apps/assistente/",
-  "./apps/assistente/index.html",
-  "./apps/assistente/config.js",
-  "./apps/assistente/app.css",
-  "./apps/assistente/api-client.js",
-  "./apps/assistente/history-store.js",
-  "./apps/assistente/offline-search.js",
-  "./apps/assistente/chat-controller.js",
-  "./apps/assistente/composer-controller.js",
-  "./apps/assistente/message-renderer.js",
-  "./apps/assistente/response-actions.js",
-  "./apps/assistente/app.js",
-  "./apps/assistente/offline-data.json",
+  "./apps/assistente/index.html?v=1.5.10",
+  "./apps/assistente/config.js?v=1.5.10",
+  "./apps/assistente/app.css?v=1.5.10",
+  "./apps/assistente/api-client.js?v=1.5.10",
+  "./apps/assistente/history-store.js?v=1.5.10",
+  "./apps/assistente/offline-search.js?v=1.5.10",
+  "./apps/assistente/chat-controller.js?v=1.5.10",
+  "./apps/assistente/composer-controller.js?v=1.5.10",
+  "./apps/assistente/message-renderer.js?v=1.5.10",
+  "./apps/assistente/response-actions.js?v=1.5.10",
+  "./apps/assistente/app.js?v=1.5.10",
+  "./apps/assistente/offline-data.json?v=1.5.10",
   "./sidebar/sidebar.css",
   "./sidebar/sidebar.js",
   "./sidebar/apps-registry.json",
@@ -63,8 +63,8 @@ const CORE = [
 
 const REQUIRED_CORE = new Set([
   "./", "./index.html", "./offline.html", "./document-viewer.html",
-  "assets/build/styles.2db73f6a5815.css", "assets/build/enhancements.254c728974fb.css", "assets/build/sidebar-quick-search.ea5032187b1e.css", "assets/build/design-system.afe11aadcef7.css",
-  "assets/build/data.74bf9e83114b.js", "assets/build/app.c64c73206414.js", "assets/build/storage.aade70adc118.js", "assets/build/design-system.ca3c813aa331.js", "assets/build/where-data.2815ed20f527.js",
+  "assets/build/styles.d01893596e84.css", "assets/build/enhancements.254c728974fb.css", "assets/build/sidebar-quick-search.ea5032187b1e.css", "assets/build/design-system.afe11aadcef7.css",
+  "assets/build/data.74bf9e83114b.js", "assets/build/app.22fea2b4fad1.js", "assets/build/storage.aade70adc118.js", "assets/build/design-system.3c0c1dc06866.js", "assets/build/where-data.2815ed20f527.js",
 ]);
 
 async function installCoreResources() {
