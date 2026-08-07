@@ -290,18 +290,34 @@ for module in required_modules:
     assert f'"./apps/assistente/{module}"' in sw, module
 assert '"./sidebar/sidebar.js"' in sw
 
-# Workflow usa exatamente o pipeline canônico e exige git diff vazio.
+# No one-click v2, build e testes acontecem no Fedora antes do push.
+# O GitHub Actions deve somente transportar o site já validado para o Pages.
 workflow = root / ".github" / "workflows" / "pages.yml"
 assert workflow.is_file()
 workflow_text = workflow.read_text(encoding="utf-8")
 for marker in (
-    "needs: build", "cancel-in-progress: true", "actions/deploy-pages@v5",
-    "timeout: 1200000", "scripts/build_and_validate_hub.py", "git diff --exit-code",
-    'PYTHONDONTWRITEBYTECODE: "1"',
-    "find . -type d -name __pycache__ -prune -exec rm -rf {} +",
-    "-name '*.pyc' -o -name '*.pyo'",
+    "cancel-in-progress: true",
+    "actions/checkout@v4",
+    "actions/configure-pages@v5",
+    "actions/upload-pages-artifact@v4",
+    "actions/deploy-pages@v5",
+    "path: .",
 ):
     assert marker in workflow_text, marker
+for forbidden in (
+    "needs: build",
+    "jobs:\n  build:",
+    "setup-python",
+    "setup-node",
+    "scripts/build_and_validate_hub.py",
+    "scripts/test_assistente_web.py",
+    "git diff --exit-code",
+    "PYTHONDONTWRITEBYTECODE",
+    "__pycache__",
+):
+    assert forbidden not in workflow_text, forbidden
+assert workflow_text.count("actions/deploy-pages@") == 1
+assert workflow_text.count("actions/upload-pages-artifact@") == 1
 
 for path in [*(app / name for name in required_modules), sidebar / "sidebar.js"]:
     subprocess.run(["node", "--check", str(path)], check=True)

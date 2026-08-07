@@ -1,8 +1,8 @@
 #!/usr/bin/env python3
-"""Instala um workflow único e determinístico para o GitHub Pages.
+"""Instala um workflow mínimo do GitHub Pages.
 
-Fluxos antigos de Pages são retirados de .github/workflows para impedir
-publicações concorrentes. O workflow de validação comum é preservado.
+O build e os testes acontecem no Fedora antes do commit. O Actions só transporta
+os arquivos já validados para o GitHub Pages: checkout -> upload -> deploy.
 """
 from __future__ import annotations
 
@@ -19,8 +19,7 @@ WORKFLOW = r'''name: Deploy HUB to GitHub Pages
 
 on:
   push:
-    branches:
-      - main
+    branches: [main]
   workflow_dispatch:
 
 permissions:
@@ -32,111 +31,48 @@ concurrency:
   group: github-pages
   cancel-in-progress: true
 
-# Python is used only as a build tool. Bytecode caches are not part of the
-# published site and must never make the deterministic tree dirty.
-env:
-  PYTHONDONTWRITEBYTECODE: "1"
-
 jobs:
-  build:
-    name: Build deterministic Pages artifact
+  deploy:
+    name: Deploy prebuilt site
     runs-on: ubuntu-latest
     timeout-minutes: 20
-    steps:
-      - name: Checkout
-        uses: actions/checkout@v4
-
-      - name: Set up Python
-        uses: actions/setup-python@v5
-        with:
-          python-version: "3.12"
-
-      - name: Set up Node
-        uses: actions/setup-node@v4
-        with:
-          node-version: "22"
-
-      - name: Configure GitHub Pages
-        uses: actions/configure-pages@v5
-
-      - name: Build and validate through the canonical pipeline
-        shell: bash
-        run: |
-          set -Eeuo pipefail
-          python3 scripts/build_and_validate_hub.py .
-          node --check service-worker.js
-          for file in apps/assistente/*.js sidebar/sidebar.js; do node --check "$file"; done
-          python3 scripts/test_assistente_web.py .
-
-      - name: Verify deterministic build
-        shell: bash
-        run: |
-          set -Eeuo pipefail
-          # Defensive cleanup for caches that may have been left by a third-party
-          # Python action/tool despite PYTHONDONTWRITEBYTECODE. They are never
-          # production assets and must not enter the Pages artifact.
-          find . -type d -name __pycache__ -prune -exec rm -rf {} +
-          find . -type f \( -name '*.pyc' -o -name '*.pyo' \) -delete
-          git diff --exit-code
-          STATUS="$(git status --porcelain=v1 --untracked-files=all)"
-          if [[ -n "$STATUS" ]]; then
-            printf '%s\n' "$STATUS"
-            echo "The production build generated uncommitted files." >&2
-            exit 1
-          fi
-
-      - name: Upload GitHub Pages artifact
-        uses: actions/upload-pages-artifact@v4
-        with:
-          path: .
-
-  deploy:
-    name: Deploy to GitHub Pages
-    needs: build
-    runs-on: ubuntu-latest
-    timeout-minutes: 30
     environment:
       name: github-pages
       url: ${{ steps.deployment.outputs.page_url }}
     steps:
+      - name: Checkout validated files
+        uses: actions/checkout@v4
+
+      - name: Configure Pages
+        uses: actions/configure-pages@v5
+
+      - name: Upload prebuilt site
+        uses: actions/upload-pages-artifact@v4
+        with:
+          path: .
+
       - name: Deploy to GitHub Pages
         id: deployment
         uses: actions/deploy-pages@v5
-        with:
-          timeout: 1200000
-          error_count: 30
-          reporting_interval: 10000
 '''
 
 
 def is_pages_workflow(text: str) -> bool:
     lowered = text.lower()
-    markers = (
+    return any(marker in lowered for marker in (
         "actions/deploy-pages@",
         "actions/upload-pages-artifact@",
         "actions/configure-pages@",
-        "environment:\n      name: github-pages",
-        "environment:\r\n      name: github-pages",
-    )
-    return any(marker in lowered for marker in markers)
-
-
-def unique_destination(name: str) -> Path:
-    DISABLED.mkdir(parents=True, exist_ok=True)
-    candidate = DISABLED / f"{name}.disabled-v1.5.8"
-    index = 2
-    while candidate.exists():
-        candidate = DISABLED / f"{name}.disabled-v1.5.8-{index}"
-        index += 1
-    return candidate
+        "name: github-pages",
+    ))
 
 
 def main() -> None:
     if not (ROOT / "VERSION").exists():
         raise SystemExit("Execute na raiz do HUB Arquivos IFBA.")
     WORKFLOWS.mkdir(parents=True, exist_ok=True)
+    DISABLED.mkdir(parents=True, exist_ok=True)
 
-    disabled: list[str] = []
     for path in sorted([*WORKFLOWS.glob("*.yml"), *WORKFLOWS.glob("*.yaml")]):
         if path == CANONICAL:
             continue
@@ -146,16 +82,13 @@ def main() -> None:
             continue
         if not is_pages_workflow(text):
             continue
-        destination = unique_destination(path.name)
+        destination = DISABLED / f"{path.name}.disabled-oneclick-v2"
+        if destination.exists():
+            destination.unlink()
         shutil.move(str(path), str(destination))
-        disabled.append(path.name)
 
     CANONICAL.write_text(WORKFLOW, encoding="utf-8")
-    print("Workflow canônico do GitHub Pages instalado: .github/workflows/pages.yml")
-    if disabled:
-        print("Workflows antigos de Pages desativados: " + ", ".join(disabled))
-    else:
-        print("Nenhum workflow duplicado de Pages permaneceu ativo.")
+    print("Workflow mínimo do Pages instalado: checkout -> upload -> deploy")
 
 
 if __name__ == "__main__":
