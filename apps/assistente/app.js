@@ -2,9 +2,10 @@
   'use strict';
 
   const CONFIG = window.HUB_ASSISTANT_CONFIG || {};
-  const FRONTEND_RELEASE = '1.5.20-inline-attachments-v2';
+  const FRONTEND_RELEASE = '1.6.3-ux-federated-stream-v1';
   const STORAGE_KEY = 'hubAssistantStateV1';
   const SETTINGS_KEY = 'hubAssistantSettingsV1';
+  const FAVORITES_KEY = 'hubAssistantFavoritesV1';
   const DB_NAME = 'hubAssistantHistoryV1';
   const DB_VERSION = 2;
   const DB_STORE = 'state';
@@ -15,10 +16,15 @@
     activeRequest: null,
     requestSerial: 0,
     settings: loadSettings(),
+    favorites: loadFavorites(),
+    popularQuestions: [],
     offlineCatalog: null,
     toastTimer: 0,
     renderLimit: 80,
-    messageFingerprints: new Map()
+    messageFingerprints: new Map(),
+    editingMessageId: '',
+    feedbackMenuMessageId: '',
+    offline: !navigator.onLine
   };
   const historyStore = {
     dbPromise: null,
@@ -164,6 +170,128 @@
     try { localStorage.setItem(SETTINGS_KEY, JSON.stringify(state.settings)); } catch {}
   }
 
+  function loadFavorites() {
+    try {
+      const items = JSON.parse(localStorage.getItem(FAVORITES_KEY) || '[]');
+      return Array.isArray(items) ? items.filter(Boolean).slice(0, 60) : [];
+    } catch { return []; }
+  }
+
+  function saveFavorites() {
+    try { localStorage.setItem(FAVORITES_KEY, JSON.stringify(state.favorites.slice(0, 60))); } catch {}
+  }
+
+  function isFavoriteMessage(message) {
+    return state.favorites.some(item => item.messageId === message.id || (item.serverId && item.serverId === message.serverId));
+  }
+
+  function favoriteFromMessage(message) {
+    const components = Array.isArray(message.components) ? message.components : [];
+    const documentCard = components.find(item => item?.type === 'document');
+    const actionCard = components.find(item => item?.type === 'hub-actions');
+    const source = (Array.isArray(message.sources) ? message.sources : [])[0] || null;
+    const prompt = priorUserText(message.id);
+    const summary = safeText(message.text).replace(/\s+/g, ' ').trim();
+    const title = documentCard?.title || actionCard?.title || summary.slice(0, 80) || 'Resposta salva';
+    return {
+      id: `fav-${message.serverId || message.id}` ,
+      messageId: message.id,
+      serverId: message.serverId || '',
+      kind: documentCard ? 'document' : actionCard ? 'tool' : 'answer',
+      title,
+      summary: documentCard?.heading || summary.slice(0, 180),
+      prompt,
+      url: documentCard?.url || source?.url || '',
+      createdAt: Date.now()
+    };
+  }
+
+  function toggleFavoriteMessage(messageId) {
+    const message = messageById(messageId);
+    if (!message) return;
+    const existingIndex = state.favorites.findIndex(item => item.messageId === message.id || (item.serverId && item.serverId === message.serverId));
+    if (existingIndex >= 0) {
+      state.favorites.splice(existingIndex, 1);
+      showToast('Removido dos favoritos');
+    } else {
+      state.favorites.unshift(favoriteFromMessage(message));
+      state.favorites = state.favorites.slice(0, 60);
+      showToast('Salvo em Meus favoritos');
+    }
+    saveFavorites();
+    render();
+  }
+
+  function renderFavoritesHome() {
+    const panel = $('favoritesPanel');
+    const list = $('favoritesList');
+    if (!panel || !list) return;
+    panel.hidden = false;
+    if (!state.favorites.length) {
+      list.innerHTML = '<div class="saved-empty">Você ainda não salvou nenhum favorito.</div>';
+      return;
+    }
+    list.innerHTML = state.favorites.slice(0, 8).map(item => `
+      <article class="saved-item">
+        <button type="button" data-favorite-prompt="${escapeHtml(item.prompt || '')}" data-favorite-message-id="${escapeHtml(item.messageId || '')}">
+          <strong>${escapeHtml(item.title || 'Favorito')}</strong>
+          <span>${escapeHtml(item.summary || 'Abrir item salvo')}</span>
+        </button>
+        ${item.url ? `<a href="${escapeHtml(safeExternalUrl(item.url) || item.url)}" target="_blank" rel="noopener noreferrer">Abrir</a>` : ''}
+      </article>`).join('');
+  }
+
+  function renderPopularQuestions() {
+    const panel = $('popularPanel');
+    const list = $('popularList');
+    if (!panel || !list) return;
+    panel.hidden = false;
+    if (!state.popularQuestions.length) {
+      list.innerHTML = '<div class="saved-empty">Ainda não há perguntas suficientes hoje.</div>';
+      return;
+    }
+    list.innerHTML = state.popularQuestions.slice(0, 8).map(item => `
+      <button type="button" class="saved-item popular-item" data-popular-prompt="${escapeHtml(item.subject || item.title || '')}">
+        <strong>${escapeHtml(item.subject || item.title || 'Assunto')}</strong>
+        <span>${escapeHtml((item.count || 0) + ' consulta(s) hoje')}</span>
+      </button>`).join('');
+  }
+
+  function renderPinnedAnswer() {
+    const container = $('pinnedAnswer');
+    if (!container) return;
+    const pinnedId = currentConversation().pinnedMessageId || '';
+    const message = pinnedId ? messageById(pinnedId) : null;
+    container.hidden = !message;
+    if (!message) { container.innerHTML = ''; return; }
+    const text = safeText(message.text).replace(/\s+/g, ' ').trim();
+    container.innerHTML = `<div class="pinned-answer-card"><span>📌 Resposta fixada</span><strong>${escapeHtml(text.slice(0, 180) || 'Resposta salva')}</strong><div class="pinned-answer-actions"><button type="button" data-scroll-message="${escapeHtml(message.id)}">Ir para a resposta</button><button type="button" data-pin-message="${escapeHtml(message.id)}">Desafixar</button></div></div>`;
+  }
+
+  async function loadPopularQuestions() {
+    if (!CONFIG.apiBaseUrl) return;
+    try {
+      const response = await fetch(apiUrl('/api/assistant/popular'), { cache:'no-store' });
+      const data = await response.json().catch(() => ({}));
+      state.popularQuestions = Array.isArray(data.items) ? data.items.slice(0, 8) : [];
+      renderPopularQuestions();
+    } catch { state.popularQuestions = []; renderPopularQuestions(); }
+  }
+
+  function togglePinMessage(messageId) {
+    const conversation = currentConversation();
+    conversation.pinnedMessageId = conversation.pinnedMessageId === messageId ? '' : messageId;
+    saveState({ immediate:true });
+    render();
+    showToast(conversation.pinnedMessageId ? 'Resposta fixada no topo da conversa' : 'Resposta desafixada');
+  }
+
+  async function sendCorrectionForMessage(messageId) {
+    const note = prompt('Informe a correção em poucas palavras:');
+    if (!note || !note.trim()) return;
+    await sendFeedback(messageId, 'not-helpful', `Correção sugerida: ${safeText(note).trim().slice(0, 280)}`);
+  }
+
   function normalizeOptions(options) {
     const source = Array.isArray(options) ? options : [];
     const normalized = source
@@ -199,6 +327,7 @@
       title: 'Assistente do HUB',
       createdAt: Number(value.createdAt || Date.now()),
       updatedAt: Number(value.updatedAt || Date.now()),
+      pinnedMessageId: String(value.pinnedMessageId || ''),
       messages: Array.isArray(value.messages)
         ? value.messages.slice(-Number(CONFIG.maxMessagesPerConversation || 250)).map(message => ({
             ...message,
@@ -333,14 +462,17 @@
       attachment: extras.attachment || null,
       error: Boolean(extras.error),
       feedback: String(extras.feedback || ''),
+      feedbackReason: String(extras.feedbackReason || ''),
       copied: Boolean(extras.copied),
+      streaming: Boolean(extras.streaming),
       components: Array.isArray(extras.components) ? extras.components : [],
       sources: Array.isArray(extras.sources) ? extras.sources : [],
       context: extras.context && typeof extras.context === 'object' ? extras.context : null,
       ambiguity: extras.ambiguity && typeof extras.ambiguity === 'object' ? extras.ambiguity : null,
       knowledge: extras.knowledge && typeof extras.knowledge === 'object' ? extras.knowledge : null,
       citation: extras.citation && typeof extras.citation === 'object' ? extras.citation : null,
-      presentation: extras.presentation && typeof extras.presentation === 'object' ? extras.presentation : null
+      presentation: extras.presentation && typeof extras.presentation === 'object' ? extras.presentation : null,
+      meta: extras.meta && typeof extras.meta === 'object' ? extras.meta : null
     };
     conversation.messages.push(message);
     conversation.messages = conversation.messages.slice(-Number(CONFIG.maxMessagesPerConversation || 250));
@@ -349,25 +481,54 @@
     return message;
   }
 
+  function toolbarIcon(name) {
+    const common = 'viewBox="0 0 24 24" aria-hidden="true" focusable="false"';
+    const paths = {
+      copy: '<rect x="4" y="4" width="10" height="10" rx="1.5"></rect><rect x="10" y="10" width="10" height="10" rx="1.5"></rect>',
+      retry: '<path d="M20 6v5h-5"></path><path d="M19 11a7 7 0 1 0 1.2 5.2"></path>',
+      star: '<path d="m12 3 2.8 5.7 6.2.9-4.5 4.4 1.1 6.2L12 17.3 6.4 20.2 7.5 14 3 9.6l6.2-.9L12 3Z"></path>',
+      pin: '<path d="M9 3h6l-.8 4 3.3 3.3-3.2 1.2-1.1 6.5-2.4-5.2-4.3-1.3 3.3-3.3L9 3Z"></path><path d="M7.5 19.5 11 16"></path>',
+      up: '<path d="M7 10v10H4V10h3Z"></path><path d="M7 18h9.2a2 2 0 0 0 1.9-1.4l1.6-5A2 2 0 0 0 17.8 9H14l.7-3.1A2.3 2.3 0 0 0 12.5 3L7 10v8Z"></path>',
+      down: '<path d="M7 14V4H4v10h3Z"></path><path d="M7 6h9.2a2 2 0 0 1 1.9 1.4l1.6 5a2 2 0 0 1-1.9 2.6H14l.7 3.1a2.3 2.3 0 0 1-2.2 2.9L7 14V6Z"></path>'
+    };
+    return `<svg ${common}>${paths[name] || ''}</svg>`;
+  }
+
   function assistantActions(message) {
     const feedbackLabel = message.copied
       ? 'Resposta copiada'
       : message.feedback === 'helpful'
-        ? 'Resposta salva como útil'
+        ? 'Marcada como útil'
         : message.feedback === 'not-helpful'
-          ? 'Problema registrado'
+          ? (message.feedbackReason || 'Problema registrado')
           : '';
     const copiedClass = message.copied ? 'selected copied' : '';
     const helpfulClass = message.feedback === 'helpful' ? 'selected helpful' : '';
     const negativeClass = message.feedback === 'not-helpful' ? 'selected negative' : '';
+    const favoriteClass = isFavoriteMessage(message) ? 'selected favorite' : '';
+    const pinnedClass = currentConversation().pinnedMessageId === message.id ? 'selected pinned' : '';
+    const feedbackMenu = state.feedbackMenuMessageId === message.id ? `
+      <div class="feedback-reasons" role="menu" aria-label="O que deu errado?">
+        <strong>O que deu errado?</strong>
+        ${[
+          ['wrong-information','Informação errada'],
+          ['misunderstood','Não entendeu a pergunta'],
+          ['wrong-source','Fonte errada'],
+          ['confusing','Resposta confusa']
+        ].map(([value,label]) => `<button type="button" role="menuitem" data-feedback-reason="${value}" data-message="${escapeHtml(message.id)}">${label}</button>`).join('')}
+        <button type="button" role="menuitem" data-correction-message="${escapeHtml(message.id)}">Informar correção</button>
+      </div>` : '';
     return `
       <div class="message-toolbar" aria-label="Ações da resposta">
-        <button type="button" data-copy-message="${escapeHtml(message.id)}" class="${copiedClass}" title="Copiar resposta" aria-label="Copiar resposta">${message.copied ? '✓' : '⧉'}</button>
-        <button type="button" data-feedback="helpful" data-message="${escapeHtml(message.id)}" class="${helpfulClass}" title="Gostei / salvar como útil" aria-label="Gostei / salvar como útil" aria-pressed="${message.feedback === 'helpful'}">${message.feedback === 'helpful' ? '♥' : '♡'}</button>
-        <button type="button" data-feedback="not-helpful" data-message="${escapeHtml(message.id)}" class="${negativeClass}" title="Não respondeu corretamente" aria-label="Não respondeu corretamente" aria-pressed="${message.feedback === 'not-helpful'}">!</button>
+        <button type="button" data-copy-message="${escapeHtml(message.id)}" class="${copiedClass}" title="Copiar resposta" aria-label="Copiar resposta">${toolbarIcon('copy')}</button>
+        <button type="button" data-regenerate-message="${escapeHtml(message.id)}" title="Gerar a resposta novamente" aria-label="Tentar novamente">${toolbarIcon('retry')}</button>
+        <button type="button" data-favorite-message="${escapeHtml(message.id)}" class="favorite ${favoriteClass}" title="Salvar em Meus favoritos" aria-label="Salvar em Meus favoritos" aria-pressed="${isFavoriteMessage(message)}">${toolbarIcon('star')}</button>
+        <button type="button" data-pin-message="${escapeHtml(message.id)}" class="pinned ${pinnedClass}" title="Fixar no topo desta conversa" aria-label="Fixar no topo desta conversa" aria-pressed="${currentConversation().pinnedMessageId === message.id}">${toolbarIcon('pin')}</button>
+        <button type="button" data-feedback="helpful" data-message="${escapeHtml(message.id)}" class="${helpfulClass}" title="Resposta útil" aria-label="Resposta útil" aria-pressed="${message.feedback === 'helpful'}">${toolbarIcon('up')}</button>
+        <button type="button" data-feedback="not-helpful" data-message="${escapeHtml(message.id)}" class="${negativeClass}" title="Há um problema nesta resposta" aria-label="Há um problema nesta resposta" aria-pressed="${message.feedback === 'not-helpful'}">${toolbarIcon('down')}</button>
         ${message.error ? `<button type="button" data-retry-message="${escapeHtml(message.id)}">Tentar novamente</button>` : ''}
         ${feedbackLabel ? `<span class="message-action-status">${escapeHtml(feedbackLabel)}</span>` : ''}
-      </div>`;
+      </div>${feedbackMenu}`;
   }
 
   function showToast(text) {
@@ -386,35 +547,104 @@
     } catch { return ''; }
   }
 
+  function actionHtml(action = {}) {
+    const label = escapeHtml(action.label || action.title || 'Abrir');
+    const icon = escapeHtml(action.icon || '↗');
+    if (action.kind === 'open-url' && action.url) {
+      const href = safeExternalUrl(action.url);
+      return href ? `<a class="hub-action-link" href="${escapeHtml(href)}" target="_blank" rel="noopener noreferrer">${icon} ${label}</a>` : '';
+    }
+    const value = action.value || action.message || '';
+    return value ? `<button type="button" data-option-value="${escapeHtml(value)}">${icon} ${label}</button>` : '';
+  }
+
   function renderComponents(message) {
-    const components = (Array.isArray(message.components) ? message.components : [])
-      .filter(component => component && component.type !== 'hub-actions');
+    const components = Array.isArray(message.components) ? message.components.filter(Boolean) : [];
     if (!components.length) return '';
     const rendered = components.map(component => {
       const type = escapeHtml(component.type || 'information');
-      if (component.type === 'sources') {
-        const items = Array.isArray(component.items) ? component.items : [];
-        const rows = items.map(item => {
+      if (component.type === 'hub-actions') {
+        const actions = (Array.isArray(component.actions) ? component.actions : []).map(actionHtml).filter(Boolean).join('');
+        return actions ? `<section class="structured-card hub-actions-card" data-component="${type}"><strong>${escapeHtml(component.title || 'Abrir no HUB')}</strong><div class="hub-action-grid">${actions}</div></section>` : '';
+      }
+      if (component.type === 'hub-results') {
+        const items = (Array.isArray(component.items) ? component.items : []).map(item => {
           const href = safeExternalUrl(item.url || '');
-          const body = `<span>📄 ${escapeHtml(item.title || 'Documento')}</span><small>${escapeHtml(item.label || `Página ${item.page || 1}`)}</small>${item.snippet ? `<em>${escapeHtml(item.snippet)}</em>` : ''}`;
-          return href ? `<div class="source-row"><a href="${escapeHtml(href)}" target="_blank" rel="noopener noreferrer">${body}</a></div>` : `<div class="source-row source-row-static">${body}</div>`;
-        }).join('');
-        return rows ? `<section class="structured-card sources-card" data-component="${type}"><strong>${escapeHtml(component.title || 'Fontes')}</strong>${rows}</section>` : '';
+          if (!href) return '';
+          return `<a class="hub-result-row" href="${escapeHtml(href)}" target="_blank" rel="noopener noreferrer"><span>${item.kind === 'app' ? '↗' : '🔗'} ${escapeHtml(item.title || 'Recurso')}</span>${item.summary ? `<small>${escapeHtml(item.summary)}</small>` : ''}</a>`;
+        }).filter(Boolean).join('');
+        return items ? `<section class="structured-card" data-component="${type}"><strong>${escapeHtml(component.title || 'Encontrado no HUB')}</strong>${items}</section>` : '';
       }
-      const rows = [];
-      if (component.email) rows.push(`<a href="mailto:${escapeHtml(component.email)}">✉ ${escapeHtml(component.email)}</a>`);
-      if (component.phone) rows.push(`<span>☎ ${escapeHtml(component.phone)}</span>`);
-      if (Array.isArray(component.subjects) && component.subjects.length) rows.push(`<span>Disciplinas: ${escapeHtml(component.subjects.join(', '))}</span>`);
-      if (Array.isArray(component.links)) {
-        for (const raw of component.links) {
-          const href = safeExternalUrl(raw);
-          if (href) rows.push(`<a href="${escapeHtml(href)}" target="_blank" rel="noopener noreferrer">Abrir link</a>`);
-        }
+      if (component.type === 'document') {
+        const href = safeExternalUrl(component.url || '');
+        return `<section class="structured-card document-card" data-component="${type}"><div class="document-card-body"><span class="document-card-label">Documento</span><strong class="document-card-title">${escapeHtml(component.title || 'Documento')}</strong>${component.heading ? `<span class="document-card-heading">${escapeHtml(component.heading)}</span>` : ''}${component.page ? `<small class="document-card-page">Página ${escapeHtml(component.page)}</small>` : ''}</div>${href ? `<a class="inline-open-button" href="${escapeHtml(href)}" target="_blank" rel="noopener noreferrer">Abrir PDF</a>` : ''}</section>`;
       }
-      const actions = Array.isArray(component.actions) ? component.actions.filter(action => action?.value && action.kind !== 'open-url' && action.kind !== 'hub-search' && action.kind !== 'locate-sector' && action.kind !== 'favorite-document') : [];
-      return `<section class="structured-card" data-component="${type}"><strong>${escapeHtml(component.title || 'Informação')}</strong>${rows.join('')}${actions.length ? `<div class="structured-actions">${actions.map(action => `<button type="button" data-option-value="${escapeHtml(action.value)}">${escapeHtml(action.label || 'Continuar')}</button>`).join('')}</div>` : ''}</section>`;
+      if (component.type === 'composite-summary' || component.type === 'summary') {
+        const rows = (Array.isArray(component.rows) ? component.rows : []).map(row => `<li>${escapeHtml(row)}</li>`).join('');
+        return `<section class="structured-card summary-card" data-component="${type}"><strong>${escapeHtml(component.title || 'Resumo')}</strong>${component.professor ? `<span><b>Professor:</b> ${escapeHtml(component.professor)}</span>` : ''}${component.room ? `<span><b>Sala:</b> ${escapeHtml(component.room)}</span>` : ''}${component.date ? `<span><b>Data:</b> ${escapeHtml(component.date)}</span>` : ''}${rows ? `<ul class="summary-list">${rows}</ul>` : ''}</section>`;
+      }
+      return '';
     }).filter(Boolean);
     return rendered.length ? `<div class="structured-components">${rendered.join('')}</div>` : '';
+  }
+
+  function pdfFileFromSource(source = {}) {
+    try {
+      const viewer = new URL(String(source.url || source.pdfUrl || ''), location.href);
+      if (!['http:', 'https:'].includes(viewer.protocol)) return '';
+      const fromViewer = viewer.searchParams.get('file');
+      const raw = fromViewer || source.pdfUrl || (viewer.pathname.toLowerCase().endsWith('.pdf') ? viewer.href : '');
+      if (!raw) return '';
+      const pdf = new URL(raw, location.href);
+      return ['http:', 'https:'].includes(pdf.protocol) && pdf.pathname.toLowerCase().endsWith('.pdf') ? pdf.href : '';
+    } catch { return ''; }
+  }
+
+  function sourceHref(source = {}) {
+    const raw = safeExternalUrl(source.url || source.pdfUrl || '');
+    if (!raw) return '';
+    const page = Number(source.page || 0);
+    if (!page) return raw;
+    try {
+      const url = new URL(raw, location.href);
+      if (url.pathname.toLowerCase().endsWith('.pdf') && !url.searchParams.has('page')) {
+        url.hash = `page=${page}`;
+        return url.href;
+      }
+      return url.href;
+    } catch { return raw; }
+  }
+
+  function renderSources(message) {
+    let sources = Array.isArray(message.sources) ? message.sources.filter(Boolean) : [];
+    if (!sources.length && message.knowledge?.source?.title) {
+      const source = message.knowledge.source;
+      sources = [{
+        title:source.title, page:Number(source.page || 1), url:source.url || '', pdfUrl:source.url || '',
+        verification:{ verified:Boolean(source.verified) }
+      }];
+    }
+    if (!sources.length) return '';
+    const rows = sources.slice(0, 3).map((source, index) => {
+      const href = sourceHref(source);
+      const label = `📄 ${escapeHtml(source.title || 'Documento')}${source.page ? ` · pág. ${escapeHtml(source.page)}` : ''}`;
+      const verification = source.verification?.verified ? '<small class="source-verified">Fonte verificada</small>' : '';
+      return href
+        ? `<a class="integrated-source" href="${escapeHtml(href)}" target="_blank" rel="noopener noreferrer"><span>${label}</span>${verification}</a>`
+        : `<span class="integrated-source"><span>${label}</span>${verification}</span>`;
+    }).join('');
+    const first = sources[0];
+    const sourceKind = message.citation?.verified ? 'Fonte usada na resposta' : 'Fonte relacionada';
+    const pdf = pdfFileFromSource(first);
+    const preview = pdf && first.page ? `<a class="pdf-page-preview" href="${escapeHtml(sourceHref(first) || pdf)}" target="_blank" rel="noopener noreferrer" aria-label="Abrir ${escapeHtml(first.title || 'documento')} na página ${escapeHtml(first.page)}"><iframe src="${escapeHtml(`${pdf}#page=${Number(first.page || 1)}&view=FitH&toolbar=0&navpanes=0`)}" loading="lazy" title="Prévia da página ${escapeHtml(first.page)}" tabindex="-1"></iframe><span>Prévia · página ${escapeHtml(first.page)}</span></a>` : '';
+    return `<section class="integrated-sources"><small class="source-section-label">${sourceKind}</small><div class="source-list">${rows}</div>${preview}</section>`;
+  }
+
+  function renderContext(message) {
+    const context = message.context;
+    if (!context?.usedPrior) return '';
+    const label = context.discipline || context.lastDiscipline || context.professor || context.lastProfessor || context.title || context.summary || '';
+    return label ? `<div class="context-chip">↳ sobre ${escapeHtml(label)}</div>` : '';
   }
 
   function renderAmbiguity(message) {
@@ -428,11 +658,13 @@
     const item = message.knowledge;
     if (!item) return '';
     const source = item.source || null;
-    const warning = message.citation && !message.citation.verified;
+    const warning = Boolean(item.warning) || (message.citation && !message.citation.verified);
     const rows = [];
     if (source?.title) rows.push(`<span><strong>Fonte:</strong> ${escapeHtml(source.title)}${source.page ? ` · página ${escapeHtml(source.page)}` : ''}</span>`);
     if (item.validity && item.validity !== 'não informada') rows.push(`<span><strong>Validade:</strong> ${escapeHtml(item.validity)}</span>`);
+    if (source?.status) rows.push(`<span><strong>Status da fonte:</strong> ${escapeHtml(source.status)}</span>`);
     if (item.lastReviewedAt) rows.push(`<span><strong>Revisado:</strong> ${escapeHtml(item.lastReviewedAt)}${item.responsible ? ` · ${escapeHtml(item.responsible)}` : ''}</span>`);
+    if (item.warning) rows.push(`<span class="freshness-warning">${escapeHtml(item.warning)}</span>`);
     if (item.conflictNotice) rows.push(`<span>${escapeHtml(item.conflictNotice)}</span>`);
     return rows.length ? `<section class="knowledge-meta ${warning ? 'knowledge-warning' : ''}">${rows.join('')}</section>` : '';
   }
@@ -459,15 +691,19 @@
 
   function messageFingerprint(message) {
     return JSON.stringify([
-      message.role, message.text, message.error, message.feedback, message.copied,
-      message.attachment, message.options, message.components, message.ambiguity,
-      message.knowledge, message.citation, message.presentation
+      message.role, message.text, message.error, message.feedback, message.feedbackReason, message.copied, message.streaming,
+      message.attachment, message.options, message.components, message.sources, message.context, message.ambiguity,
+      message.knowledge, message.citation, message.presentation, message.meta, state.editingMessageId, state.feedbackMenuMessageId,
+      currentConversation().pinnedMessageId, state.favorites.map(item => item.messageId || item.serverId || '').join('|')
     ]);
   }
 
   function messageHtml(message) {
     if (message.role === 'user') {
-      return `<article class="message-row user" data-message-id="${escapeHtml(message.id)}"><div class="message-content">${escapeHtml(message.text)}</div></article>`;
+      if (state.editingMessageId === message.id) {
+        return `<article class="message-row user editing" data-message-id="${escapeHtml(message.id)}"><div class="message-content user-edit-card"><textarea data-edit-input="${escapeHtml(message.id)}" maxlength="3000">${escapeHtml(message.text)}</textarea><div class="user-edit-actions"><button type="button" data-edit-cancel="${escapeHtml(message.id)}">Cancelar</button><button type="button" data-edit-save="${escapeHtml(message.id)}">Salvar e reenviar</button></div></div></article>`;
+      }
+      return `<article class="message-row user" data-message-id="${escapeHtml(message.id)}"><div class="message-content">${escapeHtml(message.text)}<div class="user-message-toolbar"><button type="button" data-edit-message="${escapeHtml(message.id)}" title="Editar pergunta" aria-label="Editar pergunta">✏ Editar</button></div></div></article>`;
     }
     const attachmentUrl = message.attachment ? safeExternalUrl(message.attachment.url) : '';
     const attachmentName = String(message.attachment?.fileName || message.attachment?.url || '');
@@ -485,7 +721,8 @@
     const options = message.options?.length
       ? `<div class="message-actions">${message.options.map(option => `<button type="button" class="${option.kind === 'exit' ? 'exit-option' : ''}" data-option-kind="${escapeHtml(option.kind)}" data-option-value="${escapeHtml(option.value)}">${escapeHtml(option.label)}</button>`).join('')}</div>`
       : '';
-    return `<article class="message-row assistant" data-message-id="${escapeHtml(message.id)}"><div class="assistant-avatar" aria-hidden="true">🤖</div><div class="message-content ${message.error ? 'error-card' : ''}">${attachment}${renderMessageBody(message)}${renderAmbiguity(message)}${renderComponents(message)}${renderKnowledge(message)}${options}${assistantActions(message)}</div></article>`;
+    const streamingClass = message.streaming ? ' streaming-message' : '';
+    return `<article class="message-row assistant${streamingClass}" data-message-id="${escapeHtml(message.id)}"><div class="assistant-avatar" aria-hidden="true">🤖</div><div class="message-content ${message.error ? 'error-card' : ''}">${attachment}${renderContext(message)}${renderMessageBody(message)}${message.streaming ? '<span class="stream-caret" aria-hidden="true"></span>' : ''}${renderAmbiguity(message)}${renderComponents(message)}${renderSources(message)}${renderKnowledge(message)}${options}${assistantActions(message)}</div></article>`;
   }
 
   function createNodeFromHtml(html) {
@@ -501,6 +738,9 @@
     const viewport = $('messageScroll');
     const keepBottom = isNearBottom(viewport);
     $('welcome').hidden = Boolean(conversation.messages.length);
+    renderFavoritesHome();
+    renderPopularQuestions();
+    renderPinnedAnswer();
 
     const visible = conversation.messages.slice(-state.renderLimit);
     const visibleIds = new Set(visible.map(message => message.id));
@@ -629,6 +869,9 @@
   }
 
   function setConnection(status, label) {
+    state.offline = status === 'offline';
+    const banner = $('offlineBanner');
+    if (banner) banner.hidden = !state.offline;
     const element = $('connectionState');
     if (!element) return;
     element.dataset.state = status;
@@ -657,6 +900,48 @@
     } finally { if (timer) clearTimeout(timer); }
   }
 
+  async function requestStream(path, payload, { signal, onEnvelope, onReplyStart, onDelta, onReplyEnd } = {}) {
+    if (!CONFIG.apiBaseUrl) throw new Error('A API do Assistente não está configurada nesta versão.');
+    const response = await fetch(apiUrl(path), {
+      method:'POST',
+      headers:{ 'content-type':'application/json', 'accept':'application/x-ndjson, application/json' },
+      body:JSON.stringify(payload),
+      signal
+    });
+    const contentType = String(response.headers.get('content-type') || '');
+    if (!response.ok) {
+      const errorPayload = /json/iu.test(contentType) ? await response.json().catch(() => ({})) : {};
+      throw new Error(errorPayload.error || `Erro HTTP ${response.status}`);
+    }
+    if (!/application\/x-ndjson/iu.test(contentType) || !response.body?.getReader) {
+      return { streamed:false, data:await response.json() };
+    }
+    const reader = response.body.getReader();
+    const decoder = new TextDecoder();
+    let buffer = '';
+    let envelope = null;
+    const consume = line => {
+      if (!line.trim()) return;
+      const event = JSON.parse(line);
+      if (event.type === 'envelope') { envelope = event.payload || {}; onEnvelope?.(envelope); }
+      else if (event.type === 'reply-start') onReplyStart?.(event.reply || {});
+      else if (event.type === 'reply-delta') onDelta?.(String(event.id || ''), String(event.delta || ''));
+      else if (event.type === 'reply-end') onReplyEnd?.(String(event.id || ''));
+    };
+    while (true) {
+      const { value, done } = await reader.read();
+      buffer += decoder.decode(value || new Uint8Array(), { stream:!done });
+      let newline = buffer.indexOf('\n');
+      while (newline >= 0) {
+        const line = buffer.slice(0, newline); buffer = buffer.slice(newline + 1); consume(line);
+        newline = buffer.indexOf('\n');
+      }
+      if (done) break;
+    }
+    if (buffer.trim()) consume(buffer);
+    return { streamed:true, data:envelope || {} };
+  }
+
   async function checkHealth() {
     if (!CONFIG.apiBaseUrl) {
       setConnection('offline', 'API não configurada');
@@ -674,7 +959,7 @@
       setConnection('online', 'Conectado');
       return true;
     } catch {
-      setConnection('offline', 'API indisponível');
+      setConnection('offline', 'Modo offline disponível');
       return false;
     } finally { clearTimeout(timer); }
   }
@@ -689,42 +974,62 @@
   }
 
   function normalizeOffline(value = '') {
-    return safeText(value).normalize('NFD').replace(/[\u0300-\u036f]/g, '').toLowerCase().replace(/[^a-z0-9]+/g, ' ').trim();
+    return safeText(value).normalize('NFD').replace(/[\u0300-\u036f]/g, '').toLowerCase()
+      .replace(/\btranacamento\b/g,'trancamento').replace(/\btrancamneto\b/g,'trancamento')
+      .replace(/\bmatricual\b/g,'matricula').replace(/\bmatriucula\b/g,'matricula')
+      .replace(/\bcauculo\b/g,'calculo').replace(/\bcrecencio\b/g,'crescencio')
+      .replace(/\bcaledario\b/g,'calendario').replace(/\bfluxogama\b/g,'fluxograma')
+      .replace(/[^a-z0-9]+/g, ' ').trim();
   }
 
-  function findOfflineItem(text) {
+  function findOfflineItems(text, limit = 3) {
     const catalog = state.offlineCatalog;
-    if (!catalog) return null;
+    if (!catalog) return [];
     const query = normalizeOffline(text);
-    const terms = query.split(' ').filter(term => term.length > 2);
-    let best = null;
-    for (const item of catalog.items || []) {
-      const hay = normalizeOffline([item.title,item.summary,item.category,...(item.tags||[])].join(' '));
-      let score = terms.reduce((sum, term) => sum + (hay.includes(term) ? 2 : 0), 0);
-      if (query && hay.includes(query)) score += 8;
-      if (score && (!best || score > best.score)) best = { item, score };
-    }
-    return best?.item || null;
+    const terms = query.split(' ').filter(term => term.length > 2 && !['quero','manda','abre','mostra','qual','como','onde','para'].includes(term));
+    return (catalog.items || []).map(item => {
+      const snippetText = (item.snippets || []).map(chunk => `${chunk.heading || ''} ${chunk.text || ''}`).join(' ');
+      const hay = normalizeOffline([item.title,item.summary,item.category,...(item.tags||[]),snippetText].join(' '));
+      let score = terms.reduce((sum, term) => sum + (hay.includes(term) ? 3 : 0), 0);
+      if (query && hay.includes(query)) score += 10;
+      if (normalizeOffline(item.title).split(' ').some(term => terms.includes(term))) score += 2;
+      return { ...item, score };
+    }).filter(item => item.score > 0).sort((a,b) => b.score - a.score).slice(0, limit);
+  }
+
+  function bestOfflineSnippet(item, text) {
+    const queryTerms = normalizeOffline(text).split(' ').filter(term => term.length > 2);
+    return (item?.snippets || []).map(chunk => {
+      const hay = normalizeOffline(`${chunk.heading || ''} ${chunk.text || ''}`);
+      const score = queryTerms.reduce((sum, term) => sum + (hay.includes(term) ? 1 : 0), 0);
+      return { ...chunk, score };
+    }).sort((a,b) => b.score - a.score)[0] || null;
   }
 
   function offlineAnswer(text) {
     const updated = state.offlineCatalog?.updatedAt || '';
-    const item = findOfflineItem(text);
-    if (!item) return null;
-    const sourceLabel = item.kind === 'document' && item.page ? `\n\nFonte relacionada: ${item.title}, página ${item.page}.` : '';
+    const items = findOfflineItems(text, 3);
+    if (!items.length) {
+      return {
+        text:`Estou offline. Não encontrei esse assunto no catálogo local, mas ainda posso abrir documentos, apps e links que já estão armazenados no HUB.${updated ? `\n\nCatálogo local atualizado em ${updated}.` : ''}`,
+        components:[], knowledge:null, presentation:null
+      };
+    }
+    const first = items[0];
+    const snippet = first.kind === 'document' ? bestOfflineSnippet(first, text) : null;
+    const page = Number(snippet?.page || first.page || 0);
+    const pageUrl = first.url && page ? `${String(first.url).split('#')[0]}#page=${page}` : first.url;
+    const components = [{ type:'hub-results', title:'Disponível offline no HUB', items:items.map(item => ({ title:item.title, summary:item.summary, url:item.url, kind:item.kind })) }];
+    if (first.kind === 'document') components.unshift({ type:'document', title:first.title, page, url:pageUrl, heading:snippet?.heading || first.summary || '' });
+    const excerpt = snippet?.text ? `\n\n${safeText(snippet.text).slice(0, 900)}` : (first.summary ? `\n\n${first.summary}` : '');
     return {
-      text: `Modo offline — algumas informações podem não estar atualizadas.\n\n${item.summary || item.description || `Encontrei “${item.title}” nos dados locais do HUB.`}${sourceLabel}${updated ? `\n\nDados locais atualizados em ${updated}.` : ''}`,
-      components: [],
-      knowledge: item.knowledge || null,
-      presentation: { progressive: false, summary: item.summary || item.description || item.title, details: '', source: sourceLabel.trim(), defaultExpanded: false }
+      text:`Estou offline, mas encontrei *${first.title}* no catálogo local do HUB.${excerpt}${page ? `\n\nTrecho local: página ${page}.` : ''}${updated ? `\n\nDados locais atualizados em ${updated}.` : ''}`,
+      components, knowledge:first.knowledge || null, presentation:null
     };
   }
 
   function openOrSendAction(value) {
     const raw = String(value || '').trim();
-    // Valores de menu como "1", "2", "primeira" ou "Cálculo I" são
-    // respostas ao Assistente, não URLs relativas. Só abra ações que sejam
-    // explicitamente links externos/mailto.
     if (!/^(?:https?:\/\/|mailto:)/i.test(raw)) return false;
     const href = safeExternalUrl(raw);
     if (!href) return false;
@@ -732,66 +1037,107 @@
     return true;
   }
 
+  function applyEnvelopeToLastMessage(data, streamedMessages = []) {
+    const last = streamedMessages.at(-1);
+    if (!last) return;
+    last.options = normalizeOptions(data.options || data.suggestions || []);
+    last.components = Array.isArray(data.components) ? data.components : [];
+    last.sources = Array.isArray(data.sources) ? data.sources : [];
+    last.context = data.context && typeof data.context === 'object' ? data.context : null;
+    last.ambiguity = data.ambiguity && typeof data.ambiguity === 'object' ? data.ambiguity : null;
+    last.knowledge = data.knowledge && typeof data.knowledge === 'object' ? data.knowledge : null;
+    last.citation = data.citation && typeof data.citation === 'object' ? data.citation : null;
+    last.meta = data.meta && typeof data.meta === 'object' ? data.meta : null;
+  }
 
-  async function send(text) {
+  function appendJsonResponse(data) {
+    const replies = Array.isArray(data.replies) ? data.replies : [];
+    if (!replies.length) {
+      addMessage('assistant', 'Não encontrei uma resposta para essa mensagem. Tente reformular em uma frase curta.', { error:true });
+      return [];
+    }
+    return replies.map((reply, index) => addMessage('assistant', reply.text, {
+      serverId:reply.id,
+      attachment:reply.attachment,
+      options:index === replies.length - 1 ? (data.options || data.suggestions || []) : [],
+      components:index === replies.length - 1 ? (data.components || []) : [],
+      sources:index === replies.length - 1 ? (data.sources || []) : [],
+      context:index === replies.length - 1 ? data.context : null,
+      ambiguity:index === replies.length - 1 ? data.ambiguity : null,
+      knowledge:index === replies.length - 1 ? data.knowledge : null,
+      citation:index === replies.length - 1 ? data.citation : null,
+      presentation:reply.presentation || (index === replies.length - 1 ? data.presentation : null),
+      meta:index === replies.length - 1 ? data.meta : null
+    }));
+  }
+
+  async function send(text, { appendUser = true } = {}) {
     text = safeText(text).trim();
     if (!text) return;
     if (state.activeRequest) abortMessageRequest('superseded');
     const active = beginMessageRequest();
-    addMessage('user', text);
+    if (appendUser) addMessage('user', text);
     const input = $('messageInput');
     if (input) input.value = '';
-    persistDraft('', { immediate: true });
+    persistDraft('', { immediate:true });
     resizeInput();
     renderMessages();
+    const streamedMessages = [];
     try {
       const conversation = currentConversation();
-      const data = await request(CONFIG.messagePath || '/api/assistant/message', {
-        sessionId: conversation.sessionId,
-        message: text,
-        senderName: state.settings.senderName
-      }, { signal: active.controller.signal });
+      const result = await requestStream(CONFIG.messagePath || '/api/assistant/message', {
+        sessionId:conversation.sessionId,
+        message:text,
+        senderName:state.settings.senderName
+      }, {
+        signal:active.controller.signal,
+        onEnvelope:data => { if (data.sessionId) conversation.sessionId = data.sessionId; },
+        onReplyStart:reply => {
+          if (state.activeRequest?.id !== active.id) return;
+          hideTyping();
+          const message = addMessage('assistant', '', {
+            serverId:reply.id, attachment:reply.attachment, presentation:reply.presentation, streaming:true
+          });
+          streamedMessages.push(message);
+          renderMessages();
+        },
+        onDelta:(serverId, delta) => {
+          if (state.activeRequest?.id !== active.id) return;
+          const message = streamedMessages.find(item => item.serverId === serverId) || streamedMessages.at(-1);
+          if (!message) return;
+          message.text += delta;
+          renderMessages();
+        },
+        onReplyEnd:serverId => {
+          const message = streamedMessages.find(item => item.serverId === serverId) || streamedMessages.at(-1);
+          if (message) message.streaming = false;
+          renderMessages();
+        }
+      });
       if (state.activeRequest?.id !== active.id) return;
+      const data = result.data || {};
       if (data.sessionId) conversation.sessionId = data.sessionId;
-      const replies = Array.isArray(data.replies) ? data.replies : [];
-      if (!replies.length) {
-        addMessage('assistant', 'Não encontrei uma resposta para essa mensagem. Tente reformular em uma frase curta.', { error: true });
-      } else {
-        replies.forEach((reply, index) => addMessage('assistant', reply.text, {
-          serverId: reply.id,
-          attachment: reply.attachment,
-          options: index === replies.length - 1 ? (data.options || data.suggestions || []) : [],
-          components: index === replies.length - 1 ? (data.components || []).filter(component => component?.type !== 'hub-actions') : [],
-          sources: index === replies.length - 1 ? (data.sources || []) : [],
-          context: null,
-          ambiguity: index === replies.length - 1 ? data.ambiguity : null,
-          knowledge: index === replies.length - 1 ? data.knowledge : null,
-          citation: index === replies.length - 1 ? data.citation : null,
-          presentation: reply.presentation || (index === replies.length - 1 ? data.presentation : null)
-        }));
-      }
+      if (result.streamed) {
+        if (!streamedMessages.length) appendJsonResponse(data);
+        else applyEnvelopeToLastMessage(data, streamedMessages);
+      } else appendJsonResponse(data);
       setConnection('online', 'Conectado');
     } catch (error) {
       if (state.activeRequest?.id !== active.id) return;
       const reason = active.reason || (error.name === 'AbortError' ? 'aborted' : 'error');
-      if (reason === 'superseded' || reason === 'reset' || reason === 'unload') return;
+      if (reason === 'superseded' || reason === 'reset' || reason === 'unload' || reason === 'user-stop') return;
+      for (const message of streamedMessages) message.streaming = false;
       const offline = offlineAnswer(text);
-      if (offline) addMessage('assistant', offline.text, { components: [], knowledge: offline.knowledge, presentation: offline.presentation, error: false });
-      else {
-        const message = reason === 'timeout' || error.name === 'AbortError'
-          ? 'A resposta demorou demais. Verifique a conexão e tente novamente.'
-          : `Não foi possível falar com o assistente. ${error.message}`;
-        addMessage('assistant', message, { error: true });
-      }
-      setConnection('offline', offline ? 'Modo offline' : 'API indisponível');
+      addMessage('assistant', offline.text, { components:offline.components, knowledge:offline.knowledge, presentation:offline.presentation, error:false });
+      setConnection('offline', 'Modo offline');
     } finally {
-      if (finishMessageRequest(active.id)) {
-        saveState({ immediate: true });
+      for (const message of streamedMessages) message.streaming = false;
+      const finishedHere = finishMessageRequest(active.id);
+      if (finishedHere || streamedMessages.length) {
+        saveState({ immediate:true });
         renderMessages();
-        if (matchMedia('(pointer: fine)').matches && document.activeElement !== $('messageInput')) {
-          $('messageInput')?.focus({ preventScroll: true });
-        }
       }
+      if (finishedHere && matchMedia('(pointer: fine)').matches && document.activeElement !== $('messageInput')) $('messageInput')?.focus({ preventScroll:true });
     }
   }
 
@@ -811,6 +1157,8 @@
     try { await request(CONFIG.resetPath || '/api/assistant/reset', { sessionId: previous.sessionId }, 8000); } catch {}
     state.conversation = freshConversation();
     state.renderLimit = 80;
+    state.editingMessageId = '';
+    state.feedbackMenuMessageId = '';
     state.messageFingerprints.clear();
     await clearSavedState();
     render();
@@ -855,26 +1203,106 @@
     }
   }
 
-  async function sendFeedback(messageId, value) {
+  const FEEDBACK_REASONS = Object.freeze({
+    'wrong-information':'Informação errada',
+    'misunderstood':'Não entendeu a pergunta',
+    'wrong-source':'Fonte errada',
+    'confusing':'Resposta confusa'
+  });
+
+  async function sendFeedback(messageId, value, reason = '') {
     const message = messageById(messageId);
     if (!message) return;
-    const nextValue = message.feedback === value ? '' : value;
+    const reasonLabel = reason ? (FEEDBACK_REASONS[reason] || safeText(reason).slice(0, 120)) : '';
+    const nextValue = message.feedback === value && (!reason || message.feedbackReason === reasonLabel) ? '' : value;
     message.feedback = nextValue;
+    message.feedbackReason = nextValue === 'not-helpful' ? reasonLabel : '';
+    state.feedbackMenuMessageId = '';
     saveState();
     renderMessages();
-    showToast(nextValue === 'helpful' ? 'Salvo como útil' : nextValue === 'not-helpful' ? 'Problema registrado' : 'Feedback removido');
+    showToast(nextValue === 'helpful' ? 'Salvo como útil' : nextValue === 'not-helpful' ? `${reasonLabel || 'Problema'} registrado` : 'Feedback removido');
     if (!nextValue) return;
     try {
       await request(CONFIG.feedbackPath || '/api/assistant/feedback', {
         sessionId: currentConversation().sessionId,
         messageId: message.serverId || message.id,
-        value: nextValue
+        value: nextValue,
+        comment: reasonLabel
       }, 8000);
     } catch {
       showToast('Feedback salvo neste dispositivo');
     }
   }
 
+  function toggleNegativeFeedbackMenu(messageId) {
+    if (!messageById(messageId)) return;
+    state.feedbackMenuMessageId = state.feedbackMenuMessageId === messageId ? '' : messageId;
+    renderMessages();
+  }
+
+  function startEditMessage(messageId) {
+    const message = messageById(messageId);
+    if (!message || message.role !== 'user' || state.sending) return;
+    state.editingMessageId = messageId;
+    state.feedbackMenuMessageId = '';
+    renderMessages();
+    requestAnimationFrame(() => {
+      const editor = document.querySelector(`[data-edit-input="${CSS.escape(messageId)}"]`);
+      editor?.focus();
+      if (editor) editor.setSelectionRange(editor.value.length, editor.value.length);
+    });
+  }
+
+  function cancelEditMessage() {
+    state.editingMessageId = '';
+    renderMessages();
+  }
+
+  async function clearRemoteContext() {
+    try {
+      await request('/api/assistant/context/clear', { sessionId:currentConversation().sessionId }, 6000);
+    } catch {}
+  }
+
+  async function saveEditedMessage(messageId) {
+    if (state.sending) return;
+    const editor = document.querySelector(`[data-edit-input="${CSS.escape(messageId)}"]`);
+    const text = safeText(editor?.value).trim();
+    if (!text) { showToast('A pergunta não pode ficar vazia.'); return; }
+    const conversation = currentConversation();
+    const index = conversation.messages.findIndex(message => message.id === messageId && message.role === 'user');
+    if (index < 0) return;
+    abortMessageRequest('superseded');
+    conversation.messages.splice(index);
+    conversation.updatedAt = Date.now();
+    state.editingMessageId = '';
+    state.feedbackMenuMessageId = '';
+    await saveState({ immediate:true });
+    renderMessages();
+    await clearRemoteContext();
+    await send(text, { appendUser:true });
+  }
+
+  async function regenerateMessage(messageId) {
+    if (state.sending) return;
+    const conversation = currentConversation();
+    const assistantIndex = conversation.messages.findIndex(message => message.id === messageId && message.role === 'assistant');
+    if (assistantIndex < 0) return;
+    let userIndex = -1;
+    for (let cursor = assistantIndex - 1; cursor >= 0; cursor -= 1) {
+      if (conversation.messages[cursor].role === 'user') { userIndex = cursor; break; }
+    }
+    if (userIndex < 0) return;
+    const text = safeText(conversation.messages[userIndex].text).trim();
+    if (!text) return;
+    conversation.messages.splice(userIndex + 1);
+    conversation.updatedAt = Date.now();
+    state.feedbackMenuMessageId = '';
+    await saveState({ immediate:true });
+    renderMessages();
+    await clearRemoteContext();
+    await send(text, { appendUser:false });
+  }
 
 
   function stopCurrentResponse() {
@@ -900,15 +1328,33 @@
         send(event.currentTarget.value);
       }
     });
-    $('promptGrid').addEventListener('click', event => {
+    $('welcome')?.addEventListener('click', event => {
       const button = event.target.closest('[data-prompt]');
-      if (button) send(button.dataset.prompt);
+      const favorite = event.target.closest('[data-favorite-prompt]');
+      const popular = event.target.closest('[data-popular-prompt]');
+      if (button && !state.sending) send(button.dataset.prompt);
+      else if (favorite && !state.sending) {
+        if (favorite.dataset.favoriteMessageId) {
+          const node = document.querySelector(`[data-message-id="${CSS.escape(favorite.dataset.favoriteMessageId)}"]`);
+          if (node) node.scrollIntoView({ behavior:'smooth', block:'center' });
+          else if (favorite.dataset.favoritePrompt) send(favorite.dataset.favoritePrompt);
+        } else if (favorite.dataset.favoritePrompt) send(favorite.dataset.favoritePrompt);
+      } else if (popular && !state.sending) send(popular.dataset.popularPrompt);
     });
     $('messages').addEventListener('click', event => {
       const option = event.target.closest('[data-option-value]');
       const copy = event.target.closest('[data-copy-message]');
       const feedback = event.target.closest('[data-feedback]');
+      const feedbackReason = event.target.closest('[data-feedback-reason]');
+      const regenerate = event.target.closest('[data-regenerate-message]');
+      const favorite = event.target.closest('[data-favorite-message]');
+      const pin = event.target.closest('[data-pin-message]');
+      const correction = event.target.closest('[data-correction-message]');
+      const scrollMessage = event.target.closest('[data-scroll-message]');
       const retry = event.target.closest('[data-retry-message]');
+      const edit = event.target.closest('[data-edit-message]');
+      const editSave = event.target.closest('[data-edit-save]');
+      const editCancel = event.target.closest('[data-edit-cancel]');
       const loadEarlier = event.target.closest('[data-load-earlier]');
       if (loadEarlier) {
         const viewport = $('messageScroll');
@@ -919,11 +1365,27 @@
       } else if (option) {
         if (!state.sending && !openOrSendAction(option.dataset.optionValue)) send(option.dataset.optionValue);
       } else if (copy) copyMessage(copy.dataset.copyMessage);
+      else if (feedbackReason) sendFeedback(feedbackReason.dataset.message, 'not-helpful', feedbackReason.dataset.feedbackReason);
+      else if (correction) sendCorrectionForMessage(correction.dataset.correctionMessage);
+      else if (favorite) toggleFavoriteMessage(favorite.dataset.favoriteMessage);
+      else if (pin) togglePinMessage(pin.dataset.pinMessage);
+      else if (scrollMessage) { document.querySelector(`[data-message-id="${CSS.escape(scrollMessage.dataset.scrollMessage)}"]`)?.scrollIntoView({ behavior:'smooth', block:'center' }); }
+      else if (feedback?.dataset.feedback === 'not-helpful') toggleNegativeFeedbackMenu(feedback.dataset.message);
       else if (feedback) sendFeedback(feedback.dataset.message, feedback.dataset.feedback);
+      else if (regenerate) regenerateMessage(regenerate.dataset.regenerateMessage);
+      else if (edit) startEditMessage(edit.dataset.editMessage);
+      else if (editSave) saveEditedMessage(editSave.dataset.editSave);
+      else if (editCancel) cancelEditMessage();
       else if (retry) {
         const text = priorUserText(retry.dataset.retryMessage);
         if (text) send(text);
       }
+    });
+    $('messages').addEventListener('keydown', event => {
+      const editor = event.target.closest?.('[data-edit-input]');
+      if (!editor) return;
+      if (event.key === 'Escape') { event.preventDefault(); cancelEditMessage(); }
+      else if (event.key === 'Enter' && !event.shiftKey) { event.preventDefault(); saveEditedMessage(editor.dataset.editInput); }
     });
     $('clearConversation').addEventListener('click', () => {
       if (state.sending) return;
@@ -1009,6 +1471,7 @@
     bindViewport();
     bind();
     const [, , draft] = await Promise.all([loadState(), loadOfflineCatalog(), loadDraft()]);
+    loadPopularQuestions();
     const input = $('messageInput');
     if (input && draft) input.value = String(draft).slice(0, 3000);
     ensureComposerAttached();

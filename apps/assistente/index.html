@@ -13,7 +13,7 @@
   </script>
   <link rel="stylesheet" href="../../styles.css">
   <link rel="stylesheet" href="../../css/sidebar-quick-search.css">
-  <link rel="stylesheet" href="app.css?v=1.5.20">
+  <link rel="stylesheet" href="app.css?v=1.6.3">
   <link rel="stylesheet" href="../../sidebar/sidebar.css" />
 </head>
 <body>
@@ -31,18 +31,33 @@
       </header>
 
       <section class="chat-viewport" id="messageScroll" aria-label="Conversa" aria-live="polite" aria-busy="false">
+        <div class="offline-banner" id="offlineBanner" role="status" hidden>📴 Você está offline. Ainda consigo consultar documentos, apps e links armazenados localmente no HUB.</div>
+        <div class="pinned-answer" id="pinnedAnswer" hidden></div>
         <div class="welcome" id="welcome">
           <div class="assistant-avatar welcome-avatar" aria-hidden="true">🤖</div>
           <span class="eyebrow">Assistente acadêmico do HUB</span>
           <h1>Como posso ajudar?</h1>
-          <p>Consulte salas, horários, professores, setores, regulamentos e serviços do IFBA em forma de conversa.</p>
-          <div class="prompt-grid" id="promptGrid">
-            <button type="button" data-prompt="Qual é o contato da biblioteca?"><strong>📚 Biblioteca</strong><span>Contato e serviços</span></button>
-            <button type="button" data-prompt="Onde é a aula de Algoritmos?"><strong>🚪 Salas</strong><span>Disciplinas e horários</span></button>
-            <button type="button" data-prompt="Quem são os professores do 3º semestre?"><strong>👨‍🏫 Professores</strong><span>Período atual</span></button>
-            <button type="button" data-prompt="Como funciona a média final?"><strong>🧮 Média final</strong><span>Regras e cálculo</span></button>
+          <p>Pergunte normalmente ou use um dos atalhos para navegar pelo HUB.</p>
+          <div class="prompt-grid prompt-grid-primary" id="promptGrid">
+            <button type="button" data-prompt="Me mostre o calendário acadêmico"><strong>📅 Calendário</strong><span>Datas e prazos</span></button>
+            <button type="button" data-prompt="Quero consultar salas e horários"><strong>🏫 Salas e horários</strong><span>Aulas e locais</span></button>
+            <button type="button" data-prompt="Me mostre os documentos do HUB"><strong>📚 Documentos</strong><span>PPC, normas e PDFs</span></button>
+            <button type="button" data-prompt="Abra o barema"><strong>🎓 Barema</strong><span>Atividades complementares</span></button>
+            <button type="button" data-prompt="Quanto preciso tirar na final?"><strong>🧮 Notas e final</strong><span>Cálculo e regras</span></button>
+            <button type="button" data-prompt="Quais auxílios estão disponíveis para estudantes?"><strong>💰 Auxílios</strong><span>Assistência estudantil</span></button>
           </div>
-          <p class="disclaimer">As respostas usam regras e dados cadastrados. Para decisões acadêmicas, confirme sempre nas fontes oficiais.</p>
+          <div class="welcome-secondary-grid">
+            <section class="welcome-panel" id="favoritesPanel"><div class="welcome-panel-head"><strong>⭐ Meus favoritos</strong><small>Respostas, documentos e atalhos salvos neste dispositivo.</small></div><div class="saved-list" id="favoritesList"></div></section>
+            <section class="welcome-panel" id="popularPanel"><div class="welcome-panel-head"><strong>🔥 Mais perguntadas hoje</strong><small>Assuntos mais consultados, sem identificar usuários.</small></div><div class="saved-list" id="popularList"></div></section>
+          </div>
+          <div class="welcome-examples" aria-label="Exemplos de perguntas">
+            <span>Experimente:</span>
+            <button type="button" data-prompt="qual sala de cálculo amanhã">“qual sala de cálculo amanhã”</button>
+            <button type="button" data-prompt="me manda o PPC">“me manda o PPC”</button>
+            <button type="button" data-prompt="quando é o trancamento?">“quando é o trancamento?”</button>
+            <button type="button" data-prompt="quem dá aula de LPII?">“quem dá aula de LPII?”</button>
+          </div>
+          <p class="disclaimer">As respostas usam regras e dados cadastrados. Quando houver fonte documental, você poderá abrir exatamente a página citada.</p>
         </div>
         <div class="messages" id="messages"></div>
       </section>
@@ -70,7 +85,7 @@
   <script src="../../js/design-system.js"></script>
     <script src="../../sidebar/sidebar.js"></script>
 <script src="../../js/sidebar-quick-search.js"></script>
-  <script src="config.js?v=1.5.20"></script>
-  <script src="app.js?v=1.5.20"></script>
+  <script src="config.js?v=1.6.3"></script>
+  <script src="app.js?v=1.6.3"></script>
 </body>
 </html>

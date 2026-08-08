@@ -50,10 +50,10 @@ assert "🤖" in html and "🧭" not in html
 
 # O caminho que funcionava na v1.4.4 deve permanecer direto e observável.
 for marker in (
-    'async function send(text)',
+    'async function send(text, { appendUser = true } = {})',
     'const active = beginMessageRequest()',
     "if (state.activeRequest) abortMessageRequest('superseded')",
-    "const data = await request(CONFIG.messagePath || '/api/assistant/message'",
+    "const result = await requestStream(CONFIG.messagePath || '/api/assistant/message'",
     'if (state.activeRequest?.id !== active.id) return',
     'finishMessageRequest(active.id)',
     'function showTyping()',
@@ -78,14 +78,34 @@ assert "indexedDB.open(DB_NAME, DB_VERSION)" in app_js
 assert 'loadDraft()' in app_js and 'persistDraft(' in app_js
 assert 'loadOfflineCatalog()' in app_js and 'offlineAnswer(text)' in app_js
 assert 'renderComponents(message)' in app_js and 'renderKnowledge(message)' in app_js
-assert "message.feedback === 'helpful' ? '♥' : '♡'" in app_js
-assert '.message-toolbar button.helpful' in css
+assert "toolbarIcon('up')" in app_js and "toolbarIcon('down')" in app_js
+assert 'data-feedback="helpful"' in app_js and 'data-feedback="not-helpful"' in app_js
+assert 'data-feedback[^>]*>👍' not in app_js and 'data-feedback[^>]*>👎' not in app_js
+assert '.message-toolbar button.helpful.selected' in css
+assert '.message-toolbar button.negative.selected' in css
 assert 'interactive-widget=resizes-content' in html
 assert '--assistant-viewport-top' not in css
 assert "visualViewport?.addEventListener('scroll'" in app_js
 assert 'const visibleBottom = visualHeight > 0 ? visualHeight + visualTop : layoutHeight' in app_js
 assert 'mailto:${email}' in app_js
 assert 'HUBMAIL' in app_js
+
+# v1.6.0 — UX integrada: streaming, edição/regeneração, fontes, cards, contexto e offline.
+for identifier in ("offlineBanner", "promptGrid"):
+    assert f'id="{identifier}"' in html, identifier
+for label in ("📅 Calendário", "🏫 Salas e horários", "📚 Documentos", "🎓 Barema", "🧮 Notas e final", "💰 Auxílios"):
+    assert label in html, label
+for marker in (
+    "application/x-ndjson", "requestStream(", "reply-delta", "stream-caret",
+    "data-edit-message", "data-regenerate-message", "data-feedback-reason",
+    "Informação errada", "Não entendeu a pergunta", "Fonte errada", "Resposta confusa",
+    "renderSources(message)", "pdf-page-preview", "integrated-source", "context-chip",
+    "hub-actions", "hub-results", "schedule-mini-table", "bestOfflineSnippet",
+    "Modo offline disponível", f"FRONTEND_RELEASE = '{APP_VERSION}-ux-federated-stream-v1'",
+):
+    assert marker in app_js or marker in css, marker
+for marker in ("feedback-reasons", "visual-card", "integrated-sources", "pdf-page-preview", "offline-banner"):
+    assert f'.{marker}' in css, marker
 
 # Sidebar canônica única em todo o HUB.
 sidebar = root / "sidebar"
@@ -140,6 +160,7 @@ assert all("onde resolvo" not in f"{item.get('id','')} {item.get('title','')} {i
 # Offline vem somente do catálogo central gerado.
 offline = json.loads((app / "offline-data.json").read_text(encoding="utf-8"))
 assert offline.get("sourcePolicy") == "central-records-only"
+assert int(offline.get("schemaVersion") or 0) >= 3
 assert offline.get("version") == APP_VERSION
 assert "generatedAt" not in offline
 assert all(item.get("source") in {"hub-data", "document-metadata"} for item in offline.get("items", []))

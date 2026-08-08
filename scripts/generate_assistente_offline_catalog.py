@@ -72,6 +72,28 @@ def main() -> None:
             value = item_from_entry(entry, "link", index)
             if value: items.append(value)
 
+    search_index = load_json(ROOT / "documents" / "search-index.json", {})
+    indexed_documents = search_index if isinstance(search_index, list) else (search_index.get("documents") or [])
+    chunks_by_id: dict[str, list[dict[str, Any]]] = {}
+    chunks_by_title: dict[str, list[dict[str, Any]]] = {}
+    for indexed in indexed_documents:
+        if not isinstance(indexed, dict): continue
+        compact_chunks = []
+        for chunk in (indexed.get("chunks") or [])[:10]:
+            if not isinstance(chunk, dict): continue
+            text = compact(chunk.get("text"), 700)
+            if not text: continue
+            compact_chunks.append({
+                "page": int(re.search(r"\d+", str(chunk.get("page") or "1")).group(0)) if re.search(r"\d+", str(chunk.get("page") or "1")) else 1,
+                "heading": compact(chunk.get("heading"), 160),
+                "text": text,
+            })
+        if compact_chunks:
+            doc_id = compact(indexed.get("id"), 120).casefold()
+            title_key = compact(indexed.get("title"), 180).casefold()
+            if doc_id: chunks_by_id[doc_id] = compact_chunks
+            if title_key: chunks_by_title[title_key] = compact_chunks
+
     metadata = load_json(ROOT / "documents" / "document-metadata.json", {})
     for index, document in enumerate(metadata.get("documents") or []):
         if not isinstance(document, dict): continue
@@ -80,8 +102,10 @@ def main() -> None:
         path = str(document.get("path") or "").lstrip("./")
         summary_parts = [document.get("documentType"), document.get("campus"), document.get("course")]
         summary = " · ".join(compact(part, 100) for part in summary_parts if part)
+        document_id = compact(document.get("id") or f"document-{index}", 120)
+        offline_chunks = chunks_by_id.get(document_id.casefold()) or chunks_by_title.get(title.casefold()) or []
         items.append({
-            "id": compact(document.get("id") or f"document-{index}", 120),
+            "id": document_id,
             "kind": "document",
             "title": title,
             "summary": summary or "Documento indexado no HUB.",
@@ -92,6 +116,7 @@ def main() -> None:
             "status": document.get("status") or "unknown",
             "citationPolicy": document.get("citationPolicy") or "related-only",
             "updatedAt": document.get("lastReviewedAt") or document.get("publishedAt"),
+            "snippets": offline_chunks,
         })
 
     # Deduplicação estável por id/url/título, preservando a ordem da fonte central.
@@ -108,7 +133,7 @@ def main() -> None:
     reviewed_iso = max(reviewed_dates, default="2026-08-06")
     year, month, day = reviewed_iso.split("-") if reviewed_iso.count("-") == 2 else ("2026", "08", "06")
     payload = {
-        "schemaVersion": 2,
+        "schemaVersion": 3,
         "version": APP_VERSION,
         "updatedAt": f"{day}/{month}/{year}",
         "sourcePolicy": "central-records-only",

@@ -15,10 +15,10 @@ for (const obsolete of ['api-client.js','history-store.js','offline-search.js','
   assert.equal(html.includes(obsolete), false, `HTML ainda carrega módulo regressivo: ${obsolete}`);
 }
 for (const marker of [
-  'async function send(text)',
+  'async function send(text, { appendUser = true } = {})',
   'const active = beginMessageRequest()',
   "if (state.activeRequest) abortMessageRequest('superseded')",
-  "const data = await request(CONFIG.messagePath || '/api/assistant/message'",
+  "const result = await requestStream(CONFIG.messagePath || '/api/assistant/message'",
   'if (state.activeRequest?.id !== active.id) return',
   'finishMessageRequest(active.id)',
   'function showTyping()',
@@ -31,8 +31,13 @@ assert.ok(html.includes(`app.js?v=${appVersion}`));
 assert.ok(html.includes('interactive-widget=resizes-content'));
 assert.ok(app.includes('mailto:${email}'));
 assert.ok(app.includes('visualViewport?.addEventListener(\'scroll\''));
+for (const marker of [
+  'application/x-ndjson', 'data-edit-message', 'data-regenerate-message', 'data-feedback-reason',
+  'function renderSources(message)', 'function sourceHref(source = {})', 'pdf-page-preview', 'context-chip',
+  'bestOfflineSnippet', 'function regenerateMessage(messageId)', 'function saveEditedMessage(messageId)'
+]) assert.ok(app.includes(marker), `contrato UX 1.6.0 ausente: ${marker}`);
 
 assert.ok(app.includes('if (!/^(?:https?:\\/\\/|mailto:)/i.test(raw)) return false'), 'opções numéricas não podem virar URL relativa');
 assert.ok(app.includes('attachmentIsImage'), 'preview inline de imagem ausente');
 assert.ok(app.includes('class="attachment-preview"'), 'markup de preview inline ausente');
-console.log('Frontend monolítico restaurado da v1.4.4: contrato de envio e interrupção aprovado.');
+console.log('Frontend Assistente 1.6.0: contrato de envio, streaming, edição, fontes e interrupção aprovado.');
