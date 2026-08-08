@@ -2,7 +2,7 @@
   'use strict';
 
   const CONFIG = window.HUB_ASSISTANT_CONFIG || {};
-  const FRONTEND_RELEASE = '1.6.8-ux-federated-stream-v1';
+  const FRONTEND_RELEASE = '1.6.10-ux-federated-stream-v1';
   const STORAGE_KEY = 'hubAssistantStateV1';
   const SETTINGS_KEY = 'hubAssistantSettingsV1';
   const FAVORITES_KEY = 'hubAssistantFavoritesV1';
@@ -432,10 +432,22 @@
   }
 
   function renderInline(text) {
-    let value = escapeHtml(text);
+    // URLs precisam ser protegidas ANTES do parser de ênfase. Caso contrário,
+    // underscores em nomes reais de arquivos (ex.: calendario_2026.pdf) são
+    // interpretados como <em> e o endereço exibido/destino fica corrompido.
+    const urlLinks = [];
+    let rawValue = safeText(text).replace(/https?:\/\/[^\s<]+/g, raw => {
+      const clean = raw.replace(/[),.;!?]+$/, '');
+      const suffix = raw.slice(clean.length);
+      const token = `HUBURLTOKEN${urlLinks.length}END`;
+      urlLinks.push(clean);
+      return `${token}${suffix}`;
+    });
+
+    let value = escapeHtml(rawValue);
     const emailLinks = [];
     value = value.replace(/\b[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}\b/gi, email => {
-      const token = `\u0000HUBMAIL${emailLinks.length}\u0000`;
+      const token = `HUBMAILTOKEN${emailLinks.length}END`;
       emailLinks.push(`<a href="mailto:${email}">${email}</a>`);
       return token;
     });
@@ -443,12 +455,13 @@
       .replace(/\*([^*\n]+)\*/g, '<strong>$1</strong>')
       .replace(/_([^_\n]+)_/g, '<em>$1</em>')
       .replace(/`([^`\n]+)`/g, '<code>$1</code>');
-    value = value.replace(/(https?:\/\/[^\s<]+)/g, raw => {
-      const clean = raw.replace(/[),.;!?]+$/, '');
-      const suffix = raw.slice(clean.length);
-      return `<a href="${clean}" target="_blank" rel="noopener noreferrer">${clean}</a>${suffix}`;
+    value = value.replace(/HUBURLTOKEN(\d+)END/g, (_, index) => {
+      const url = urlLinks[Number(index)] || '';
+      if (!url) return '';
+      const escaped = escapeHtml(url);
+      return `<a href="${escaped}" target="_blank" rel="noopener noreferrer">${escaped}</a>`;
     });
-    value = value.replace(/\u0000HUBMAIL(\d+)\u0000/g, (_, index) => emailLinks[Number(index)] || '');
+    value = value.replace(/HUBMAILTOKEN(\d+)END/g, (_, index) => emailLinks[Number(index)] || '');
     return value;
   }
 

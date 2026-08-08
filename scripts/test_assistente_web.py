@@ -90,6 +90,12 @@ assert "visualViewport?.addEventListener('scroll'" in app_js
 assert 'const visibleBottom = visualHeight > 0 ? visualHeight + visualTop : layoutHeight' in app_js
 assert 'mailto:${email}' in app_js
 assert 'HUBMAIL' in app_js
+assert 'HUBURLTOKEN' in app_js
+url_protection_marker = 'let rawValue = safeText(text).replace(/https?:'
+underscore_emphasis_marker = r".replace(/_([^_\n]+)_/g"
+assert url_protection_marker in app_js, 'proteção de URLs ausente no parser inline'
+assert underscore_emphasis_marker in app_js, 'regra de ênfase por underscore ausente no parser inline'
+assert app_js.index(url_protection_marker) < app_js.index(underscore_emphasis_marker), 'URLs devem ser protegidas antes da ênfase por underscore'
 assert "if (!raw) return '';" in app_js, 'URL vazia não pode virar a própria página do Assistente'
 assert 'function isAssistantSelfUrl' in app_js
 assert 'function uniqueSources' in app_js
@@ -341,7 +347,7 @@ for path in [*(app / name for name in required_modules), sidebar / "sidebar.js"]
 subprocess.run(["node", str(scripts / "test_frontend_modules.js"), str(root)], check=True)
 print(f"Assistente web v{APP_VERSION} / HUB v{HUB_VERSION} instalado: OK")
 
-# v1.6.8 — métricas públicas não podem ser contaminadas pelo dispositivo de teste.
+# v1.6.10 — métricas públicas não podem ser contaminadas pelo dispositivo de teste.
 assert 'id="testModeToggle"' in html
 for marker in ('telemetryMode', 'toggleTestMode()', '60_000', "apiUrl('/api/assistant/popular')"):
     assert marker in app_js, marker
