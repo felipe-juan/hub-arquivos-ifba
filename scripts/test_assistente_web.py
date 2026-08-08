@@ -83,6 +83,7 @@ assert 'data-feedback="helpful"' in app_js and 'data-feedback="not-helpful"' in 
 assert 'data-feedback[^>]*>👍' not in app_js and 'data-feedback[^>]*>👎' not in app_js
 assert '.message-toolbar button.helpful.selected' in css
 assert '.message-toolbar button.negative.selected' in css
+assert "message.feedback = 'not-helpful'" in app_js and "state.feedbackMenuMessageId = opening ? messageId : ''" in app_js
 assert 'interactive-widget=resizes-content' in html
 assert '--assistant-viewport-top' not in css
 assert "visualViewport?.addEventListener('scroll'" in app_js
@@ -334,3 +335,9 @@ for path in [*(app / name for name in required_modules), sidebar / "sidebar.js"]
     subprocess.run(["node", "--check", str(path)], check=True)
 subprocess.run(["node", str(scripts / "test_frontend_modules.js"), str(root)], check=True)
 print(f"Assistente web v{APP_VERSION} / HUB v{HUB_VERSION} instalado: OK")
+
+# v1.6.5 — métricas públicas não podem ser contaminadas pelo dispositivo de teste.
+assert 'id="testModeToggle"' in html
+for marker in ('telemetryMode', 'toggleTestMode()', '60_000', "apiUrl('/api/assistant/popular')"):
+    assert marker in app_js, marker
+assert '.test-mode-toggle.selected' in css

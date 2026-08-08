@@ -2,7 +2,7 @@
   'use strict';
 
   const CONFIG = window.HUB_ASSISTANT_CONFIG || {};
-  const FRONTEND_RELEASE = '1.6.3-ux-federated-stream-v1';
+  const FRONTEND_RELEASE = '1.6.5-ux-federated-stream-v1';
   const STORAGE_KEY = 'hubAssistantStateV1';
   const SETTINGS_KEY = 'hubAssistantSettingsV1';
   const FAVORITES_KEY = 'hubAssistantFavoritesV1';
@@ -156,18 +156,43 @@
   }
 
   function defaultSettings() {
-    return { senderName: 'Estudante' };
+    return { senderName: 'Estudante', testMode:false };
   }
 
   function loadSettings() {
     try {
       const stored = JSON.parse(localStorage.getItem(SETTINGS_KEY) || '{}');
-      return { ...defaultSettings(), senderName: String(stored.senderName || 'Estudante').slice(0, 80) };
+      return { ...defaultSettings(), senderName: String(stored.senderName || 'Estudante').slice(0, 80), testMode:Boolean(stored.testMode) };
     } catch { return defaultSettings(); }
   }
 
   function saveSettings() {
     try { localStorage.setItem(SETTINGS_KEY, JSON.stringify(state.settings)); } catch {}
+  }
+
+  function syncTestModeUi() {
+    const button = $('testModeToggle');
+    if (!button) return;
+    const active = Boolean(state.settings.testMode);
+    button.classList.toggle('selected', active);
+    button.setAttribute('aria-pressed', String(active));
+    button.setAttribute('aria-label', active ? 'Desativar modo de teste neste dispositivo' : 'Ativar modo de teste neste dispositivo');
+    button.title = active
+      ? 'Modo de teste ativo: suas mensagens não entram nas estatísticas públicas'
+      : 'Modo de teste: não contabilizar as mensagens deste dispositivo';
+  }
+
+  function toggleTestMode() {
+    state.settings.testMode = !state.settings.testMode;
+    saveSettings();
+    syncTestModeUi();
+    showToast(state.settings.testMode
+      ? 'Modo de teste ativado: suas mensagens não serão contabilizadas'
+      : 'Modo de teste desativado: suas próximas perguntas voltarão a ser contabilizadas');
+  }
+
+  function telemetryPayload(payload = {}) {
+    return state.settings.testMode ? { ...payload, telemetryMode:'test' } : payload;
   }
 
   function loadFavorites() {
@@ -789,6 +814,7 @@
 
   function render() {
     ensureComposerAttached();
+    syncTestModeUi();
     renderMessages();
     syncSendingUi();
     ensureComposerAttached();
@@ -891,7 +917,7 @@
       const response = await fetch(apiUrl(path), {
         method: 'POST',
         headers: { 'content-type': 'application/json' },
-        body: JSON.stringify(payload),
+        body: JSON.stringify(telemetryPayload(payload)),
         signal
       });
       const data = await response.json().catch(() => ({}));
@@ -905,7 +931,7 @@
     const response = await fetch(apiUrl(path), {
       method:'POST',
       headers:{ 'content-type':'application/json', 'accept':'application/x-ndjson, application/json' },
-      body:JSON.stringify(payload),
+      body:JSON.stringify(telemetryPayload(payload)),
       signal
     });
     const contentType = String(response.headers.get('content-type') || '');
@@ -1235,8 +1261,17 @@
   }
 
   function toggleNegativeFeedbackMenu(messageId) {
-    if (!messageById(messageId)) return;
-    state.feedbackMenuMessageId = state.feedbackMenuMessageId === messageId ? '' : messageId;
+    const message = messageById(messageId);
+    if (!message) return;
+    const opening = state.feedbackMenuMessageId !== messageId;
+    if (opening && message.feedback !== 'not-helpful') {
+      // O primeiro clique no thumbs down já representa a seleção visual.
+      // O motivo é um refinamento opcional e pode ser escolhido em seguida.
+      message.feedback = 'not-helpful';
+      message.feedbackReason = '';
+      saveState();
+    }
+    state.feedbackMenuMessageId = opening ? messageId : '';
     renderMessages();
   }
 
@@ -1387,6 +1422,7 @@
       if (event.key === 'Escape') { event.preventDefault(); cancelEditMessage(); }
       else if (event.key === 'Enter' && !event.shiftKey) { event.preventDefault(); saveEditedMessage(editor.dataset.editInput); }
     });
+    $('testModeToggle')?.addEventListener('click', toggleTestMode);
     $('clearConversation').addEventListener('click', () => {
       if (state.sending) return;
       if (confirm('Limpar a conversa e começar novamente?')) resetCurrent();
@@ -1472,6 +1508,9 @@
     bind();
     const [, , draft] = await Promise.all([loadState(), loadOfflineCatalog(), loadDraft()]);
     loadPopularQuestions();
+    if (!state.popularRefreshTimer) {
+      state.popularRefreshTimer = setInterval(() => { if (!document.hidden) loadPopularQuestions(); }, 60_000);
+    }
     const input = $('messageInput');
     if (input && draft) input.value = String(draft).slice(0, 3000);
     ensureComposerAttached();

@@ -9,7 +9,7 @@ O projeto deve ser tratado como uma ferramenta experimental de apoio. Para decis
 
 ## Versão atual
 
-**v0.2.84**
+**v0.2.86**
 
 Esta versão mantém as correções de avanço/recuo do joystick do DOOM e retorna a câmera mobile ao gesto de arrastar. Movimentos curtos recebem ganho adicional, eventos touch agrupados são aproveitados para maior suavidade e a sensibilidade continua ajustável sem interferir no joystick.
 

@@ -13,7 +13,7 @@
   </script>
   <link rel="stylesheet" href="../../styles.css">
   <link rel="stylesheet" href="../../css/sidebar-quick-search.css">
-  <link rel="stylesheet" href="app.css?v=1.6.3">
+  <link rel="stylesheet" href="app.css?v=1.6.5">
   <link rel="stylesheet" href="../../sidebar/sidebar.css" />
 </head>
 <body>
@@ -26,6 +26,9 @@
           <span class="connection-state" id="connectionState" data-state="checking"><i aria-hidden="true"></i> Verificando conexão</span>
         </div>
         <div class="assistant-header-actions">
+          <button class="assistant-icon-button test-mode-toggle" id="testModeToggle" type="button" aria-label="Ativar modo de teste neste dispositivo" title="Modo de teste neste dispositivo" aria-pressed="false">
+            <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M9 3h6"></path><path d="M10 3v5l-5 9a2 2 0 0 0 1.7 3h10.6a2 2 0 0 0 1.7-3l-5-9V3"></path><path d="M8 14h8"></path></svg>
+          </button>
           <button class="assistant-icon-button" id="clearConversation" type="button" aria-label="Limpar conversa" title="Limpar conversa">⌫</button>
         </div>
       </header>
@@ -85,7 +88,7 @@
   <script src="../../js/design-system.js"></script>
     <script src="../../sidebar/sidebar.js"></script>
 <script src="../../js/sidebar-quick-search.js"></script>
-  <script src="config.js?v=1.6.3"></script>
-  <script src="app.js?v=1.6.3"></script>
+  <script src="config.js?v=1.6.5"></script>
+  <script src="app.js?v=1.6.5"></script>
 </body>
 </html>
