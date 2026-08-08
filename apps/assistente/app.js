@@ -2,7 +2,7 @@
   'use strict';
 
   const CONFIG = window.HUB_ASSISTANT_CONFIG || {};
-  const FRONTEND_RELEASE = '1.6.5-ux-federated-stream-v1';
+  const FRONTEND_RELEASE = '1.6.6-ux-federated-stream-v1';
   const STORAGE_KEY = 'hubAssistantStateV1';
   const SETTINGS_KEY = 'hubAssistantSettingsV1';
   const FAVORITES_KEY = 'hubAssistantFavoritesV1';

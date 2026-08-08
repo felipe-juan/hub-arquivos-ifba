@@ -136,17 +136,17 @@ button:focus-visible, a:focus-visible, textarea:focus-visible, input:focus-visib
   border-radius: 17px;
   display: grid;
   align-content: center;
-  justify-items: start;
-  gap: .24rem;
+  justify-items: center;
+  gap: .3rem;
   background: linear-gradient(180deg, var(--surface), color-mix(in srgb, var(--surface) 86%, var(--bg)));
   color: var(--text);
-  text-align: left;
+  text-align: center;
   box-shadow: none;
 }
 .prompt-grid button:hover { transform: translateY(-1px); border-color: color-mix(in srgb, var(--cyan) 38%, var(--line)); background: linear-gradient(180deg, color-mix(in srgb, var(--cyan) 8%, var(--surface)), var(--surface)); }
 .prompt-grid button:disabled { opacity: .55; cursor: not-allowed; transform: none; }
-.prompt-grid strong { color: var(--ink); font-size: .88rem; }
-.prompt-grid span { color: var(--muted); font-size: .74rem; font-weight: 650; }
+.prompt-grid strong { width: 100%; color: var(--ink); font-size: .88rem; text-align: center; line-height: 1.3; }
+.prompt-grid span { width: 100%; color: var(--muted); font-size: .74rem; font-weight: 650; text-align: center; line-height: 1.35; }
 .welcome .disclaimer { margin-top: 1rem; font-size: .69rem; }
 
 .messages { width: 100%; min-height: 0; padding: .7rem 0 1.1rem; overflow-anchor: none; }
@@ -467,7 +467,7 @@ body.assistant-compact-height .composer-area { min-height: 58px; padding-top: .4
 .document-card-page { color: var(--muted); font-size: .72rem; }
 @media (max-width: 620px) { .saved-item { flex-direction: column; } }
 
-/* v1.6.5 — ações discretas em outline e painéis iniciais alinhados. */
+/* v1.6.6 — ações discretas em outline e painéis iniciais alinhados. */
 .message-toolbar button svg {
   width: 19px;
   height: 19px;
@@ -528,7 +528,7 @@ body.assistant-compact-height .composer-area { min-height: 58px; padding-top: .4
 @media (max-width: 620px) { .document-card { align-items: flex-start; } .document-card .inline-open-button { margin-top: .2rem; } }
 
 
-/* v1.6.5 — modo de teste local sem contaminar métricas públicas. */
+/* v1.6.6 — modo de teste local sem contaminar métricas públicas. */
 .test-mode-toggle svg { width: 19px; height: 19px; fill: none; stroke: currentColor; stroke-width: 1.7; stroke-linecap: round; stroke-linejoin: round; }
 .test-mode-toggle.selected { color: var(--amber); border-color: color-mix(in srgb, var(--amber) 55%, var(--line)); background: color-mix(in srgb, var(--amber) 13%, var(--surface-2)); }
 .test-mode-toggle.selected svg { fill: color-mix(in srgb, var(--amber) 18%, transparent); }

@@ -336,7 +336,7 @@ for path in [*(app / name for name in required_modules), sidebar / "sidebar.js"]
 subprocess.run(["node", str(scripts / "test_frontend_modules.js"), str(root)], check=True)
 print(f"Assistente web v{APP_VERSION} / HUB v{HUB_VERSION} instalado: OK")
 
-# v1.6.5 — métricas públicas não podem ser contaminadas pelo dispositivo de teste.
+# v1.6.6 — métricas públicas não podem ser contaminadas pelo dispositivo de teste.
 assert 'id="testModeToggle"' in html
 for marker in ('telemetryMode', 'toggleTestMode()', '60_000', "apiUrl('/api/assistant/popular')"):
     assert marker in app_js, marker

@@ -1,8 +1,8 @@
 {
-  "version": "0.2.86",
+  "version": "0.2.87",
   "generatedBy": "scripts/build_production_assets.py",
   "files": {
-    "app.js": "assets/build/app.59db98b4dedb.js",
+    "app.js": "assets/build/app.72d03c8bde0c.js",
     "apps/barema/data/barema-data.js": "apps/build/barema-data.33efba1c5da4.js",
     "apps/calendario/data/calendar-data.js": "apps/build/calendar-data.84ae485c16ae.js",
     "apps/doom/doom.css": "apps/build/doom.62c68b1a02c4.css",
@@ -16,7 +16,7 @@
     "js/enhancements.js": "assets/build/enhancements.9aaad1d9bf82.js",
     "js/experience.js": "assets/build/experience.63cf70eebb8d.js",
     "js/pdf-runtime.js": "assets/build/pdf-runtime.cf990fb0fd4a.js",
-    "js/performance-monitor.js": "assets/build/performance-monitor.7fadf0b0ec6d.js",
+    "js/performance-monitor.js": "assets/build/performance-monitor.e1f75f89867b.js",
     "js/search-engine.js": "assets/build/search-engine.0e4132201f8a.js",
     "js/search-worker.js": "assets/build/search-worker.3f5310d8ee0c.js",
     "js/sidebar-quick-search.js": "assets/build/sidebar-quick-search.f0e1ed1ead1c.js",
