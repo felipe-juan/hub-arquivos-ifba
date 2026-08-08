@@ -351,7 +351,7 @@ body.assistant-compact-height .composer-area { min-height: 58px; padding-top: .4
   .composer-area { min-height: 58px; padding-bottom: max(.45rem, env(safe-area-inset-bottom)); }
 }
 
-/* v1.5.19 — anexos de imagem voltam a acompanhar a resposta, como no bot WhatsApp. */
+/* v1.5.20 — anexos de imagem voltam a acompanhar a resposta, como no bot WhatsApp. */
 .attachment-preview { margin: 0 0 .85rem; max-width: min(100%, 720px); }
 .attachment-preview a { display: block; width: fit-content; max-width: 100%; border-radius: 14px; overflow: hidden; border: 1px solid var(--line); background: var(--surface-2); }
 .attachment-preview img { display: block; max-width: 100%; width: auto; height: auto; max-height: min(68vh, 760px); object-fit: contain; }

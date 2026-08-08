@@ -2,6 +2,7 @@
   'use strict';
 
   const CONFIG = window.HUB_ASSISTANT_CONFIG || {};
+  const FRONTEND_RELEASE = '1.5.20-inline-attachments-v2';
   const STORAGE_KEY = 'hubAssistantStateV1';
   const SETTINGS_KEY = 'hubAssistantSettingsV1';
   const DB_NAME = 'hubAssistantHistoryV1';
@@ -469,7 +470,13 @@
       return `<article class="message-row user" data-message-id="${escapeHtml(message.id)}"><div class="message-content">${escapeHtml(message.text)}</div></article>`;
     }
     const attachmentUrl = message.attachment ? safeExternalUrl(message.attachment.url) : '';
-    const attachmentIsImage = Boolean(message.attachment && (message.attachment.kind === 'image' || message.attachment.kind === 'gif' || /^image\//i.test(message.attachment.mime || '')));
+    const attachmentName = String(message.attachment?.fileName || message.attachment?.url || '');
+    const attachmentIsImage = Boolean(message.attachment && (
+      message.attachment.kind === 'image' ||
+      message.attachment.kind === 'gif' ||
+      /^image\//i.test(message.attachment.mime || '') ||
+      /\.(?:png|jpe?g|gif|webp|svg)(?:[?#].*)?$/i.test(attachmentName)
+    ));
     const attachment = message.attachment && attachmentUrl
       ? (attachmentIsImage
           ? `<figure class="attachment-preview"><a href="${escapeHtml(attachmentUrl)}" target="_blank" rel="noopener noreferrer"><img src="${escapeHtml(attachmentUrl)}" alt="${escapeHtml(message.attachment.fileName || 'Imagem anexada à resposta')}" loading="eager"></a></figure>`

@@ -1,4 +1,4 @@
-# Assistente do HUB v1.5.19
+# Assistente do HUB v1.5.20
 
 Frontend restaurado sobre o fluxo monolítico comprovadamente funcional da v1.4.4.
 
