@@ -1,4 +1,4 @@
-# Assistente do HUB v1.6.6
+# Assistente do HUB v1.6.7
 
 Frontend web do Assistente do HUB, mantido em `config.js` + `app.js` para preservar um único estado do chat e evitar regressões de concorrência entre controladores.
 

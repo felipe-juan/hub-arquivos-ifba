@@ -2,7 +2,7 @@
   'use strict';
 
   const CONFIG = window.HUB_ASSISTANT_CONFIG || {};
-  const FRONTEND_RELEASE = '1.6.6-ux-federated-stream-v1';
+  const FRONTEND_RELEASE = '1.6.7-ux-federated-stream-v1';
   const STORAGE_KEY = 'hubAssistantStateV1';
   const SETTINGS_KEY = 'hubAssistantSettingsV1';
   const FAVORITES_KEY = 'hubAssistantFavoritesV1';
@@ -566,10 +566,22 @@
   }
 
   function safeExternalUrl(value = '') {
+    const raw = String(value || '').trim();
+    if (!raw) return '';
     try {
-      const url = new URL(String(value || ''), location.href);
+      const url = new URL(raw, location.href);
       return ['http:', 'https:', 'mailto:'].includes(url.protocol) ? url.href : '';
     } catch { return ''; }
+  }
+
+  function isAssistantSelfUrl(value = '') {
+    const href = safeExternalUrl(value);
+    if (!href) return false;
+    try {
+      const current = new URL(location.href);
+      const candidate = new URL(href);
+      return candidate.origin === current.origin && candidate.pathname === current.pathname;
+    } catch { return false; }
   }
 
   function actionHtml(action = {}) {
@@ -601,8 +613,14 @@
         return items ? `<section class="structured-card" data-component="${type}"><strong>${escapeHtml(component.title || 'Encontrado no HUB')}</strong>${items}</section>` : '';
       }
       if (component.type === 'document') {
-        const href = safeExternalUrl(component.url || '');
-        return `<section class="structured-card document-card" data-component="${type}"><div class="document-card-body"><span class="document-card-label">Documento</span><strong class="document-card-title">${escapeHtml(component.title || 'Documento')}</strong>${component.heading ? `<span class="document-card-heading">${escapeHtml(component.heading)}</span>` : ''}${component.page ? `<small class="document-card-page">Página ${escapeHtml(component.page)}</small>` : ''}</div>${href ? `<a class="inline-open-button" href="${escapeHtml(href)}" target="_blank" rel="noopener noreferrer">Abrir PDF</a>` : ''}</section>`;
+        const candidateSources = Array.isArray(message.sources) ? message.sources : [];
+        const matchingSource = candidateSources.find(source => {
+          if (!source) return false;
+          if (component.docId && source.docId && component.docId === source.docId) return true;
+          return String(source.title || '').trim() === String(component.title || '').trim() && Number(source.page || 0) === Number(component.page || 0);
+        }) || candidateSources[0] || null;
+        const href = sourceHref({ ...(matchingSource || {}), ...component, url:component.url || matchingSource?.url || '', pdfUrl:component.pdfUrl || matchingSource?.pdfUrl || '' });
+        return `<section class="structured-card document-card" data-component="${type}"><div class="document-card-body"><span class="document-card-label">Documento</span><strong class="document-card-title">${escapeHtml(component.title || matchingSource?.title || 'Documento')}</strong>${component.heading ? `<span class="document-card-heading">${escapeHtml(component.heading)}</span>` : ''}${component.page ? `<small class="document-card-page">Página ${escapeHtml(component.page)}</small>` : ''}</div>${href ? `<div class="document-card-actions"><a class="inline-open-button" href="${escapeHtml(href)}" target="_blank" rel="noopener noreferrer">Abrir PDF</a></div>` : ''}</section>`;
       }
       if (component.type === 'composite-summary' || component.type === 'summary') {
         const rows = (Array.isArray(component.rows) ? component.rows : []).map(row => `<li>${escapeHtml(row)}</li>`).join('');
@@ -626,22 +644,46 @@
   }
 
   function sourceHref(source = {}) {
-    const raw = safeExternalUrl(source.url || source.pdfUrl || '');
+    const candidates = [source.url, source.pdfUrl].map(value => String(value || '').trim()).filter(Boolean);
+    let raw = '';
+    for (const candidate of candidates) {
+      const href = safeExternalUrl(candidate);
+      if (!href || isAssistantSelfUrl(href)) continue;
+      raw = href;
+      break;
+    }
     if (!raw) return '';
     const page = Number(source.page || 0);
     if (!page) return raw;
     try {
       const url = new URL(raw, location.href);
-      if (url.pathname.toLowerCase().endsWith('.pdf') && !url.searchParams.has('page')) {
+      if (url.pathname.toLowerCase().endsWith('.pdf')) {
         url.hash = `page=${page}`;
-        return url.href;
+      } else if (/document-viewer\.html$/iu.test(url.pathname)) {
+        url.searchParams.set('page', String(page));
       }
       return url.href;
     } catch { return raw; }
   }
 
+  function uniqueSources(sources = []) {
+    const seen = new Set();
+    const unique = [];
+    for (const source of Array.isArray(sources) ? sources : []) {
+      if (!source) continue;
+      const href = sourceHref(source);
+      const title = String(source.title || 'Documento').trim();
+      const page = Number(source.page || 0);
+      const key = `${href || ''}|${title.toLocaleLowerCase('pt-BR')}|${page}`;
+      if (seen.has(key)) continue;
+      seen.add(key);
+      unique.push(source);
+    }
+    return unique;
+  }
+
   function renderSources(message) {
-    let sources = Array.isArray(message.sources) ? message.sources.filter(Boolean) : [];
+    let sources = uniqueSources(Array.isArray(message.sources) ? message.sources.filter(Boolean) : []);
     if (!sources.length && message.knowledge?.source?.title) {
       const source = message.knowledge.source;
       sources = [{
@@ -649,8 +691,9 @@
         verification:{ verified:Boolean(source.verified) }
       }];
     }
+    sources = uniqueSources(sources);
     if (!sources.length) return '';
-    const rows = sources.slice(0, 3).map((source, index) => {
+    const rows = sources.slice(0, 3).map(source => {
       const href = sourceHref(source);
       const label = `📄 ${escapeHtml(source.title || 'Documento')}${source.page ? ` · pág. ${escapeHtml(source.page)}` : ''}`;
       const verification = source.verification?.verified ? '<small class="source-verified">Fonte verificada</small>' : '';

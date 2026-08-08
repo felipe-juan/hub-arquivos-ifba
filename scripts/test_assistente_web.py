@@ -90,6 +90,11 @@ assert "visualViewport?.addEventListener('scroll'" in app_js
 assert 'const visibleBottom = visualHeight > 0 ? visualHeight + visualTop : layoutHeight' in app_js
 assert 'mailto:${email}' in app_js
 assert 'HUBMAIL' in app_js
+assert "if (!raw) return '';" in app_js, 'URL vazia não pode virar a própria página do Assistente'
+assert 'function isAssistantSelfUrl' in app_js
+assert 'function uniqueSources' in app_js
+assert 'document-card-actions' in app_js and '.document-card-actions' in css
+assert 'component.pdfUrl || matchingSource?.pdfUrl' in app_js
 
 # v1.6.0 — UX integrada: streaming, edição/regeneração, fontes, cards, contexto e offline.
 for identifier in ("offlineBanner", "promptGrid"):
@@ -336,7 +341,7 @@ for path in [*(app / name for name in required_modules), sidebar / "sidebar.js"]
 subprocess.run(["node", str(scripts / "test_frontend_modules.js"), str(root)], check=True)
 print(f"Assistente web v{APP_VERSION} / HUB v{HUB_VERSION} instalado: OK")
 
-# v1.6.6 — métricas públicas não podem ser contaminadas pelo dispositivo de teste.
+# v1.6.7 — métricas públicas não podem ser contaminadas pelo dispositivo de teste.
 assert 'id="testModeToggle"' in html
 for marker in ('telemetryMode', 'toggleTestMode()', '60_000', "apiUrl('/api/assistant/popular')"):
     assert marker in app_js, marker

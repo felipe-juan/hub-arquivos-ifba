@@ -459,7 +459,7 @@ body.assistant-compact-height .composer-area { min-height: 58px; padding-top: .4
 .summary-card { display: grid; gap: .35rem; }
 .summary-card span { color: var(--muted); }
 .summary-list { margin: 0; padding-left: 1rem; color: var(--muted); }
-.document-card { display: flex; justify-content: space-between; align-items: center; gap: 1rem; }
+.document-card { display: grid; gap: .7rem; align-items: start; }
 .document-card-body { min-width: 0; display: grid; gap: .22rem; }
 .document-card-label { color: var(--faint); font-size: .68rem; font-weight: 800; letter-spacing: .03em; text-transform: uppercase; }
 .document-card-title { color: var(--ink); font-size: .88rem; font-weight: 800; line-height: 1.35; overflow-wrap: anywhere; }
@@ -467,7 +467,7 @@ body.assistant-compact-height .composer-area { min-height: 58px; padding-top: .4
 .document-card-page { color: var(--muted); font-size: .72rem; }
 @media (max-width: 620px) { .saved-item { flex-direction: column; } }
 
-/* v1.6.6 — ações discretas em outline e painéis iniciais alinhados. */
+/* v1.6.7 — ações discretas em outline e painéis iniciais alinhados. */
 .message-toolbar button svg {
   width: 19px;
   height: 19px;
@@ -525,10 +525,12 @@ body.assistant-compact-height .composer-area { min-height: 58px; padding-top: .4
   .welcome-secondary-grid { grid-template-columns: 1fr; }
 }
 
-@media (max-width: 620px) { .document-card { align-items: flex-start; } .document-card .inline-open-button { margin-top: .2rem; } }
+@media (max-width: 620px) { .document-card { align-items: start; } }
 
 
-/* v1.6.6 — modo de teste local sem contaminar métricas públicas. */
+/* v1.6.7 — modo de teste local sem contaminar métricas públicas. */
 .test-mode-toggle svg { width: 19px; height: 19px; fill: none; stroke: currentColor; stroke-width: 1.7; stroke-linecap: round; stroke-linejoin: round; }
 .test-mode-toggle.selected { color: var(--amber); border-color: color-mix(in srgb, var(--amber) 55%, var(--line)); background: color-mix(in srgb, var(--amber) 13%, var(--surface-2)); }
 .test-mode-toggle.selected svg { fill: color-mix(in srgb, var(--amber) 18%, transparent); }
+
+.document-card-actions { display: flex; flex-wrap: wrap; gap: .4rem; justify-content: flex-start; align-items: center; }
