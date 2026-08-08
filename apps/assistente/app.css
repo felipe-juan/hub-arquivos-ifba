@@ -467,7 +467,7 @@ body.assistant-compact-height .composer-area { min-height: 58px; padding-top: .4
 .document-card-page { color: var(--muted); font-size: .72rem; }
 @media (max-width: 620px) { .saved-item { flex-direction: column; } }
 
-/* v1.6.7 — ações discretas em outline e painéis iniciais alinhados. */
+/* v1.6.8 — ações discretas em outline e painéis iniciais alinhados. */
 .message-toolbar button svg {
   width: 19px;
   height: 19px;
@@ -528,9 +528,30 @@ body.assistant-compact-height .composer-area { min-height: 58px; padding-top: .4
 @media (max-width: 620px) { .document-card { align-items: start; } }
 
 
-/* v1.6.7 — modo de teste local sem contaminar métricas públicas. */
+/* v1.6.8 — modo de teste local sem contaminar métricas públicas. */
 .test-mode-toggle svg { width: 19px; height: 19px; fill: none; stroke: currentColor; stroke-width: 1.7; stroke-linecap: round; stroke-linejoin: round; }
 .test-mode-toggle.selected { color: var(--amber); border-color: color-mix(in srgb, var(--amber) 55%, var(--line)); background: color-mix(in srgb, var(--amber) 13%, var(--surface-2)); }
 .test-mode-toggle.selected svg { fill: color-mix(in srgb, var(--amber) 18%, transparent); }
 
 .document-card-actions { display: flex; flex-wrap: wrap; gap: .4rem; justify-content: flex-start; align-items: center; }
+
+/* v1.6.8 — evita preview branco de PDFs externos. */
+.pdf-preview-fallback {
+  width: min(520px, 100%);
+  min-height: 72px;
+  display: flex;
+  align-items: center;
+  gap: .75rem;
+  padding: .72rem .85rem;
+  border: 1px solid color-mix(in srgb, var(--cyan) 30%, var(--line));
+  border-radius: 14px;
+  background: color-mix(in srgb, var(--cyan) 5%, var(--surface));
+  color: var(--text);
+  text-decoration: none;
+}
+.pdf-preview-fallback:hover { border-color: color-mix(in srgb, var(--cyan) 60%, var(--line)); }
+.pdf-preview-fallback-icon { width: 32px; height: 32px; flex: 0 0 32px; display: grid; place-items: center; color: var(--cyan); }
+.pdf-preview-fallback-icon svg { width: 24px; height: 24px; fill: none; stroke: currentColor; stroke-width: 1.75; stroke-linecap: round; stroke-linejoin: round; }
+.pdf-preview-fallback > span:last-child { min-width: 0; display: grid; gap: .16rem; }
+.pdf-preview-fallback strong { color: var(--ink); font-size: .78rem; }
+.pdf-preview-fallback small { color: var(--muted); font-size: .69rem; line-height: 1.35; }

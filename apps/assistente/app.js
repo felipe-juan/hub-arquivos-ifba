@@ -2,7 +2,7 @@
   'use strict';
 
   const CONFIG = window.HUB_ASSISTANT_CONFIG || {};
-  const FRONTEND_RELEASE = '1.6.7-ux-federated-stream-v1';
+  const FRONTEND_RELEASE = '1.6.8-ux-federated-stream-v1';
   const STORAGE_KEY = 'hubAssistantStateV1';
   const SETTINGS_KEY = 'hubAssistantSettingsV1';
   const FAVORITES_KEY = 'hubAssistantFavoritesV1';
@@ -514,7 +514,8 @@
       star: '<path d="m12 3 2.8 5.7 6.2.9-4.5 4.4 1.1 6.2L12 17.3 6.4 20.2 7.5 14 3 9.6l6.2-.9L12 3Z"></path>',
       pin: '<path d="M9 3h6l-.8 4 3.3 3.3-3.2 1.2-1.1 6.5-2.4-5.2-4.3-1.3 3.3-3.3L9 3Z"></path><path d="M7.5 19.5 11 16"></path>',
       up: '<path d="M7 10v10H4V10h3Z"></path><path d="M7 18h9.2a2 2 0 0 0 1.9-1.4l1.6-5A2 2 0 0 0 17.8 9H14l.7-3.1A2.3 2.3 0 0 0 12.5 3L7 10v8Z"></path>',
-      down: '<path d="M7 14V4H4v10h3Z"></path><path d="M7 6h9.2a2 2 0 0 1 1.9 1.4l1.6 5a2 2 0 0 1-1.9 2.6H14l.7 3.1a2.3 2.3 0 0 1-2.2 2.9L7 14V6Z"></path>'
+      down: '<path d="M7 14V4H4v10h3Z"></path><path d="M7 6h9.2a2 2 0 0 1 1.9 1.4l1.6 5a2 2 0 0 1-1.9 2.6H14l.7 3.1a2.3 2.3 0 0 1-2.2 2.9L7 14V6Z"></path>',
+      document: '<path d="M6 3h8l4 4v14H6V3Z"></path><path d="M14 3v5h5"></path><path d="M9 12h6M9 16h6"></path>'
     };
     return `<svg ${common}>${paths[name] || ''}</svg>`;
   }
@@ -704,8 +705,25 @@
     const first = sources[0];
     const sourceKind = message.citation?.verified ? 'Fonte usada na resposta' : 'Fonte relacionada';
     const pdf = pdfFileFromSource(first);
-    const preview = pdf && first.page ? `<a class="pdf-page-preview" href="${escapeHtml(sourceHref(first) || pdf)}" target="_blank" rel="noopener noreferrer" aria-label="Abrir ${escapeHtml(first.title || 'documento')} na página ${escapeHtml(first.page)}"><iframe src="${escapeHtml(`${pdf}#page=${Number(first.page || 1)}&view=FitH&toolbar=0&navpanes=0`)}" loading="lazy" title="Prévia da página ${escapeHtml(first.page)}" tabindex="-1"></iframe><span>Prévia · página ${escapeHtml(first.page)}</span></a>` : '';
-    return `<section class="integrated-sources"><small class="source-section-label">${sourceKind}</small><div class="source-list">${rows}</div>${preview}</section>`;
+    const page = Number(first.page || 0);
+    const openHref = sourceHref(first) || pdf;
+    const attachmentName = String(message.attachment?.fileName || message.attachment?.url || '');
+    const hasImageAttachment = Boolean(message.attachment && (
+      message.attachment.kind === 'image' || message.attachment.kind === 'gif' ||
+      /^image\//iu.test(message.attachment.mime || '') || /\.(?:png|jpe?g|gif|webp|svg)(?:[?#].*)?$/iu.test(attachmentName)
+    ));
+    let embeddedPreview = '';
+    if (pdf && page && !hasImageAttachment) {
+      try {
+        const pdfUrl = new URL(pdf, location.href);
+        if (pdfUrl.origin === location.origin) {
+          embeddedPreview = `<a class="pdf-page-preview" href="${escapeHtml(openHref)}" target="_blank" rel="noopener noreferrer" aria-label="Abrir ${escapeHtml(first.title || 'documento')} na página ${escapeHtml(page)}"><iframe src="${escapeHtml(`${pdfUrl.href}#page=${page}&view=FitH&toolbar=0&navpanes=0`)}" loading="lazy" title="Prévia da página ${escapeHtml(page)}" tabindex="-1"></iframe><span>Prévia · página ${escapeHtml(page)}</span></a>`;
+        } else if (openHref) {
+          embeddedPreview = `<a class="pdf-preview-fallback" href="${escapeHtml(openHref)}" target="_blank" rel="noopener noreferrer"><span class="pdf-preview-fallback-icon" aria-hidden="true">${toolbarIcon('document')}</span><span><strong>Abrir página ${escapeHtml(page)}</strong><small>Este PDF é externo ao HUB e não permite prévia embutida confiável.</small></span></a>`;
+        }
+      } catch {}
+    }
+    return `<section class="integrated-sources"><small class="source-section-label">${sourceKind}</small><div class="source-list">${rows}</div>${embeddedPreview}</section>`;
   }
 
   function renderContext(message) {
