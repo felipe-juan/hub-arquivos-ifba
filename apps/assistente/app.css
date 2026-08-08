@@ -1,7 +1,6 @@
 :root {
   color-scheme: dark;
   --assistant-window-height: 100dvh;
-  --assistant-viewport-top: 0px;
   --assistant-header-h: 64px;
   --assistant-composer-max: 860px;
   --assistant-content-max: 860px;
@@ -12,7 +11,7 @@ html[data-theme="light"] { color-scheme: light; }
 html { width: 100%; height: 100%; overflow: hidden; background: var(--bg); }
 body {
   position: fixed;
-  inset: var(--assistant-viewport-top) 0 auto 0;
+  inset: 0 0 auto 0;
   width: 100%;
   max-width: none;
   min-height: 0;
@@ -197,6 +196,9 @@ button:focus-visible, a:focus-visible, textarea:focus-visible, input:focus-visib
 .composer:focus-within { border-color: color-mix(in srgb, var(--green) 38%, var(--line)); box-shadow: var(--hub-focus), 0 14px 40px rgba(0,0,0,.16); }
 .composer textarea { display: block; flex: 1; min-width: 0; min-height: 38px; max-height: min(180px, 32dvh); resize: none; border: 0; outline: 0; padding: .52rem 0 .42rem; background: transparent; color: var(--ink); line-height: 1.45; box-shadow: none; }
 .composer textarea::placeholder { color: var(--faint); }
+body.assistant-keyboard-open .composer-area {
+  padding-bottom: .65rem;
+}
 .composer button { width: 40px; height: 40px; min-height: 40px; padding: 0; border: 0; border-radius: 13px; display: grid; place-items: center; background: linear-gradient(135deg, var(--green), var(--cyan)); color: #061015; font-size: 1.15rem; font-weight: 950; box-shadow: 0 8px 20px color-mix(in srgb, var(--green) 16%, transparent); }
 .composer button:hover { transform: none; }
 .composer button:disabled { opacity: .42; cursor: not-allowed; filter: saturate(.5); box-shadow: none; transform: none; }
@@ -348,3 +350,9 @@ body.assistant-compact-height .composer-area { min-height: 58px; padding-top: .4
   body { min-height: var(--assistant-window-height, 100dvh); max-height: var(--assistant-window-height, 100dvh); }
   .composer-area { min-height: 58px; padding-bottom: max(.45rem, env(safe-area-inset-bottom)); }
 }
+
+/* v1.5.19 — anexos de imagem voltam a acompanhar a resposta, como no bot WhatsApp. */
+.attachment-preview { margin: 0 0 .85rem; max-width: min(100%, 720px); }
+.attachment-preview a { display: block; width: fit-content; max-width: 100%; border-radius: 14px; overflow: hidden; border: 1px solid var(--line); background: var(--surface-2); }
+.attachment-preview img { display: block; max-width: 100%; width: auto; height: auto; max-height: min(68vh, 760px); object-fit: contain; }
+.attachment-preview figcaption { margin-top: .35rem; color: var(--muted); font-size: .72rem; }

@@ -8,6 +8,11 @@ from pathlib import Path
 from typing import Any
 
 ROOT = Path(sys.argv[1]).resolve() if len(sys.argv) > 1 else Path.cwd()
+RELEASE_FILE = ROOT / "scripts" / "hub-assistente-release.json"
+RELEASE_META = json.loads(RELEASE_FILE.read_text(encoding="utf-8")) if RELEASE_FILE.is_file() else {}
+APP_VERSION = str(RELEASE_META.get("assistant") or "").strip()
+if not APP_VERSION:
+    raise SystemExit("Versão do Assistente ausente em scripts/hub-assistente-release.json")
 TARGET = ROOT / "apps" / "assistente" / "offline-data.json"
 PREFIX = "window.HUB_DATA = "
 
@@ -104,7 +109,7 @@ def main() -> None:
     year, month, day = reviewed_iso.split("-") if reviewed_iso.count("-") == 2 else ("2026", "08", "06")
     payload = {
         "schemaVersion": 2,
-        "version": "1.5.11",
+        "version": APP_VERSION,
         "updatedAt": f"{day}/{month}/{year}",
         "sourcePolicy": "central-records-only",
         "items": unique[:500],

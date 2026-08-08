@@ -1,4 +1,4 @@
-const VERSION = "hub-ifba-v0.2.71";
+const VERSION = "hub-ifba-v0.2.79";
 const STATIC_CACHE = `${VERSION}-static`;
 const METADATA_CACHE = `${VERSION}-metadata`;
 const IMAGE_CACHE = `${VERSION}-images`;
@@ -16,7 +16,7 @@ const CORE = [
   "assets/build/sidebar-quick-search.ea5032187b1e.css",
   "assets/build/design-system.afe11aadcef7.css",
   "assets/build/data.74bf9e83114b.js",
-  "assets/build/app.1d668f52dc1e.js",
+  "assets/build/app.e63c558750aa.js",
   "assets/build/storage.aade70adc118.js",
   "assets/build/design-system.f488faad941e.js",
   "assets/build/where-data.2815ed20f527.js",
@@ -26,11 +26,11 @@ const CORE = [
   "./favicon.ico",
   "./apps/catalog.json",
   "./apps/assistente/",
-  "./apps/assistente/index.html?v=1.5.11",
-  "./apps/assistente/config.js?v=1.5.11",
-  "./apps/assistente/app.css?v=1.5.11",
-  "./apps/assistente/app.js?v=1.5.11",
-  "./apps/assistente/offline-data.json?v=1.5.11",
+  "./apps/assistente/index.html?v=1.5.19",
+  "./apps/assistente/config.js?v=1.5.19",
+  "./apps/assistente/app.css?v=1.5.19",
+  "./apps/assistente/app.js?v=1.5.19",
+  "./apps/assistente/offline-data.json?v=1.5.19",
   "./sidebar/sidebar.css",
   "./sidebar/sidebar.js",
   "./sidebar/apps-registry.json",
@@ -57,7 +57,7 @@ const CORE = [
 const REQUIRED_CORE = new Set([
   "./", "./index.html", "./offline.html", "./document-viewer.html",
   "assets/build/styles.4fd8de09d002.css", "assets/build/enhancements.254c728974fb.css", "assets/build/sidebar-quick-search.ea5032187b1e.css", "assets/build/design-system.afe11aadcef7.css",
-  "assets/build/data.74bf9e83114b.js", "assets/build/app.1d668f52dc1e.js", "assets/build/storage.aade70adc118.js", "assets/build/design-system.f488faad941e.js", "assets/build/where-data.2815ed20f527.js",
+  "assets/build/data.74bf9e83114b.js", "assets/build/app.e63c558750aa.js", "assets/build/storage.aade70adc118.js", "assets/build/design-system.f488faad941e.js", "assets/build/where-data.2815ed20f527.js",
 ]);
 
 async function installCoreResources() {

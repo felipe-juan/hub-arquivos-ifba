@@ -10,6 +10,11 @@ import tempfile
 from pathlib import Path
 
 root = Path(sys.argv[1]).resolve() if len(sys.argv) > 1 else Path.cwd()
+release_file = root / "scripts" / "hub-assistente-release.json"
+assert release_file.is_file(), "manifesto de release ausente"
+release_meta = json.loads(release_file.read_text(encoding="utf-8"))
+APP_VERSION = str(release_meta["assistant"])
+HUB_VERSION = str(release_meta["hub"])
 app = root / "apps" / "assistente"
 required_modules = ("config.js", "app.js")
 for name in ("index.html", "app.css", "offline-data.json", *required_modules):
@@ -29,11 +34,11 @@ for name in legacy_split_modules:
     assert not (app / name).exists(), f"módulo regressivo ainda instalado: {name}"
     assert name not in html, f"HTML ainda carrega módulo regressivo: {name}"
 for asset in required_modules:
-    assert f'{asset}?v=1.5.11' in html, f'asset sem cache-busting: {asset}'
-assert 'app.css?v=1.5.11' in html
-assert 'offline-data.json?v=1.5.11' in config_js
-assert html.index('config.js?v=1.5.11') < html.index('app.js?v=1.5.11')
-assert 'version: "1.5.11"' in config_js
+    assert f'{asset}?v={APP_VERSION}' in html, f'asset sem cache-busting: {asset}'
+assert f'app.css?v={APP_VERSION}' in html
+assert f'offline-data.json?v={APP_VERSION}' in config_js
+assert html.index(f'config.js?v={APP_VERSION}') < html.index(f'app.js?v={APP_VERSION}')
+assert f'version: "{APP_VERSION}"' in config_js
 
 for identifier in ("chatApp", "messages", "messageScroll", "composerArea", "messageInput", "sendMessage", "typingTemplate", "clearConversation"):
     assert f'id="{identifier}"' in html, identifier
@@ -75,6 +80,12 @@ assert 'loadOfflineCatalog()' in app_js and 'offlineAnswer(text)' in app_js
 assert 'renderComponents(message)' in app_js and 'renderKnowledge(message)' in app_js
 assert "message.feedback === 'helpful' ? '♥' : '♡'" in app_js
 assert '.message-toolbar button.helpful' in css
+assert 'interactive-widget=resizes-content' in html
+assert '--assistant-viewport-top' not in css
+assert "visualViewport?.addEventListener('scroll'" in app_js
+assert 'const visibleBottom = visualHeight > 0 ? visualHeight + visualTop : layoutHeight' in app_js
+assert 'mailto:${email}' in app_js
+assert 'HUBMAIL' in app_js
 
 # Sidebar canônica única em todo o HUB.
 sidebar = root / "sidebar"
@@ -129,7 +140,7 @@ assert all("onde resolvo" not in f"{item.get('id','')} {item.get('title','')} {i
 # Offline vem somente do catálogo central gerado.
 offline = json.loads((app / "offline-data.json").read_text(encoding="utf-8"))
 assert offline.get("sourcePolicy") == "central-records-only"
-assert offline.get("version") == "1.5.11"
+assert offline.get("version") == APP_VERSION
 assert "generatedAt" not in offline
 assert all(item.get("source") in {"hub-data", "document-metadata"} for item in offline.get("items", []))
 for forbidden in ("offline-suap", "offline-calendar", "offline-help", "portal.ifba.edu.br"):
@@ -162,6 +173,11 @@ assert "DEFAULT_EXTERNAL_LINKS" in installer and "is_obsolete_app" in installer
 assert "NORMALIZED_OBSOLETE_APP_IDS" in installer
 assert "Os demais links úteis continuam em ``registry.links``" in installer
 assert "Sequência de inicialização da sidebar não reconhecida" not in installer
+assert "def sync_version" not in installer
+assert "text.replace(old_version, TARGET_VERSION)" not in installer
+assert "hub-assistente-release.json" in installer
+assert "sync_hub_release_markers.py" in installer
+assert (scripts / "sync_hub_release_markers.py").is_file()
 assert "isObsoleteApp" in sidebar_js and ".filter(item => !isObsoleteApp(item))" in sidebar_js
 
 # Normalização real da sidebar sobre uma base com ícones genéricos e links ausentes.
@@ -251,7 +267,7 @@ assert "apps/assistente/assets/build/" not in sw
 for obsolete_ref in ("apps/onde-resolvo/", "apps/onde-resolvo-isso/", "apps/app-onde-resolvo/"):
     assert obsolete_ref not in sw, obsolete_ref
 for module in required_modules:
-    assert f'"./apps/assistente/{module}?v=1.5.11"' in sw, module
+    assert f'"./apps/assistente/{module}?v={APP_VERSION}"' in sw, module
 assert '"./sidebar/sidebar.js"' in sw
 
 # No one-click v2, build e testes acontecem no Fedora antes do push.
@@ -296,4 +312,4 @@ if local_runner:
 for path in [*(app / name for name in required_modules), sidebar / "sidebar.js"]:
     subprocess.run(["node", "--check", str(path)], check=True)
 subprocess.run(["node", str(scripts / "test_frontend_modules.js"), str(root)], check=True)
-print("Assistente web v1.5.11 instalado: OK")
+print(f"Assistente web v{APP_VERSION} / HUB v{HUB_VERSION} instalado: OK")

@@ -14,13 +14,20 @@ from pathlib import Path
 
 ROOT = Path(sys.argv[1]).resolve() if len(sys.argv) > 1 else Path.cwd()
 SW = ROOT / "service-worker.js"
+RELEASE_FILE = ROOT / "scripts" / "hub-assistente-release.json"
+if not RELEASE_FILE.is_file():
+    raise SystemExit("Manifesto scripts/hub-assistente-release.json ausente.")
+RELEASE_META = json.loads(RELEASE_FILE.read_text(encoding="utf-8"))
+APP_VERSION = str(RELEASE_META.get("assistant") or "").strip()
+if not APP_VERSION:
+    raise SystemExit("Versão do Assistente ausente no manifesto de release.")
 ENTRIES = [
     "./apps/assistente/",
-    "./apps/assistente/index.html?v=1.5.11",
-    "./apps/assistente/config.js?v=1.5.11",
-    "./apps/assistente/app.css?v=1.5.11",
-    "./apps/assistente/app.js?v=1.5.11",
-    "./apps/assistente/offline-data.json?v=1.5.11",
+    f"./apps/assistente/index.html?v={APP_VERSION}",
+    f"./apps/assistente/config.js?v={APP_VERSION}",
+    f"./apps/assistente/app.css?v={APP_VERSION}",
+    f"./apps/assistente/app.js?v={APP_VERSION}",
+    f"./apps/assistente/offline-data.json?v={APP_VERSION}",
     "./sidebar/sidebar.css",
     "./sidebar/sidebar.js",
     "./sidebar/apps-registry.json",

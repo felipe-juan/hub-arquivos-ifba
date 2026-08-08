@@ -862,7 +862,7 @@ function thumbnailHtml(resource, type = "document", options = {}) {
 
 let pdfRuntimePromise = null;
 function getPdfRuntime() {
-  if (!pdfRuntimePromise) pdfRuntimePromise = import("./pdf-runtime.cf990fb0fd4a.js");
+  if (!pdfRuntimePromise) pdfRuntimePromise = import("assets/build/pdf-runtime.cf990fb0fd4a.js?v=0.2.71");
   return pdfRuntimePromise;
 }
 async function renderSinglePdfThumbnail(el) {
@@ -2436,7 +2436,7 @@ function ensureSearchWorker() {
   if (!("Worker" in window)) return Promise.reject(new Error("Web Worker indisponível"));
 
   searchWorkerInitPromise = new Promise((resolve, reject) => {
-    const worker = new Worker("assets/build/search-worker.3f5310d8ee0c.js");
+    const worker = new Worker("assets/build/search-worker.3f5310d8ee0c.js?v=0.2.71");
     searchWorker = worker;
     const initId = ++searchRequestId;
     let settled = false;
@@ -2540,7 +2540,7 @@ async function searchInWorker(query, filters) {
       worker.postMessage({ type: "search", id, query, filters });
     });
   } catch (workerError) {
-    if (!window.HubSearchEngine) await import("./search-engine.0e4132201f8a.js");
+    if (!window.HubSearchEngine) await import("assets/build/search-engine.0e4132201f8a.js?v=0.2.71");
     if (!mainThreadSearchEngine) mainThreadSearchEngine = new window.HubSearchEngine(searchWorkerPayload());
     else mainThreadSearchEngine.update(searchWorkerPayload());
     const id = ++searchRequestId;
@@ -5082,10 +5082,10 @@ function waitForInitialPaint() {
 
 function loadDeferredFeatureScripts() {
   const scripts = [
-    "assets/build/enhancements.9aaad1d9bf82.js",
-    "assets/build/experience.63cf70eebb8d.js",
-    "assets/build/sidebar-quick-search.f0e1ed1ead1c.js",
-    "assets/build/performance-monitor.279acd8e30ef.js"
+    "assets/build/enhancements.9aaad1d9bf82.js?v=0.2.71",
+    "assets/build/experience.63cf70eebb8d.js?v=0.2.71",
+    "assets/build/sidebar-quick-search.f0e1ed1ead1c.js?v=0.2.71",
+    "assets/build/performance-monitor.ae0923239d48.js?v=0.2.71"
   ];
   const load = src => new Promise(resolve => {
     if (document.querySelector(`script[src="${src}"]`)) { resolve(); return; }

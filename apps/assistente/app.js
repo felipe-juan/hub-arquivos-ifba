@@ -278,6 +278,12 @@
 
   function renderInline(text) {
     let value = escapeHtml(text);
+    const emailLinks = [];
+    value = value.replace(/\b[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}\b/gi, email => {
+      const token = `\u0000HUBMAIL${emailLinks.length}\u0000`;
+      emailLinks.push(`<a href="mailto:${email}">${email}</a>`);
+      return token;
+    });
     value = value
       .replace(/\*([^*\n]+)\*/g, '<strong>$1</strong>')
       .replace(/_([^_\n]+)_/g, '<em>$1</em>')
@@ -287,6 +293,7 @@
       const suffix = raw.slice(clean.length);
       return `<a href="${clean}" target="_blank" rel="noopener noreferrer">${clean}</a>${suffix}`;
     });
+    value = value.replace(/\u0000HUBMAIL(\d+)\u0000/g, (_, index) => emailLinks[Number(index)] || '');
     return value;
   }
 
@@ -461,13 +468,17 @@
     if (message.role === 'user') {
       return `<article class="message-row user" data-message-id="${escapeHtml(message.id)}"><div class="message-content">${escapeHtml(message.text)}</div></article>`;
     }
-    const attachment = message.attachment
-      ? `<a class="attachment-link" href="${escapeHtml(safeExternalUrl(message.attachment.url) || '#')}" target="_blank" rel="noopener noreferrer">📎 ${escapeHtml(message.attachment.fileName || 'Abrir anexo')}</a>`
+    const attachmentUrl = message.attachment ? safeExternalUrl(message.attachment.url) : '';
+    const attachmentIsImage = Boolean(message.attachment && (message.attachment.kind === 'image' || message.attachment.kind === 'gif' || /^image\//i.test(message.attachment.mime || '')));
+    const attachment = message.attachment && attachmentUrl
+      ? (attachmentIsImage
+          ? `<figure class="attachment-preview"><a href="${escapeHtml(attachmentUrl)}" target="_blank" rel="noopener noreferrer"><img src="${escapeHtml(attachmentUrl)}" alt="${escapeHtml(message.attachment.fileName || 'Imagem anexada à resposta')}" loading="eager"></a></figure>`
+          : `<a class="attachment-link" href="${escapeHtml(attachmentUrl)}" target="_blank" rel="noopener noreferrer">📎 ${escapeHtml(message.attachment.fileName || 'Abrir anexo')}</a>`)
       : '';
     const options = message.options?.length
       ? `<div class="message-actions">${message.options.map(option => `<button type="button" class="${option.kind === 'exit' ? 'exit-option' : ''}" data-option-kind="${escapeHtml(option.kind)}" data-option-value="${escapeHtml(option.value)}">${escapeHtml(option.label)}</button>`).join('')}</div>`
       : '';
-    return `<article class="message-row assistant" data-message-id="${escapeHtml(message.id)}"><div class="assistant-avatar" aria-hidden="true">🤖</div><div class="message-content ${message.error ? 'error-card' : ''}">${renderMessageBody(message)}${renderAmbiguity(message)}${renderComponents(message)}${renderKnowledge(message)}${attachment}${options}${assistantActions(message)}</div></article>`;
+    return `<article class="message-row assistant" data-message-id="${escapeHtml(message.id)}"><div class="assistant-avatar" aria-hidden="true">🤖</div><div class="message-content ${message.error ? 'error-card' : ''}">${attachment}${renderMessageBody(message)}${renderAmbiguity(message)}${renderComponents(message)}${renderKnowledge(message)}${options}${assistantActions(message)}</div></article>`;
   }
 
   function createNodeFromHtml(html) {
@@ -703,7 +714,12 @@
   }
 
   function openOrSendAction(value) {
-    const href = safeExternalUrl(value);
+    const raw = String(value || '').trim();
+    // Valores de menu como "1", "2", "primeira" ou "Cálculo I" são
+    // respostas ao Assistente, não URLs relativas. Só abra ações que sejam
+    // explicitamente links externos/mailto.
+    if (!/^(?:https?:\/\/|mailto:)/i.test(raw)) return false;
+    const href = safeExternalUrl(raw);
     if (!href) return false;
     window.open(href, '_blank', 'noopener,noreferrer');
     return true;
@@ -920,14 +936,28 @@
   }
 
   let viewportSyncTimer = 0;
+  let viewportBaselineHeight = 0;
+
   function syncViewportHeight() {
-    const visualHeight = Number(globalThis.visualViewport?.height || 0);
-    const visualTop = Number(globalThis.visualViewport?.offsetTop || 0);
+    const viewport = globalThis.visualViewport;
     const layoutHeight = Number(globalThis.innerHeight || document.documentElement.clientHeight || 0);
-    const height = Math.max(180, Math.round(visualHeight > 0 ? visualHeight : layoutHeight));
+    const visualHeight = Number(viewport?.height || 0);
+    const visualTop = Math.max(0, Number(viewport?.offsetTop || 0));
+    // Samsung Internet pode "panear" o visual viewport durante a animação do
+    // teclado. Mover o body por offsetTop cria um vão branco abaixo do composer.
+    // Mantemos o app ancorado no topo e usamos o fundo visível real
+    // (height + offsetTop) como altura disponível.
+    const visibleBottom = visualHeight > 0 ? visualHeight + visualTop : layoutHeight;
+    const height = Math.max(180, Math.round(visibleBottom || layoutHeight));
+    const inputFocused = document.activeElement === $('messageInput');
+    if (!inputFocused && height > viewportBaselineHeight) viewportBaselineHeight = height;
+    const keyboardOpen = inputFocused && viewportBaselineHeight > 0 && height < viewportBaselineHeight - 120;
     document.documentElement.style.setProperty('--assistant-window-height', `${height}px`);
-    document.documentElement.style.setProperty('--assistant-viewport-top', `${Math.max(0, Math.round(visualTop))}px`);
     document.body?.classList.toggle('assistant-compact-height', height < 300);
+    document.body?.classList.toggle('assistant-keyboard-open', keyboardOpen);
+    if (inputFocused && visualTop > 0 && (globalThis.scrollX || globalThis.scrollY)) {
+      globalThis.scrollTo(0, 0);
+    }
     ensureComposerAttached();
   }
 
@@ -943,11 +973,20 @@
     }, delay);
   }
 
+  function settleKeyboardViewport() {
+    for (const delay of (0, 60, 180, 360)) setTimeout(() => scheduleViewportSync(0), delay);
+  }
+
   function bindViewport() {
     syncViewportHeight();
-    globalThis.visualViewport?.addEventListener('resize', () => scheduleViewportSync(20));
-    globalThis.addEventListener('resize', () => scheduleViewportSync(20));
-    globalThis.addEventListener('orientationchange', () => scheduleViewportSync(140));
+    globalThis.visualViewport?.addEventListener('resize', () => scheduleViewportSync(16));
+    globalThis.visualViewport?.addEventListener('scroll', () => scheduleViewportSync(16));
+    globalThis.addEventListener('resize', () => scheduleViewportSync(16));
+    globalThis.addEventListener('orientationchange', () => { viewportBaselineHeight = 0; scheduleViewportSync(160); });
+    $('messageInput')?.addEventListener('focus', settleKeyboardViewport);
+    $('messageInput')?.addEventListener('blur', () => {
+      for (const delay of (0, 100, 260)) setTimeout(() => scheduleViewportSync(0), delay);
+    });
     document.addEventListener('visibilitychange', () => {
       if (!document.hidden) {
         ensureComposerAttached();

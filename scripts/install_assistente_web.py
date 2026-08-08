@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Instala o Assistente v1.5.11 no HUB por cópia determinística.
+"""Instala o Assistente no HUB por cópia determinística usando release.json.
 
 Não usa substituições por expressão regular. Estruturas administradas são arquivos
 completos ou blocos delimitados por marcadores de início/fim.
@@ -16,8 +16,23 @@ from typing import Any
 
 ROOT = Path.cwd()
 PATCH = Path(__file__).resolve().parents[1]
-TARGET_VERSION = "0.2.71"
-APP_VERSION = "1.5.11"
+def load_release_meta() -> dict[str, str]:
+    candidates = (
+        PATCH.parent / "release.json",
+        ROOT / "scripts" / "hub-assistente-release.json",
+    )
+    for candidate in candidates:
+        if candidate.is_file():
+            data = json.loads(candidate.read_text(encoding="utf-8"))
+            required = ("oneClick", "assistant", "hub")
+            if all(str(data.get(key) or "").strip() for key in required):
+                return {key: str(data[key]).strip() for key in required}
+    raise SystemExit("release.json não encontrado ou incompleto.")
+
+
+RELEASE_META = load_release_meta()
+TARGET_VERSION = RELEASE_META["hub"]
+APP_VERSION = RELEASE_META["assistant"]
 DATA_PREFIX = "window.HUB_DATA = "
 
 OBSOLETE_APP_IDS = {"app-onde-resolvo", "onde-resolvo", "onde-resolvo-isso"}
@@ -201,7 +216,7 @@ def update_data_and_registry() -> None:
     external = build_external_links(useful)
     registry = {
         "schemaVersion": 1,
-        "generatedBy": "hub-assistente-v1.5.11",
+        "generatedBy": f"hub-assistente-v{APP_VERSION}",
         "apps": data["apps"],
         "links": useful,
         "externalLinks": external,
@@ -328,27 +343,45 @@ def patch_site_validator() -> None:
         fail("Validador do HUB possui uma regra de reporte não reconhecida.")
     write(path, text)
 
-def sync_version(old_version: str) -> None:
-    if old_version == TARGET_VERSION:
-        return
-    allowed = {".html", ".js", ".css", ".json", ".md"}
-    for path in ROOT.rglob("*"):
-        if not path.is_file() or path.suffix.casefold() not in allowed or ".git" in path.parts or "documents" in path.parts:
+def stamp_assistant_release(target: Path) -> None:
+    replacements = {
+        "__ASSISTANT_VERSION__": APP_VERSION,
+        "__HUB_VERSION__": TARGET_VERSION,
+    }
+    for path in target.rglob("*"):
+        if not path.is_file() or path.suffix.casefold() not in {".html", ".js", ".css", ".json", ".md"}:
             continue
-        try:
-            text = read(path)
-        except UnicodeDecodeError:
-            continue
-        updated = text.replace(old_version, TARGET_VERSION)
+        text = read(path)
+        updated = text
+        for token, value in replacements.items():
+            updated = updated.replace(token, value)
         if updated != text:
             write(path, updated)
+    leftovers = []
+    for path in target.rglob("*"):
+        if path.is_file() and path.suffix.casefold() in {".html", ".js", ".css", ".json", ".md"}:
+            text = read(path)
+            if "__ASSISTANT_VERSION__" in text or "__HUB_VERSION__" in text:
+                leftovers.append(str(path))
+    if leftovers:
+        fail("Marcadores de release não resolvidos: " + ", ".join(leftovers))
 
 
 def install_scripts() -> None:
     target = ROOT / "scripts"
     target.mkdir(parents=True, exist_ok=True)
+    release_source = next((candidate for candidate in (
+        PATCH.parent / "release.json",
+        ROOT / "scripts" / "hub-assistente-release.json",
+    ) if candidate.is_file()), None)
+    if release_source is None:
+        fail("release.json do pacote não encontrado.")
+    destination_release = target / "hub-assistente-release.json"
+    if release_source.resolve() != destination_release.resolve():
+        shutil.copy2(release_source, destination_release)
     for name in (
         "sync_assistente_offline_cache.py",
+        "sync_hub_release_markers.py",
         "patch_github_pages_workflow.py",
         "enrich_document_metadata.py",
         "generate_assistente_offline_catalog.py",
@@ -369,13 +402,12 @@ def install_scripts() -> None:
 def main() -> None:
     if not (ROOT / "data.js").is_file() or not (ROOT / "apps").is_dir():
         fail("Execute este script na raiz do HUB Arquivos IFBA.")
-    old_version = (ROOT / "VERSION").read_text(encoding="utf-8").strip() if (ROOT / "VERSION").is_file() else ""
-
     assistant_source = PATCH / "apps" / "assistente"
     assistant_target = ROOT / "apps" / "assistente"
     if assistant_target.exists():
         shutil.rmtree(assistant_target)
     shutil.copytree(assistant_source, assistant_target)
+    stamp_assistant_release(assistant_target)
     for obsolete_name in ("onde-resolvo", "onde-resolvo-isso", "app-onde-resolvo"):
         obsolete_path = ROOT / "apps" / obsolete_name
         if obsolete_path.exists():
@@ -385,6 +417,7 @@ def main() -> None:
     if sidebar_target.exists():
         shutil.rmtree(sidebar_target)
     shutil.copytree(PATCH / "sidebar", sidebar_target)
+    stamp_assistant_release(sidebar_target)
 
     install_scripts()
     override_example = PATCH / "document-metadata.overrides.example.json"
@@ -399,12 +432,12 @@ def main() -> None:
     subprocess.run([sys.executable, str(ROOT / "scripts" / "patch_build_production_assets.py"), str(ROOT)], check=True)
     patch_site_validator()
     update_service_worker()
-    sync_version(old_version)
-    write(ROOT / "VERSION", TARGET_VERSION + "\n")
-
     subprocess.run([sys.executable, str(ROOT / "scripts" / "enrich_document_metadata.py"), str(ROOT)], check=True)
     subprocess.run([sys.executable, str(ROOT / "scripts" / "generate_assistente_offline_catalog.py"), str(ROOT)], check=True)
     update_service_worker()
+    # Sincronização deliberadamente restrita aos quatro marcadores que o
+    # validador canônico do HUB compara com VERSION. Não existe replace global.
+    subprocess.run([sys.executable, str(ROOT / "scripts" / "sync_hub_release_markers.py"), str(ROOT), TARGET_VERSION], check=True)
     print(f"Assistente v{APP_VERSION} integrado deterministicamente. HUB v{TARGET_VERSION}.")
 
 if __name__ == "__main__":
