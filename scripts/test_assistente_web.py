@@ -121,9 +121,11 @@ for marker in ("feedback-reasons", "visual-card", "integrated-sources", "pdf-pag
 
 # Sidebar canônica única em todo o HUB.
 sidebar = root / "sidebar"
-for name in ("sidebar.js", "sidebar.css", "apps-registry.json"):
+for name in ("sidebar.js", "sidebar.css", "hub-url-resolver.js", "hub-user-state.js", "hub-registry.json", "apps-registry.json"):
     assert (sidebar / name).is_file(), name
-registry = json.loads((sidebar / "apps-registry.json").read_text(encoding="utf-8"))
+registry = json.loads((sidebar / "hub-registry.json").read_text(encoding="utf-8"))
+assert registry.get("sourceOfTruth") is True
+assert (sidebar / "apps-registry.json").read_text(encoding="utf-8") == (sidebar / "hub-registry.json").read_text(encoding="utf-8")
 assert registry.get("apps") and registry["apps"][0].get("title") == "Assistente do HUB"
 assert registry["apps"][0].get("emoji") == "🤖"
 expected_sidebar_emojis = {
@@ -149,15 +151,21 @@ assert not (root / "apps" / "app-shell.js").exists()
 assert not (root / "apps" / "app-shell.css").exists()
 sidebar_js = (sidebar / "sidebar.js").read_text(encoding="utf-8")
 assert "mount.replaceChildren()" in sidebar_js
+assert "hubFavoritesV2" in sidebar_js
+assert "hub-registry.json" in sidebar_js
+assert "HUB REGISTRY FALLBACK START" in sidebar_js
+assert (sidebar / "hub-url-resolver.js").is_file() and (sidebar / "hub-user-state.js").is_file()
 
 home = (root / "index.html").read_text(encoding="utf-8")
 assert 'id="hubSidebarMount"' in home
 assert 'sidebar/sidebar.css' in home and 'sidebar/sidebar.js' in home
+assert 'sidebar/hub-url-resolver.js' in home and 'sidebar/hub-user-state.js' in home
 assert '<aside id="siteSidebar"' not in home
 for page in sorted((root / "apps").glob("*/index.html")):
     text = page.read_text(encoding="utf-8")
     assert '../../sidebar/sidebar.css' in text, f"CSS compartilhado ausente: {page}"
     assert '../../sidebar/sidebar.js' in text, f"JS compartilhado ausente: {page}"
+    assert '../../sidebar/hub-url-resolver.js' in text and '../../sidebar/hub-user-state.js' in text, f"Estado/URLs compartilhados ausentes: {page}"
     assert 'app-shell.css' not in text and 'app-shell.js' not in text, f"shell antigo ainda referenciado: {page}"
 
 raw = (root / "data.js").read_text(encoding="utf-8").strip()
@@ -171,11 +179,12 @@ assert all("onde resolvo" not in f"{item.get('id','')} {item.get('title','')} {i
 
 # Offline vem somente do catálogo central gerado.
 offline = json.loads((app / "offline-data.json").read_text(encoding="utf-8"))
-assert offline.get("sourcePolicy") == "central-records-only"
+assert offline.get("sourcePolicy") == "hub-registry-and-document-metadata"
 assert int(offline.get("schemaVersion") or 0) >= 3
 assert offline.get("version") == APP_VERSION
 assert "generatedAt" not in offline
-assert all(item.get("source") in {"hub-data", "document-metadata"} for item in offline.get("items", []))
+assert all(item.get("source") in {"hub-registry", "document-metadata"} for item in offline.get("items", []))
+assert all(not str(item.get("url") or "").startswith("../../") for item in offline.get("items", []))
 for forbidden in ("offline-suap", "offline-calendar", "offline-help", "portal.ifba.edu.br"):
     assert forbidden not in app_js, forbidden
 
@@ -222,6 +231,7 @@ with tempfile.TemporaryDirectory(prefix="hub-sidebar-registry-") as temp_dir:
     fixture = Path(temp_dir)
     (fixture / "sidebar").mkdir()
     (fixture / "apps").mkdir()
+    (fixture / "sidebar" / "sidebar.js").write_text((sidebar / "sidebar.js").read_text(encoding="utf-8"), encoding="utf-8")
     fixture_data = {
         "apps": [
             {"id": "app-media-final", "title": "Média e Prova Final", "url": "#media-final", "emoji": "💼"},
@@ -248,12 +258,25 @@ with tempfile.TemporaryDirectory(prefix="hub-sidebar-registry-") as temp_dir:
     assert emoji_by_id["fluxogramas"] == "🗺️"
     assert emoji_by_id["app-personalizado"] == "🌟"
     assert "onde-resolvo-isso" not in emoji_by_id
-    generated_registry = json.loads((fixture / "sidebar" / "apps-registry.json").read_text(encoding="utf-8"))
+    generated_registry = json.loads((fixture / "sidebar" / "hub-registry.json").read_text(encoding="utf-8"))
+    assert generated_registry.get("sourceOfTruth") is True
+    assert (fixture / "sidebar" / "apps-registry.json").read_text(encoding="utf-8") == (fixture / "sidebar" / "hub-registry.json").read_text(encoding="utf-8")
+    embedded_sidebar = (fixture / "sidebar" / "sidebar.js").read_text(encoding="utf-8")
+    assert "app-personalizado" in embedded_sidebar and "HUB REGISTRY FALLBACK START" in embedded_sidebar
     assert [item["id"] for item in generated_registry["externalLinks"]] == ["portal", "suap"]
     assert generated_registry["externalLinks"][0]["url"] == "https://portal.ifba.edu.br/conquista"
     assert generated_registry["externalLinks"][0]["title"] == "Portal"
     assert generated_registry["externalLinks"][1]["url"] == "https://suap.ifba.edu.br"
     assert generated_registry["links"] == fixture_data["usefulLinks"]
+    # Depois da migração inicial, alterações divergentes em data.js não podem
+    # voltar a ser fonte de verdade: o registry canônico é preservado.
+    divergent = installer_module.load_hub_data(fixture / "data.js")
+    divergent["apps"].append({"id":"nao-importar","title":"App divergente","url":"apps/divergente/","emoji":"❌"})
+    installer_module.save_hub_data(fixture / "data.js", divergent)
+    installer_module.update_data_and_registry(generated_registry)
+    registry_second = json.loads((fixture / "sidebar" / "hub-registry.json").read_text(encoding="utf-8"))
+    assert "app-personalizado" in {item["id"] for item in registry_second["apps"]}
+    assert "nao-importar" not in {item["id"] for item in registry_second["apps"]}
 for name in ("normalize_document_manifests.py", "verify_document_generation.py", "build_and_validate_hub.py"):
     assert (scripts / name).is_file(), name
 verify_text = (scripts / "verify_document_generation.py").read_text(encoding="utf-8")
@@ -281,7 +304,7 @@ if build_script.is_file():
         "apps/app-shell.js", "apps/app-shell.css",
         "apps/assistente/app.js", "apps/assistente/app.css",
         "apps/assistente/config.js", "apps/assistente/offline-data.json",
-        "sidebar/sidebar.js", "sidebar/sidebar.css", "sidebar/apps-registry.json",
+        "sidebar/sidebar.js", "sidebar/sidebar.css", "sidebar/hub-url-resolver.js", "sidebar/hub-user-state.js", "sidebar/hub-registry.json", "sidebar/apps-registry.json",
     }
     configured = []
     for statement in build_tree.body:
@@ -302,6 +325,7 @@ for obsolete_ref in ("apps/onde-resolvo/", "apps/onde-resolvo-isso/", "apps/app-
 for module in required_modules:
     assert f'"./apps/assistente/{module}?v={APP_VERSION}"' in sw, module
 assert '"./sidebar/sidebar.js"' in sw
+assert '"./sidebar/hub-url-resolver.js"' in sw and '"./sidebar/hub-user-state.js"' in sw and '"./sidebar/hub-registry.json"' in sw
 
 # No one-click v2, build e testes acontecem no Fedora antes do push.
 # O GitHub Actions deve somente transportar o site já validado para o Pages.
@@ -347,8 +371,12 @@ for path in [*(app / name for name in required_modules), sidebar / "sidebar.js"]
 subprocess.run(["node", str(scripts / "test_frontend_modules.js"), str(root)], check=True)
 print(f"Assistente web v{APP_VERSION} / HUB v{HUB_VERSION} instalado: OK")
 
-# v1.6.10 — métricas públicas não podem ser contaminadas pelo dispositivo de teste.
+# v1.7.3 — métricas públicas não podem ser contaminadas pelo dispositivo de teste.
 assert 'id="testModeToggle"' in html
-for marker in ('telemetryMode', 'toggleTestMode()', '60_000', "apiUrl('/api/assistant/popular')"):
+for marker in ('telemetryMode', 'toggleTestMode()', '60_000'):
     assert marker in app_js, marker
+# O endpoint público recebe o período Hoje/Semana via query string; validar o
+# contrato atual sem amarrar o teste à forma antiga sem parâmetro.
+assert '/api/assistant/popular?period=' in app_js
+assert 'encodeURIComponent(state.popularPeriod)' in app_js
 assert '.test-mode-toggle.selected' in css

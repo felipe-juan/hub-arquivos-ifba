@@ -2,10 +2,10 @@
   'use strict';
 
   const CONFIG = window.HUB_ASSISTANT_CONFIG || {};
-  const FRONTEND_RELEASE = '1.6.10-ux-federated-stream-v1';
+  const FRONTEND_RELEASE = '1.7.3-ux-federated-stream-v1';
   const STORAGE_KEY = 'hubAssistantStateV1';
   const SETTINGS_KEY = 'hubAssistantSettingsV1';
-  const FAVORITES_KEY = 'hubAssistantFavoritesV1';
+  const FAVORITES_KEY = 'hubFavoritesV2';
   const DB_NAME = 'hubAssistantHistoryV1';
   const DB_VERSION = 2;
   const DB_STORE = 'state';
@@ -18,6 +18,7 @@
     settings: loadSettings(),
     favorites: loadFavorites(),
     popularQuestions: [],
+    popularPeriod: localStorage.getItem('hubPopularPeriodV1') === 'week' ? 'week' : 'today',
     offlineCatalog: null,
     toastTimer: 0,
     renderLimit: 80,
@@ -196,14 +197,17 @@
   }
 
   function loadFavorites() {
+    const shared = window.HUB_USER_STATE?.getFavorites?.();
+    if (Array.isArray(shared)) return shared.slice(0, 100);
     try {
       const items = JSON.parse(localStorage.getItem(FAVORITES_KEY) || '[]');
-      return Array.isArray(items) ? items.filter(Boolean).slice(0, 60) : [];
+      return Array.isArray(items) ? items.filter(Boolean).slice(0, 100) : [];
     } catch { return []; }
   }
 
   function saveFavorites() {
-    try { localStorage.setItem(FAVORITES_KEY, JSON.stringify(state.favorites.slice(0, 60))); } catch {}
+    if (window.HUB_USER_STATE?.setFavorites) state.favorites = window.HUB_USER_STATE.setFavorites(state.favorites);
+    else { try { localStorage.setItem(FAVORITES_KEY, JSON.stringify(state.favorites.slice(0, 100))); } catch {} }
   }
 
   function isFavoriteMessage(message) {
@@ -226,7 +230,7 @@
       title,
       summary: documentCard?.heading || summary.slice(0, 180),
       prompt,
-      url: documentCard?.url || source?.url || '',
+      url: documentCard?.url || source?.url || (actionCard?.actions || []).find(action => action?.url)?.url || `apps/assistente/?favorite=${encodeURIComponent(message.id)}`,
       createdAt: Date.now()
     };
   }
@@ -256,14 +260,17 @@
       list.innerHTML = '<div class="saved-empty">Você ainda não salvou nenhum favorito.</div>';
       return;
     }
-    list.innerHTML = state.favorites.slice(0, 8).map(item => `
+    list.innerHTML = state.favorites.slice(0, 8).map(item => {
+      const href = safeExternalUrl(item.url || '');
+      return `
       <article class="saved-item">
         <button type="button" data-favorite-prompt="${escapeHtml(item.prompt || '')}" data-favorite-message-id="${escapeHtml(item.messageId || '')}">
           <strong>${escapeHtml(item.title || 'Favorito')}</strong>
           <span>${escapeHtml(item.summary || 'Abrir item salvo')}</span>
         </button>
-        ${item.url ? `<a href="${escapeHtml(safeExternalUrl(item.url) || item.url)}" target="_blank" rel="noopener noreferrer">Abrir</a>` : ''}
-      </article>`).join('');
+        ${href ? `<a href="${escapeHtml(href)}" target="_blank" rel="noopener noreferrer">Abrir</a>` : ''}
+      </article>`;
+    }).join('');
   }
 
   function renderPopularQuestions() {
@@ -271,15 +278,31 @@
     const list = $('popularList');
     if (!panel || !list) return;
     panel.hidden = false;
+    document.querySelectorAll('[data-popular-period]').forEach(button => {
+      const active = button.dataset.popularPeriod === state.popularPeriod;
+      button.classList.toggle('active', active);
+      button.setAttribute('aria-pressed', String(active));
+    });
+    const periodLabel = state.popularPeriod === 'week' ? 'nesta semana' : 'hoje';
+    const title = $('popularTitle');
+    if (title) title.textContent = state.popularPeriod === 'week' ? 'Mais perguntadas da semana' : 'Mais perguntadas hoje';
     if (!state.popularQuestions.length) {
-      list.innerHTML = '<div class="saved-empty">Ainda não há perguntas suficientes hoje.</div>';
+      list.innerHTML = `<div class="saved-empty">Ainda não há perguntas suficientes ${periodLabel}.</div>`;
       return;
     }
     list.innerHTML = state.popularQuestions.slice(0, 8).map(item => `
-      <button type="button" class="saved-item popular-item" data-popular-prompt="${escapeHtml(item.subject || item.title || '')}">
-        <strong>${escapeHtml(item.subject || item.title || 'Assunto')}</strong>
-        <span>${escapeHtml((item.count || 0) + ' consulta(s) hoje')}</span>
+      <button type="button" class="saved-item popular-item" data-popular-prompt="${escapeHtml(item.prompt || item.subject || item.title || '')}">
+        <strong>${escapeHtml(item.subject || item.title || 'Pergunta')}</strong>
+        <span>${escapeHtml((item.count || 0) + ` consulta(s) ${periodLabel}`)}</span>
       </button>`).join('');
+  }
+
+  function setPopularPeriod(period) {
+    const clean = period === 'week' ? 'week' : 'today';
+    if (state.popularPeriod === clean) return;
+    state.popularPeriod = clean;
+    try { localStorage.setItem('hubPopularPeriodV1', clean); } catch {}
+    loadPopularQuestions();
   }
 
   function renderPinnedAnswer() {
@@ -296,7 +319,7 @@
   async function loadPopularQuestions() {
     if (!CONFIG.apiBaseUrl) return;
     try {
-      const response = await fetch(apiUrl('/api/assistant/popular'), { cache:'no-store' });
+      const response = await fetch(apiUrl(`/api/assistant/popular?period=${encodeURIComponent(state.popularPeriod)}`), { cache:'no-store' });
       const data = await response.json().catch(() => ({}));
       state.popularQuestions = Array.isArray(data.items) ? data.items.slice(0, 8) : [];
       renderPopularQuestions();
@@ -580,22 +603,22 @@
   }
 
   function safeExternalUrl(value = '') {
+    const resolved = window.HUB_URLS?.resolve?.(value, { root:window.HUB_URLS.root });
+    if (resolved) return resolved;
     const raw = String(value || '').trim();
     if (!raw) return '';
     try {
       const url = new URL(raw, location.href);
-      return ['http:', 'https:', 'mailto:'].includes(url.protocol) ? url.href : '';
+      return ['http:', 'https:', 'mailto:', 'tel:'].includes(url.protocol) ? url.href : '';
     } catch { return ''; }
   }
 
   function isAssistantSelfUrl(value = '') {
     const href = safeExternalUrl(value);
-    if (!href) return false;
-    try {
-      const current = new URL(location.href);
-      const candidate = new URL(href);
-      return candidate.origin === current.origin && candidate.pathname === current.pathname;
-    } catch { return false; }
+    return Boolean(href && (window.HUB_URLS?.sameDocument?.(href, location.href) || (() => {
+      try { const current = new URL(location.href); const candidate = new URL(href); return candidate.origin === current.origin && candidate.pathname === current.pathname; }
+      catch { return false; }
+    })()));
   }
 
   function actionHtml(action = {}) {
@@ -646,15 +669,15 @@
   }
 
   function pdfFileFromSource(source = {}) {
-    try {
-      const viewer = new URL(String(source.url || source.pdfUrl || ''), location.href);
-      if (!['http:', 'https:'].includes(viewer.protocol)) return '';
-      const fromViewer = viewer.searchParams.get('file');
-      const raw = fromViewer || source.pdfUrl || (viewer.pathname.toLowerCase().endsWith('.pdf') ? viewer.href : '');
-      if (!raw) return '';
-      const pdf = new URL(raw, location.href);
-      return ['http:', 'https:'].includes(pdf.protocol) && pdf.pathname.toLowerCase().endsWith('.pdf') ? pdf.href : '';
-    } catch { return ''; }
+    return window.HUB_URLS?.pdfFrom?.(source.pdfUrl || source.url || '', { root:window.HUB_URLS.root }) || (() => {
+      try {
+        const viewer = new URL(String(source.url || source.pdfUrl || ''), location.href);
+        const raw = viewer.searchParams.get('file') || source.pdfUrl || (viewer.pathname.toLowerCase().endsWith('.pdf') ? viewer.href : '');
+        if (!raw) return '';
+        const pdf = new URL(raw, location.href);
+        return ['http:', 'https:'].includes(pdf.protocol) && pdf.pathname.toLowerCase().endsWith('.pdf') ? pdf.href : '';
+      } catch { return ''; }
+    })();
   }
 
   function sourceHref(source = {}) {
@@ -669,13 +692,11 @@
     if (!raw) return '';
     const page = Number(source.page || 0);
     if (!page) return raw;
+    if (window.HUB_URLS?.withPage) return window.HUB_URLS.withPage(raw, page, { root:window.HUB_URLS.root });
     try {
       const url = new URL(raw, location.href);
-      if (url.pathname.toLowerCase().endsWith('.pdf')) {
-        url.hash = `page=${page}`;
-      } else if (/document-viewer\.html$/iu.test(url.pathname)) {
-        url.searchParams.set('page', String(page));
-      }
+      if (url.pathname.toLowerCase().endsWith('.pdf')) url.hash = `page=${page}`;
+      else if (/document-viewer\.html$/iu.test(url.pathname)) url.searchParams.set('page', String(page));
       return url.href;
     } catch { return raw; }
   }
@@ -1441,7 +1462,9 @@
       const button = event.target.closest('[data-prompt]');
       const favorite = event.target.closest('[data-favorite-prompt]');
       const popular = event.target.closest('[data-popular-prompt]');
-      if (button && !state.sending) send(button.dataset.prompt);
+      const popularPeriod = event.target.closest('[data-popular-period]');
+      if (popularPeriod) setPopularPeriod(popularPeriod.dataset.popularPeriod);
+      else if (button && !state.sending) send(button.dataset.prompt);
       else if (favorite && !state.sending) {
         if (favorite.dataset.favoriteMessageId) {
           const node = document.querySelector(`[data-message-id="${CSS.escape(favorite.dataset.favoriteMessageId)}"]`);
@@ -1497,6 +1520,7 @@
       else if (event.key === 'Enter' && !event.shiftKey) { event.preventDefault(); saveEditedMessage(editor.dataset.editInput); }
     });
     $('testModeToggle')?.addEventListener('click', toggleTestMode);
+    window.addEventListener('hub:favorites-changed', () => { state.favorites = loadFavorites(); render(); });
     $('clearConversation').addEventListener('click', () => {
       if (state.sending) return;
       if (confirm('Limpar a conversa e começar novamente?')) resetCurrent();
@@ -1592,6 +1616,8 @@
     render();
     resizeInput();
     checkHealth();
+    const favoriteMessageId = new URLSearchParams(location.search).get('favorite');
+    if (favoriteMessageId) requestAnimationFrame(() => document.querySelector(`[data-message-id="${CSS.escape(favoriteMessageId)}"]`)?.scrollIntoView({ block:'center' }));
     if (matchMedia('(pointer: fine)').matches) input?.focus({ preventScroll: true });
   }
 

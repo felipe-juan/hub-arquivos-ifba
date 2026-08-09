@@ -21,6 +21,9 @@ STABLE_UNHASHED = {
     "apps/assistente/offline-data.json",
     "sidebar/sidebar.js",
     "sidebar/sidebar.css",
+    "sidebar/hub-url-resolver.js",
+    "sidebar/hub-user-state.js",
+    "sidebar/hub-registry.json",
     "sidebar/apps-registry.json",
 }
 

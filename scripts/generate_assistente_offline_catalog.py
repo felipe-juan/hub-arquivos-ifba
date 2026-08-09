@@ -23,6 +23,14 @@ def load_json(path: Path, default: Any) -> Any:
 
 
 def load_hub_data() -> dict[str, Any]:
+    # Compatibilidade de migração: após a integração, hub-registry.json é a
+    # fonte canônica para apps/links. data.js só é usado como fallback.
+    registry = load_json(ROOT / "sidebar" / "hub-registry.json", {})
+    if isinstance(registry, dict) and isinstance(registry.get("apps"), list):
+        return {
+            "apps": registry.get("apps") or [],
+            "usefulLinks": [*(registry.get("links") or []), *(registry.get("externalLinks") or [])],
+        }
     path = ROOT / "data.js"
     if not path.is_file(): return {}
     text = path.read_text(encoding="utf-8").strip()
@@ -40,7 +48,7 @@ def internal_url(value: Any) -> str:
     raw = str(value or "").strip()
     if not raw: return ""
     if re.match(r"^(?:https?:|mailto:)", raw, re.I): return raw
-    return "../../" + raw.lstrip("./")
+    return raw.lstrip("./")
 
 
 def item_from_entry(entry: dict[str, Any], kind: str, position: int) -> dict[str, Any] | None:
@@ -56,7 +64,7 @@ def item_from_entry(entry: dict[str, Any], kind: str, position: int) -> dict[str
         "category": compact(entry.get("category") or ("Aplicativos" if kind == "app" else "Links"), 100),
         "tags": tags,
         "url": internal_url(entry.get("url") or entry.get("href")),
-        "source": "hub-data",
+        "source": "hub-registry",
     }
 
 
@@ -136,7 +144,7 @@ def main() -> None:
         "schemaVersion": 3,
         "version": APP_VERSION,
         "updatedAt": f"{day}/{month}/{year}",
-        "sourcePolicy": "central-records-only",
+        "sourcePolicy": "hub-registry-and-document-metadata",
         "items": unique[:500],
     }
     TARGET.parent.mkdir(parents=True, exist_ok=True)

@@ -13,7 +13,7 @@
   </script>
   <link rel="stylesheet" href="../../styles.css">
   <link rel="stylesheet" href="../../css/sidebar-quick-search.css">
-  <link rel="stylesheet" href="app.css?v=1.6.10">
+  <link rel="stylesheet" href="app.css?v=1.7.3">
   <link rel="stylesheet" href="../../sidebar/sidebar.css" />
 </head>
 <body>
@@ -51,7 +51,7 @@
           </div>
           <div class="welcome-secondary-grid">
             <section class="welcome-panel" id="favoritesPanel"><div class="welcome-panel-head"><strong>⭐ Meus favoritos</strong><small>Respostas, documentos e atalhos salvos neste dispositivo.</small></div><div class="saved-list" id="favoritesList"></div></section>
-            <section class="welcome-panel" id="popularPanel"><div class="welcome-panel-head"><strong>🔥 Mais perguntadas hoje</strong><small>Assuntos mais consultados, sem identificar usuários.</small></div><div class="saved-list" id="popularList"></div></section>
+            <section class="welcome-panel" id="popularPanel"><div class="welcome-panel-head popular-head"><div><strong id="popularTitle">Mais perguntadas hoje</strong><small>Perguntas acadêmicas agrupadas sem identificar usuários.</small></div><div class="popular-period-toggle" role="group" aria-label="Período das perguntas mais consultadas"><button type="button" data-popular-period="today" aria-pressed="true">Hoje</button><button type="button" data-popular-period="week" aria-pressed="false">Semana</button></div></div><div class="saved-list" id="popularList"></div></section>
           </div>
           <div class="welcome-examples" aria-label="Exemplos de perguntas">
             <span>Experimente:</span>
@@ -86,9 +86,11 @@
 
   <script src="../../data.js"></script>
   <script src="../../js/design-system.js"></script>
-    <script src="../../sidebar/sidebar.js"></script>
+    <script src="../../sidebar/hub-url-resolver.js"></script>
+  <script src="../../sidebar/hub-user-state.js"></script>
+  <script src="../../sidebar/sidebar.js"></script>
 <script src="../../js/sidebar-quick-search.js"></script>
-  <script src="config.js?v=1.6.10"></script>
-  <script src="app.js?v=1.6.10"></script>
+  <script src="config.js?v=1.7.3"></script>
+  <script src="app.js?v=1.7.3"></script>
 </body>
 </html>

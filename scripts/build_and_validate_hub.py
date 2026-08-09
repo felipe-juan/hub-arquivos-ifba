@@ -59,6 +59,7 @@ def main() -> int:
     run(root, "scripts/build_production_assets.py")
     run(root, "scripts/normalize_document_manifests.py", str(root), optional=False)
     run(root, "scripts/sync_assistente_offline_cache.py", str(root), optional=False)
+    run(root, "scripts/verify_assistente_offline_catalog.py", str(root), optional=False)
     run(root, "scripts/check_index_status.py")
     run(root, "scripts/validate_site.py", optional=False)
     if not args.skip_inline:

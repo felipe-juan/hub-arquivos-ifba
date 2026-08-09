@@ -102,8 +102,28 @@ def canonical_app_emoji(item: dict[str, Any]) -> str:
     return "🧩"
 
 
+def canonical_app_id(item: dict[str, Any]) -> str:
+    """Normaliza IDs históricos dos apps públicos sem depender da release de origem."""
+    search = app_search_text(item)
+    url = normalized(item.get("url"))
+    if "apps calendario" in url or "calendario" in search:
+        return "calendario"
+    if "apps barema" in url or "barema" in search or "atividade complementar" in search:
+        return "barema"
+    if "apps fluxograma" in url or "fluxograma" in search or "matriz curricular" in search:
+        return "fluxogramas"
+    if "media final" in search or "prova final" in search or "#media-final" in str(item.get("url") or ""):
+        return "app-media-final"
+    if "apps assistente" in url or "assistente do hub" in search:
+        return "app-assistente-hub"
+    return str(item.get("id") or "").strip()
+
+
 def normalize_app(item: dict[str, Any]) -> dict[str, Any]:
     normalized_item = dict(item)
+    canonical_id = canonical_app_id(normalized_item)
+    if canonical_id:
+        normalized_item["id"] = canonical_id
     emoji = canonical_app_emoji(normalized_item)
     normalized_item["emoji"] = emoji
     normalized_item["icon"] = emoji
@@ -197,31 +217,80 @@ def save_hub_data(path: Path, data: dict[str, Any]) -> None:
     write(path, DATA_PREFIX + json.dumps(data, ensure_ascii=False, indent=2) + ";\n")
 
 
-def update_data_and_registry() -> None:
+def embed_sidebar_registry_fallback(registry: dict[str, Any]) -> None:
+    path = ROOT / "sidebar" / "sidebar.js"
+    text = read(path)
+    start_marker = "    /* HUB REGISTRY FALLBACK START */"
+    end_marker = "    /* HUB REGISTRY FALLBACK END */"
+    start = text.find(start_marker)
+    end = text.find(end_marker, start + len(start_marker))
+    if start < 0 or end < 0:
+        fail("Marcadores do fallback canônico da sidebar não encontrados.")
+    body = json.dumps(registry, ensure_ascii=False, indent=2)
+    replacement = start_marker + "\n" + "\n".join("    " + line for line in body.splitlines()) + "\n" + end_marker
+    write(path, text[:start] + replacement + text[end + len(end_marker):])
+
+
+def update_data_and_registry(previous_registry: dict[str, Any] | None = None) -> None:
     path = ROOT / "data.js"
     data = load_hub_data(path)
-    apps = [item for item in (data.get("apps") or []) if isinstance(item, dict)]
+
+    # Migração única: se o HUB já possuía um hub-registry canônico, ele vence
+    # qualquer cópia derivada em data.js. Em instalações antigas sem registry,
+    # importamos data.js uma vez e, a partir desta release, o registry passa a
+    # ser a fonte de verdade das próximas atualizações.
+    canonical = previous_registry if isinstance(previous_registry, dict) and previous_registry.get("sourceOfTruth") is True else None
+    if canonical:
+        source_apps = [item for item in (canonical.get("apps") or []) if isinstance(item, dict)]
+        useful = [item for item in (canonical.get("links") or []) if isinstance(item, dict)]
+        canonical_external = [item for item in (canonical.get("externalLinks") or []) if isinstance(item, dict)]
+    else:
+        source_apps = [item for item in (data.get("apps") or []) if isinstance(item, dict)]
+        useful = [item for item in (data.get("usefulLinks") or data.get("links") or []) if isinstance(item, dict)]
+        canonical_external = []
+
     apps = [
-        normalize_app(item) for item in apps
+        normalize_app(item) for item in source_apps
         if not is_obsolete_app(item)
         and item.get("id") != APP_ENTRY["id"]
         and item.get("title") != APP_ENTRY["title"]
         and item.get("url") != APP_ENTRY["url"]
     ]
-    data["apps"] = [normalize_app(APP_ENTRY), *apps]
-    save_hub_data(path, data)
-
-    useful = [item for item in (data.get("usefulLinks") or data.get("links") or []) if isinstance(item, dict)]
+    apps = [normalize_app(APP_ENTRY), *apps]
     useful = [item for item in useful if not is_obsolete_app(item)]
-    external = build_external_links(useful)
+
+    # Links institucionais obrigatórios continuam protegidos mesmo se uma versão
+    # antiga do registry estiver incompleta. Mantemos metadados já canônicos e
+    # completamos Portal/SUAP pelo normalizador central.
+    external_by_id = {str(item.get("id") or ""): item for item in canonical_external if item.get("id")}
+    for item in build_external_links(useful):
+        external_by_id.setdefault(str(item.get("id") or ""), item)
+    for item in build_external_links([]):
+        external_by_id.setdefault(str(item.get("id") or ""), item)
+    external = list(external_by_id.values())
+
     registry = {
-        "schemaVersion": 1,
+        "schemaVersion": 2,
+        "version": APP_VERSION,
+        "hubVersion": TARGET_VERSION,
+        "sourceOfTruth": True,
         "generatedBy": f"hub-assistente-v{APP_VERSION}",
-        "apps": data["apps"],
+        "apps": apps,
         "links": useful,
         "externalLinks": external,
     }
-    write(ROOT / "sidebar" / "apps-registry.json", json.dumps(registry, ensure_ascii=False, indent=2) + "\n")
+    serialized = json.dumps(registry, ensure_ascii=False, indent=2) + "\n"
+    write(ROOT / "sidebar" / "hub-registry.json", serialized)
+    # Espelho temporário somente para clientes/cache de versões antigas.
+    write(ROOT / "sidebar" / "apps-registry.json", serialized)
+    embed_sidebar_registry_fallback(registry)
+
+    # Home é materializada a partir do registry, não o contrário.
+    data["apps"] = registry["apps"]
+    data["usefulLinks"] = registry["links"]
+    if "links" in data:
+        data["links"] = registry["links"]
+    save_hub_data(path, data)
 
 
 def update_catalog() -> None:
@@ -260,9 +329,10 @@ def install_home_shell() -> None:
     # e antes do complemento de busca rápida. Assim, o runtime legado pode concluir
     # sua inicialização sem disputar os mesmos elementos, e o componente canônico
     # substitui o shell antigo ao final. A normalização é por linhas, sem regex.
-    lines = [line for line in text.splitlines(keepends=True) if 'src="sidebar/sidebar.js' not in line]
+    managed_scripts = ('src="sidebar/sidebar.js', 'src="sidebar/hub-url-resolver.js', 'src="sidebar/hub-user-state.js')
+    lines = [line for line in text.splitlines(keepends=True) if not any(marker in line for marker in managed_scripts)]
     text = "".join(lines)
-    script = '  <script src="sidebar/sidebar.js"></script>\n'
+    script = '  <script src="sidebar/hub-url-resolver.js"></script>\n  <script src="sidebar/hub-user-state.js"></script>\n  <script src="sidebar/sidebar.js"></script>\n'
     anchors = (
         '<script src="js/sidebar-quick-search.js',
         '<script src="./js/sidebar-quick-search.js',
@@ -293,6 +363,9 @@ def patch_home_runtime() -> None:
     explicit = '  const explicitEmoji = resource.emoji || resource.icon || resource.app?.emoji || resource.app?.icon || "";\n  if (explicitEmoji) return explicitEmoji;'
     if function_marker in text and explicit not in text:
         text = text.replace(function_marker, function_marker + "\n" + explicit, 1)
+    # Favoritos da home e do Assistente compartilham a mesma chave global.
+    text = text.replace("hubFavoritesV1", "hubFavoritesV2")
+    text = text.replace("hubAssistantFavoritesV1", "hubFavoritesV2")
     write(path, text)
 
 def patch_app_html(path: Path) -> None:
@@ -301,12 +374,12 @@ def patch_app_html(path: Path) -> None:
     for line in text.splitlines(keepends=True):
         if "app-shell.css" in line or "app-shell.js" in line:
             continue
-        if "sidebar/sidebar.css" in line or "sidebar/sidebar.js" in line:
+        if any(marker in line for marker in ("sidebar/sidebar.css", "sidebar/sidebar.js", "sidebar/hub-url-resolver.js", "sidebar/hub-user-state.js")):
             continue
         lines.append(line)
     text = "".join(lines)
     text = insert_once(text, 'href="../../sidebar/sidebar.css"', '  <link rel="stylesheet" href="../../sidebar/sidebar.css" />\n', "</head>")
-    script = '  <script src="../../sidebar/sidebar.js"></script>\n'
+    script = '  <script src="../../sidebar/hub-url-resolver.js"></script>\n  <script src="../../sidebar/hub-user-state.js"></script>\n  <script src="../../sidebar/sidebar.js"></script>\n'
     quick = '<script src="../../js/sidebar-quick-search.js'
     if quick in text:
         text = insert_once(text, 'src="../../sidebar/sidebar.js"', script, quick)
@@ -385,6 +458,8 @@ def install_scripts() -> None:
         "patch_github_pages_workflow.py",
         "enrich_document_metadata.py",
         "generate_assistente_offline_catalog.py",
+        "verify_assistente_offline_catalog.py",
+        "e2e_browser_test.js",
         "test_assistente_web.py",
         "test_frontend_modules.js",
         "install_assistente_web.py",
@@ -402,6 +477,16 @@ def install_scripts() -> None:
 def main() -> None:
     if not (ROOT / "data.js").is_file() or not (ROOT / "apps").is_dir():
         fail("Execute este script na raiz do HUB Arquivos IFBA.")
+    previous_registry = None
+    previous_registry_path = ROOT / "sidebar" / "hub-registry.json"
+    if previous_registry_path.is_file():
+        try:
+            candidate = json.loads(read(previous_registry_path))
+            if isinstance(candidate, dict) and candidate.get("sourceOfTruth") is True:
+                previous_registry = candidate
+        except Exception:
+            previous_registry = None
+
     assistant_source = PATCH / "apps" / "assistente"
     assistant_target = ROOT / "apps" / "assistente"
     if assistant_target.exists():
@@ -424,7 +509,7 @@ def main() -> None:
     override_target = ROOT / "documents" / "document-metadata.overrides.example.json"
     if override_example.is_file() and not override_target.exists():
         shutil.copy2(override_example, override_target)
-    update_data_and_registry()
+    update_data_and_registry(previous_registry)
     update_catalog()
     install_home_shell()
     patch_home_runtime()
@@ -434,6 +519,7 @@ def main() -> None:
     update_service_worker()
     subprocess.run([sys.executable, str(ROOT / "scripts" / "enrich_document_metadata.py"), str(ROOT)], check=True)
     subprocess.run([sys.executable, str(ROOT / "scripts" / "generate_assistente_offline_catalog.py"), str(ROOT)], check=True)
+    subprocess.run([sys.executable, str(ROOT / "scripts" / "verify_assistente_offline_catalog.py"), str(ROOT)], check=True)
     update_service_worker()
     # Sincronização deliberadamente restrita aos quatro marcadores que o
     # validador canônico do HUB compara com VERSION. Não existe replace global.

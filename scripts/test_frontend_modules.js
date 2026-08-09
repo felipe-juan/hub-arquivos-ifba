@@ -29,6 +29,12 @@ for (const marker of [
 assert.ok(html.includes(`config.js?v=${appVersion}`));
 assert.ok(html.includes(`app.js?v=${appVersion}`));
 assert.ok(html.includes('interactive-widget=resizes-content'));
+
+assert.ok(html.includes('../../sidebar/hub-url-resolver.js'));
+assert.ok(html.includes('../../sidebar/hub-user-state.js'));
+assert.ok(app.includes("const FAVORITES_KEY = 'hubFavoritesV2'"));
+assert.ok(app.includes("data-popular-period"));
+assert.ok(app.includes("period=${encodeURIComponent(state.popularPeriod)}"));
 assert.ok(app.includes('mailto:${email}'));
 assert.ok(app.includes('visualViewport?.addEventListener(\'scroll\''));
 for (const marker of [

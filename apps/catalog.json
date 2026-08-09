@@ -3,10 +3,10 @@
   "updatedAt": "2026-08-06",
   "apps": [
     {
-      "id": "assistente",
+      "id": "app-assistente-hub",
       "title": "Assistente do HUB",
       "url": "apps/assistente/",
-      "internalVersion": "1.6.10",
+      "internalVersion": "1.7.3",
       "sourceFiles": [],
       "status": "uses-independent-assistant-api",
       "reviewedAt": "2026-08-06",

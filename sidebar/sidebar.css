@@ -38,3 +38,21 @@ html[data-theme="light"] .site-sidebar,html[data-theme="light"] .mobile-topbar{b
 .sidebar-external-link .sidebar-label { display: flex; align-items: center; min-height: 100%; }
 body.sidebar-icons-only .sidebar-utility-actions, html.sidebar-icons-only-preload .sidebar-utility-actions { grid-template-columns: 1fr; }
 @media (max-width: 920px) { body.sidebar-icons-only .sidebar-utility-actions, html.sidebar-icons-only-preload .sidebar-utility-actions { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+
+/* v2 — estado global do HUB e reset seletivo */
+.sidebar-favorite-static { min-width: 0; flex: 1; display: flex; align-items: center; gap: .55rem; padding: .45rem .55rem; color: var(--text, #e8eef5); }
+.hub-reset-dialog { width: min(520px, calc(100vw - 28px)); padding: 0; border: 1px solid color-mix(in srgb, #78d9ff 22%, #34404c); border-radius: 18px; background: #101820; color: #edf3f8; box-shadow: 0 24px 80px rgba(0,0,0,.48); }
+.hub-reset-dialog::backdrop { background: rgba(3,8,12,.72); backdrop-filter: blur(3px); }
+.hub-reset-dialog form { display: grid; gap: .72rem; padding: 1rem; }
+.hub-reset-dialog header, .hub-reset-dialog footer { display: flex; align-items: center; justify-content: space-between; gap: .6rem; }
+.hub-reset-dialog header strong { font-size: 1.05rem; }
+.hub-reset-dialog header button { border: 0; background: transparent; color: #9caebe; font-size: 1.25rem; }
+.hub-reset-dialog p { margin: 0; color: #9caebe; font-size: .82rem; }
+.hub-reset-dialog label { display: grid; grid-template-columns: 22px minmax(0,1fr); gap: .55rem; align-items: start; padding: .68rem; border: 1px solid #2a3641; border-radius: 12px; background: #121d26; cursor: pointer; }
+.hub-reset-dialog label span { display: grid; gap: .12rem; }
+.hub-reset-dialog label small { color: #91a4b5; line-height: 1.35; }
+.hub-reset-dialog label input { margin-top: .18rem; accent-color: #6fdcff; }
+.hub-reset-dialog .hub-reset-all { border-color: color-mix(in srgb, #6fdcff 35%, #2a3641); }
+.hub-reset-dialog footer { justify-content: flex-end; margin-top: .2rem; }
+.hub-reset-dialog footer button { min-height: 38px; padding: .45rem .75rem; border-radius: 10px; border: 1px solid #34404c; background: #15212b; color: #edf3f8; }
+.hub-reset-dialog footer #hubResetConfirm { border-color: color-mix(in srgb, #6fdcff 55%, #34404c); color: #6fdcff; }

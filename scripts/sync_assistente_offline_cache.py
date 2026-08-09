@@ -30,6 +30,9 @@ ENTRIES = [
     f"./apps/assistente/offline-data.json?v={APP_VERSION}",
     "./sidebar/sidebar.css",
     "./sidebar/sidebar.js",
+    "./sidebar/hub-url-resolver.js",
+    "./sidebar/hub-user-state.js",
+    "./sidebar/hub-registry.json",
     "./sidebar/apps-registry.json",
 ]
 

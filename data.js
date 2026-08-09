@@ -423,7 +423,7 @@ window.HUB_DATA = {
       "icon": "🧮"
     },
     {
-      "id": "app-barema",
+      "id": "barema",
       "title": "Barema de Atividades Complementares",
       "description": "Explorador e simulador das versões do Barema de Atividades Complementares, com consulta compacta, modo planilha e cálculo de limites por categoria.",
       "url": "apps/barema/",
@@ -451,7 +451,7 @@ window.HUB_DATA = {
       "icon": "🎓"
     },
     {
-      "id": "app-calendario",
+      "id": "calendario",
       "title": "Calendário Acadêmico 2026",
       "description": "App independente para consultar o calendário acadêmico IFBA VCA 2026 por busca, tipo de curso, cards, linha do tempo, mês, ano completo e exportação .ics.",
       "url": "apps/calendario/",
@@ -488,7 +488,7 @@ window.HUB_DATA = {
       "icon": "📅"
     },
     {
-      "id": "app-fluxogramas",
+      "id": "fluxogramas",
       "title": "Fluxogramas Curriculares",
       "description": "App independente para navegar pelos fluxogramas curriculares dos cursos do IFBA VCA em modo interativo e também conferir os PDFs originais.",
       "url": "apps/fluxogramas/",

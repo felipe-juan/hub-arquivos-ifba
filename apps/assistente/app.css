@@ -467,7 +467,7 @@ body.assistant-compact-height .composer-area { min-height: 58px; padding-top: .4
 .document-card-page { color: var(--muted); font-size: .72rem; }
 @media (max-width: 620px) { .saved-item { flex-direction: column; } }
 
-/* v1.6.10 — ações discretas em outline e painéis iniciais alinhados. */
+/* v1.7.3 — ações discretas em outline e painéis iniciais alinhados. */
 .message-toolbar button svg {
   width: 19px;
   height: 19px;
@@ -528,14 +528,14 @@ body.assistant-compact-height .composer-area { min-height: 58px; padding-top: .4
 @media (max-width: 620px) { .document-card { align-items: start; } }
 
 
-/* v1.6.10 — modo de teste local sem contaminar métricas públicas. */
+/* v1.7.3 — modo de teste local sem contaminar métricas públicas. */
 .test-mode-toggle svg { width: 19px; height: 19px; fill: none; stroke: currentColor; stroke-width: 1.7; stroke-linecap: round; stroke-linejoin: round; }
 .test-mode-toggle.selected { color: var(--amber); border-color: color-mix(in srgb, var(--amber) 55%, var(--line)); background: color-mix(in srgb, var(--amber) 13%, var(--surface-2)); }
 .test-mode-toggle.selected svg { fill: color-mix(in srgb, var(--amber) 18%, transparent); }
 
 .document-card-actions { display: flex; flex-wrap: wrap; gap: .4rem; justify-content: flex-start; align-items: center; }
 
-/* v1.6.10 — evita preview branco de PDFs externos. */
+/* v1.7.3 — evita preview branco de PDFs externos. */
 .pdf-preview-fallback {
   width: min(520px, 100%);
   min-height: 72px;
@@ -555,3 +555,11 @@ body.assistant-compact-height .composer-area { min-height: 58px; padding-top: .4
 .pdf-preview-fallback > span:last-child { min-width: 0; display: grid; gap: .16rem; }
 .pdf-preview-fallback strong { color: var(--ink); font-size: .78rem; }
 .pdf-preview-fallback small { color: var(--muted); font-size: .69rem; line-height: 1.35; }
+
+/* v1.7.3 — popularidade Hoje/Semana */
+.popular-head { grid-template-columns: minmax(0,1fr) auto; align-items: center; gap: .65rem; }
+.popular-head > div:first-child { display: grid; gap: .15rem; }
+.popular-period-toggle { display: inline-flex; padding: 3px; gap: 2px; border: 1px solid var(--line); border-radius: 999px; background: color-mix(in srgb, var(--surface-2) 82%, transparent); }
+.popular-period-toggle button { min-height: 30px; padding: .3rem .6rem; border: 0; border-radius: 999px; background: transparent; color: var(--muted); font-size: .7rem; font-weight: 780; box-shadow: none; }
+.popular-period-toggle button.active { background: color-mix(in srgb, var(--cyan) 14%, var(--surface)); color: var(--cyan); }
+@media (max-width: 620px) { .popular-head { grid-template-columns: 1fr; } .popular-period-toggle { justify-self: start; } }
