@@ -329,24 +329,23 @@ def install_home_shell() -> None:
     # e antes do complemento de busca rápida. Assim, o runtime legado pode concluir
     # sua inicialização sem disputar os mesmos elementos, e o componente canônico
     # substitui o shell antigo ao final. A normalização é por linhas, sem regex.
-    managed_scripts = ('src="sidebar/sidebar.js', 'src="sidebar/hub-url-resolver.js', 'src="sidebar/hub-user-state.js')
-    lines = [line for line in text.splitlines(keepends=True) if not any(marker in line for marker in managed_scripts)]
-    text = "".join(lines)
-    script = '  <script src="sidebar/hub-url-resolver.js"></script>\n  <script src="sidebar/hub-user-state.js"></script>\n  <script src="sidebar/sidebar.js"></script>\n'
-    anchors = (
-        '<script src="js/sidebar-quick-search.js',
-        '<script src="./js/sidebar-quick-search.js',
-        '<script defer src="js/sidebar-quick-search.js',
-        '<script defer src="./js/sidebar-quick-search.js',
-        '</body>',
+    managed_scripts = (
+        'src="sidebar/sidebar.js', 'src="sidebar/hub-url-resolver.js', 'src="sidebar/hub-user-state.js',
+        'src="sidebar/hub-search.js', 'src="sidebar/hub-network.js', 'src="js/sidebar-quick-search.js',
+        'src="./js/sidebar-quick-search.js',
     )
-    for before in anchors:
-        index = text.find(before)
-        if index >= 0:
-            text = text[:index] + script + text[index:]
-            break
-    else:
-        fail("Não foi possível localizar um ponto seguro para inserir sidebar/sidebar.js na página inicial.")
+    managed_styles = ('href="css/sidebar-quick-search.css', 'href="./css/sidebar-quick-search.css')
+    lines = [line for line in text.splitlines(keepends=True) if not any(marker in line for marker in (*managed_scripts, *managed_styles))]
+    text = "".join(lines)
+    script = ('  <script src="sidebar/hub-url-resolver.js"></script>\n'
+              '  <script src="sidebar/hub-user-state.js"></script>\n'
+              '  <script src="sidebar/sidebar.js"></script>\n'
+              '  <script src="sidebar/hub-search.js"></script>\n'
+              '  <script src="sidebar/hub-network.js"></script>\n')
+    index = text.find('</body>')
+    if index < 0:
+        fail("Não foi possível localizar um ponto seguro para inserir a experiência global do HUB na página inicial.")
+    text = text[:index] + script + text[index:]
     write(path, text)
 
 def patch_home_runtime() -> None:
@@ -372,19 +371,19 @@ def patch_app_html(path: Path) -> None:
     text = read(path)
     lines = []
     for line in text.splitlines(keepends=True):
-        if "app-shell.css" in line or "app-shell.js" in line:
+        if "app-shell.css" in line or "app-shell.js" in line or "sidebar-quick-search.css" in line or "sidebar-quick-search.js" in line:
             continue
-        if any(marker in line for marker in ("sidebar/sidebar.css", "sidebar/sidebar.js", "sidebar/hub-url-resolver.js", "sidebar/hub-user-state.js")):
+        if any(marker in line for marker in ("sidebar/sidebar.css", "sidebar/sidebar.js", "sidebar/hub-url-resolver.js", "sidebar/hub-user-state.js", "sidebar/hub-search.js", "sidebar/hub-network.js")):
             continue
         lines.append(line)
     text = "".join(lines)
     text = insert_once(text, 'href="../../sidebar/sidebar.css"', '  <link rel="stylesheet" href="../../sidebar/sidebar.css" />\n', "</head>")
-    script = '  <script src="../../sidebar/hub-url-resolver.js"></script>\n  <script src="../../sidebar/hub-user-state.js"></script>\n  <script src="../../sidebar/sidebar.js"></script>\n'
-    quick = '<script src="../../js/sidebar-quick-search.js'
-    if quick in text:
-        text = insert_once(text, 'src="../../sidebar/sidebar.js"', script, quick)
-    else:
-        text = insert_once(text, 'src="../../sidebar/sidebar.js"', script, "</body>")
+    script = ('  <script src="../../sidebar/hub-url-resolver.js"></script>\n'
+              '  <script src="../../sidebar/hub-user-state.js"></script>\n'
+              '  <script src="../../sidebar/sidebar.js"></script>\n'
+              '  <script src="../../sidebar/hub-search.js"></script>\n'
+              '  <script src="../../sidebar/hub-network.js"></script>\n')
+    text = insert_once(text, 'src="../../sidebar/hub-search.js"', script, "</body>")
     write(path, text)
 
 

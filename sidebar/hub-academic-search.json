@@ -1,0 +1,1091 @@
+{
+  "schemaVersion": 1,
+  "period": "2026.2",
+  "updatedAt": "2026-07-28",
+  "source": "academic-canonical",
+  "items": [
+    {
+      "id": "professor-alexandro",
+      "kind": "professor",
+      "title": "Alexandro dos Santos Silva",
+      "summary": "3º semestre, 5º semestre — Linguagem de Programação II · Programação Web II",
+      "tags": [
+        "alexandro",
+        "Linguagem de Programação II",
+        "Programação Web II",
+        "3º semestre",
+        "5º semestre"
+      ],
+      "query": "professor Alexandro dos Santos Silva"
+    },
+    {
+      "id": "professor-allan",
+      "kind": "professor",
+      "title": "Allan de Sousa Soares",
+      "summary": "1º semestre, 2º semestre — Matemática Discreta I · Matemática Discreta II",
+      "tags": [
+        "allan",
+        "Matemática Discreta I",
+        "Matemática Discreta II",
+        "1º semestre",
+        "2º semestre"
+      ],
+      "query": "professor Allan de Sousa Soares"
+    },
+    {
+      "id": "professor-amanda",
+      "kind": "professor",
+      "title": "Amanda Ferraz de Oliveira Passos",
+      "summary": "6º semestre, 7º semestre, 8º semestre — Gestão de Projetos · Gestão e Governança de TI · Sistemas de Apoio à Decisão",
+      "tags": [
+        "amanda",
+        "Gestão de Projetos",
+        "Gestão e Governança de TI",
+        "Sistemas de Apoio à Decisão",
+        "6º semestre",
+        "7º semestre",
+        "8º semestre"
+      ],
+      "query": "professor Amanda Ferraz de Oliveira Passos"
+    },
+    {
+      "id": "professor-andrique",
+      "kind": "professor",
+      "title": "Andrique Figueirêdo Amorim",
+      "summary": "4º semestre, 5º semestre, 6º semestre — Atividades Curriculares de Extensão I · Programação Web · Comércio Eletrônico",
+      "tags": [
+        "andrique",
+        "Atividades Curriculares de Extensão I",
+        "Programação Web",
+        "Comércio Eletrônico",
+        "4º semestre",
+        "5º semestre",
+        "6º semestre"
+      ],
+      "query": "professor Andrique Figueirêdo Amorim"
+    },
+    {
+      "id": "professor-bruno",
+      "kind": "professor",
+      "title": "Bruno Silvério Costa",
+      "summary": "4º semestre, 6º semestre, 7º semestre — Programação Web I · Inteligência Artificial · Interface Homem Máquina",
+      "tags": [
+        "bruno",
+        "Programação Web I",
+        "Inteligência Artificial",
+        "Interface Homem Máquina",
+        "4º semestre",
+        "6º semestre",
+        "7º semestre"
+      ],
+      "query": "professor Bruno Silvério Costa"
+    },
+    {
+      "id": "professor-camilo",
+      "kind": "professor",
+      "title": "Camilo Alves Carvalho",
+      "summary": "1º semestre, 3º semestre, 6º semestre — Introdução à Ciência da Computação · Sistemas Operacionais · Atividades Curriculares de Extensão III",
+      "tags": [
+        "camilo",
+        "Introdução à Ciência da Computação",
+        "Sistemas Operacionais",
+        "Atividades Curriculares de Extensão III",
+        "1º semestre",
+        "3º semestre",
+        "6º semestre"
+      ],
+      "query": "professor Camilo Alves Carvalho"
+    },
+    {
+      "id": "professor-carlos",
+      "kind": "professor",
+      "title": "Carlos André Pereira de Jesus Silva",
+      "summary": "3º semestre — Probabilidade e Estatística",
+      "tags": [
+        "carlos",
+        "Probabilidade e Estatística",
+        "3º semestre"
+      ],
+      "query": "professor Carlos André Pereira de Jesus Silva"
+    },
+    {
+      "id": "professor-claudio",
+      "kind": "professor",
+      "title": "Cláudio Rodolfo Sousa de Oliveira",
+      "summary": "2º semestre, 3º semestre, 5º semestre — Linguagem de Programação I · Estruturas de Dados · Atividades Curriculares de Extensão II",
+      "tags": [
+        "claudio",
+        "Linguagem de Programação I",
+        "Estruturas de Dados",
+        "Atividades Curriculares de Extensão II",
+        "2º semestre",
+        "3º semestre",
+        "5º semestre"
+      ],
+      "query": "professor Cláudio Rodolfo Sousa de Oliveira"
+    },
+    {
+      "id": "professor-crescencio",
+      "kind": "professor",
+      "title": "Crescêncio Rodrigues Lima Neto",
+      "summary": "6º semestre, 7º semestre, 8º semestre — Engenharia de Software · Qualidade de Software · Arquitetura de Software",
+      "tags": [
+        "crescencio",
+        "Engenharia de Software",
+        "Qualidade de Software",
+        "Arquitetura de Software",
+        "6º semestre",
+        "7º semestre",
+        "8º semestre"
+      ],
+      "query": "professor Crescêncio Rodrigues Lima Neto"
+    },
+    {
+      "id": "professor-crijina",
+      "kind": "professor",
+      "title": "Crijina Chagas Flores",
+      "summary": "4º semestre, 5º semestre — Análise e Modelagem de Sistemas · Processo de Desenvolvimento de Software",
+      "tags": [
+        "crijina",
+        "Análise e Modelagem de Sistemas",
+        "Processo de Desenvolvimento de Software",
+        "4º semestre",
+        "5º semestre"
+      ],
+      "query": "professor Crijina Chagas Flores"
+    },
+    {
+      "id": "professor-djan",
+      "kind": "professor",
+      "title": "Djan Almeida Santos",
+      "summary": "7º semestre — Trabalho de Conclusão de Curso I",
+      "tags": [
+        "djan",
+        "Trabalho de Conclusão de Curso I",
+        "7º semestre"
+      ],
+      "query": "professor Djan Almeida Santos"
+    },
+    {
+      "id": "professor-eliomar",
+      "kind": "professor",
+      "title": "Eliomar Luz Santos",
+      "summary": "2º semestre — Computador, Ética e Sociedade",
+      "tags": [
+        "eliomar",
+        "Computador, Ética e Sociedade",
+        "2º semestre"
+      ],
+      "query": "professor Eliomar Luz Santos"
+    },
+    {
+      "id": "professor-igor",
+      "kind": "professor",
+      "title": "Igor Luiz Oliveira de Souza",
+      "summary": "4º semestre, 5º semestre, 6º semestre — Redes de Computadores · Projeto e Administração de Redes · Segurança e Auditoria de Sistemas",
+      "tags": [
+        "igor",
+        "Redes de Computadores",
+        "Projeto e Administração de Redes",
+        "Segurança e Auditoria de Sistemas",
+        "4º semestre",
+        "5º semestre",
+        "6º semestre"
+      ],
+      "query": "professor Igor Luiz Oliveira de Souza"
+    },
+    {
+      "id": "professor-joao",
+      "kind": "professor",
+      "title": "João Rodrigues Pinto",
+      "summary": "1º semestre — Leitura e Produção de Gêneros Acadêmicos",
+      "tags": [
+        "joao",
+        "Leitura e Produção de Gêneros Acadêmicos",
+        "1º semestre"
+      ],
+      "query": "professor João Rodrigues Pinto"
+    },
+    {
+      "id": "professor-leonardo",
+      "kind": "professor",
+      "title": "Leonardo Barreto Campos",
+      "summary": "2º semestre, 6º semestre, 7º semestre — Organização e Arquitetura de Computadores · Sistemas Distribuídos · Segurança de Redes de Computadores",
+      "tags": [
+        "leonardo",
+        "Organização e Arquitetura de Computadores",
+        "Sistemas Distribuídos",
+        "Segurança de Redes de Computadores",
+        "2º semestre",
+        "6º semestre",
+        "7º semestre"
+      ],
+      "query": "professor Leonardo Barreto Campos"
+    },
+    {
+      "id": "professor-liojes",
+      "kind": "professor",
+      "title": "Liojes de Oliveira Carneiro",
+      "summary": "1º semestre, 8º semestre — Algoritmo e Programação · Trabalho de Conclusão de Curso II",
+      "tags": [
+        "liojes",
+        "Algoritmo e Programação",
+        "Trabalho de Conclusão de Curso II",
+        "1º semestre",
+        "8º semestre"
+      ],
+      "query": "professor Liojes de Oliveira Carneiro"
+    },
+    {
+      "id": "professor-luana",
+      "kind": "professor",
+      "title": "Luana Lima Bittencourt Silva",
+      "summary": "2º semestre, 3º semestre — Administração · Organização, Sistemas e Métodos",
+      "tags": [
+        "luana",
+        "Administração",
+        "Organização, Sistemas e Métodos",
+        "2º semestre",
+        "3º semestre"
+      ],
+      "query": "professor Luana Lima Bittencourt Silva"
+    },
+    {
+      "id": "professor-luis paulo",
+      "kind": "professor",
+      "title": "Luís Paulo da Silva Carvalho",
+      "summary": "5º semestre, 6º semestre — Complexidade de Algoritmos · Programação para Dispositivos Móveis",
+      "tags": [
+        "luis paulo",
+        "Complexidade de Algoritmos",
+        "Programação para Dispositivos Móveis",
+        "5º semestre",
+        "6º semestre"
+      ],
+      "query": "professor Luís Paulo da Silva Carvalho"
+    },
+    {
+      "id": "professor-marcelo",
+      "kind": "professor",
+      "title": "Marcelo Meira Alves",
+      "summary": "7º semestre — Linguagem Brasileira de Sinais - Libras",
+      "tags": [
+        "marcelo",
+        "Linguagem Brasileira de Sinais - Libras",
+        "7º semestre"
+      ],
+      "query": "professor Marcelo Meira Alves"
+    },
+    {
+      "id": "professor-ney",
+      "kind": "professor",
+      "title": "Ney Máximus Correia Silva Freitas",
+      "summary": "3º semestre — Direito Cibernético",
+      "tags": [
+        "ney",
+        "Direito Cibernético",
+        "3º semestre"
+      ],
+      "query": "professor Ney Máximus Correia Silva Freitas"
+    },
+    {
+      "id": "professor-pablo",
+      "kind": "professor",
+      "title": "Pablo Freire Matos",
+      "summary": "4º semestre, 5º semestre, 7º semestre — Banco de Dados I · Banco de Dados II · Atividades Curriculares de Extensão IV",
+      "tags": [
+        "pablo",
+        "Banco de Dados I",
+        "Banco de Dados II",
+        "Atividades Curriculares de Extensão IV",
+        "4º semestre",
+        "5º semestre",
+        "7º semestre"
+      ],
+      "query": "professor Pablo Freire Matos"
+    },
+    {
+      "id": "professor-paulo",
+      "kind": "professor",
+      "title": "Paulo Espinheira Menezes de Melo",
+      "summary": "2º semestre — Cálculo Diferencial Aplicado à Computação",
+      "tags": [
+        "paulo",
+        "Cálculo Diferencial Aplicado à Computação",
+        "2º semestre"
+      ],
+      "query": "professor Paulo Espinheira Menezes de Melo"
+    },
+    {
+      "id": "professor-polliana",
+      "kind": "professor",
+      "title": "Polliana Freire dos Anjos de Oliveira",
+      "summary": "1º semestre — Inglês Aplicado à Computação",
+      "tags": [
+        "polliana",
+        "Inglês Aplicado à Computação",
+        "1º semestre"
+      ],
+      "query": "professor Polliana Freire dos Anjos de Oliveira"
+    },
+    {
+      "id": "professor-stenio",
+      "kind": "professor",
+      "title": "Stênio Longo Araújo",
+      "summary": "4º semestre, 6º semestre, 7º semestre — Paradigmas de Linguagens de Programação · Segurança da Informação · Estágio Supervisionado",
+      "tags": [
+        "stenio",
+        "Paradigmas de Linguagens de Programação",
+        "Segurança da Informação",
+        "Estágio Supervisionado",
+        "4º semestre",
+        "6º semestre",
+        "7º semestre"
+      ],
+      "query": "professor Stênio Longo Araújo"
+    },
+    {
+      "id": "professor-thiago",
+      "kind": "professor",
+      "title": "Thiago Leonardo Bastos da Silva",
+      "summary": "2º semestre — Cálculo Diferencial Aplicado à Computação",
+      "tags": [
+        "thiago",
+        "Cálculo Diferencial Aplicado à Computação",
+        "2º semestre"
+      ],
+      "query": "professor Thiago Leonardo Bastos da Silva"
+    },
+    {
+      "id": "professor-ualace",
+      "kind": "professor",
+      "title": "Ualace Roberto de Jesus Oliveira",
+      "summary": "5º semestre, 6º semestre — Economia · Contabilidade Geral e Custos",
+      "tags": [
+        "ualace",
+        "Economia",
+        "Contabilidade Geral e Custos",
+        "5º semestre",
+        "6º semestre"
+      ],
+      "query": "professor Ualace Roberto de Jesus Oliveira"
+    },
+    {
+      "id": "professor-valeria",
+      "kind": "professor",
+      "title": "Valéria Melo Ferraz",
+      "summary": "4º semestre — Empreendedorismo",
+      "tags": [
+        "valeria",
+        "Empreendedorismo",
+        "4º semestre"
+      ],
+      "query": "professor Valéria Melo Ferraz"
+    },
+    {
+      "id": "professor-viviane",
+      "kind": "professor",
+      "title": "Viviane Maria Lélis Carvalho",
+      "summary": "1º semestre, 4º semestre, 8º semestre — Fundamentos de Sistemas de Informação · Metodologia da Pesquisa Científica · Inteligência do Negócio",
+      "tags": [
+        "viviane",
+        "Fundamentos de Sistemas de Informação",
+        "Metodologia da Pesquisa Científica",
+        "Inteligência do Negócio",
+        "1º semestre",
+        "4º semestre",
+        "8º semestre"
+      ],
+      "query": "professor Viviane Maria Lélis Carvalho"
+    },
+    {
+      "id": "disciplina-administracao",
+      "kind": "discipline",
+      "title": "Administração",
+      "summary": "2º semestre — Luana Lima Bittencourt Silva",
+      "tags": [
+        "Luana Lima Bittencourt Silva",
+        "2º semestre",
+        "H008"
+      ],
+      "query": "informações sobre Administração"
+    },
+    {
+      "id": "disciplina-algoritmo-e-programacao",
+      "kind": "discipline",
+      "title": "Algoritmo e Programação",
+      "summary": "1º semestre — Liojes de Oliveira Carneiro",
+      "tags": [
+        "Liojes de Oliveira Carneiro",
+        "1º semestre",
+        "H204"
+      ],
+      "query": "informações sobre Algoritmo e Programação"
+    },
+    {
+      "id": "disciplina-analise-e-modelagem-de-sistemas",
+      "kind": "discipline",
+      "title": "Análise e Modelagem de Sistemas",
+      "summary": "4º semestre — Crijina Chagas Flores",
+      "tags": [
+        "Crijina Chagas Flores",
+        "4º semestre",
+        "H205"
+      ],
+      "query": "informações sobre Análise e Modelagem de Sistemas"
+    },
+    {
+      "id": "disciplina-arquitetura-de-software",
+      "kind": "discipline",
+      "title": "Arquitetura de Software",
+      "summary": "8º semestre — Crescêncio Rodrigues Lima Neto",
+      "tags": [
+        "Crescêncio Rodrigues Lima Neto",
+        "8º semestre",
+        "H213"
+      ],
+      "query": "informações sobre Arquitetura de Software"
+    },
+    {
+      "id": "disciplina-atividades-curriculares-de-extensao-i",
+      "kind": "discipline",
+      "title": "Atividades Curriculares de Extensão I",
+      "summary": "4º semestre — Andrique Figueirêdo Amorim",
+      "tags": [
+        "Andrique Figueirêdo Amorim",
+        "4º semestre",
+        "H205"
+      ],
+      "query": "informações sobre Atividades Curriculares de Extensão I"
+    },
+    {
+      "id": "disciplina-atividades-curriculares-de-extensao-ii",
+      "kind": "discipline",
+      "title": "Atividades Curriculares de Extensão II",
+      "summary": "5º semestre — Cláudio Rodolfo Sousa de Oliveira",
+      "tags": [
+        "Cláudio Rodolfo Sousa de Oliveira",
+        "5º semestre",
+        "H214"
+      ],
+      "query": "informações sobre Atividades Curriculares de Extensão II"
+    },
+    {
+      "id": "disciplina-atividades-curriculares-de-extensao-iii",
+      "kind": "discipline",
+      "title": "Atividades Curriculares de Extensão III",
+      "summary": "6º semestre — Camilo Alves Carvalho",
+      "tags": [
+        "Camilo Alves Carvalho",
+        "6º semestre",
+        "H106"
+      ],
+      "query": "informações sobre Atividades Curriculares de Extensão III"
+    },
+    {
+      "id": "disciplina-atividades-curriculares-de-extensao-iv",
+      "kind": "discipline",
+      "title": "Atividades Curriculares de Extensão IV",
+      "summary": "7º semestre — Pablo Freire Matos",
+      "tags": [
+        "Pablo Freire Matos",
+        "7º semestre",
+        "H101"
+      ],
+      "query": "informações sobre Atividades Curriculares de Extensão IV"
+    },
+    {
+      "id": "disciplina-banco-de-dados-i",
+      "kind": "discipline",
+      "title": "Banco de Dados I",
+      "summary": "4º semestre — Pablo Freire Matos",
+      "tags": [
+        "Pablo Freire Matos",
+        "4º semestre",
+        "H211"
+      ],
+      "query": "informações sobre Banco de Dados I"
+    },
+    {
+      "id": "disciplina-banco-de-dados-ii",
+      "kind": "discipline",
+      "title": "Banco de Dados II",
+      "summary": "5º semestre — Pablo Freire Matos",
+      "tags": [
+        "Pablo Freire Matos",
+        "5º semestre",
+        "H202"
+      ],
+      "query": "informações sobre Banco de Dados II"
+    },
+    {
+      "id": "disciplina-calculo-diferencial-aplicado-a-computacao",
+      "kind": "discipline",
+      "title": "Cálculo Diferencial Aplicado à Computação",
+      "summary": "2º semestre — Paulo Espinheira Menezes de Melo, Thiago Leonardo Bastos da Silva",
+      "tags": [
+        "Paulo Espinheira Menezes de Melo",
+        "Thiago Leonardo Bastos da Silva",
+        "2º semestre",
+        "H008",
+        "H202"
+      ],
+      "query": "informações sobre Cálculo Diferencial Aplicado à Computação"
+    },
+    {
+      "id": "disciplina-comercio-eletronico",
+      "kind": "discipline",
+      "title": "Comércio Eletrônico",
+      "summary": "6º semestre — Andrique Figueirêdo Amorim",
+      "tags": [
+        "Andrique Figueirêdo Amorim",
+        "6º semestre",
+        "H214"
+      ],
+      "query": "informações sobre Comércio Eletrônico"
+    },
+    {
+      "id": "disciplina-complexidade-de-algoritmos",
+      "kind": "discipline",
+      "title": "Complexidade de Algoritmos",
+      "summary": "5º semestre — Luís Paulo da Silva Carvalho",
+      "tags": [
+        "Luís Paulo da Silva Carvalho",
+        "5º semestre",
+        "H205"
+      ],
+      "query": "informações sobre Complexidade de Algoritmos"
+    },
+    {
+      "id": "disciplina-computador-etica-e-sociedade",
+      "kind": "discipline",
+      "title": "Computador, Ética e Sociedade",
+      "summary": "2º semestre — Eliomar Luz Santos",
+      "tags": [
+        "Eliomar Luz Santos",
+        "2º semestre",
+        "H008"
+      ],
+      "query": "informações sobre Computador, Ética e Sociedade"
+    },
+    {
+      "id": "disciplina-contabilidade-geral-e-custos",
+      "kind": "discipline",
+      "title": "Contabilidade Geral e Custos",
+      "summary": "6º semestre — Ualace Roberto de Jesus Oliveira",
+      "tags": [
+        "Ualace Roberto de Jesus Oliveira",
+        "6º semestre",
+        "H106"
+      ],
+      "query": "informações sobre Contabilidade Geral e Custos"
+    },
+    {
+      "id": "disciplina-direito-cibernetico",
+      "kind": "discipline",
+      "title": "Direito Cibernético",
+      "summary": "3º semestre — Ney Máximus Correia Silva Freitas",
+      "tags": [
+        "Ney Máximus Correia Silva Freitas",
+        "3º semestre",
+        "H214"
+      ],
+      "query": "informações sobre Direito Cibernético"
+    },
+    {
+      "id": "disciplina-economia",
+      "kind": "discipline",
+      "title": "Economia",
+      "summary": "5º semestre — Ualace Roberto de Jesus Oliveira",
+      "tags": [
+        "Ualace Roberto de Jesus Oliveira",
+        "5º semestre",
+        "H202"
+      ],
+      "query": "informações sobre Economia"
+    },
+    {
+      "id": "disciplina-empreendedorismo",
+      "kind": "discipline",
+      "title": "Empreendedorismo",
+      "summary": "4º semestre — Valéria Melo Ferraz",
+      "tags": [
+        "Valéria Melo Ferraz",
+        "4º semestre",
+        "H212"
+      ],
+      "query": "informações sobre Empreendedorismo"
+    },
+    {
+      "id": "disciplina-engenharia-de-software",
+      "kind": "discipline",
+      "title": "Engenharia de Software",
+      "summary": "6º semestre — Crescêncio Rodrigues Lima Neto",
+      "tags": [
+        "Crescêncio Rodrigues Lima Neto",
+        "6º semestre",
+        "H213"
+      ],
+      "query": "informações sobre Engenharia de Software"
+    },
+    {
+      "id": "disciplina-estagio-supervisionado",
+      "kind": "discipline",
+      "title": "Estágio Supervisionado",
+      "summary": "7º semestre — Stênio Longo Araújo",
+      "tags": [
+        "Stênio Longo Araújo",
+        "7º semestre",
+        "H106"
+      ],
+      "query": "informações sobre Estágio Supervisionado"
+    },
+    {
+      "id": "disciplina-estruturas-de-dados",
+      "kind": "discipline",
+      "title": "Estruturas de Dados",
+      "summary": "3º semestre — Cláudio Rodolfo Sousa de Oliveira",
+      "tags": [
+        "Cláudio Rodolfo Sousa de Oliveira",
+        "3º semestre",
+        "H108"
+      ],
+      "query": "informações sobre Estruturas de Dados"
+    },
+    {
+      "id": "disciplina-fundamentos-de-sistemas-de-informacao",
+      "kind": "discipline",
+      "title": "Fundamentos de Sistemas de Informação",
+      "summary": "1º semestre — Viviane Maria Lélis Carvalho",
+      "tags": [
+        "Viviane Maria Lélis Carvalho",
+        "1º semestre",
+        "H204"
+      ],
+      "query": "informações sobre Fundamentos de Sistemas de Informação"
+    },
+    {
+      "id": "disciplina-gestao-de-projetos",
+      "kind": "discipline",
+      "title": "Gestão de Projetos",
+      "summary": "6º semestre — 7º semestre — Amanda Ferraz de Oliveira Passos",
+      "tags": [
+        "Amanda Ferraz de Oliveira Passos",
+        "6º semestre",
+        "7º semestre",
+        "H213",
+        "H202"
+      ],
+      "query": "informações sobre Gestão de Projetos"
+    },
+    {
+      "id": "disciplina-gestao-e-governanca-de-ti",
+      "kind": "discipline",
+      "title": "Gestão e Governança de TI",
+      "summary": "7º semestre — Amanda Ferraz de Oliveira Passos",
+      "tags": [
+        "Amanda Ferraz de Oliveira Passos",
+        "7º semestre",
+        "H105"
+      ],
+      "query": "informações sobre Gestão e Governança de TI"
+    },
+    {
+      "id": "disciplina-ingles-aplicado-a-computacao",
+      "kind": "discipline",
+      "title": "Inglês Aplicado à Computação",
+      "summary": "1º semestre — Polliana Freire dos Anjos de Oliveira",
+      "tags": [
+        "Polliana Freire dos Anjos de Oliveira",
+        "1º semestre",
+        "H204"
+      ],
+      "query": "informações sobre Inglês Aplicado à Computação"
+    },
+    {
+      "id": "disciplina-inteligencia-artificial",
+      "kind": "discipline",
+      "title": "Inteligência Artificial",
+      "summary": "6º semestre — Bruno Silvério Costa",
+      "tags": [
+        "Bruno Silvério Costa",
+        "6º semestre",
+        "H212"
+      ],
+      "query": "informações sobre Inteligência Artificial"
+    },
+    {
+      "id": "disciplina-inteligencia-do-negocio",
+      "kind": "discipline",
+      "title": "Inteligência do Negócio",
+      "summary": "8º semestre — Viviane Maria Lélis Carvalho",
+      "tags": [
+        "Viviane Maria Lélis Carvalho",
+        "8º semestre",
+        "H214"
+      ],
+      "query": "informações sobre Inteligência do Negócio"
+    },
+    {
+      "id": "disciplina-interface-homem-maquina",
+      "kind": "discipline",
+      "title": "Interface Homem Máquina",
+      "summary": "7º semestre — Bruno Silvério Costa",
+      "tags": [
+        "Bruno Silvério Costa",
+        "7º semestre",
+        "H212"
+      ],
+      "query": "informações sobre Interface Homem Máquina"
+    },
+    {
+      "id": "disciplina-introducao-a-ciencia-da-computacao",
+      "kind": "discipline",
+      "title": "Introdução à Ciência da Computação",
+      "summary": "1º semestre — Camilo Alves Carvalho",
+      "tags": [
+        "Camilo Alves Carvalho",
+        "1º semestre",
+        "H204"
+      ],
+      "query": "informações sobre Introdução à Ciência da Computação"
+    },
+    {
+      "id": "disciplina-leitura-e-producao-de-generos-academicos",
+      "kind": "discipline",
+      "title": "Leitura e Produção de Gêneros Acadêmicos",
+      "summary": "1º semestre — João Rodrigues Pinto",
+      "tags": [
+        "João Rodrigues Pinto",
+        "1º semestre",
+        "H204"
+      ],
+      "query": "informações sobre Leitura e Produção de Gêneros Acadêmicos"
+    },
+    {
+      "id": "disciplina-linguagem-brasileira-de-sinais-libras",
+      "kind": "discipline",
+      "title": "Linguagem Brasileira de Sinais - Libras",
+      "summary": "7º semestre — Marcelo Meira Alves",
+      "tags": [
+        "Marcelo Meira Alves",
+        "7º semestre",
+        "H214"
+      ],
+      "query": "informações sobre Linguagem Brasileira de Sinais - Libras"
+    },
+    {
+      "id": "disciplina-linguagem-de-programacao-i",
+      "kind": "discipline",
+      "title": "Linguagem de Programação I",
+      "summary": "2º semestre — Cláudio Rodolfo Sousa de Oliveira",
+      "tags": [
+        "Cláudio Rodolfo Sousa de Oliveira",
+        "2º semestre",
+        "H008"
+      ],
+      "query": "informações sobre Linguagem de Programação I"
+    },
+    {
+      "id": "disciplina-linguagem-de-programacao-ii",
+      "kind": "discipline",
+      "title": "Linguagem de Programação II",
+      "summary": "3º semestre — Alexandro dos Santos Silva",
+      "tags": [
+        "Alexandro dos Santos Silva",
+        "3º semestre",
+        "H108"
+      ],
+      "query": "informações sobre Linguagem de Programação II"
+    },
+    {
+      "id": "disciplina-matematica-discreta-i",
+      "kind": "discipline",
+      "title": "Matemática Discreta I",
+      "summary": "1º semestre — Allan de Sousa Soares",
+      "tags": [
+        "Allan de Sousa Soares",
+        "1º semestre",
+        "H204"
+      ],
+      "query": "informações sobre Matemática Discreta I"
+    },
+    {
+      "id": "disciplina-matematica-discreta-ii",
+      "kind": "discipline",
+      "title": "Matemática Discreta II",
+      "summary": "2º semestre — Allan de Sousa Soares",
+      "tags": [
+        "Allan de Sousa Soares",
+        "2º semestre",
+        "H008"
+      ],
+      "query": "informações sobre Matemática Discreta II"
+    },
+    {
+      "id": "disciplina-meio-ambiente",
+      "kind": "discipline",
+      "title": "Meio Ambiente",
+      "summary": "8º semestre — Docente de Meio Ambiente — identificação pendente",
+      "tags": [
+        "Docente de Meio Ambiente — identificação pendente",
+        "8º semestre",
+        "H101"
+      ],
+      "query": "informações sobre Meio Ambiente"
+    },
+    {
+      "id": "disciplina-metodologia-da-pesquisa-cientifica",
+      "kind": "discipline",
+      "title": "Metodologia da Pesquisa Científica",
+      "summary": "4º semestre — Viviane Maria Lélis Carvalho",
+      "tags": [
+        "Viviane Maria Lélis Carvalho",
+        "4º semestre",
+        "H205"
+      ],
+      "query": "informações sobre Metodologia da Pesquisa Científica"
+    },
+    {
+      "id": "disciplina-organizacao-e-arquitetura-de-computadores",
+      "kind": "discipline",
+      "title": "Organização e Arquitetura de Computadores",
+      "summary": "2º semestre — Leonardo Barreto Campos",
+      "tags": [
+        "Leonardo Barreto Campos",
+        "2º semestre",
+        "H008"
+      ],
+      "query": "informações sobre Organização e Arquitetura de Computadores"
+    },
+    {
+      "id": "disciplina-organizacao-sistemas-e-metodos",
+      "kind": "discipline",
+      "title": "Organização, Sistemas e Métodos",
+      "summary": "3º semestre — Luana Lima Bittencourt Silva",
+      "tags": [
+        "Luana Lima Bittencourt Silva",
+        "3º semestre",
+        "H211"
+      ],
+      "query": "informações sobre Organização, Sistemas e Métodos"
+    },
+    {
+      "id": "disciplina-paradigmas-de-linguagens-de-programacao",
+      "kind": "discipline",
+      "title": "Paradigmas de Linguagens de Programação",
+      "summary": "4º semestre — Stênio Longo Araújo",
+      "tags": [
+        "Stênio Longo Araújo",
+        "4º semestre",
+        "H106"
+      ],
+      "query": "informações sobre Paradigmas de Linguagens de Programação"
+    },
+    {
+      "id": "disciplina-probabilidade-e-estatistica",
+      "kind": "discipline",
+      "title": "Probabilidade e Estatística",
+      "summary": "3º semestre — Carlos André Pereira de Jesus Silva",
+      "tags": [
+        "Carlos André Pereira de Jesus Silva",
+        "3º semestre",
+        "H214",
+        "H108"
+      ],
+      "query": "informações sobre Probabilidade e Estatística"
+    },
+    {
+      "id": "disciplina-processo-de-desenvolvimento-de-software",
+      "kind": "discipline",
+      "title": "Processo de Desenvolvimento de Software",
+      "summary": "5º semestre — Crijina Chagas Flores",
+      "tags": [
+        "Crijina Chagas Flores",
+        "5º semestre",
+        "H214"
+      ],
+      "query": "informações sobre Processo de Desenvolvimento de Software"
+    },
+    {
+      "id": "disciplina-programacao-para-dispositivos-moveis",
+      "kind": "discipline",
+      "title": "Programação para Dispositivos Móveis",
+      "summary": "6º semestre — Luís Paulo da Silva Carvalho",
+      "tags": [
+        "Luís Paulo da Silva Carvalho",
+        "6º semestre",
+        "H212"
+      ],
+      "query": "informações sobre Programação para Dispositivos Móveis"
+    },
+    {
+      "id": "disciplina-programacao-web",
+      "kind": "discipline",
+      "title": "Programação Web",
+      "summary": "5º semestre — Andrique Figueirêdo Amorim",
+      "tags": [
+        "Andrique Figueirêdo Amorim",
+        "5º semestre",
+        "H205"
+      ],
+      "query": "informações sobre Programação Web"
+    },
+    {
+      "id": "disciplina-programacao-web-i",
+      "kind": "discipline",
+      "title": "Programação Web I",
+      "summary": "4º semestre — Bruno Silvério Costa",
+      "tags": [
+        "Bruno Silvério Costa",
+        "4º semestre",
+        "H205"
+      ],
+      "query": "informações sobre Programação Web I"
+    },
+    {
+      "id": "disciplina-programacao-web-ii",
+      "kind": "discipline",
+      "title": "Programação Web II",
+      "summary": "5º semestre — Alexandro dos Santos Silva",
+      "tags": [
+        "Alexandro dos Santos Silva",
+        "5º semestre",
+        "H205"
+      ],
+      "query": "informações sobre Programação Web II"
+    },
+    {
+      "id": "disciplina-projeto-e-administracao-de-redes",
+      "kind": "discipline",
+      "title": "Projeto e Administração de Redes",
+      "summary": "5º semestre — Igor Luiz Oliveira de Souza",
+      "tags": [
+        "Igor Luiz Oliveira de Souza",
+        "5º semestre",
+        "H202"
+      ],
+      "query": "informações sobre Projeto e Administração de Redes"
+    },
+    {
+      "id": "disciplina-qualidade-de-software",
+      "kind": "discipline",
+      "title": "Qualidade de Software",
+      "summary": "7º semestre — Crescêncio Rodrigues Lima Neto",
+      "tags": [
+        "Crescêncio Rodrigues Lima Neto",
+        "7º semestre",
+        "H105"
+      ],
+      "query": "informações sobre Qualidade de Software"
+    },
+    {
+      "id": "disciplina-redes-de-computadores",
+      "kind": "discipline",
+      "title": "Redes de Computadores",
+      "summary": "4º semestre — Igor Luiz Oliveira de Souza",
+      "tags": [
+        "Igor Luiz Oliveira de Souza",
+        "4º semestre",
+        "H202"
+      ],
+      "query": "informações sobre Redes de Computadores"
+    },
+    {
+      "id": "disciplina-seguranca-da-informacao",
+      "kind": "discipline",
+      "title": "Segurança da Informação",
+      "summary": "6º semestre — Stênio Longo Araújo",
+      "tags": [
+        "Stênio Longo Araújo",
+        "6º semestre",
+        "H106"
+      ],
+      "query": "informações sobre Segurança da Informação"
+    },
+    {
+      "id": "disciplina-seguranca-de-redes-de-computadores",
+      "kind": "discipline",
+      "title": "Segurança de Redes de Computadores",
+      "summary": "7º semestre — Leonardo Barreto Campos",
+      "tags": [
+        "Leonardo Barreto Campos",
+        "7º semestre",
+        "H105"
+      ],
+      "query": "informações sobre Segurança de Redes de Computadores"
+    },
+    {
+      "id": "disciplina-seguranca-e-auditoria-de-sistemas",
+      "kind": "discipline",
+      "title": "Segurança e Auditoria de Sistemas",
+      "summary": "6º semestre — Igor Luiz Oliveira de Souza",
+      "tags": [
+        "Igor Luiz Oliveira de Souza",
+        "6º semestre",
+        "H106"
+      ],
+      "query": "informações sobre Segurança e Auditoria de Sistemas"
+    },
+    {
+      "id": "disciplina-sistemas-de-apoio-a-decisao",
+      "kind": "discipline",
+      "title": "Sistemas de Apoio à Decisão",
+      "summary": "8º semestre — Amanda Ferraz de Oliveira Passos",
+      "tags": [
+        "Amanda Ferraz de Oliveira Passos",
+        "8º semestre",
+        "H107"
+      ],
+      "query": "informações sobre Sistemas de Apoio à Decisão"
+    },
+    {
+      "id": "disciplina-sistemas-distribuidos",
+      "kind": "discipline",
+      "title": "Sistemas Distribuídos",
+      "summary": "6º semestre — Leonardo Barreto Campos",
+      "tags": [
+        "Leonardo Barreto Campos",
+        "6º semestre",
+        "H212"
+      ],
+      "query": "informações sobre Sistemas Distribuídos"
+    },
+    {
+      "id": "disciplina-sistemas-operacionais",
+      "kind": "discipline",
+      "title": "Sistemas Operacionais",
+      "summary": "3º semestre — Camilo Alves Carvalho",
+      "tags": [
+        "Camilo Alves Carvalho",
+        "3º semestre",
+        "H211"
+      ],
+      "query": "informações sobre Sistemas Operacionais"
+    },
+    {
+      "id": "disciplina-trabalho-de-conclusao-de-curso-i",
+      "kind": "discipline",
+      "title": "Trabalho de Conclusão de Curso I",
+      "summary": "7º semestre — Djan Almeida Santos",
+      "tags": [
+        "Djan Almeida Santos",
+        "7º semestre",
+        "H106"
+      ],
+      "query": "informações sobre Trabalho de Conclusão de Curso I"
+    },
+    {
+      "id": "disciplina-trabalho-de-conclusao-de-curso-ii",
+      "kind": "discipline",
+      "title": "Trabalho de Conclusão de Curso II",
+      "summary": "8º semestre — Liojes de Oliveira Carneiro",
+      "tags": [
+        "Liojes de Oliveira Carneiro",
+        "8º semestre",
+        "H206"
+      ],
+      "query": "informações sobre Trabalho de Conclusão de Curso II"
+    }
+  ]
+}

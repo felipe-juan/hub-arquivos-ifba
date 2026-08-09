@@ -1,9 +1,9 @@
 {
   "schemaVersion": 2,
-  "version": "1.7.3",
-  "hubVersion": "0.2.95",
+  "version": "1.8.1",
+  "hubVersion": "0.2.97",
   "sourceOfTruth": true,
-  "generatedBy": "hub-assistente-v1.7.3",
+  "generatedBy": "hub-assistente-v1.8.1",
   "apps": [
     {
       "id": "app-assistente-hub",

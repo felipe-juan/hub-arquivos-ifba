@@ -2,7 +2,7 @@
   'use strict';
 
   const CONFIG = window.HUB_ASSISTANT_CONFIG || {};
-  const FRONTEND_RELEASE = '1.7.3-ux-federated-stream-v1';
+  const FRONTEND_RELEASE = '1.8.1-ux-federated-stream-v1';
   const STORAGE_KEY = 'hubAssistantStateV1';
   const SETTINGS_KEY = 'hubAssistantSettingsV1';
   const FAVORITES_KEY = 'hubFavoritesV2';
@@ -990,9 +990,13 @@
   }
 
   function setConnection(status, label) {
-    state.offline = status === 'offline';
+    state.offline = status !== 'online';
     const banner = $('offlineBanner');
-    if (banner) banner.hidden = !state.offline;
+    if (banner) {
+      banner.hidden = status === 'online' || status === 'checking';
+      if (status === 'degraded') banner.textContent = '⚠️ O Assistente está temporariamente indisponível, mas documentos e ferramentas do HUB continuam funcionando.';
+      else if (status === 'offline') banner.textContent = '📴 Você está offline. Ainda consigo consultar documentos, apps e links armazenados localmente no HUB.';
+    }
     const element = $('connectionState');
     if (!element) return;
     element.dataset.state = status;
@@ -1080,7 +1084,8 @@
       setConnection('online', 'Conectado');
       return true;
     } catch {
-      setConnection('offline', 'Modo offline disponível');
+      if (navigator.onLine === false) setConnection('offline', 'Modo offline disponível');
+      else setConnection('degraded', 'Assistente indisponível');
       return false;
     } finally { clearTimeout(timer); }
   }
@@ -1127,12 +1132,15 @@
     }).sort((a,b) => b.score - a.score)[0] || null;
   }
 
-  function offlineAnswer(text) {
+  function offlineAnswer(text, { apiUnavailable = false } = {}) {
     const updated = state.offlineCatalog?.updatedAt || '';
     const items = findOfflineItems(text, 3);
+    const unavailableLead = 'O Assistente está temporariamente indisponível, mas documentos e ferramentas do HUB continuam funcionando.';
     if (!items.length) {
       return {
-        text:`Estou offline. Não encontrei esse assunto no catálogo local, mas ainda posso abrir documentos, apps e links que já estão armazenados no HUB.${updated ? `\n\nCatálogo local atualizado em ${updated}.` : ''}`,
+        text: apiUnavailable
+          ? `${unavailableLead} Não encontrei esse assunto no conteúdo local.${updated ? `\n\nConteúdo local atualizado em ${updated}.` : ''}`
+          : `Estou offline. Não encontrei esse assunto no catálogo local, mas ainda posso abrir documentos, apps e links que já estão armazenados no HUB.${updated ? `\n\nCatálogo local atualizado em ${updated}.` : ''}`,
         components:[], knowledge:null, presentation:null
       };
     }
@@ -1140,11 +1148,13 @@
     const snippet = first.kind === 'document' ? bestOfflineSnippet(first, text) : null;
     const page = Number(snippet?.page || first.page || 0);
     const pageUrl = first.url && page ? `${String(first.url).split('#')[0]}#page=${page}` : first.url;
-    const components = [{ type:'hub-results', title:'Disponível offline no HUB', items:items.map(item => ({ title:item.title, summary:item.summary, url:item.url, kind:item.kind })) }];
+    const components = [{ type:'hub-results', title:apiUnavailable ? 'Enquanto isso, disponível no HUB' : 'Disponível offline no HUB', items:items.map(item => ({ title:item.title, summary:item.summary, url:item.url, kind:item.kind })) }];
     if (first.kind === 'document') components.unshift({ type:'document', title:first.title, page, url:pageUrl, heading:snippet?.heading || first.summary || '' });
     const excerpt = snippet?.text ? `\n\n${safeText(snippet.text).slice(0, 900)}` : (first.summary ? `\n\n${first.summary}` : '');
     return {
-      text:`Estou offline, mas encontrei *${first.title}* no catálogo local do HUB.${excerpt}${page ? `\n\nTrecho local: página ${page}.` : ''}${updated ? `\n\nDados locais atualizados em ${updated}.` : ''}`,
+      text: apiUnavailable
+        ? `${unavailableLead}\n\nEnquanto isso, encontrei *${first.title}* no conteúdo local do HUB.${excerpt}${page ? `\n\nTrecho local: página ${page}.` : ''}${updated ? `\n\nDados locais atualizados em ${updated}.` : ''}`
+        : `Estou offline, mas encontrei *${first.title}* no catálogo local do HUB.${excerpt}${page ? `\n\nTrecho local: página ${page}.` : ''}${updated ? `\n\nDados locais atualizados em ${updated}.` : ''}`,
       components, knowledge:first.knowledge || null, presentation:null
     };
   }
@@ -1248,9 +1258,10 @@
       const reason = active.reason || (error.name === 'AbortError' ? 'aborted' : 'error');
       if (reason === 'superseded' || reason === 'reset' || reason === 'unload' || reason === 'user-stop') return;
       for (const message of streamedMessages) message.streaming = false;
-      const offline = offlineAnswer(text);
+      const apiUnavailable = navigator.onLine !== false;
+      const offline = offlineAnswer(text, { apiUnavailable });
       addMessage('assistant', offline.text, { components:offline.components, knowledge:offline.knowledge, presentation:offline.presentation, error:false });
-      setConnection('offline', 'Modo offline');
+      setConnection(apiUnavailable ? 'degraded' : 'offline', apiUnavailable ? 'Assistente indisponível' : 'Modo offline');
     } finally {
       for (const message of streamedMessages) message.streaming = false;
       const finishedHere = finishMessageRequest(active.id);
@@ -1616,9 +1627,16 @@
     render();
     resizeInput();
     checkHealth();
-    const favoriteMessageId = new URLSearchParams(location.search).get('favorite');
+    const searchParams = new URLSearchParams(location.search);
+    const favoriteMessageId = searchParams.get('favorite');
     if (favoriteMessageId) requestAnimationFrame(() => document.querySelector(`[data-message-id="${CSS.escape(favoriteMessageId)}"]`)?.scrollIntoView({ block:'center' }));
-    if (matchMedia('(pointer: fine)').matches) input?.focus({ preventScroll: true });
+    const sharedSearchPrompt = safeText(searchParams.get('q') || '').trim().slice(0, 3000);
+    if (sharedSearchPrompt && !state.sending) {
+      searchParams.delete('q');
+      const cleanQuery = searchParams.toString();
+      history.replaceState(null, '', `${location.pathname}${cleanQuery ? `?${cleanQuery}` : ''}${location.hash}`);
+      requestAnimationFrame(() => send(sharedSearchPrompt));
+    } else if (matchMedia('(pointer: fine)').matches) input?.focus({ preventScroll: true });
   }
 
   bootstrap().catch(error => {

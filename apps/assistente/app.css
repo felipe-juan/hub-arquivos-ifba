@@ -84,6 +84,7 @@ button:focus-visible, a:focus-visible, textarea:focus-visible, input:focus-visib
 .connection-state i { width: 7px; height: 7px; border-radius: 50%; background: var(--amber); box-shadow: 0 0 0 4px color-mix(in srgb, var(--amber) 12%, transparent); }
 .connection-state[data-state="online"] i { background: var(--green); box-shadow: 0 0 0 4px color-mix(in srgb, var(--green) 12%, transparent); }
 .connection-state[data-state="offline"] i { background: var(--red); box-shadow: 0 0 0 4px color-mix(in srgb, var(--red) 12%, transparent); }
+.connection-state[data-state="degraded"] i { background: var(--amber); box-shadow: 0 0 0 4px color-mix(in srgb, var(--amber) 14%, transparent); }
 .assistant-header-actions { display: flex; align-items: center; gap: .4rem; }
 .assistant-icon-button {
   width: 38px;

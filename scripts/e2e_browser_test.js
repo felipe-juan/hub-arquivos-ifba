@@ -37,7 +37,29 @@ function cleanupTemp(dir){if(!dir)return;for(let attempt=0;attempt<8;attempt++){
     if(!await waitUrl(`http://127.0.0.1:${port}/json/version`,10000))throw new Error('Chromium E2E não iniciou');
     const page=(await targets(port)).find(t=>t.type==='page');const cdp=new CDP(page.webSocketDebuggerUrl);await cdp.open();
     try{
-      await cdp.call('Page.enable');await cdp.call('Runtime.enable');await cdp.call('Page.navigate',{url:siteUrl+'/apps/assistente/?e2e=1'});await cdp.waitJs("document.readyState==='complete'&&!!document.querySelector('#messageInput')",10000);await cdp.eval('window.confirm=()=>true');
+      await cdp.call('Page.enable');await cdp.call('Runtime.enable');await cdp.call('Network.enable');await cdp.call('Page.navigate',{url:siteUrl+'/apps/assistente/?e2e=1'});await cdp.waitJs("document.readyState==='complete'&&!!document.querySelector('#messageInput')",10000);await cdp.eval('window.confirm=()=>true');
+      // Busca global real: abre ao tocar, pesquisa enquanto digita, agrupa categorias e sugere correção.
+      await cdp.eval("document.querySelector('#sidebarSearchInput')?.click()");
+      try {
+        await cdp.waitJs("!!document.querySelector('#hubGlobalSearchInput')&&!document.querySelector('#hubGlobalSearch').hidden",5000);
+      } catch (error) {
+        const searchState=await cdp.eval("({hubSearch:typeof window.HUB_SEARCH,sidebarInput:!!document.querySelector('#sidebarSearchInput'),bound:document.querySelector('#sidebarSearchForm')?.dataset.hubSearchBound||'',overlay:!!document.querySelector('#hubGlobalSearch'),hidden:document.querySelector('#hubGlobalSearch')?.hidden??null})");
+        throw new Error(`busca global não abriu por click: ${JSON.stringify(searchState)}`);
+      }
+      await cdp.eval("(()=>{const input=document.querySelector('#hubGlobalSearchInput');if(!input)return false;input.value='calc';input.dispatchEvent(new Event('input',{bubbles:true}));return true})()");
+      await cdp.waitJs("!!document.querySelector('[data-search-group=\"discipline\"]')&&!!document.querySelector('[data-search-group=\"app\"]')",6000);
+      if(!await cdp.eval("[...document.querySelectorAll('[data-search-group=\"discipline\"] strong')].some(e=>/cálculo|calculo/i.test(e.textContent))"))throw new Error('busca global não encontrou disciplina de cálculo');
+      if(!await cdp.eval("[...document.querySelectorAll('[data-search-group=\"app\"] strong')].some(e=>/média|media|final/i.test(e.textContent))"))throw new Error('busca global não encontrou Calculadora/Média Final');
+      await cdp.eval("(()=>{const input=document.querySelector('#hubGlobalSearchInput');if(!input)return false;input.value='tracamento';input.dispatchEvent(new Event('input',{bubbles:true}));return true})()");
+      await cdp.waitJs("!!document.querySelector('[data-search-suggestion=\"trancamento\"]')",6000);
+      await cdp.eval("document.querySelector('[data-search-close]')?.click()");
+      // Estado offline visível e retorno online com confirmação de atualização.
+      await cdp.call('Network.emulateNetworkConditions',{offline:true,latency:0,downloadThroughput:0,uploadThroughput:0});
+      await cdp.waitJs("document.documentElement.dataset.hubNetwork==='offline'",5000);
+      if(!await cdp.eval("String(document.querySelector('#hubNetworkStatus')?.textContent||'').includes('Offline')"))throw new Error('estado Offline não ficou visível');
+      await cdp.call('Network.emulateNetworkConditions',{offline:false,latency:20,downloadThroughput:5000000,uploadThroughput:2000000});
+      await cdp.waitJs("document.documentElement.dataset.hubNetwork!=='offline'",6000);
+      await cdp.waitJs("String(document.querySelector('#hubNetworkToast')?.textContent||'').includes('HUB atualizado')",6000);
       await cdp.eval("document.querySelector('#messageInput').value='calendário';document.querySelector('#messageInput').dispatchEvent(new Event('input',{bubbles:true}));document.querySelector('#sendMessage').click()");
       await cdp.waitJs("document.querySelectorAll('.message-row.assistant:not(.typing-row)').length>0&&!document.querySelector('.typing-row')",18000);await cdp.waitJs("!!document.querySelector('[data-favorite-message]')",5000);
       await cdp.eval("document.querySelector('[data-favorite-message]').click()");await cdp.waitJs("document.querySelector('[data-favorite-message]').getAttribute('aria-pressed')==='true'",4000);
@@ -57,7 +79,7 @@ function cleanupTemp(dir){if(!dir)return;for(let attempt=0;attempt<8;attempt++){
       const suap=await cdp.eval("document.querySelector('#sidebarExternalLinks a[href*=\"suap.ifba.edu.br\"]')?.href||''");if(!suap.startsWith('https://suap.ifba.edu.br'))throw new Error(`SUAP inválido: ${suap}`);
       await cdp.call('Emulation.setDeviceMetricsOverride',{width:390,height:844,deviceScaleFactor:1,mobile:true});await cdp.eval("document.querySelector('#mobileSidebarToggle')?.click()");await cdp.waitJs("document.body.classList.contains('mobile-sidebar-open')",4000);await cdp.call('Emulation.clearDeviceMetricsOverride');
       await cdp.eval("document.querySelector('#clearConversation')?.click()");await cdp.waitJs("document.querySelectorAll('#messages .message-row').length===0",8000);if(!await cdp.eval("JSON.parse(localStorage.getItem('hubFavoritesV2')||'[]').length>0"))throw new Error('limpar conversa apagou favoritos');if(!await cdp.eval("document.querySelector('#pinnedAnswer')?.hidden===true"))throw new Error('pin sobreviveu indevidamente à limpeza');
-      console.log('E2E Chromium: OK — PDF, calendário, favorito global, pin/limpeza, tema, SUAP e sidebar mobile.');
+      console.log('E2E Chromium: OK — busca global, typo, offline/retorno, PDF, calendário, favorito global, pin/limpeza, tema, SUAP e sidebar mobile.');
     }finally{cdp.close()}
   }finally{if(configPath&&configBackup)try{fs.writeFileSync(configPath,configBackup)}catch{}for(const p of procs.reverse())await terminate(p);await sleep(250);cleanupTemp(temp)}
 })().catch(err=>{console.error('E2E Chromium: FALHOU —',err.message);process.exit(1)});

@@ -23,10 +23,10 @@
     /* HUB REGISTRY FALLBACK START */
     {
       "schemaVersion": 2,
-      "version": "1.7.3",
-      "hubVersion": "0.2.95",
+      "version": "1.8.1",
+      "hubVersion": "0.2.97",
       "sourceOfTruth": true,
-      "generatedBy": "hub-assistente-v1.7.3",
+      "generatedBy": "hub-assistente-v1.8.1",
       "apps": [
         {
           "id": "app-assistente-hub",
@@ -622,12 +622,13 @@
     return `
       <header class="mobile-topbar">
         <a class="brand" href="${escapeHtml(rootHref('index.html#inicio'))}" aria-label="Ir para o início"><span class="brand-mark"><img src="${escapeHtml(rootHref('assets/logo-pixel.png'))}" alt="Logo HUB SI"></span><span class="brand-text"><strong>HUB SI</strong><small>IFBA · Vitória da Conquista</small></span></a>
-        <div class="mobile-header-actions"><button id="mobileThemeButton" class="mobile-icon-button" type="button" aria-label="Escolher tema" aria-expanded="false" aria-controls="mobileThemeMenu">◐</button><div id="mobileThemeMenu" class="mobile-theme-menu" hidden><button type="button" data-theme-choice="auto" aria-label="Tema automático" title="Tema automático"><span aria-hidden="true">◐</span></button><button type="button" data-theme-choice="dark" aria-label="Modo escuro" title="Modo escuro"><span aria-hidden="true">☾</span></button><button type="button" data-theme-choice="light" aria-label="Modo claro" title="Modo claro"><span aria-hidden="true">☀</span></button></div><button id="mobileSidebarToggle" class="mobile-icon-button" type="button" aria-controls="siteSidebar" aria-expanded="false" aria-label="Abrir menu">☰</button></div>
+        <span id="hubMobileNetworkStatus" class="hub-mobile-network-status" role="status" hidden></span><div class="mobile-header-actions"><button id="mobileThemeButton" class="mobile-icon-button" type="button" aria-label="Escolher tema" aria-expanded="false" aria-controls="mobileThemeMenu">◐</button><div id="mobileThemeMenu" class="mobile-theme-menu" hidden><button type="button" data-theme-choice="auto" aria-label="Tema automático" title="Tema automático"><span aria-hidden="true">◐</span></button><button type="button" data-theme-choice="dark" aria-label="Modo escuro" title="Modo escuro"><span aria-hidden="true">☾</span></button><button type="button" data-theme-choice="light" aria-label="Modo claro" title="Modo claro"><span aria-hidden="true">☀</span></button></div><button id="mobileSidebarToggle" class="mobile-icon-button" type="button" aria-controls="siteSidebar" aria-expanded="false" aria-label="Abrir menu">☰</button></div>
       </header>
       <aside id="siteSidebar" class="site-sidebar" aria-label="Menu principal">
         <div class="sidebar-head"><a class="brand sidebar-brand" href="${escapeHtml(rootHref('index.html#inicio'))}" aria-label="Ir para o início"><span class="brand-mark"><img src="${escapeHtml(rootHref('assets/logo-pixel.png'))}" alt="Logo HUB SI"></span><span class="brand-text sidebar-label"><strong>HUB SI</strong><small>IFBA · Vitória da Conquista</small></span></a><button id="sidebarCollapseButton" class="sidebar-collapse" type="button" aria-label="Ocultar menu" title="Ocultar menu">‹</button><button id="mobileSidebarClose" class="sidebar-mobile-close" type="button" aria-label="Fechar menu">×</button></div>
         <nav class="sidebar-nav" aria-label="Navegação principal">
           <form id="sidebarSearchForm" class="sidebar-search-form" role="search" aria-label="Buscar no HUB"><button id="sidebarSearchButton" class="sidebar-search-submit" type="submit" aria-label="Buscar" title="Buscar"><span aria-hidden="true">🔍</span></button><input id="sidebarSearchInput" type="search" autocomplete="off" placeholder="Buscar no HUB..." aria-label="Buscar documentos, apps, links e contatos"></form>
+          <div id="hubNetworkStatus" class="hub-network-status" role="status" aria-live="polite" hidden></div>
           <a href="${escapeHtml(rootHref('index.html#inicio'))}"><span class="nav-icon" aria-hidden="true">🏠</span><span class="sidebar-label">Início</span></a>
           <a href="${escapeHtml(rootHref('index.html#acervo'))}"><span class="nav-icon" aria-hidden="true">🗂️</span><span class="sidebar-label">Acervo</span></a>
           <div class="sidebar-menu-group" data-sidebar-group="apps"><div class="sidebar-menu-row"><a id="appsSectionLink" class="sidebar-menu-link" href="${escapeHtml(rootHref('index.html#apps'))}"><span class="nav-icon" aria-hidden="true">🧰</span><span class="sidebar-label">Apps</span></a><button id="appsMenuToggle" class="sidebar-submenu-toggle" type="button" aria-expanded="true" aria-controls="appsMenu" aria-label="Mostrar ou ocultar apps"><span class="sidebar-menu-chevron" aria-hidden="true">⌄</span></button></div><div id="appsMenu" class="sidebar-submenu sidebar-apps-list" aria-label="Aplicativos"></div></div>

@@ -23,6 +23,9 @@ STABLE_UNHASHED = {
     "sidebar/sidebar.css",
     "sidebar/hub-url-resolver.js",
     "sidebar/hub-user-state.js",
+    "sidebar/hub-search.js",
+    "sidebar/hub-network.js",
+    "sidebar/hub-academic-search.json",
     "sidebar/hub-registry.json",
     "sidebar/apps-registry.json",
 }

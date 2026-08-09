@@ -12,8 +12,7 @@
     (()=>{try{const mode=localStorage.getItem("hubThemeMode")||"auto";const resolved=mode==="auto"?(matchMedia("(prefers-color-scheme: light)").matches?"light":"dark"):mode;document.documentElement.dataset.theme=resolved;document.documentElement.dataset.themeMode=mode;}catch{}})();
   </script>
   <link rel="stylesheet" href="../../styles.css">
-  <link rel="stylesheet" href="../../css/sidebar-quick-search.css">
-  <link rel="stylesheet" href="app.css?v=1.7.3">
+  <link rel="stylesheet" href="app.css?v=1.8.1">
   <link rel="stylesheet" href="../../sidebar/sidebar.css" />
 </head>
 <body>
@@ -86,11 +85,12 @@
 
   <script src="../../data.js"></script>
   <script src="../../js/design-system.js"></script>
-    <script src="../../sidebar/hub-url-resolver.js"></script>
+  <script src="config.js?v=1.8.1"></script>
+  <script src="app.js?v=1.8.1"></script>
+  <script src="../../sidebar/hub-url-resolver.js"></script>
   <script src="../../sidebar/hub-user-state.js"></script>
   <script src="../../sidebar/sidebar.js"></script>
-<script src="../../js/sidebar-quick-search.js"></script>
-  <script src="config.js?v=1.7.3"></script>
-  <script src="app.js?v=1.7.3"></script>
+  <script src="../../sidebar/hub-search.js"></script>
+  <script src="../../sidebar/hub-network.js"></script>
 </body>
 </html>

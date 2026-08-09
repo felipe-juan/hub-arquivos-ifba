@@ -76,7 +76,7 @@ for marker in (
 assert 'MutationObserver' in app_js
 assert "indexedDB.open(DB_NAME, DB_VERSION)" in app_js
 assert 'loadDraft()' in app_js and 'persistDraft(' in app_js
-assert 'loadOfflineCatalog()' in app_js and 'offlineAnswer(text)' in app_js
+assert 'loadOfflineCatalog()' in app_js and 'offlineAnswer(text,' in app_js
 assert 'renderComponents(message)' in app_js and 'renderKnowledge(message)' in app_js
 assert "toolbarIcon('up')" in app_js and "toolbarIcon('down')" in app_js
 assert 'data-feedback="helpful"' in app_js and 'data-feedback="not-helpful"' in app_js
@@ -121,7 +121,7 @@ for marker in ("feedback-reasons", "visual-card", "integrated-sources", "pdf-pag
 
 # Sidebar canônica única em todo o HUB.
 sidebar = root / "sidebar"
-for name in ("sidebar.js", "sidebar.css", "hub-url-resolver.js", "hub-user-state.js", "hub-registry.json", "apps-registry.json"):
+for name in ("sidebar.js", "sidebar.css", "hub-url-resolver.js", "hub-user-state.js", "hub-search.js", "hub-network.js", "hub-academic-search.json", "hub-registry.json", "apps-registry.json"):
     assert (sidebar / name).is_file(), name
 registry = json.loads((sidebar / "hub-registry.json").read_text(encoding="utf-8"))
 assert registry.get("sourceOfTruth") is True
@@ -155,17 +155,22 @@ assert "hubFavoritesV2" in sidebar_js
 assert "hub-registry.json" in sidebar_js
 assert "HUB REGISTRY FALLBACK START" in sidebar_js
 assert (sidebar / "hub-url-resolver.js").is_file() and (sidebar / "hub-user-state.js").is_file()
+assert (sidebar / "hub-search.js").is_file() and (sidebar / "hub-network.js").is_file() and (sidebar / "hub-academic-search.json").is_file()
 
 home = (root / "index.html").read_text(encoding="utf-8")
 assert 'id="hubSidebarMount"' in home
 assert 'sidebar/sidebar.css' in home and 'sidebar/sidebar.js' in home
 assert 'sidebar/hub-url-resolver.js' in home and 'sidebar/hub-user-state.js' in home
+assert 'sidebar/hub-search.js' in home and 'sidebar/hub-network.js' in home
+assert 'sidebar-quick-search.js' not in home
 assert '<aside id="siteSidebar"' not in home
 for page in sorted((root / "apps").glob("*/index.html")):
     text = page.read_text(encoding="utf-8")
     assert '../../sidebar/sidebar.css' in text, f"CSS compartilhado ausente: {page}"
     assert '../../sidebar/sidebar.js' in text, f"JS compartilhado ausente: {page}"
     assert '../../sidebar/hub-url-resolver.js' in text and '../../sidebar/hub-user-state.js' in text, f"Estado/URLs compartilhados ausentes: {page}"
+    assert '../../sidebar/hub-search.js' in text and '../../sidebar/hub-network.js' in text, f"Busca/rede globais ausentes: {page}"
+    assert 'sidebar-quick-search.js' not in text, f"Busca legada ainda carregada: {page}"
     assert 'app-shell.css' not in text and 'app-shell.js' not in text, f"shell antigo ainda referenciado: {page}"
 
 raw = (root / "data.js").read_text(encoding="utf-8").strip()
@@ -304,7 +309,7 @@ if build_script.is_file():
         "apps/app-shell.js", "apps/app-shell.css",
         "apps/assistente/app.js", "apps/assistente/app.css",
         "apps/assistente/config.js", "apps/assistente/offline-data.json",
-        "sidebar/sidebar.js", "sidebar/sidebar.css", "sidebar/hub-url-resolver.js", "sidebar/hub-user-state.js", "sidebar/hub-registry.json", "sidebar/apps-registry.json",
+        "sidebar/sidebar.js", "sidebar/sidebar.css", "sidebar/hub-url-resolver.js", "sidebar/hub-user-state.js", "sidebar/hub-search.js", "sidebar/hub-network.js", "sidebar/hub-academic-search.json", "sidebar/hub-registry.json", "sidebar/apps-registry.json",
     }
     configured = []
     for statement in build_tree.body:
@@ -326,6 +331,24 @@ for module in required_modules:
     assert f'"./apps/assistente/{module}?v={APP_VERSION}"' in sw, module
 assert '"./sidebar/sidebar.js"' in sw
 assert '"./sidebar/hub-url-resolver.js"' in sw and '"./sidebar/hub-user-state.js"' in sw and '"./sidebar/hub-registry.json"' in sw
+assert '"./sidebar/hub-search.js"' in sw and '"./sidebar/hub-network.js"' in sw and '"./sidebar/hub-academic-search.json"' in sw
+
+# v1.8.0 — busca única instantânea, erros úteis e conexão/offline visível.
+search_js = (sidebar / "hub-search.js").read_text(encoding="utf-8")
+network_js = (sidebar / "hub-network.js").read_text(encoding="utf-8")
+academic_search = json.loads((sidebar / "hub-academic-search.json").read_text(encoding="utf-8"))
+for marker in ("Documentos", "Apps", "Professores", "Disciplinas", "Links", "Perguntar ao Assistente", "boundedDistance", "suggestionFor", "hubGlobalSearchInput"):
+    assert marker in search_js, marker
+assert "trancamento" in search_js and "tranacamento" in search_js
+assert "input.addEventListener(\'click\'" in search_js, "campo de busca deve abrir também por click sintético/acessível"
+assert "searchParams.set('q'" in search_js
+assert academic_search.get("items") and any(item.get("kind") == "professor" for item in academic_search["items"])
+assert any(item.get("kind") == "discipline" for item in academic_search["items"])
+for marker in ("Offline · Conteúdo salvo até", "Conexão lenta · Conteúdo local disponível", "HUB atualizado"):
+    assert marker in network_js, marker
+assert "O Assistente está temporariamente indisponível, mas documentos e ferramentas do HUB continuam funcionando." in app_js
+assert "searchParams.get('q')" in app_js
+assert '.connection-state[data-state="degraded"]' in css
 
 # No one-click v2, build e testes acontecem no Fedora antes do push.
 # O GitHub Actions deve somente transportar o site já validado para o Pages.
@@ -366,7 +389,7 @@ if local_runner:
     assert "ASSISTANT_PORT=3220" not in local_text
     assert "python3 -m http.server 8003" not in local_text
 
-for path in [*(app / name for name in required_modules), sidebar / "sidebar.js"]:
+for path in [*(app / name for name in required_modules), sidebar / "sidebar.js", sidebar / "hub-search.js", sidebar / "hub-network.js"]:
     subprocess.run(["node", "--check", str(path)], check=True)
 subprocess.run(["node", str(scripts / "test_frontend_modules.js"), str(root)], check=True)
 print(f"Assistente web v{APP_VERSION} / HUB v{HUB_VERSION} instalado: OK")

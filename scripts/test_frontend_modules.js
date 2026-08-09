@@ -10,6 +10,10 @@ const html = fs.readFileSync(path.join(dir, 'index.html'), 'utf8');
 const release = JSON.parse(fs.readFileSync(path.join(root, 'scripts', 'hub-assistente-release.json'), 'utf8'));
 const appVersion = String(release.assistant);
 
+const search = fs.readFileSync(path.join(root, 'sidebar', 'hub-search.js'), 'utf8');
+const network = fs.readFileSync(path.join(root, 'sidebar', 'hub-network.js'), 'utf8');
+const academicSearch = JSON.parse(fs.readFileSync(path.join(root, 'sidebar', 'hub-academic-search.json'), 'utf8'));
+
 for (const obsolete of ['api-client.js','history-store.js','offline-search.js','chat-controller.js','composer-controller.js','message-renderer.js','response-actions.js']) {
   assert.equal(fs.existsSync(path.join(dir, obsolete)), false, `módulo regressivo ainda presente: ${obsolete}`);
   assert.equal(html.includes(obsolete), false, `HTML ainda carrega módulo regressivo: ${obsolete}`);
@@ -46,4 +50,22 @@ for (const marker of [
 assert.ok(app.includes('if (!/^(?:https?:\\/\\/|mailto:)/i.test(raw)) return false'), 'opções numéricas não podem virar URL relativa');
 assert.ok(app.includes('attachmentIsImage'), 'preview inline de imagem ausente');
 assert.ok(app.includes('class="attachment-preview"'), 'markup de preview inline ausente');
-console.log('Frontend Assistente 1.6.0: contrato de envio, streaming, edição, fontes e interrupção aprovado.');
+
+for (const marker of ['Documentos', 'Apps', 'Professores', 'Disciplinas', 'Links', 'Perguntar ao Assistente', 'suggestionFor', 'boundedDistance', 'hubGlobalSearchInput']) {
+  assert.ok(search.includes(marker), `busca global ausente: ${marker}`);
+}
+assert.ok(search.includes('tranacamento') && search.includes('trancamento'));
+assert.ok(search.includes("searchParams.set('q'"));
+assert.ok(network.includes('Offline · Conteúdo salvo até'));
+assert.ok(network.includes('Conexão lenta · Conteúdo local disponível'));
+assert.ok(network.includes("showToast('HUB atualizado'"));
+assert.ok(Array.isArray(academicSearch.items) && academicSearch.items.some(item => item.kind === 'professor'));
+assert.ok(academicSearch.items.some(item => item.kind === 'discipline'));
+assert.ok(app.includes('O Assistente está temporariamente indisponível, mas documentos e ferramentas do HUB continuam funcionando.'));
+assert.ok(app.includes("searchParams.get('q')"));
+assert.ok(html.includes('../../sidebar/hub-search.js') && html.includes('../../sidebar/hub-network.js'));
+assert.equal(html.includes('sidebar-quick-search.js'), false);
+
+
+assert.ok(search.includes("input.addEventListener('click'"), 'busca global deve abrir também por click sintético/acessível'); // ativação por click
+console.log('Frontend Assistente: busca global, estados de erro, offline visível e contratos conversacionais aprovados.');
