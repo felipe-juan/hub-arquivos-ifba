@@ -1,0 +1,1915 @@
+{
+  "version": "2.0.1",
+  "updatedAt": "2026-08-11",
+  "period": "2026.2",
+  "source": {
+    "file": "https://ifbaedubr-my.sharepoint.com/:x:/g/personal/rodrigobonfim_ifba_edu_br/IQCqjeOoMcvWQoiikRSUwWOxAZSOwJaih1qWmWFq5Vxa73Y?rtime=aTN-B0Ly3kg",
+    "version": "Versão 2",
+    "published_at": "2026-07-28",
+    "sha256": "ec6000abd72154f3675147a20b74f0ef02eda5fb7bcea59da8b00fa2fad10f16",
+    "professor_cards": 28,
+    "class_professor_records": 60
+  },
+  "professors": [
+    {
+      "name": "Alexandro dos Santos Silva",
+      "email": "alexandrossilva@ifba.edu.br",
+      "identifier": "alexandro",
+      "semesters": [
+        "3º semestre",
+        "5º semestre"
+      ],
+      "classes": [
+        [
+          "Linguagem de Programação II",
+          "3º semestre",
+          "segunda-feira",
+          "18h30–20h10 e 20h20–22h",
+          "H108"
+        ],
+        [
+          "Programação Web II",
+          "5º semestre",
+          "terça-feira",
+          "18h30–20h10 e 20h20–22h",
+          "H205"
+        ]
+      ]
+    },
+    {
+      "name": "Allan de Sousa Soares",
+      "email": "allansoares@ifba.edu.br",
+      "identifier": "allan",
+      "semesters": [
+        "1º semestre",
+        "2º semestre"
+      ],
+      "classes": [
+        [
+          "Matemática Discreta I",
+          "1º semestre",
+          "quinta-feira",
+          "18h30–20h10 e 20h20–22h",
+          "H204"
+        ],
+        [
+          "Matemática Discreta II",
+          "2º semestre",
+          "sexta-feira",
+          "18h30–20h10 e 20h20–22h",
+          "H008"
+        ]
+      ]
+    },
+    {
+      "name": "Amanda Ferraz de Oliveira Passos",
+      "email": "amandaferraz@ifba.edu.br",
+      "identifier": "amanda",
+      "semesters": [
+        "6º semestre",
+        "7º semestre",
+        "8º semestre"
+      ],
+      "classes": [
+        [
+          "Gestão de Projetos",
+          "6º semestre",
+          "quarta-feira",
+          "18h30–20h10 e 20h20–22h",
+          "H213"
+        ],
+        [
+          "Gestão e Governança de TI",
+          "7º semestre",
+          "segunda-feira",
+          "18h30–20h10 e 20h20–22h",
+          "H105"
+        ],
+        [
+          "Gestão de Projetos",
+          "7º semestre",
+          "quarta-feira",
+          "18h30–20h10 e 20h20–22h",
+          "H202"
+        ],
+        [
+          "Sistemas de Apoio à Decisão",
+          "8º semestre",
+          "terça-feira",
+          "18h30–20h10 e 20h20–22h",
+          "H107"
+        ]
+      ]
+    },
+    {
+      "name": "Andrique Figueirêdo Amorim",
+      "email": "andrique.amorim@ifba.edu.br",
+      "identifier": "andrique",
+      "semesters": [
+        "4º semestre",
+        "5º semestre",
+        "6º semestre"
+      ],
+      "classes": [
+        [
+          "Atividades Curriculares de Extensão I",
+          "4º semestre",
+          "quinta-feira e sexta-feira",
+          "16h40–18h20",
+          "H205"
+        ],
+        [
+          "Programação Web",
+          "5º semestre",
+          "sexta-feira",
+          "18h30–20h10 e 20h20–22h",
+          "H205"
+        ],
+        [
+          "Comércio Eletrônico",
+          "6º semestre",
+          "quinta-feira",
+          "18h30–20h10 e 20h20–22h",
+          "H214"
+        ]
+      ]
+    },
+    {
+      "name": "Bruno Silvério Costa",
+      "email": "brunosilverio@ifba.edu.br",
+      "identifier": "bruno",
+      "semesters": [
+        "4º semestre",
+        "6º semestre",
+        "7º semestre"
+      ],
+      "classes": [
+        [
+          "Programação Web I",
+          "4º semestre",
+          "segunda-feira",
+          "18h30–20h10 e 20h20–22h",
+          "H205"
+        ],
+        [
+          "Inteligência Artificial",
+          "6º semestre",
+          "sexta-feira",
+          "18h30–20h10 e 20h20–22h",
+          "H212"
+        ],
+        [
+          "Interface Homem Máquina",
+          "7º semestre",
+          "quinta-feira",
+          "18h30–20h10 e 20h20–22h",
+          "H212"
+        ]
+      ]
+    },
+    {
+      "name": "Camilo Alves Carvalho",
+      "email": "camilocarvalho@ifba.edu.br",
+      "identifier": "camilo",
+      "semesters": [
+        "1º semestre",
+        "3º semestre",
+        "6º semestre"
+      ],
+      "classes": [
+        [
+          "Introdução à Ciência da Computação",
+          "1º semestre",
+          "segunda-feira",
+          "18h30–20h10 e 20h20–22h",
+          "H204"
+        ],
+        [
+          "Sistemas Operacionais",
+          "3º semestre",
+          "sábado",
+          "13h50–16h20 e 16h40–17h30",
+          "H211"
+        ],
+        [
+          "Atividades Curriculares de Extensão III",
+          "6º semestre",
+          "segunda-feira e terça-feira",
+          "16h40–18h20",
+          "H106"
+        ]
+      ]
+    },
+    {
+      "name": "Carlos André Pereira de Jesus Silva",
+      "email": "carlos.pereira@ifba.edu.br",
+      "identifier": "carlos",
+      "semesters": [
+        "3º semestre"
+      ],
+      "classes": [
+        [
+          "Probabilidade e Estatística",
+          "3º semestre",
+          "quarta-feira",
+          "18h30–20h10 e 20h20–22h",
+          "H108"
+        ],
+        [
+          "Probabilidade e Estatística",
+          "3º semestre",
+          "segunda-feira",
+          "18h30–20h10 e 20h20–22h",
+          "H214"
+        ]
+      ]
+    },
+    {
+      "name": "Cláudio Rodolfo Sousa de Oliveira",
+      "email": "claudiorodolfo@ifba.edu.br",
+      "identifier": "claudio",
+      "semesters": [
+        "2º semestre",
+        "3º semestre",
+        "5º semestre"
+      ],
+      "classes": [
+        [
+          "Linguagem de Programação I",
+          "2º semestre",
+          "segunda-feira",
+          "18h30–20h10 e 20h20–22h",
+          "H008"
+        ],
+        [
+          "Estruturas de Dados",
+          "3º semestre",
+          "quinta-feira",
+          "18h30–20h10 e 20h20–22h",
+          "H108"
+        ],
+        [
+          "Atividades Curriculares de Extensão II",
+          "5º semestre",
+          "segunda-feira e quinta-feira",
+          "16h40–18h20",
+          "H214"
+        ]
+      ]
+    },
+    {
+      "name": "Crescêncio Rodrigues Lima Neto",
+      "email": "crescencio@ifba.edu.br",
+      "identifier": "crescencio",
+      "semesters": [
+        "6º semestre",
+        "7º semestre",
+        "8º semestre"
+      ],
+      "classes": [
+        [
+          "Engenharia de Software",
+          "6º semestre",
+          "terça-feira",
+          "18h30–20h10 e 20h20–22h",
+          "H213"
+        ],
+        [
+          "Qualidade de Software",
+          "7º semestre",
+          "sexta-feira",
+          "18h30–20h10 e 20h20–22h",
+          "H105"
+        ],
+        [
+          "Arquitetura de Software",
+          "8º semestre",
+          "segunda-feira",
+          "18h30–20h10 e 20h20–22h",
+          "H213"
+        ]
+      ]
+    },
+    {
+      "name": "Crijina Chagas Flores",
+      "email": "crijinaflores@ifba.edu.br",
+      "identifier": "crijina",
+      "semesters": [
+        "4º semestre",
+        "5º semestre"
+      ],
+      "classes": [
+        [
+          "Análise e Modelagem de Sistemas",
+          "4º semestre",
+          "quinta-feira",
+          "18h30–20h10 e 20h20–22h",
+          "H205"
+        ],
+        [
+          "Processo de Desenvolvimento de Software",
+          "5º semestre",
+          "sexta-feira",
+          "18h30–20h10 e 20h20–22h",
+          "H214"
+        ]
+      ]
+    },
+    {
+      "name": "Djan Almeida Santos",
+      "email": "djan.santos@ifba.edu.br",
+      "identifier": "djan",
+      "semesters": [
+        "7º semestre"
+      ],
+      "classes": [
+        [
+          "Trabalho de Conclusão de Curso I",
+          "7º semestre",
+          "quarta-feira",
+          "16h40–18h20",
+          "H106"
+        ]
+      ]
+    },
+    {
+      "name": "Eliomar Luz Santos",
+      "email": "eliomarsantos@ifba.edu.br",
+      "identifier": "eliomar",
+      "semesters": [
+        "2º semestre"
+      ],
+      "classes": [
+        [
+          "Computador, Ética e Sociedade",
+          "2º semestre",
+          "quinta-feira",
+          "18h30–20h10 e 20h20–22h",
+          "H008"
+        ]
+      ]
+    },
+    {
+      "name": "Igor Luiz Oliveira de Souza",
+      "email": "igorluiz@ifba.edu.br",
+      "identifier": "igor",
+      "semesters": [
+        "4º semestre",
+        "5º semestre",
+        "6º semestre"
+      ],
+      "classes": [
+        [
+          "Redes de Computadores",
+          "4º semestre",
+          "sexta-feira",
+          "18h30–20h10 e 20h20–22h",
+          "H202"
+        ],
+        [
+          "Projeto e Administração de Redes",
+          "5º semestre",
+          "quinta-feira",
+          "18h30–20h10 e 20h20–22h",
+          "H202"
+        ],
+        [
+          "Segurança e Auditoria de Sistemas",
+          "6º semestre",
+          "quarta-feira",
+          "18h30–20h10 e 20h20–22h",
+          "H106"
+        ]
+      ]
+    },
+    {
+      "name": "João Rodrigues Pinto",
+      "email": "joao_pinto@ifba.edu.br",
+      "identifier": "joao",
+      "semesters": [
+        "1º semestre"
+      ],
+      "classes": [
+        [
+          "Leitura e Produção de Gêneros Acadêmicos",
+          "1º semestre",
+          "sábado",
+          "13h50–16h20 e 16h40–17h30",
+          "H204"
+        ]
+      ]
+    },
+    {
+      "name": "Leonardo Barreto Campos",
+      "email": "leonardobcampos@ifba.edu.br",
+      "identifier": "leonardo",
+      "semesters": [
+        "2º semestre",
+        "6º semestre",
+        "7º semestre"
+      ],
+      "classes": [
+        [
+          "Organização e Arquitetura de Computadores",
+          "2º semestre",
+          "sábado",
+          "13h50–16h20 e 16h40–17h30",
+          "H008"
+        ],
+        [
+          "Sistemas Distribuídos",
+          "6º semestre",
+          "segunda-feira",
+          "18h30–20h10 e 20h20–22h",
+          "H212"
+        ],
+        [
+          "Segurança de Redes de Computadores",
+          "7º semestre",
+          "terça-feira",
+          "18h30–20h10 e 20h20–22h",
+          "H105"
+        ]
+      ]
+    },
+    {
+      "name": "Liojes de Oliveira Carneiro",
+      "email": "liojes@ifba.edu.br",
+      "identifier": "liojes",
+      "semesters": [
+        "1º semestre",
+        "8º semestre"
+      ],
+      "classes": [
+        [
+          "Algoritmo e Programação",
+          "1º semestre",
+          "quarta-feira",
+          "18h30–20h10 e 20h20–22h",
+          "H204"
+        ],
+        [
+          "Trabalho de Conclusão de Curso II",
+          "8º semestre",
+          "segunda-feira",
+          "16h40–18h20",
+          "H206"
+        ]
+      ]
+    },
+    {
+      "name": "Luana Lima Bittencourt Silva",
+      "email": "luanabittencourt@ifba.edu.br",
+      "identifier": "luana",
+      "semesters": [
+        "2º semestre",
+        "3º semestre"
+      ],
+      "classes": [
+        [
+          "Administração",
+          "2º semestre",
+          "quarta-feira",
+          "18h30–20h10 e 20h20–22h",
+          "H008"
+        ],
+        [
+          "Organização, Sistemas e Métodos",
+          "3º semestre",
+          "sexta-feira",
+          "18h30–20h10 e 20h20–22h",
+          "H211"
+        ]
+      ]
+    },
+    {
+      "name": "Luís Paulo da Silva Carvalho",
+      "email": "luiscarvalho@ifba.edu.br",
+      "identifier": "luis paulo",
+      "semesters": [
+        "5º semestre",
+        "6º semestre"
+      ],
+      "classes": [
+        [
+          "Complexidade de Algoritmos",
+          "5º semestre",
+          "quarta-feira",
+          "18h30–20h10 e 20h20–22h",
+          "H205"
+        ],
+        [
+          "Programação para Dispositivos Móveis",
+          "6º semestre",
+          "sábado",
+          "13h50–16h20 e 16h40–17h30",
+          "H212"
+        ]
+      ]
+    },
+    {
+      "name": "Marcelo Meira Alves",
+      "email": "marcelo.meira@ifba.edu.br",
+      "identifier": "marcelo",
+      "semesters": [
+        "7º semestre"
+      ],
+      "classes": [
+        [
+          "Linguagem Brasileira de Sinais - Libras",
+          "7º semestre",
+          "sábado",
+          "14h40–16h20 e 16h40–18h20",
+          "H214"
+        ]
+      ]
+    },
+    {
+      "name": "Ney Máximus Correia Silva Freitas",
+      "email": "neyyen@ifba.edu.br",
+      "identifier": "ney",
+      "semesters": [
+        "3º semestre"
+      ],
+      "classes": [
+        [
+          "Direito Cibernético",
+          "3º semestre",
+          "terça-feira",
+          "18h30–20h10 e 20h20–22h",
+          "H214"
+        ]
+      ]
+    },
+    {
+      "name": "Pablo Freire Matos",
+      "email": "pablofmatos@ifba.edu.br",
+      "identifier": "pablo",
+      "semesters": [
+        "4º semestre",
+        "5º semestre",
+        "7º semestre"
+      ],
+      "classes": [
+        [
+          "Banco de Dados I",
+          "4º semestre",
+          "quarta-feira",
+          "18h30–20h10 e 20h20–22h",
+          "H211"
+        ],
+        [
+          "Banco de Dados II",
+          "5º semestre",
+          "segunda-feira",
+          "18h30–20h10 e 20h20–22h",
+          "H202"
+        ],
+        [
+          "Atividades Curriculares de Extensão IV",
+          "7º semestre",
+          "segunda-feira e quarta-feira",
+          "16h40–18h20",
+          "H101"
+        ]
+      ]
+    },
+    {
+      "name": "Paulo Espinheira Menezes de Melo",
+      "email": "paulomelo@ifba.edu.br",
+      "identifier": "paulo",
+      "semesters": [
+        "2º semestre"
+      ],
+      "classes": [
+        [
+          "Cálculo Diferencial Aplicado à Computação",
+          "2º semestre",
+          "terça-feira",
+          "18h30–20h10 e 20h20–22h",
+          "H008"
+        ]
+      ]
+    },
+    {
+      "name": "Polliana Freire dos Anjos de Oliveira",
+      "email": "polliana.oliveira@ifba.edu.br",
+      "identifier": "polliana",
+      "semesters": [
+        "1º semestre"
+      ],
+      "classes": [
+        [
+          "Inglês Aplicado à Computação",
+          "1º semestre",
+          "sexta-feira",
+          "18h30–20h10 e 20h20–22h",
+          "H204"
+        ]
+      ]
+    },
+    {
+      "name": "Stênio Longo Araújo",
+      "email": "stenio@ifba.edu.br",
+      "identifier": "stenio",
+      "semesters": [
+        "4º semestre",
+        "6º semestre",
+        "7º semestre"
+      ],
+      "classes": [
+        [
+          "Paradigmas de Linguagens de Programação",
+          "4º semestre",
+          "terça-feira",
+          "18h30–20h10 e 20h20–22h",
+          "H106"
+        ],
+        [
+          "Segurança da Informação",
+          "6º semestre",
+          "quinta-feira",
+          "18h30–20h10 e 20h20–22h",
+          "H106"
+        ],
+        [
+          "Estágio Supervisionado",
+          "7º semestre",
+          "quinta-feira",
+          "16h40–18h20",
+          "H106"
+        ]
+      ]
+    },
+    {
+      "name": "Thiago Leonardo Bastos da Silva",
+      "email": "thiago.silva@ifba.edu.br",
+      "identifier": "thiago",
+      "semesters": [
+        "2º semestre"
+      ],
+      "classes": [
+        [
+          "Cálculo Diferencial Aplicado à Computação",
+          "2º semestre",
+          "terça-feira",
+          "18h30–20h10 e 20h20–22h",
+          "H202"
+        ]
+      ]
+    },
+    {
+      "name": "Ualace Roberto de Jesus Oliveira",
+      "email": "ualacejesus@ifba.edu.br",
+      "identifier": "ualace",
+      "semesters": [
+        "5º semestre",
+        "6º semestre"
+      ],
+      "classes": [
+        [
+          "Economia",
+          "5º semestre",
+          "sábado",
+          "13h50–16h20 e 16h40–17h30",
+          "H202"
+        ],
+        [
+          "Contabilidade Geral e Custos",
+          "6º semestre",
+          "sexta-feira",
+          "18h30–20h10 e 20h20–22h",
+          "H106"
+        ]
+      ]
+    },
+    {
+      "name": "Valéria Melo Ferraz",
+      "email": "valeriamelo@ifba.edu.br",
+      "identifier": "valeria",
+      "semesters": [
+        "4º semestre"
+      ],
+      "classes": [
+        [
+          "Empreendedorismo",
+          "4º semestre",
+          "terça-feira",
+          "18h30–20h10 e 20h20–22h",
+          "H212"
+        ]
+      ]
+    },
+    {
+      "name": "Viviane Maria Lélis Carvalho",
+      "email": "vivianelelis@ifba.edu.br",
+      "identifier": "viviane",
+      "semesters": [
+        "1º semestre",
+        "4º semestre",
+        "8º semestre"
+      ],
+      "classes": [
+        [
+          "Fundamentos de Sistemas de Informação",
+          "1º semestre",
+          "terça-feira",
+          "18h30–20h10 e 20h20–22h",
+          "H204"
+        ],
+        [
+          "Metodologia da Pesquisa Científica",
+          "4º semestre",
+          "sábado",
+          "13h50–16h20 e 16h40–17h30",
+          "H205"
+        ],
+        [
+          "Inteligência do Negócio",
+          "8º semestre",
+          "quarta-feira",
+          "18h30–20h10 e 20h20–22h",
+          "H214"
+        ]
+      ]
+    }
+  ],
+  "scheduleEntries": [
+    {
+      "discipline": "Introdução à Ciência da Computação",
+      "semester": "1º semestre",
+      "semesterNumber": 1,
+      "day": "segunda-feira",
+      "hours": "18h30–20h10 e 20h20–22h",
+      "room": "H204",
+      "professor": "Camilo Alves Carvalho",
+      "professorIdentifier": "camilo",
+      "professorEmail": "camilocarvalho@ifba.edu.br"
+    },
+    {
+      "discipline": "Fundamentos de Sistemas de Informação",
+      "semester": "1º semestre",
+      "semesterNumber": 1,
+      "day": "terça-feira",
+      "hours": "18h30–20h10 e 20h20–22h",
+      "room": "H204",
+      "professor": "Viviane Maria Lélis Carvalho",
+      "professorIdentifier": "viviane",
+      "professorEmail": "vivianelelis@ifba.edu.br"
+    },
+    {
+      "discipline": "Algoritmo e Programação",
+      "semester": "1º semestre",
+      "semesterNumber": 1,
+      "day": "quarta-feira",
+      "hours": "18h30–20h10 e 20h20–22h",
+      "room": "H204",
+      "professor": "Liojes de Oliveira Carneiro",
+      "professorIdentifier": "liojes",
+      "professorEmail": "liojes@ifba.edu.br"
+    },
+    {
+      "discipline": "Matemática Discreta I",
+      "semester": "1º semestre",
+      "semesterNumber": 1,
+      "day": "quinta-feira",
+      "hours": "18h30–20h10 e 20h20–22h",
+      "room": "H204",
+      "professor": "Allan de Sousa Soares",
+      "professorIdentifier": "allan",
+      "professorEmail": "allansoares@ifba.edu.br"
+    },
+    {
+      "discipline": "Inglês Aplicado à Computação",
+      "semester": "1º semestre",
+      "semesterNumber": 1,
+      "day": "sexta-feira",
+      "hours": "18h30–20h10 e 20h20–22h",
+      "room": "H204",
+      "professor": "Polliana Freire dos Anjos de Oliveira",
+      "professorIdentifier": "polliana",
+      "professorEmail": "polliana.oliveira@ifba.edu.br"
+    },
+    {
+      "discipline": "Leitura e Produção de Gêneros Acadêmicos",
+      "semester": "1º semestre",
+      "semesterNumber": 1,
+      "day": "sábado",
+      "hours": "13h50–16h20 e 16h40–17h30",
+      "room": "H204",
+      "professor": "João Rodrigues Pinto",
+      "professorIdentifier": "joao",
+      "professorEmail": "joao_pinto@ifba.edu.br"
+    },
+    {
+      "discipline": "Linguagem de Programação I",
+      "semester": "2º semestre",
+      "semesterNumber": 2,
+      "day": "segunda-feira",
+      "hours": "18h30–20h10 e 20h20–22h",
+      "room": "H008",
+      "professor": "Cláudio Rodolfo Sousa de Oliveira",
+      "professorIdentifier": "claudio",
+      "professorEmail": "claudiorodolfo@ifba.edu.br"
+    },
+    {
+      "discipline": "Cálculo Diferencial Aplicado à Computação",
+      "semester": "2º semestre",
+      "semesterNumber": 2,
+      "day": "terça-feira",
+      "hours": "18h30–20h10 e 20h20–22h",
+      "room": "H008",
+      "professor": "Paulo Espinheira Menezes de Melo",
+      "professorIdentifier": "paulo",
+      "professorEmail": "paulomelo@ifba.edu.br"
+    },
+    {
+      "discipline": "Cálculo Diferencial Aplicado à Computação",
+      "semester": "2º semestre",
+      "semesterNumber": 2,
+      "day": "terça-feira",
+      "hours": "18h30–20h10 e 20h20–22h",
+      "room": "H202",
+      "professor": "Thiago Leonardo Bastos da Silva",
+      "professorIdentifier": "thiago",
+      "professorEmail": "thiago.silva@ifba.edu.br"
+    },
+    {
+      "discipline": "Administração",
+      "semester": "2º semestre",
+      "semesterNumber": 2,
+      "day": "quarta-feira",
+      "hours": "18h30–20h10 e 20h20–22h",
+      "room": "H008",
+      "professor": "Luana Lima Bittencourt Silva",
+      "professorIdentifier": "luana",
+      "professorEmail": "luanabittencourt@ifba.edu.br"
+    },
+    {
+      "discipline": "Computador, Ética e Sociedade",
+      "semester": "2º semestre",
+      "semesterNumber": 2,
+      "day": "quinta-feira",
+      "hours": "18h30–20h10 e 20h20–22h",
+      "room": "H008",
+      "professor": "Eliomar Luz Santos",
+      "professorIdentifier": "eliomar",
+      "professorEmail": "eliomarsantos@ifba.edu.br"
+    },
+    {
+      "discipline": "Matemática Discreta II",
+      "semester": "2º semestre",
+      "semesterNumber": 2,
+      "day": "sexta-feira",
+      "hours": "18h30–20h10 e 20h20–22h",
+      "room": "H008",
+      "professor": "Allan de Sousa Soares",
+      "professorIdentifier": "allan",
+      "professorEmail": "allansoares@ifba.edu.br"
+    },
+    {
+      "discipline": "Organização e Arquitetura de Computadores",
+      "semester": "2º semestre",
+      "semesterNumber": 2,
+      "day": "sábado",
+      "hours": "13h50–16h20 e 16h40–17h30",
+      "room": "H008",
+      "professor": "Leonardo Barreto Campos",
+      "professorIdentifier": "leonardo",
+      "professorEmail": "leonardobcampos@ifba.edu.br"
+    },
+    {
+      "discipline": "Linguagem de Programação II",
+      "semester": "3º semestre",
+      "semesterNumber": 3,
+      "day": "segunda-feira",
+      "hours": "18h30–20h10 e 20h20–22h",
+      "room": "H108",
+      "professor": "Alexandro dos Santos Silva",
+      "professorIdentifier": "alexandro",
+      "professorEmail": "alexandrossilva@ifba.edu.br"
+    },
+    {
+      "discipline": "Probabilidade e Estatística",
+      "semester": "3º semestre",
+      "semesterNumber": 3,
+      "day": "segunda-feira",
+      "hours": "18h30–20h10 e 20h20–22h",
+      "room": "H214",
+      "professor": "Carlos André Pereira de Jesus Silva",
+      "professorIdentifier": "carlos",
+      "professorEmail": "carlos.pereira@ifba.edu.br"
+    },
+    {
+      "discipline": "Direito Cibernético",
+      "semester": "3º semestre",
+      "semesterNumber": 3,
+      "day": "terça-feira",
+      "hours": "18h30–20h10 e 20h20–22h",
+      "room": "H214",
+      "professor": "Ney Máximus Correia Silva Freitas",
+      "professorIdentifier": "ney",
+      "professorEmail": "neyyen@ifba.edu.br"
+    },
+    {
+      "discipline": "Probabilidade e Estatística",
+      "semester": "3º semestre",
+      "semesterNumber": 3,
+      "day": "quarta-feira",
+      "hours": "18h30–20h10 e 20h20–22h",
+      "room": "H108",
+      "professor": "Carlos André Pereira de Jesus Silva",
+      "professorIdentifier": "carlos",
+      "professorEmail": "carlos.pereira@ifba.edu.br"
+    },
+    {
+      "discipline": "Estruturas de Dados",
+      "semester": "3º semestre",
+      "semesterNumber": 3,
+      "day": "quinta-feira",
+      "hours": "18h30–20h10 e 20h20–22h",
+      "room": "H108",
+      "professor": "Cláudio Rodolfo Sousa de Oliveira",
+      "professorIdentifier": "claudio",
+      "professorEmail": "claudiorodolfo@ifba.edu.br"
+    },
+    {
+      "discipline": "Organização, Sistemas e Métodos",
+      "semester": "3º semestre",
+      "semesterNumber": 3,
+      "day": "sexta-feira",
+      "hours": "18h30–20h10 e 20h20–22h",
+      "room": "H211",
+      "professor": "Luana Lima Bittencourt Silva",
+      "professorIdentifier": "luana",
+      "professorEmail": "luanabittencourt@ifba.edu.br"
+    },
+    {
+      "discipline": "Sistemas Operacionais",
+      "semester": "3º semestre",
+      "semesterNumber": 3,
+      "day": "sábado",
+      "hours": "13h50–16h20 e 16h40–17h30",
+      "room": "H211",
+      "professor": "Camilo Alves Carvalho",
+      "professorIdentifier": "camilo",
+      "professorEmail": "camilocarvalho@ifba.edu.br"
+    },
+    {
+      "discipline": "Programação Web I",
+      "semester": "4º semestre",
+      "semesterNumber": 4,
+      "day": "segunda-feira",
+      "hours": "18h30–20h10 e 20h20–22h",
+      "room": "H205",
+      "professor": "Bruno Silvério Costa",
+      "professorIdentifier": "bruno",
+      "professorEmail": "brunosilverio@ifba.edu.br"
+    },
+    {
+      "discipline": "Empreendedorismo",
+      "semester": "4º semestre",
+      "semesterNumber": 4,
+      "day": "terça-feira",
+      "hours": "18h30–20h10 e 20h20–22h",
+      "room": "H212",
+      "professor": "Valéria Melo Ferraz",
+      "professorIdentifier": "valeria",
+      "professorEmail": "valeriamelo@ifba.edu.br"
+    },
+    {
+      "discipline": "Paradigmas de Linguagens de Programação",
+      "semester": "4º semestre",
+      "semesterNumber": 4,
+      "day": "terça-feira",
+      "hours": "18h30–20h10 e 20h20–22h",
+      "room": "H106",
+      "professor": "Stênio Longo Araújo",
+      "professorIdentifier": "stenio",
+      "professorEmail": "stenio@ifba.edu.br"
+    },
+    {
+      "discipline": "Banco de Dados I",
+      "semester": "4º semestre",
+      "semesterNumber": 4,
+      "day": "quarta-feira",
+      "hours": "18h30–20h10 e 20h20–22h",
+      "room": "H211",
+      "professor": "Pablo Freire Matos",
+      "professorIdentifier": "pablo",
+      "professorEmail": "pablofmatos@ifba.edu.br"
+    },
+    {
+      "discipline": "Atividades Curriculares de Extensão I",
+      "semester": "4º semestre",
+      "semesterNumber": 4,
+      "day": "quinta-feira",
+      "hours": "16h40–18h20",
+      "room": "H205",
+      "professor": "Andrique Figueirêdo Amorim",
+      "professorIdentifier": "andrique",
+      "professorEmail": "andrique.amorim@ifba.edu.br"
+    },
+    {
+      "discipline": "Análise e Modelagem de Sistemas",
+      "semester": "4º semestre",
+      "semesterNumber": 4,
+      "day": "quinta-feira",
+      "hours": "18h30–20h10 e 20h20–22h",
+      "room": "H205",
+      "professor": "Crijina Chagas Flores",
+      "professorIdentifier": "crijina",
+      "professorEmail": "crijinaflores@ifba.edu.br"
+    },
+    {
+      "discipline": "Atividades Curriculares de Extensão I",
+      "semester": "4º semestre",
+      "semesterNumber": 4,
+      "day": "sexta-feira",
+      "hours": "16h40–18h20",
+      "room": "H205",
+      "professor": "Andrique Figueirêdo Amorim",
+      "professorIdentifier": "andrique",
+      "professorEmail": "andrique.amorim@ifba.edu.br"
+    },
+    {
+      "discipline": "Redes de Computadores",
+      "semester": "4º semestre",
+      "semesterNumber": 4,
+      "day": "sexta-feira",
+      "hours": "18h30–20h10 e 20h20–22h",
+      "room": "H202",
+      "professor": "Igor Luiz Oliveira de Souza",
+      "professorIdentifier": "igor",
+      "professorEmail": "igorluiz@ifba.edu.br"
+    },
+    {
+      "discipline": "Metodologia da Pesquisa Científica",
+      "semester": "4º semestre",
+      "semesterNumber": 4,
+      "day": "sábado",
+      "hours": "13h50–16h20 e 16h40–17h30",
+      "room": "H205",
+      "professor": "Viviane Maria Lélis Carvalho",
+      "professorIdentifier": "viviane",
+      "professorEmail": "vivianelelis@ifba.edu.br"
+    },
+    {
+      "discipline": "Atividades Curriculares de Extensão II",
+      "semester": "5º semestre",
+      "semesterNumber": 5,
+      "day": "segunda-feira",
+      "hours": "16h40–18h20",
+      "room": "H214",
+      "professor": "Cláudio Rodolfo Sousa de Oliveira",
+      "professorIdentifier": "claudio",
+      "professorEmail": "claudiorodolfo@ifba.edu.br"
+    },
+    {
+      "discipline": "Banco de Dados II",
+      "semester": "5º semestre",
+      "semesterNumber": 5,
+      "day": "segunda-feira",
+      "hours": "18h30–20h10 e 20h20–22h",
+      "room": "H202",
+      "professor": "Pablo Freire Matos",
+      "professorIdentifier": "pablo",
+      "professorEmail": "pablofmatos@ifba.edu.br"
+    },
+    {
+      "discipline": "Programação Web II",
+      "semester": "5º semestre",
+      "semesterNumber": 5,
+      "day": "terça-feira",
+      "hours": "18h30–20h10 e 20h20–22h",
+      "room": "H205",
+      "professor": "Alexandro dos Santos Silva",
+      "professorIdentifier": "alexandro",
+      "professorEmail": "alexandrossilva@ifba.edu.br"
+    },
+    {
+      "discipline": "Complexidade de Algoritmos",
+      "semester": "5º semestre",
+      "semesterNumber": 5,
+      "day": "quarta-feira",
+      "hours": "18h30–20h10 e 20h20–22h",
+      "room": "H205",
+      "professor": "Luís Paulo da Silva Carvalho",
+      "professorIdentifier": "luis paulo",
+      "professorEmail": "luiscarvalho@ifba.edu.br"
+    },
+    {
+      "discipline": "Atividades Curriculares de Extensão II",
+      "semester": "5º semestre",
+      "semesterNumber": 5,
+      "day": "quinta-feira",
+      "hours": "16h40–18h20",
+      "room": "H214",
+      "professor": "Cláudio Rodolfo Sousa de Oliveira",
+      "professorIdentifier": "claudio",
+      "professorEmail": "claudiorodolfo@ifba.edu.br"
+    },
+    {
+      "discipline": "Projeto e Administração de Redes",
+      "semester": "5º semestre",
+      "semesterNumber": 5,
+      "day": "quinta-feira",
+      "hours": "18h30–20h10 e 20h20–22h",
+      "room": "H202",
+      "professor": "Igor Luiz Oliveira de Souza",
+      "professorIdentifier": "igor",
+      "professorEmail": "igorluiz@ifba.edu.br"
+    },
+    {
+      "discipline": "Processo de Desenvolvimento de Software",
+      "semester": "5º semestre",
+      "semesterNumber": 5,
+      "day": "sexta-feira",
+      "hours": "18h30–20h10 e 20h20–22h",
+      "room": "H214",
+      "professor": "Crijina Chagas Flores",
+      "professorIdentifier": "crijina",
+      "professorEmail": "crijinaflores@ifba.edu.br"
+    },
+    {
+      "discipline": "Programação Web",
+      "semester": "5º semestre",
+      "semesterNumber": 5,
+      "day": "sexta-feira",
+      "hours": "18h30–20h10 e 20h20–22h",
+      "room": "H205",
+      "professor": "Andrique Figueirêdo Amorim",
+      "professorIdentifier": "andrique",
+      "professorEmail": "andrique.amorim@ifba.edu.br"
+    },
+    {
+      "discipline": "Economia",
+      "semester": "5º semestre",
+      "semesterNumber": 5,
+      "day": "sábado",
+      "hours": "13h50–16h20 e 16h40–17h30",
+      "room": "H202",
+      "professor": "Ualace Roberto de Jesus Oliveira",
+      "professorIdentifier": "ualace",
+      "professorEmail": "ualacejesus@ifba.edu.br"
+    },
+    {
+      "discipline": "Atividades Curriculares de Extensão III",
+      "semester": "6º semestre",
+      "semesterNumber": 6,
+      "day": "segunda-feira",
+      "hours": "16h40–18h20",
+      "room": "H106",
+      "professor": "Camilo Alves Carvalho",
+      "professorIdentifier": "camilo",
+      "professorEmail": "camilocarvalho@ifba.edu.br"
+    },
+    {
+      "discipline": "Sistemas Distribuídos",
+      "semester": "6º semestre",
+      "semesterNumber": 6,
+      "day": "segunda-feira",
+      "hours": "18h30–20h10 e 20h20–22h",
+      "room": "H212",
+      "professor": "Leonardo Barreto Campos",
+      "professorIdentifier": "leonardo",
+      "professorEmail": "leonardobcampos@ifba.edu.br"
+    },
+    {
+      "discipline": "Atividades Curriculares de Extensão III",
+      "semester": "6º semestre",
+      "semesterNumber": 6,
+      "day": "terça-feira",
+      "hours": "16h40–18h20",
+      "room": "H106",
+      "professor": "Camilo Alves Carvalho",
+      "professorIdentifier": "camilo",
+      "professorEmail": "camilocarvalho@ifba.edu.br"
+    },
+    {
+      "discipline": "Engenharia de Software",
+      "semester": "6º semestre",
+      "semesterNumber": 6,
+      "day": "terça-feira",
+      "hours": "18h30–20h10 e 20h20–22h",
+      "room": "H213",
+      "professor": "Crescêncio Rodrigues Lima Neto",
+      "professorIdentifier": "crescencio",
+      "professorEmail": "crescencio@ifba.edu.br"
+    },
+    {
+      "discipline": "Gestão de Projetos",
+      "semester": "6º semestre",
+      "semesterNumber": 6,
+      "day": "quarta-feira",
+      "hours": "18h30–20h10 e 20h20–22h",
+      "room": "H213",
+      "professor": "Amanda Ferraz de Oliveira Passos",
+      "professorIdentifier": "amanda",
+      "professorEmail": "amandaferraz@ifba.edu.br"
+    },
+    {
+      "discipline": "Segurança e Auditoria de Sistemas",
+      "semester": "6º semestre",
+      "semesterNumber": 6,
+      "day": "quarta-feira",
+      "hours": "18h30–20h10 e 20h20–22h",
+      "room": "H106",
+      "professor": "Igor Luiz Oliveira de Souza",
+      "professorIdentifier": "igor",
+      "professorEmail": "igorluiz@ifba.edu.br"
+    },
+    {
+      "discipline": "Comércio Eletrônico",
+      "semester": "6º semestre",
+      "semesterNumber": 6,
+      "day": "quinta-feira",
+      "hours": "18h30–20h10 e 20h20–22h",
+      "room": "H214",
+      "professor": "Andrique Figueirêdo Amorim",
+      "professorIdentifier": "andrique",
+      "professorEmail": "andrique.amorim@ifba.edu.br"
+    },
+    {
+      "discipline": "Segurança da Informação",
+      "semester": "6º semestre",
+      "semesterNumber": 6,
+      "day": "quinta-feira",
+      "hours": "18h30–20h10 e 20h20–22h",
+      "room": "H106",
+      "professor": "Stênio Longo Araújo",
+      "professorIdentifier": "stenio",
+      "professorEmail": "stenio@ifba.edu.br"
+    },
+    {
+      "discipline": "Contabilidade Geral e Custos",
+      "semester": "6º semestre",
+      "semesterNumber": 6,
+      "day": "sexta-feira",
+      "hours": "18h30–20h10 e 20h20–22h",
+      "room": "H106",
+      "professor": "Ualace Roberto de Jesus Oliveira",
+      "professorIdentifier": "ualace",
+      "professorEmail": "ualacejesus@ifba.edu.br"
+    },
+    {
+      "discipline": "Inteligência Artificial",
+      "semester": "6º semestre",
+      "semesterNumber": 6,
+      "day": "sexta-feira",
+      "hours": "18h30–20h10 e 20h20–22h",
+      "room": "H212",
+      "professor": "Bruno Silvério Costa",
+      "professorIdentifier": "bruno",
+      "professorEmail": "brunosilverio@ifba.edu.br"
+    },
+    {
+      "discipline": "Programação para Dispositivos Móveis",
+      "semester": "6º semestre",
+      "semesterNumber": 6,
+      "day": "sábado",
+      "hours": "13h50–16h20 e 16h40–17h30",
+      "room": "H212",
+      "professor": "Luís Paulo da Silva Carvalho",
+      "professorIdentifier": "luis paulo",
+      "professorEmail": "luiscarvalho@ifba.edu.br"
+    },
+    {
+      "discipline": "Atividades Curriculares de Extensão IV",
+      "semester": "7º semestre",
+      "semesterNumber": 7,
+      "day": "segunda-feira",
+      "hours": "16h40–18h20",
+      "room": "H101",
+      "professor": "Pablo Freire Matos",
+      "professorIdentifier": "pablo",
+      "professorEmail": "pablofmatos@ifba.edu.br"
+    },
+    {
+      "discipline": "Gestão e Governança de TI",
+      "semester": "7º semestre",
+      "semesterNumber": 7,
+      "day": "segunda-feira",
+      "hours": "18h30–20h10 e 20h20–22h",
+      "room": "H105",
+      "professor": "Amanda Ferraz de Oliveira Passos",
+      "professorIdentifier": "amanda",
+      "professorEmail": "amandaferraz@ifba.edu.br"
+    },
+    {
+      "discipline": "Segurança de Redes de Computadores",
+      "semester": "7º semestre",
+      "semesterNumber": 7,
+      "day": "terça-feira",
+      "hours": "18h30–20h10 e 20h20–22h",
+      "room": "H105",
+      "professor": "Leonardo Barreto Campos",
+      "professorIdentifier": "leonardo",
+      "professorEmail": "leonardobcampos@ifba.edu.br"
+    },
+    {
+      "discipline": "Atividades Curriculares de Extensão IV",
+      "semester": "7º semestre",
+      "semesterNumber": 7,
+      "day": "quarta-feira",
+      "hours": "16h40–18h20",
+      "room": "H101",
+      "professor": "Pablo Freire Matos",
+      "professorIdentifier": "pablo",
+      "professorEmail": "pablofmatos@ifba.edu.br"
+    },
+    {
+      "discipline": "Trabalho de Conclusão de Curso I",
+      "semester": "7º semestre",
+      "semesterNumber": 7,
+      "day": "quarta-feira",
+      "hours": "16h40–18h20",
+      "room": "H106",
+      "professor": "Djan Almeida Santos",
+      "professorIdentifier": "djan",
+      "professorEmail": "djan.santos@ifba.edu.br"
+    },
+    {
+      "discipline": "Gestão de Projetos",
+      "semester": "7º semestre",
+      "semesterNumber": 7,
+      "day": "quarta-feira",
+      "hours": "18h30–20h10 e 20h20–22h",
+      "room": "H202",
+      "professor": "Amanda Ferraz de Oliveira Passos",
+      "professorIdentifier": "amanda",
+      "professorEmail": "amandaferraz@ifba.edu.br"
+    },
+    {
+      "discipline": "Estágio Supervisionado",
+      "semester": "7º semestre",
+      "semesterNumber": 7,
+      "day": "quinta-feira",
+      "hours": "16h40–18h20",
+      "room": "H106",
+      "professor": "Stênio Longo Araújo",
+      "professorIdentifier": "stenio",
+      "professorEmail": "stenio@ifba.edu.br"
+    },
+    {
+      "discipline": "Interface Homem Máquina",
+      "semester": "7º semestre",
+      "semesterNumber": 7,
+      "day": "quinta-feira",
+      "hours": "18h30–20h10 e 20h20–22h",
+      "room": "H212",
+      "professor": "Bruno Silvério Costa",
+      "professorIdentifier": "bruno",
+      "professorEmail": "brunosilverio@ifba.edu.br"
+    },
+    {
+      "discipline": "Qualidade de Software",
+      "semester": "7º semestre",
+      "semesterNumber": 7,
+      "day": "sexta-feira",
+      "hours": "18h30–20h10 e 20h20–22h",
+      "room": "H105",
+      "professor": "Crescêncio Rodrigues Lima Neto",
+      "professorIdentifier": "crescencio",
+      "professorEmail": "crescencio@ifba.edu.br"
+    },
+    {
+      "discipline": "Linguagem Brasileira de Sinais - Libras",
+      "semester": "7º semestre",
+      "semesterNumber": 7,
+      "day": "sábado",
+      "hours": "14h40–16h20 e 16h40–18h20",
+      "room": "H214",
+      "professor": "Marcelo Meira Alves",
+      "professorIdentifier": "marcelo",
+      "professorEmail": "marcelo.meira@ifba.edu.br"
+    },
+    {
+      "discipline": "Trabalho de Conclusão de Curso II",
+      "semester": "8º semestre",
+      "semesterNumber": 8,
+      "day": "segunda-feira",
+      "hours": "16h40–18h20",
+      "room": "H206",
+      "professor": "Liojes de Oliveira Carneiro",
+      "professorIdentifier": "liojes",
+      "professorEmail": "liojes@ifba.edu.br"
+    },
+    {
+      "discipline": "Arquitetura de Software",
+      "semester": "8º semestre",
+      "semesterNumber": 8,
+      "day": "segunda-feira",
+      "hours": "18h30–20h10 e 20h20–22h",
+      "room": "H213",
+      "professor": "Crescêncio Rodrigues Lima Neto",
+      "professorIdentifier": "crescencio",
+      "professorEmail": "crescencio@ifba.edu.br"
+    },
+    {
+      "discipline": "Sistemas de Apoio à Decisão",
+      "semester": "8º semestre",
+      "semesterNumber": 8,
+      "day": "terça-feira",
+      "hours": "18h30–20h10 e 20h20–22h",
+      "room": "H107",
+      "professor": "Amanda Ferraz de Oliveira Passos",
+      "professorIdentifier": "amanda",
+      "professorEmail": "amandaferraz@ifba.edu.br"
+    },
+    {
+      "discipline": "Inteligência do Negócio",
+      "semester": "8º semestre",
+      "semesterNumber": 8,
+      "day": "quarta-feira",
+      "hours": "18h30–20h10 e 20h20–22h",
+      "room": "H214",
+      "professor": "Viviane Maria Lélis Carvalho",
+      "professorIdentifier": "viviane",
+      "professorEmail": "vivianelelis@ifba.edu.br"
+    },
+    {
+      "discipline": "Meio Ambiente",
+      "semester": "8º semestre",
+      "semesterNumber": 8,
+      "day": "sexta-feira",
+      "hours": "18h30–20h10 e 20h20–22h",
+      "room": "H101",
+      "professor": "Docente de Meio Ambiente — identificação pendente",
+      "professorIdentifier": "meio ambiente",
+      "professorEmail": ""
+    }
+  ],
+  "disciplineAliases": {
+    "Administração": [
+      "ADM"
+    ],
+    "Algoritmo e Programação": [
+      "AP",
+      "algoritmos e programação"
+    ],
+    "Análise e Modelagem de Sistemas": [
+      "AMS"
+    ],
+    "Arquitetura de Software": [
+      "arquitetura software",
+      "arq software"
+    ],
+    "Atividades Curriculares de Extensão I": [
+      "ACEX I",
+      "ACEX1",
+      "ACEX 1",
+      "ACE I",
+      "ACE1",
+      "ACE 1"
+    ],
+    "Atividades Curriculares de Extensão II": [
+      "ACEX II",
+      "ACEX2",
+      "ACEX 2",
+      "ACE II",
+      "ACE2",
+      "ACE 2"
+    ],
+    "Atividades Curriculares de Extensão III": [
+      "ACEX III",
+      "ACEX3",
+      "ACEX 3",
+      "ACE III",
+      "ACE3",
+      "ACE 3"
+    ],
+    "Atividades Curriculares de Extensão IV": [
+      "ACEX IV",
+      "ACEX4",
+      "ACEX 4",
+      "ACE IV",
+      "ACE4",
+      "ACE 4"
+    ],
+    "Banco de Dados I": [
+      "BD I",
+      "BDI",
+      "BD1",
+      "BD 1"
+    ],
+    "Banco de Dados II": [
+      "BD II",
+      "BDII",
+      "BD2",
+      "BD 2"
+    ],
+    "Complexidade de Algoritmos": [
+      "complexidade",
+      "comp algoritmos"
+    ],
+    "Computador, Ética e Sociedade": [
+      "CES"
+    ],
+    "Comércio Eletrônico": [
+      "e-commerce",
+      "ecommerce"
+    ],
+    "Contabilidade Geral e Custos": [
+      "CGC",
+      "contabilidade e custos"
+    ],
+    "Cálculo Diferencial Aplicado à Computação": [
+      "CDAC",
+      "cálculo aplicado",
+      "calculo aplicado",
+      "cálculo",
+      "calculo"
+    ],
+    "Direito Cibernético": [
+      "DC"
+    ],
+    "Economia": [
+      "ECO",
+      "econimia"
+    ],
+    "Empreendedorismo": [
+      "EMP"
+    ],
+    "Engenharia de Software": [
+      "eng software",
+      "eng de software"
+    ],
+    "Estruturas de Dados": [
+      "ED"
+    ],
+    "Estágio Supervisionado": [
+      "estágio",
+      "estagio"
+    ],
+    "Fundamentos de Sistemas de Informação": [
+      "FSI"
+    ],
+    "Gestão de Projetos": [
+      "GP"
+    ],
+    "Gestão e Governança de TI": [
+      "GGTI",
+      "governança de TI",
+      "governanca de TI"
+    ],
+    "Inglês Aplicado à Computação": [
+      "IAC",
+      "inglês aplicado",
+      "ingles aplicado"
+    ],
+    "Inteligência Artificial": [
+      "IA"
+    ],
+    "Inteligência do Negócio": [
+      "BI",
+      "business intelligence"
+    ],
+    "Interface Homem Máquina": [
+      "IHM",
+      "IHC"
+    ],
+    "Introdução à Ciência da Computação": [
+      "ICC"
+    ],
+    "Leitura e Produção de Gêneros Acadêmicos": [
+      "LPGA",
+      "leitura e produção"
+    ],
+    "Linguagem Brasileira de Sinais - Libras": [
+      "LIBRAS"
+    ],
+    "Linguagem de Programação I": [
+      "LP I",
+      "LPI",
+      "LP1",
+      "LP 1"
+    ],
+    "Linguagem de Programação II": [
+      "LP II",
+      "LPII",
+      "LP2",
+      "LP 2"
+    ],
+    "Matemática Discreta I": [
+      "MD I",
+      "MDI",
+      "MD1",
+      "MD 1"
+    ],
+    "Matemática Discreta II": [
+      "MD II",
+      "MDII",
+      "MD2",
+      "MD 2"
+    ],
+    "Meio Ambiente": [
+      "meio ambiente"
+    ],
+    "Metodologia da Pesquisa Científica": [
+      "MPC"
+    ],
+    "Organização e Arquitetura de Computadores": [
+      "OAC"
+    ],
+    "Organização, Sistemas e Métodos": [
+      "OSM"
+    ],
+    "Paradigmas de Linguagens de Programação": [
+      "PLP"
+    ],
+    "Probabilidade e Estatística": [
+      "probabilidade e estatística",
+      "prob e estatística",
+      "estatística"
+    ],
+    "Processo de Desenvolvimento de Software": [
+      "PDS"
+    ],
+    "Programação Web": [
+      "PW"
+    ],
+    "Programação Web I": [
+      "PW I",
+      "PWI",
+      "PW1",
+      "PW 1"
+    ],
+    "Programação Web II": [
+      "PW II",
+      "PWII",
+      "PW2",
+      "PW 2"
+    ],
+    "Programação para Dispositivos Móveis": [
+      "PDM",
+      "programação mobile",
+      "programacao mobile"
+    ],
+    "Projeto e Administração de Redes": [
+      "PAR"
+    ],
+    "Qualidade de Software": [
+      "QS"
+    ],
+    "Redes de Computadores": [
+      "RC"
+    ],
+    "Segurança da Informação": [
+      "segurança da info",
+      "seguranca da info",
+      "seg info"
+    ],
+    "Segurança de Redes de Computadores": [
+      "SRC",
+      "segurança de redes",
+      "seguranca de redes"
+    ],
+    "Segurança e Auditoria de Sistemas": [
+      "SAS"
+    ],
+    "Sistemas Distribuídos": [
+      "SD"
+    ],
+    "Sistemas Operacionais": [
+      "SO"
+    ],
+    "Sistemas de Apoio à Decisão": [
+      "SAD"
+    ],
+    "Trabalho de Conclusão de Curso I": [
+      "TCC I",
+      "TCCI",
+      "TCC1",
+      "TCC 1"
+    ],
+    "Trabalho de Conclusão de Curso II": [
+      "TCC II",
+      "TCCII",
+      "TCC2",
+      "TCC 2"
+    ]
+  },
+  "disciplineCodes": {
+    "Administração": "ADM",
+    "Algoritmo e Programação": "AP",
+    "Análise e Modelagem de Sistemas": "AMS",
+    "Arquitetura de Software": "AS",
+    "Atividades Curriculares de Extensão I": "ACEX I",
+    "Atividades Curriculares de Extensão II": "ACEX II",
+    "Atividades Curriculares de Extensão III": "ACEX III",
+    "Atividades Curriculares de Extensão IV": "ACEX IV",
+    "Banco de Dados I": "BDI",
+    "Banco de Dados II": "BDII",
+    "Complexidade de Algoritmos": "CA",
+    "Computador, Ética e Sociedade": "CES",
+    "Comércio Eletrônico": "CE",
+    "Contabilidade Geral e Custos": "CGC",
+    "Cálculo Diferencial Aplicado à Computação": "CDAC",
+    "Direito Cibernético": "DC",
+    "Economia": "ECO",
+    "Empreendedorismo": "EMP",
+    "Engenharia de Software": "ES",
+    "Estruturas de Dados": "ED",
+    "Estágio Supervisionado": "EST",
+    "Fundamentos de Sistemas de Informação": "FSI",
+    "Gestão de Projetos": "GP",
+    "Gestão e Governança de TI": "GGTI",
+    "Inglês Aplicado à Computação": "IAC",
+    "Inteligência Artificial": "IA",
+    "Inteligência do Negócio": "BI",
+    "Interface Homem Máquina": "IHM",
+    "Introdução à Ciência da Computação": "ICC",
+    "Leitura e Produção de Gêneros Acadêmicos": "LPGA",
+    "Linguagem Brasileira de Sinais - Libras": "LIBRAS",
+    "Linguagem de Programação I": "LPI",
+    "Linguagem de Programação II": "LPII",
+    "Matemática Discreta I": "MDI",
+    "Matemática Discreta II": "MDII",
+    "Meio Ambiente": "MA",
+    "Metodologia da Pesquisa Científica": "MPC",
+    "Organização e Arquitetura de Computadores": "OAC",
+    "Organização, Sistemas e Métodos": "OSM",
+    "Paradigmas de Linguagens de Programação": "PLP",
+    "Probabilidade e Estatística": "PE",
+    "Processo de Desenvolvimento de Software": "PDS",
+    "Programação Web": "PW",
+    "Programação Web I": "PWI",
+    "Programação Web II": "PWII",
+    "Programação para Dispositivos Móveis": "PDM",
+    "Projeto e Administração de Redes": "PAR",
+    "Qualidade de Software": "QS",
+    "Redes de Computadores": "RC",
+    "Segurança da Informação": "SI",
+    "Segurança de Redes de Computadores": "SRC",
+    "Segurança e Auditoria de Sistemas": "SAS",
+    "Sistemas Distribuídos": "SD",
+    "Sistemas Operacionais": "SO",
+    "Sistemas de Apoio à Decisão": "SAD",
+    "Trabalho de Conclusão de Curso I": "TCCI",
+    "Trabalho de Conclusão de Curso II": "TCCII"
+  },
+  "professorAliases": {
+    "Alexandro dos Santos Silva": [
+      "alexandro",
+      "alex"
+    ],
+    "Allan de Sousa Soares": [
+      "allan",
+      "alla"
+    ],
+    "Amanda Ferraz de Oliveira Passos": [
+      "amanda",
+      "aman"
+    ],
+    "Andrique Figueirêdo Amorim": [
+      "andrique",
+      "andr"
+    ],
+    "Bruno Silvério Costa": [
+      "bruno",
+      "silvério",
+      "brun"
+    ],
+    "Camilo Alves Carvalho": [
+      "camilo",
+      "cami"
+    ],
+    "Carlos André Pereira de Jesus Silva": [
+      "carlos andré",
+      "carlos",
+      "carl"
+    ],
+    "Cláudio Rodolfo Sousa de Oliveira": [
+      "cláudio",
+      "rodolfo",
+      "clau"
+    ],
+    "Crescêncio Rodrigues Lima Neto": [
+      "crescêncio",
+      "cres"
+    ],
+    "Crijina Chagas Flores": [
+      "crijina",
+      "crij"
+    ],
+    "Djan Almeida Santos": [
+      "djan"
+    ],
+    "Eliomar Luz Santos": [
+      "eliomar",
+      "elio"
+    ],
+    "Igor Luiz Oliveira de Souza": [
+      "igor"
+    ],
+    "João Rodrigues Pinto": [
+      "joão rodrigues",
+      "rodrigues",
+      "joão"
+    ],
+    "Leonardo Barreto Campos": [
+      "leonardo barreto",
+      "barreto",
+      "leonardo",
+      "leon",
+      "leo"
+    ],
+    "Liojes de Oliveira Carneiro": [
+      "liojes",
+      "lioj"
+    ],
+    "Luana Lima Bittencourt Silva": [
+      "luana",
+      "luan"
+    ],
+    "Luís Paulo da Silva Carvalho": [
+      "luís paulo",
+      "luís"
+    ],
+    "Marcelo Meira Alves": [
+      "marcelo meira",
+      "meira",
+      "marcelo",
+      "marc"
+    ],
+    "Ney Máximus Correia Silva Freitas": [
+      "ney máximus",
+      "máximus",
+      "ney"
+    ],
+    "Pablo Freire Matos": [
+      "pablo",
+      "pabl"
+    ],
+    "Paulo Espinheira Menezes de Melo": [
+      "paulo espinheira",
+      "espinheira",
+      "paul"
+    ],
+    "Polliana Freire dos Anjos de Oliveira": [
+      "polliana",
+      "poll"
+    ],
+    "Stênio Longo Araújo": [
+      "stênio",
+      "sten"
+    ],
+    "Thiago Leonardo Bastos da Silva": [
+      "thiago bastos",
+      "bastos",
+      "thiago",
+      "thia"
+    ],
+    "Ualace Roberto de Jesus Oliveira": [
+      "ualace",
+      "uala"
+    ],
+    "Valéria Melo Ferraz": [
+      "valéria",
+      "vale"
+    ],
+    "Viviane Maria Lélis Carvalho": [
+      "viviane",
+      "lélis",
+      "vivi"
+    ],
+    "Docente de Meio Ambiente — identificação pendente": [
+      "meio ambiente",
+      "substituto ambiental",
+      "engenharia ambiental"
+    ]
+  },
+  "assistance": {
+    "title": "PAAE — Guia de Auxílios e Bolsas",
+    "text": "*PAAE — auxílios e bolsas no IFBA Vitória da Conquista*\n\nO Programa de Assistência e Apoio ao Estudante atende estudantes regularmente matriculados em situação de vulnerabilidade socioeconômica. A seleção considera renda, composição e relações familiares, moradia, saúde, participação em programas sociais e histórico acadêmico.\n\n*Modalidades e últimos valores detalhados — edital de 2025*\n\n• *Bolsa Estudo:* R$ 759,00 por mês;\n• *Auxílio Transporte:* R$ 240,00 por mês para residentes em Vitória da Conquista ou R$ 300,00 para residentes em outros municípios, distritos ou zona rural do município;\n• *Auxílio Moradia:* R$ 450,00 por mês;\n• *Auxílio Cópia e Impressão:* R$ 80,00 por mês;\n• *Auxílio Alimentação:* uma refeição diária no refeitório — não é pagamento em dinheiro;\n• *Auxílio para Aquisições/Almoxarifado Social:* materiais escolares, fardamento e outras necessidades acadêmicas, com valor definido após análise;\n• *Auxílio para Óculos:* pode custear óculos de grau ou lentes. Em 2025 não houve valor fixo publicado: o estudante precisava apresentar relatório oftalmológico, receita válida e três orçamentos. O auxílio dependia do orçamento disponível e poderia não cobrir o valor integral;\n• *Bolsa PINA:* vinculada a Projeto de Incentivo à Aprendizagem, quando houver seleção específica, com valor e condições definidos no edital ou projeto correspondente.\n\nOs valores acima são referências de 2025 e podem mudar. A modalidade e o valor efetivamente concedidos aparecem no resultado individual do SUAP.\n\n*Como solicitar*\n\n1. Acompanhe a publicação do edital do PAAE;\n2. Faça ou atualize a caracterização socioeconômica no SUAP;\n3. Inscreva-se no edital e envie toda a documentação exigida;\n4. Acompanhe homologação, resultado preliminar, recursos e resultado final pelo SUAP.\n\nA inscrição não garante o auxílio. A concessão depende da avaliação social, da demanda, das vagas e do orçamento disponível.\n\n*Contato do Serviço Social*\n\n• *E-mail:* servicosocial.ifba@gmail.com\n• *WhatsApp:* (71) 3190-9279 — apenas mensagens\n• *Instagram:* @servicosocial.ifba.vdc\n• *Página oficial:* https://portal.ifba.edu.br/conquista/ensino/servico-social-1\n\n*Inscrição e resultado individual*\nhttps://suap.ifba.edu.br/",
+    "sourceUrl": "https://portal.ifba.edu.br/conquista/ensino/servico-social-1",
+    "sourceTitle": "Serviço Social do IFBA Vitória da Conquista",
+    "verifiedAt": "2026-08-04"
+  },
+  "shortcuts": {
+    "calendar": {
+      "title": "Calendário Acadêmico",
+      "url": "apps/calendario/",
+      "prompt": "calendário acadêmico",
+      "pdfUrl": "https://portal.ifba.edu.br/conquista/ensino/2026_02_13_CalendarioAcademico_IFBA_VCA_2026.pdf",
+      "sourceTitle": "Calendário Acadêmico IFBA VCA 2026",
+      "verifiedAt": "2026-02-13"
+    },
+    "barema": {
+      "title": "Barema de Atividades Complementares",
+      "url": "apps/barema/",
+      "prompt": "abrir barema"
+    },
+    "ppc": {
+      "title": "PPC do BSI",
+      "url": "?q=PPC",
+      "prompt": "me mostre o PPC"
+    },
+    "suap": {
+      "title": "SUAP",
+      "url": "https://suap.ifba.edu.br/",
+      "prompt": "abrir SUAP"
+    }
+  }
+}

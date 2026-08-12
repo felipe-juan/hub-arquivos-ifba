@@ -2,24 +2,51 @@
   'use strict';
 
   const CONFIG = window.HUB_ASSISTANT_CONFIG || {};
-  const FRONTEND_RELEASE = '1.8.1-ux-federated-stream-v1';
+  const FRONTEND_RELEASE = '2.0.1-ux-offline-history-v2';
   const STORAGE_KEY = 'hubAssistantStateV1';
   const SETTINGS_KEY = 'hubAssistantSettingsV1';
   const FAVORITES_KEY = 'hubFavoritesV2';
+  const POPULAR_CACHE_KEY = 'hubAssistantPopularCacheV1';
   const DB_NAME = 'hubAssistantHistoryV1';
-  const DB_VERSION = 2;
+  const DB_VERSION = 3;
   const DB_STORE = 'state';
+  const DB_CONVERSATIONS = 'conversations';
+  const DB_MESSAGES = 'messages';
   const $ = id => document.getElementById(id);
+
+  function loadPopularCache() {
+    try {
+      const value = JSON.parse(localStorage.getItem(POPULAR_CACHE_KEY) || '{}');
+      return value && typeof value === 'object' ? value : {};
+    } catch { return {}; }
+  }
+
+  function savePopularCache(cache) {
+    try { localStorage.setItem(POPULAR_CACHE_KEY, JSON.stringify(cache || {})); } catch {}
+  }
+
+  const initialPopularPeriod = localStorage.getItem('hubPopularPeriodV1') === 'week' ? 'week' : 'today';
+  const initialPopularCache = loadPopularCache();
+  const initialPopularItems = Array.isArray(initialPopularCache?.[initialPopularPeriod]?.items) ? initialPopularCache[initialPopularPeriod].items.slice(0, 8) : [];
   const state = {
     conversation: null,
+    conversations: [],
+    currentId: '',
+    view: 'home',
     sending: false,
     activeRequest: null,
     requestSerial: 0,
+    localSyncQueue: Promise.resolve(),
     settings: loadSettings(),
     favorites: loadFavorites(),
-    popularQuestions: [],
-    popularPeriod: localStorage.getItem('hubPopularPeriodV1') === 'week' ? 'week' : 'today',
+    popularQuestions: initialPopularItems,
+    popularPeriod: initialPopularPeriod,
+    popularCache: initialPopularCache,
+    popularStale: Boolean(initialPopularItems.length),
     offlineCatalog: null,
+    offlineAcademic: null,
+    historyQuery: '',
+    dialogState: null,
     toastTimer: 0,
     renderLimit: 80,
     messageFingerprints: new Map(),
@@ -33,7 +60,8 @@
     persistTimer: 0,
     pendingState: null,
     draftTimer: 0,
-    pendingDraft: ''
+    pendingDraft: '',
+    structuredReady: false
   };
   const composerGuard = {
     area: null,
@@ -63,6 +91,14 @@
       request.onupgradeneeded = () => {
         const database = request.result;
         if (!database.objectStoreNames.contains(DB_STORE)) database.createObjectStore(DB_STORE);
+        if (!database.objectStoreNames.contains(DB_CONVERSATIONS)) database.createObjectStore(DB_CONVERSATIONS, { keyPath:'id' });
+        if (!database.objectStoreNames.contains(DB_MESSAGES)) {
+          const messages = database.createObjectStore(DB_MESSAGES, { keyPath:'id' });
+          messages.createIndex('conversationId', 'conversationId', { unique:false });
+        } else {
+          const messages = request.transaction.objectStore(DB_MESSAGES);
+          if (!messages.indexNames.contains('conversationId')) messages.createIndex('conversationId', 'conversationId', { unique:false });
+        }
       };
       request.onsuccess = () => {
         const database = request.result;
@@ -106,7 +142,46 @@
     return historyStore.queue;
   }
 
+  async function databaseGetAll(storeName) {
+    const database = await openHistoryDatabase();
+    if (!database || !database.objectStoreNames.contains(storeName)) return [];
+    return new Promise(resolve => {
+      try {
+        const transaction = database.transaction(storeName, 'readonly');
+        const request = transaction.objectStore(storeName).getAll();
+        request.onsuccess = () => resolve(Array.isArray(request.result) ? request.result : []);
+        request.onerror = () => resolve([]);
+        transaction.onabort = () => resolve([]);
+      } catch { resolve([]); }
+    });
+  }
+
+  async function loadStructuredState() {
+    const database = await openHistoryDatabase();
+    if (!database || !database.objectStoreNames.contains(DB_CONVERSATIONS) || !database.objectStoreNames.contains(DB_MESSAGES)) return null;
+    const [meta, conversations, messages] = await Promise.all([
+      databaseGet('main-v3'), databaseGetAll(DB_CONVERSATIONS), databaseGetAll(DB_MESSAGES)
+    ]);
+    if (!conversations.length) return null;
+    const byConversation = new Map();
+    for (const message of messages) {
+      const id = String(message?.conversationId || '');
+      if (!id) continue;
+      if (!byConversation.has(id)) byConversation.set(id, []);
+      byConversation.get(id).push({ ...message });
+    }
+    for (const list of byConversation.values()) list.sort((a,b) => Number(a.createdAt || 0) - Number(b.createdAt || 0));
+    historyStore.structuredReady = true;
+    return {
+      currentId:String(meta?.currentId || ''),
+      view:meta?.view === 'home' ? 'home' : 'conversation',
+      conversations:conversations.map(item => ({ ...item, messages:byConversation.get(String(item.id || '')) || [] }))
+    };
+  }
+
   async function loadSavedState() {
+    const structured = await loadStructuredState();
+    if (structured) return structured;
     const saved = await databaseGet('main');
     if (saved) return saved;
     try { return JSON.parse(localStorage.getItem(STORAGE_KEY) || '{}'); } catch { return {}; }
@@ -118,15 +193,73 @@
     try { return localStorage.getItem(`${STORAGE_KEY}:draft`) || ''; } catch { return ''; }
   }
 
+  function conversationMetadata(conversation = {}) {
+    const { messages, ...metadata } = conversation;
+    return metadata;
+  }
+
+  function persistStructuredState(payload) {
+    historyStore.queue = historyStore.queue.then(async () => {
+      const database = await openHistoryDatabase();
+      if (!database) throw new Error('IndexedDB indisponível');
+      await new Promise(resolve => {
+        try {
+          const transaction = database.transaction([DB_STORE, DB_CONVERSATIONS, DB_MESSAGES], 'readwrite');
+          const stateStore = transaction.objectStore(DB_STORE);
+          const conversationStore = transaction.objectStore(DB_CONVERSATIONS);
+          const messageStore = transaction.objectStore(DB_MESSAGES);
+          stateStore.put({ currentId:String(payload.currentId || ''), view:payload.view === 'home' ? 'home' : 'conversation' }, 'main-v3');
+          const conversations = Array.isArray(payload.conversations) ? payload.conversations : [];
+          const keepConversationIds = new Set(conversations.map(item => String(item.id || '')).filter(Boolean));
+          for (const conversation of conversations) conversationStore.put(conversationMetadata(conversation));
+          const staleConversationCursor = conversationStore.openCursor();
+          staleConversationCursor.onsuccess = event => {
+            const cursor = event.target.result;
+            if (!cursor) return;
+            if (!keepConversationIds.has(String(cursor.key || ''))) cursor.delete();
+            cursor.continue();
+          };
+          const staleMessageCursor = messageStore.openCursor();
+          staleMessageCursor.onsuccess = event => {
+            const cursor = event.target.result;
+            if (!cursor) return;
+            if (!keepConversationIds.has(String(cursor.value?.conversationId || ''))) cursor.delete();
+            cursor.continue();
+          };
+          const targets = historyStore.structuredReady
+            ? conversations.filter(item => item.id === payload.currentId)
+            : conversations;
+          for (const conversation of targets) {
+            const keep = new Set((conversation.messages || []).map(message => String(message.id || '')));
+            let cursorRequest = null;
+            try { cursorRequest = messageStore.index('conversationId').openCursor(IDBKeyRange.only(conversation.id)); } catch {}
+            if (cursorRequest) cursorRequest.onsuccess = event => {
+              const cursor = event.target.result;
+              if (!cursor) return;
+              if (!keep.has(String(cursor.value?.id || ''))) cursor.delete();
+              cursor.continue();
+            };
+            for (const message of conversation.messages || []) messageStore.put({ ...message, conversationId:conversation.id });
+          }
+          transaction.oncomplete = () => { historyStore.structuredReady = true; resolve(); };
+          transaction.onerror = resolve;
+          transaction.onabort = resolve;
+        } catch { resolve(); }
+      });
+    }).catch(() => {
+      try { localStorage.setItem(STORAGE_KEY, JSON.stringify(payload)); } catch {}
+    });
+    return historyStore.queue;
+  }
+
   function persistSavedState(value, { immediate = false } = {}) {
     historyStore.pendingState = value;
     clearTimeout(historyStore.persistTimer);
     const flush = () => {
       const payload = historyStore.pendingState;
       historyStore.pendingState = null;
-      return enqueueDatabaseWrite(store => store.put(payload, 'main'), () => {
-        try { localStorage.setItem(STORAGE_KEY, JSON.stringify(payload)); } catch {}
-      });
+      if (!payload) return historyStore.queue;
+      return persistStructuredState(payload);
     };
     if (immediate) return flush();
     historyStore.persistTimer = setTimeout(flush, 120);
@@ -147,23 +280,50 @@
     return historyStore.queue;
   }
 
+  async function deleteConversationPersistence(conversationId) {
+    const database = await openHistoryDatabase();
+    if (!database || !conversationId) return;
+    await new Promise(resolve => {
+      try {
+        const transaction = database.transaction([DB_CONVERSATIONS, DB_MESSAGES], 'readwrite');
+        transaction.objectStore(DB_CONVERSATIONS).delete(conversationId);
+        const messageStore = transaction.objectStore(DB_MESSAGES);
+        const cursorRequest = messageStore.index('conversationId').openCursor(IDBKeyRange.only(conversationId));
+        cursorRequest.onsuccess = event => { const cursor = event.target.result; if (!cursor) return; cursor.delete(); cursor.continue(); };
+        transaction.oncomplete = resolve; transaction.onerror = resolve; transaction.onabort = resolve;
+      } catch { resolve(); }
+    });
+  }
+
   async function clearSavedState() {
     clearTimeout(historyStore.persistTimer);
     clearTimeout(historyStore.draftTimer);
     historyStore.pendingState = null;
     historyStore.pendingDraft = '';
-    await enqueueDatabaseWrite(store => { store.delete('main'); store.delete('draft'); }, () => {});
+    const database = await openHistoryDatabase();
+    if (database) {
+      await new Promise(resolve => {
+        try {
+          const transaction = database.transaction([DB_STORE, DB_CONVERSATIONS, DB_MESSAGES], 'readwrite');
+          transaction.objectStore(DB_STORE).clear();
+          transaction.objectStore(DB_CONVERSATIONS).clear();
+          transaction.objectStore(DB_MESSAGES).clear();
+          transaction.oncomplete = resolve; transaction.onerror = resolve; transaction.onabort = resolve;
+        } catch { resolve(); }
+      });
+    }
+    historyStore.structuredReady = false;
     try { localStorage.removeItem(STORAGE_KEY); localStorage.removeItem(`${STORAGE_KEY}:draft`); } catch {}
   }
 
   function defaultSettings() {
-    return { senderName: 'Estudante', testMode:false };
+    return { senderName: 'Estudante', anonymousMode:false };
   }
 
   function loadSettings() {
     try {
       const stored = JSON.parse(localStorage.getItem(SETTINGS_KEY) || '{}');
-      return { ...defaultSettings(), senderName: String(stored.senderName || 'Estudante').slice(0, 80), testMode:Boolean(stored.testMode) };
+      return { ...defaultSettings(), senderName: String(stored.senderName || 'Estudante').slice(0, 80), anonymousMode:Boolean(stored.anonymousMode ?? stored.testMode) };
     } catch { return defaultSettings(); }
   }
 
@@ -171,29 +331,29 @@
     try { localStorage.setItem(SETTINGS_KEY, JSON.stringify(state.settings)); } catch {}
   }
 
-  function syncTestModeUi() {
-    const button = $('testModeToggle');
+  function syncAnonymousModeUi() {
+    const button = $('anonymousModeToggle');
     if (!button) return;
-    const active = Boolean(state.settings.testMode);
+    const active = Boolean(state.settings.anonymousMode);
     button.classList.toggle('selected', active);
     button.setAttribute('aria-pressed', String(active));
-    button.setAttribute('aria-label', active ? 'Desativar modo de teste neste dispositivo' : 'Ativar modo de teste neste dispositivo');
+    button.setAttribute('aria-label', active ? 'Desativar modo anônimo neste dispositivo' : 'Ativar modo anônimo neste dispositivo');
     button.title = active
-      ? 'Modo de teste ativo: suas mensagens não entram nas estatísticas públicas'
-      : 'Modo de teste: não contabilizar as mensagens deste dispositivo';
+      ? 'Modo anônimo ativo: suas perguntas não entram em Mais perguntadas'
+      : 'Modo anônimo: não incluir suas perguntas nas estatísticas públicas';
   }
 
-  function toggleTestMode() {
-    state.settings.testMode = !state.settings.testMode;
+  function toggleAnonymousMode() {
+    state.settings.anonymousMode = !state.settings.anonymousMode;
     saveSettings();
-    syncTestModeUi();
-    showToast(state.settings.testMode
-      ? 'Modo de teste ativado: suas mensagens não serão contabilizadas'
-      : 'Modo de teste desativado: suas próximas perguntas voltarão a ser contabilizadas');
+    syncAnonymousModeUi();
+    showToast(state.settings.anonymousMode
+      ? 'Modo anônimo ativado: suas perguntas não entrarão em Mais perguntadas'
+      : 'Modo anônimo desativado: suas próximas perguntas poderão contribuir para Mais perguntadas');
   }
 
   function telemetryPayload(payload = {}) {
-    return state.settings.testMode ? { ...payload, telemetryMode:'test' } : payload;
+    return state.settings.anonymousMode ? { ...payload, telemetryMode:'anonymous' } : payload;
   }
 
   function loadFavorites() {
@@ -225,6 +385,7 @@
     return {
       id: `fav-${message.serverId || message.id}` ,
       messageId: message.id,
+      conversationId: currentConversation().id,
       serverId: message.serverId || '',
       kind: documentCard ? 'document' : actionCard ? 'tool' : 'answer',
       title,
@@ -268,9 +429,86 @@
           <strong>${escapeHtml(item.title || 'Favorito')}</strong>
           <span>${escapeHtml(item.summary || 'Abrir item salvo')}</span>
         </button>
-        ${href ? `<a href="${escapeHtml(href)}" target="_blank" rel="noopener noreferrer">Abrir</a>` : ''}
+        <div class="saved-item-actions">${href ? `<a href="${escapeHtml(href)}" target="_blank" rel="noopener noreferrer">Abrir</a>` : ''}<button type="button" data-remove-home-favorite="${escapeHtml(item.id || '')}" aria-label="Remover ${escapeHtml(item.title || 'favorito')} dos favoritos">Remover</button></div>
       </article>`;
     }).join('');
+  }
+
+  function conversationSearchText(conversation = {}) {
+    return normalizeOffline([
+      conversation.title || '',
+      ...(Array.isArray(conversation.messages) ? conversation.messages.map(message => message.text || '') : [])
+    ].join(' '));
+  }
+
+  function renderHomeConversationPanels() {
+    const current = currentConversation();
+    const continueCard = $('continueConversationCard');
+    const continueText = $('continueConversationText');
+    if (continueCard) {
+      continueCard.hidden = !current.messages.length;
+      if (continueText && current.messages.length) continueText.textContent = conversationPreview(current);
+    }
+    const panel = $('conversationHistoryPanel');
+    const list = $('conversationHistoryList');
+    const search = $('conversationHistorySearch');
+    if (!panel || !list) return;
+    if (search && document.activeElement !== search && search.value !== state.historyQuery) search.value = state.historyQuery;
+    const query = normalizeOffline(state.historyQuery);
+    const history = state.conversations
+      .filter(conversation => conversation.messages.length)
+      .filter(conversation => !query || conversationSearchText(conversation).includes(query))
+      .sort((a, b) => Number(b.updatedAt || 0) - Number(a.updatedAt || 0));
+    panel.hidden = !state.conversations.some(conversation => conversation.messages.length);
+    if (!history.length) {
+      list.innerHTML = query
+        ? `<div class="saved-empty">Não encontrei conversa com “${escapeHtml(state.historyQuery)}”. A busca verifica títulos e todas as mensagens salvas.</div>`
+        : '<div class="saved-empty">Ainda não há conversas salvas.</div>';
+      return;
+    }
+    list.innerHTML = history.map(conversation => `
+      <article class="saved-item conversation-history-row" data-conversation-row="${escapeHtml(conversation.id)}">
+        <button type="button" class="conversation-history-main" data-conversation-id="${escapeHtml(conversation.id)}">
+          <strong>${escapeHtml(conversation.title || 'Conversa')}${conversation.id === current.id ? ' · Atual' : ''}</strong>
+          <span>${escapeHtml(conversationPreview(conversation))}</span>
+        </button>
+        <div class="conversation-history-actions">
+          <button type="button" data-rename-conversation="${escapeHtml(conversation.id)}">Renomear</button>
+          <button type="button" data-delete-conversation="${escapeHtml(conversation.id)}">Excluir</button>
+        </div>
+      </article>`).join('');
+  }
+
+  async function renameConversation(conversationId) {
+    const conversation = state.conversations.find(item => item.id === conversationId);
+    if (!conversation) return;
+    const title = await askAssistantText({ title:'Renomear conversa', message:'Escolha um título curto para localizar esta conversa depois.', value:conversation.title || '', placeholder:'Título da conversa', confirmLabel:'Salvar' });
+    if (!title) return;
+    conversation.title = title.slice(0,100);
+    conversation.updatedAt = Date.now();
+    await saveState({ immediate:true });
+    renderHomeConversationPanels();
+    showToast('Conversa renomeada');
+  }
+
+  async function deleteConversation(conversationId) {
+    const conversation = state.conversations.find(item => item.id === conversationId);
+    if (!conversation) return;
+    const confirmed = await confirmAssistantAction({ title:'Excluir conversa', message:`Excluir “${conversation.title || 'Conversa'}”? Esta ação remove as mensagens salvas neste dispositivo.`, confirmLabel:'Excluir' });
+    if (!confirmed) return;
+    const wasCurrent = conversation.id === state.currentId;
+    state.conversations = state.conversations.filter(item => item.id !== conversation.id);
+    await deleteConversationPersistence(conversation.id);
+    if (!state.conversations.length) state.conversations = [freshConversation()];
+    if (wasCurrent) {
+      const next = state.conversations[0];
+      state.currentId = next.id;
+      state.conversation = next;
+      state.view = next.messages.length ? 'conversation' : 'home';
+    }
+    await saveState({ immediate:true });
+    render();
+    showToast('Conversa excluída');
   }
 
   function renderPopularQuestions() {
@@ -285,16 +523,27 @@
     });
     const periodLabel = state.popularPeriod === 'week' ? 'nesta semana' : 'hoje';
     const title = $('popularTitle');
+    const subtitle = $('popularSubtitle');
     if (title) title.textContent = state.popularPeriod === 'week' ? 'Mais perguntadas da semana' : 'Mais perguntadas hoje';
+    if (subtitle) subtitle.textContent = state.popularStale
+      ? 'Exibindo o último resultado salvo; a atualização global será retomada quando a API responder.'
+      : 'Perguntas acadêmicas agrupadas sem identificar usuários. Atualizações não apagam o histórico.';
     if (!state.popularQuestions.length) {
-      list.innerHTML = `<div class="saved-empty">Ainda não há perguntas suficientes ${periodLabel}.</div>`;
+      list.innerHTML = state.popularPeriod === 'today'
+        ? '<div class="saved-empty">Hoje ainda não há consultas classificadas. O histórico não foi apagado; <button type="button" class="inline-link-button" data-popular-period="week">ver a semana</button>.</div>'
+        : '<div class="saved-empty">Ainda não há perguntas suficientes nesta semana. O histórico armazenado não é zerado por atualizações do HUB.</div>';
       return;
     }
-    list.innerHTML = state.popularQuestions.slice(0, 8).map(item => `
+    list.innerHTML = state.popularQuestions.slice(0, 8).map(item => {
+      const trend = Number(item.trend || 0);
+      const trendClass = trend > 0 ? 'up' : trend < 0 ? 'down' : 'same';
+      const trendText = trend > 0 ? `↑ ${trend}` : trend < 0 ? `↓ ${Math.abs(trend)}` : '→';
+      return `
       <button type="button" class="saved-item popular-item" data-popular-prompt="${escapeHtml(item.prompt || item.subject || item.title || '')}">
         <strong>${escapeHtml(item.subject || item.title || 'Pergunta')}</strong>
-        <span>${escapeHtml((item.count || 0) + ` consulta(s) ${periodLabel}`)}</span>
-      </button>`).join('');
+        <span>${escapeHtml((item.count || 0) + ` consulta(s) ${periodLabel}`)}<em class="popular-trend ${trendClass}" title="Comparação com o período anterior">${escapeHtml(trendText)}</em></span>
+      </button>`;
+    }).join('');
   }
 
   function setPopularPeriod(period) {
@@ -302,12 +551,17 @@
     if (state.popularPeriod === clean) return;
     state.popularPeriod = clean;
     try { localStorage.setItem('hubPopularPeriodV1', clean); } catch {}
+    const cached = state.popularCache?.[clean];
+    state.popularQuestions = Array.isArray(cached?.items) ? cached.items.slice(0, 8) : [];
+    state.popularStale = Boolean(state.popularQuestions.length);
+    renderPopularQuestions();
     loadPopularQuestions();
   }
 
   function renderPinnedAnswer() {
     const container = $('pinnedAnswer');
     if (!container) return;
+    if (state.view === 'home') { container.hidden = true; container.innerHTML = ''; return; }
     const pinnedId = currentConversation().pinnedMessageId || '';
     const message = pinnedId ? messageById(pinnedId) : null;
     container.hidden = !message;
@@ -317,13 +571,34 @@
   }
 
   async function loadPopularQuestions() {
-    if (!CONFIG.apiBaseUrl) return;
-    try {
-      const response = await fetch(apiUrl(`/api/assistant/popular?period=${encodeURIComponent(state.popularPeriod)}`), { cache:'no-store' });
-      const data = await response.json().catch(() => ({}));
-      state.popularQuestions = Array.isArray(data.items) ? data.items.slice(0, 8) : [];
+    const period = state.popularPeriod;
+    const cached = state.popularCache?.[period];
+    if (!CONFIG.apiBaseUrl) {
+      state.popularQuestions = Array.isArray(cached?.items) ? cached.items.slice(0, 8) : state.popularQuestions;
+      state.popularStale = Boolean(state.popularQuestions.length);
       renderPopularQuestions();
-    } catch { state.popularQuestions = []; renderPopularQuestions(); }
+      return;
+    }
+    try {
+      const response = await fetch(apiUrl(`/api/assistant/popular?period=${encodeURIComponent(period)}`), { cache:'no-store' });
+      if (!response.ok) throw new Error(`Popular HTTP ${response.status}`);
+      const data = await response.json().catch(() => ({}));
+      if (period !== state.popularPeriod) return;
+      const items = Array.isArray(data.items) ? data.items.slice(0, 8) : [];
+      state.popularQuestions = items;
+      state.popularStale = false;
+      state.popularCache = {
+        ...(state.popularCache || {}),
+        [period]: { items, fetchedAt: Date.now(), startIso:String(data.startIso || ''), series:String(data.series || 'human_question_v2') }
+      };
+      savePopularCache(state.popularCache);
+      renderPopularQuestions();
+    } catch {
+      const fallback = state.popularCache?.[period];
+      if (Array.isArray(fallback?.items)) state.popularQuestions = fallback.items.slice(0, 8);
+      state.popularStale = Boolean(state.popularQuestions.length);
+      renderPopularQuestions();
+    }
   }
 
   function togglePinMessage(messageId) {
@@ -335,8 +610,8 @@
   }
 
   async function sendCorrectionForMessage(messageId) {
-    const note = prompt('Informe a correção em poucas palavras:');
-    if (!note || !note.trim()) return;
+    const note = await askAssistantText({ title:'Informar correção', message:'Descreva em poucas palavras o que deveria estar correto.', placeholder:'Ex.: a sala correta é H204', confirmLabel:'Enviar correção' });
+    if (!note) return;
     await sendFeedback(messageId, 'not-helpful', `Correção sugerida: ${safeText(note).trim().slice(0, 280)}`);
   }
 
@@ -356,13 +631,17 @@
     return normalized;
   }
 
+  const MAX_CONVERSATIONS = 30;
+
   function freshConversation() {
     return {
-      id: 'single-conversation',
+      id: `conversation-${uuid()}`,
       sessionId: uuid().replace(/-/g, ''),
-      title: 'Assistente do HUB',
+      title: 'Nova conversa',
       createdAt: Date.now(),
       updatedAt: Date.now(),
+      pinnedMessageId: '',
+      contextClearedAt: 0,
       messages: []
     };
   }
@@ -370,12 +649,13 @@
   function normalizeConversation(value) {
     if (!value || typeof value !== 'object') return freshConversation();
     return {
-      id: 'single-conversation',
+      id: String(value.id || `conversation-${uuid()}`),
       sessionId: String(value.sessionId || uuid().replace(/-/g, '')),
-      title: 'Assistente do HUB',
+      title: String(value.title || 'Nova conversa').slice(0, 100),
       createdAt: Number(value.createdAt || Date.now()),
       updatedAt: Number(value.updatedAt || Date.now()),
       pinnedMessageId: String(value.pinnedMessageId || ''),
+      contextClearedAt: Number(value.contextClearedAt || 0),
       messages: Array.isArray(value.messages)
         ? value.messages.slice(-Number(CONFIG.maxMessagesPerConversation || 250)).map(message => ({
             ...message,
@@ -385,24 +665,182 @@
     };
   }
 
+  function trimConversations(items, currentId = '') {
+    const normalized = [...items]
+      .filter(Boolean)
+      .sort((a, b) => Number(b.updatedAt || 0) - Number(a.updatedAt || 0));
+    const current = normalized.find(item => item.id === currentId);
+    const kept = normalized.filter(item => item.id !== currentId).slice(0, Math.max(0, MAX_CONVERSATIONS - (current ? 1 : 0)));
+    return current ? [current, ...kept] : kept.slice(0, MAX_CONVERSATIONS);
+  }
+
   async function loadState() {
     const saved = await loadSavedState();
-    let source = saved?.conversation;
-    if (!source && Array.isArray(saved?.conversations)) {
-      source = saved.conversations.find(item => item.id === saved.currentId)
-        || [...saved.conversations].sort((a, b) => Number(b.updatedAt || 0) - Number(a.updatedAt || 0))[0];
-    }
-    state.conversation = normalizeConversation(source);
+    const candidates = Array.isArray(saved?.conversations) && saved.conversations.length
+      ? saved.conversations
+      : (saved?.conversation ? [saved.conversation] : []);
+    state.conversations = candidates.map(normalizeConversation);
+    if (!state.conversations.length) state.conversations = [freshConversation()];
+    const requestedId = String(saved?.currentId || saved?.conversation?.id || '');
+    state.currentId = state.conversations.some(item => item.id === requestedId) ? requestedId : state.conversations[0].id;
+    state.conversations = trimConversations(state.conversations, state.currentId);
+    state.conversation = state.conversations.find(item => item.id === state.currentId) || state.conversations[0];
+    const savedView = saved?.view === 'home' || saved?.view === 'conversation' ? saved.view : '';
+    state.view = savedView || (state.conversation.messages.length ? 'conversation' : 'home');
+    if (!historyStore.structuredReady && candidates.length) await saveState({ immediate:true });
   }
 
   function saveState(options = {}) {
-    if (!state.conversation) state.conversation = freshConversation();
-    return persistSavedState({ conversation: state.conversation }, options);
+    const current = currentConversation();
+    state.conversation = current;
+    state.conversations = trimConversations(state.conversations, current.id);
+    return persistSavedState({
+      conversation: current,
+      conversations: state.conversations,
+      currentId: current.id,
+      view: state.view
+    }, options);
   }
 
   function currentConversation() {
-    if (!state.conversation) state.conversation = freshConversation();
-    return state.conversation;
+    let conversation = state.conversations.find(item => item.id === state.currentId);
+    if (!conversation) {
+      conversation = state.conversation ? normalizeConversation(state.conversation) : freshConversation();
+      state.conversations.unshift(conversation);
+      state.currentId = conversation.id;
+    }
+    state.conversation = conversation;
+    return conversation;
+  }
+
+  function findConversationContainingMessage(messageId) {
+    if (!messageId) return null;
+    return state.conversations.find(conversation => conversation.messages.some(message => message.id === messageId || message.serverId === messageId)) || null;
+  }
+
+  function conversationPreview(conversation) {
+    const messages = Array.isArray(conversation?.messages) ? conversation.messages : [];
+    const lastUser = [...messages].reverse().find(message => message.role === 'user');
+    const lastAny = messages[messages.length - 1];
+    return safeText(lastUser?.text || lastAny?.text || 'Conversa sem mensagens').replace(/\s+/g, ' ').trim().slice(0, 120);
+  }
+
+  function smartConversationTitle(text, context = null) {
+    const query = normalizeOffline(text);
+    const ctx = context && typeof context === 'object' ? context : {};
+    const discipline = String(ctx.discipline || ctx.lastDiscipline || '').trim();
+    const professor = String(ctx.professor || ctx.lastProfessor || '').trim();
+    const semester = Number(ctx.semester || 0);
+    if (/\b(?:auxilio|auxilios|paae|assistencia estudantil)\b/u.test(query)) return 'Auxílios estudantis';
+    if (/\bcalendario\b/u.test(query)) return 'Calendário acadêmico';
+    if (/\bbarema\b/u.test(query)) return 'Barema de atividades complementares';
+    if (/\bppc\b|projeto pedagogico/u.test(query)) return 'PPC do BSI';
+    if (/\bsuap\b/u.test(query)) return 'SUAP';
+    if (professor) return `Professor ${professor.split(' ').slice(0,2).join(' ')}`.slice(0,100);
+    if (discipline && /\bsala\b/u.test(query)) return `Sala de ${discipline}`.slice(0,100);
+    if (discipline && /\b(?:professor|professora|quem da)\b/u.test(query)) return `Professor de ${discipline}`.slice(0,100);
+    if (discipline) return `Horários de ${discipline}`.slice(0,100);
+    if (semester) return `Horários do ${semester}º semestre`;
+    const localProfessor = state.offlineAcademic ? localProfessorFor(query) : null;
+    if (localProfessor) return `Professor ${localProfessor.name.split(' ').slice(0,2).join(' ')}`.slice(0,100);
+    const localDiscipline = state.offlineAcademic ? localDisciplineFor(query) : null;
+    if (localDiscipline) return (/\bsala\b/u.test(query) ? `Sala de ${localDiscipline}` : `Horários de ${localDiscipline}`).slice(0,100);
+    const localSemester = localSemesterFor(query);
+    if (localSemester && /\b(?:horario|horarios|aula|aulas|semestre)\b/u.test(query)) return `Horários do ${localSemester}º semestre`;
+    return safeText(text).replace(/\s+/g,' ').trim().slice(0,72) || 'Nova conversa';
+  }
+
+  function refineConversationTitle(text, context = null, hint = '') {
+    const conversation = currentConversation();
+    if (!conversation.messages.some(message => message.role === 'user')) return;
+    const next = String(hint || smartConversationTitle(text, context)).trim().slice(0,100);
+    if (next && (conversation.title === 'Nova conversa' || conversation.messages.filter(message=>message.role==='user').length <= 1 || conversation.title.length <= 12)) {
+      conversation.title = next;
+      conversation.updatedAt = Date.now();
+    }
+  }
+
+  function activeContextFromConversation() {
+    const conversation = currentConversation();
+    const clearedAt = Number(conversation.contextClearedAt || 0);
+    for (let index=conversation.messages.length-1; index>=0; index-=1) {
+      const message=conversation.messages[index];
+      if (Number(message.createdAt || 0) <= clearedAt) break;
+      const context=message.context;
+      if (!context || typeof context !== 'object') continue;
+      const label=String(context.discipline || context.lastDiscipline || context.professor || context.lastProfessor || context.title || context.summary || '').trim();
+      if (label) return { label, context };
+    }
+    return null;
+  }
+
+  function syncActiveContextUi() {
+    const bar=$('activeContextBar');
+    const text=$('activeContextText');
+    if (!bar || !text) return;
+    const active=state.view === 'conversation' ? activeContextFromConversation() : null;
+    bar.hidden=!active;
+    text.textContent=active ? `Contexto: ${active.label}` : '';
+  }
+
+  async function clearActiveContext() {
+    const conversation=currentConversation();
+    conversation.contextClearedAt=Date.now();
+    await clearRemoteContext(conversation.sessionId);
+    await saveState({immediate:true});
+    syncActiveContextUi();
+    showToast('Contexto limpo; a conversa foi preservada');
+  }
+
+  function syncViewUi() {
+    const home = state.view === 'home';
+    $('homeViewButton')?.classList.toggle('selected', home);
+    $('homeViewButton')?.setAttribute('aria-pressed', String(home));
+    document.querySelectorAll('[data-assistant-home]').forEach(button => button.classList.toggle('active', home));
+  }
+
+  function showHome({ persist = true } = {}) {
+    state.view = 'home';
+    state.editingMessageId = '';
+    state.feedbackMenuMessageId = '';
+    if (persist) saveState();
+    render();
+    requestAnimationFrame(() => { if ($('messageScroll')) $('messageScroll').scrollTop = 0; });
+  }
+
+  function showConversation(conversationId = state.currentId, { persist = true, messageId = '' } = {}) {
+    const target = state.conversations.find(item => item.id === conversationId) || currentConversation();
+    state.currentId = target.id;
+    state.conversation = target;
+    state.view = target.messages.length ? 'conversation' : 'home';
+    state.editingMessageId = '';
+    state.feedbackMenuMessageId = '';
+    if (persist) saveState();
+    render();
+    requestAnimationFrame(() => {
+      if (messageId) document.querySelector(`[data-message-id="${CSS.escape(messageId)}"]`)?.scrollIntoView({ behavior:'smooth', block:'center' });
+      else if (state.view === 'conversation') scrollToBottom(false);
+    });
+  }
+
+  async function startNewConversation() {
+    if (state.sending) return;
+    const conversation = freshConversation();
+    state.conversations.unshift(conversation);
+    state.currentId = conversation.id;
+    state.conversation = conversation;
+    state.view = 'home';
+    state.renderLimit = 80;
+    state.editingMessageId = '';
+    state.feedbackMenuMessageId = '';
+    state.messageFingerprints.clear();
+    const input = $('messageInput');
+    if (input) input.value = '';
+    await persistDraft('', { immediate:true });
+    await saveState({ immediate:true });
+    render();
+    showToast('Nova conversa criada');
+    requestAnimationFrame(() => $('messageInput')?.focus({ preventScroll:true }));
   }
 
   function apiUrl(path) {
@@ -526,6 +964,8 @@
       feedbackReason: String(extras.feedbackReason || ''),
       copied: Boolean(extras.copied),
       streaming: Boolean(extras.streaming),
+      interrupted: Boolean(extras.interrupted),
+      interruptedPrompt: String(extras.interruptedPrompt || ''),
       components: Array.isArray(extras.components) ? extras.components : [],
       sources: Array.isArray(extras.sources) ? extras.sources : [],
       context: extras.context && typeof extras.context === 'object' ? extras.context : null,
@@ -535,7 +975,9 @@
       presentation: extras.presentation && typeof extras.presentation === 'object' ? extras.presentation : null,
       meta: extras.meta && typeof extras.meta === 'object' ? extras.meta : null
     };
+    const firstUserMessage = role === 'user' && !conversation.messages.some(item => item.role === 'user');
     conversation.messages.push(message);
+    if (firstUserMessage) conversation.title = smartConversationTitle(text);
     conversation.messages = conversation.messages.slice(-Number(CONFIG.maxMessagesPerConversation || 250));
     conversation.updatedAt = Date.now();
     saveState();
@@ -593,13 +1035,51 @@
       </div>${feedbackMenu}`;
   }
 
-  function showToast(text) {
+  function showToast(text, { duration = 2200 } = {}) {
     const toast = $('actionToast');
     if (!toast) return;
     clearTimeout(state.toastTimer);
     toast.textContent = text;
     toast.hidden = false;
-    state.toastTimer = setTimeout(() => { toast.hidden = true; }, 1800);
+    state.toastTimer = setTimeout(() => { toast.hidden = true; }, Math.max(800, Number(duration || 2200)));
+  }
+
+  function closeAssistantDialog(result = null) {
+    const overlay = $('assistantDialog');
+    const pending = state.dialogState;
+    state.dialogState = null;
+    if (overlay) overlay.hidden = true;
+    pending?.resolve?.(result);
+  }
+
+  function openAssistantDialog({ title = 'Confirmar', message = '', input = false, value = '', placeholder = '', confirmLabel = 'Confirmar' } = {}) {
+    if (state.dialogState) closeAssistantDialog(null);
+    const overlay = $('assistantDialog');
+    const titleEl = $('assistantDialogTitle');
+    const messageEl = $('assistantDialogMessage');
+    const inputEl = $('assistantDialogInput');
+    const confirm = $('assistantDialogConfirm');
+    if (!overlay || !titleEl || !messageEl || !inputEl || !confirm) return Promise.resolve(null);
+    titleEl.textContent = title;
+    messageEl.textContent = message;
+    inputEl.hidden = !input;
+    inputEl.value = input ? String(value || '').slice(0,280) : '';
+    inputEl.placeholder = placeholder;
+    confirm.textContent = confirmLabel;
+    overlay.hidden = false;
+    return new Promise(resolve => {
+      state.dialogState = { resolve, input };
+      requestAnimationFrame(() => (input ? inputEl : confirm)?.focus());
+    });
+  }
+
+  async function confirmAssistantAction(options = {}) {
+    return Boolean(await openAssistantDialog({ ...options, input:false }));
+  }
+
+  async function askAssistantText(options = {}) {
+    const result = await openAssistantDialog({ ...options, input:true });
+    return typeof result === 'string' ? result.trim() : '';
   }
 
   function safeExternalUrl(value = '') {
@@ -723,21 +1203,20 @@
       const source = message.knowledge.source;
       sources = [{
         title:source.title, page:Number(source.page || 1), url:source.url || '', pdfUrl:source.url || '',
-        verification:{ verified:Boolean(source.verified) }
+        status:source.status || '', verification:{ verified:Boolean(source.verified) }
       }];
     }
     sources = uniqueSources(sources);
     if (!sources.length) return '';
     const rows = sources.slice(0, 3).map(source => {
       const href = sourceHref(source);
-      const label = `📄 ${escapeHtml(source.title || 'Documento')}${source.page ? ` · pág. ${escapeHtml(source.page)}` : ''}`;
-      const verification = source.verification?.verified ? '<small class="source-verified">Fonte verificada</small>' : '';
+      const verified = Boolean(source.verification?.verified || (message.citation?.verified && source === sources[0]) || message.knowledge?.source?.verified);
+      const label = `${verified ? '✓ Fonte verificada' : 'Fonte'} · ${escapeHtml(source.title || 'Documento')}${source.page ? ` · pág. ${escapeHtml(source.page)}` : ''}`;
       return href
-        ? `<a class="integrated-source" href="${escapeHtml(href)}" target="_blank" rel="noopener noreferrer"><span>${label}</span>${verification}</a>`
-        : `<span class="integrated-source"><span>${label}</span>${verification}</span>`;
+        ? `<a class="integrated-source" href="${escapeHtml(href)}" target="_blank" rel="noopener noreferrer"><span>${label}</span></a>`
+        : `<span class="integrated-source"><span>${label}</span></span>`;
     }).join('');
     const first = sources[0];
-    const sourceKind = message.citation?.verified ? 'Fonte usada na resposta' : 'Fonte relacionada';
     const pdf = pdfFileFromSource(first);
     const page = Number(first.page || 0);
     const openHref = sourceHref(first) || pdf;
@@ -757,7 +1236,16 @@
         }
       } catch {}
     }
-    return `<section class="integrated-sources"><small class="source-section-label">${sourceKind}</small><div class="source-list">${rows}</div>${embeddedPreview}</section>`;
+    const knowledge = message.knowledge || {};
+    const sourceMeta = knowledge.source || first || {};
+    const details = [];
+    if (knowledge.validity && knowledge.validity !== 'não informada') details.push(`<span><strong>Validade:</strong> ${escapeHtml(knowledge.validity)}</span>`);
+    if (sourceMeta.status) details.push(`<span><strong>Status:</strong> ${escapeHtml(sourceMeta.status)}</span>`);
+    if (knowledge.lastReviewedAt) details.push(`<span><strong>Revisado:</strong> ${escapeHtml(knowledge.lastReviewedAt)}${knowledge.responsible ? ` · ${escapeHtml(knowledge.responsible)}` : ''}</span>`);
+    if (knowledge.warning) details.push(`<span class="freshness-warning">${escapeHtml(knowledge.warning)}</span>`);
+    if (knowledge.conflictNotice) details.push(`<span>${escapeHtml(knowledge.conflictNotice)}</span>`);
+    const detailsHtml = details.length ? `<details class="source-details"><summary>Detalhes da fonte</summary><div class="source-details-body">${details.join('')}</div></details>` : '';
+    return `<section class="integrated-sources"><div class="source-list">${rows}</div>${detailsHtml}${embeddedPreview}</section>`;
   }
 
   function renderContext(message) {
@@ -775,24 +1263,44 @@
   }
 
   function renderKnowledge(message) {
+    // Metadados de fonte ficam consolidados em renderSources(). Este bloco só
+    // aparece quando existe um aviso sem nenhuma fonte renderizável.
+    if (uniqueSources(message.sources || []).length || message.knowledge?.source?.title) return '';
     const item = message.knowledge;
     if (!item) return '';
-    const source = item.source || null;
-    const warning = Boolean(item.warning) || (message.citation && !message.citation.verified);
     const rows = [];
-    if (source?.title) rows.push(`<span><strong>Fonte:</strong> ${escapeHtml(source.title)}${source.page ? ` · página ${escapeHtml(source.page)}` : ''}</span>`);
-    if (item.validity && item.validity !== 'não informada') rows.push(`<span><strong>Validade:</strong> ${escapeHtml(item.validity)}</span>`);
-    if (source?.status) rows.push(`<span><strong>Status da fonte:</strong> ${escapeHtml(source.status)}</span>`);
-    if (item.lastReviewedAt) rows.push(`<span><strong>Revisado:</strong> ${escapeHtml(item.lastReviewedAt)}${item.responsible ? ` · ${escapeHtml(item.responsible)}` : ''}</span>`);
     if (item.warning) rows.push(`<span class="freshness-warning">${escapeHtml(item.warning)}</span>`);
     if (item.conflictNotice) rows.push(`<span>${escapeHtml(item.conflictNotice)}</span>`);
-    return rows.length ? `<section class="knowledge-meta ${warning ? 'knowledge-warning' : ''}">${rows.join('')}</section>` : '';
+    return rows.length ? `<section class="knowledge-meta knowledge-warning">${rows.join('')}</section>` : '';
   }
 
   function renderMessageBody(message) {
     const presentation = message.presentation;
     if (!presentation?.progressive) return formatMessage(message.text);
-    return `<section class="progressive-answer"><div class="progressive-summary">${formatMessage(presentation.summary || message.text)}</div>${presentation.details ? `<details><summary>Detalhes</summary><div class="progressive-details">${formatMessage(presentation.details)}</div></details>` : ''}${presentation.source ? `<details><summary>Fonte</summary><div class="progressive-source">${formatMessage(presentation.source)}</div></details>` : ''}</section>`;
+    const hasIntegratedSource = uniqueSources(message.sources || []).length > 0 || Boolean(message.knowledge?.source?.title);
+    const sourceDetails = !hasIntegratedSource && presentation.source
+      ? `<details><summary>Fonte</summary><div class="progressive-source">${formatMessage(presentation.source)}</div></details>`
+      : '';
+    return `<section class="progressive-answer"><div class="progressive-summary">${formatMessage(presentation.summary || message.text)}</div>${presentation.details ? `<details><summary>Detalhes</summary><div class="progressive-details">${formatMessage(presentation.details)}</div></details>` : ''}${sourceDetails}</section>`;
+  }
+
+  function renderInterrupted(message) {
+    if (!message.interrupted) return '';
+    return `<section class="interrupted-state"><strong>Resposta interrompida</strong><span>A conexão ou a geração terminou antes da resposta ser concluída.</span><div class="interrupted-actions"><button type="button" data-continue-interrupted="${escapeHtml(message.id)}">Continuar resposta</button><button type="button" data-retry-message="${escapeHtml(message.id)}">Tentar novamente</button></div></section>`;
+  }
+
+  function patchStreamingMessage(message) {
+    const article = document.querySelector(`[data-message-id="${CSS.escape(message.id)}"]`);
+    if (!article) { renderMessages(); return; }
+    const body = article.querySelector('[data-assistant-text]');
+    if (body) body.innerHTML = renderMessageBody(message);
+    article.classList.toggle('streaming-message', Boolean(message.streaming));
+    let caret = article.querySelector('.stream-caret');
+    if (message.streaming && !caret) {
+      caret = document.createElement('span'); caret.className='stream-caret'; caret.setAttribute('aria-hidden','true');
+      body?.insertAdjacentElement('afterend', caret);
+    } else if (!message.streaming && caret) caret.remove();
+    if (isNearBottom()) scrollToBottom(false);
   }
 
   function isNearBottom(viewport = $('messageScroll'), threshold = 120) {
@@ -811,7 +1319,7 @@
 
   function messageFingerprint(message) {
     return JSON.stringify([
-      message.role, message.text, message.error, message.feedback, message.feedbackReason, message.copied, message.streaming,
+      message.role, message.text, message.error, message.feedback, message.feedbackReason, message.copied, message.streaming, message.interrupted, message.interruptedPrompt,
       message.attachment, message.options, message.components, message.sources, message.context, message.ambiguity,
       message.knowledge, message.citation, message.presentation, message.meta, state.editingMessageId, state.feedbackMenuMessageId,
       currentConversation().pinnedMessageId, state.favorites.map(item => item.messageId || item.serverId || '').join('|')
@@ -842,7 +1350,7 @@
       ? `<div class="message-actions">${message.options.map(option => `<button type="button" class="${option.kind === 'exit' ? 'exit-option' : ''}" data-option-kind="${escapeHtml(option.kind)}" data-option-value="${escapeHtml(option.value)}">${escapeHtml(option.label)}</button>`).join('')}</div>`
       : '';
     const streamingClass = message.streaming ? ' streaming-message' : '';
-    return `<article class="message-row assistant${streamingClass}" data-message-id="${escapeHtml(message.id)}"><div class="assistant-avatar" aria-hidden="true">🤖</div><div class="message-content ${message.error ? 'error-card' : ''}">${attachment}${renderContext(message)}${renderMessageBody(message)}${message.streaming ? '<span class="stream-caret" aria-hidden="true"></span>' : ''}${renderAmbiguity(message)}${renderComponents(message)}${renderSources(message)}${renderKnowledge(message)}${options}${assistantActions(message)}</div></article>`;
+    return `<article class="message-row assistant${streamingClass}" data-message-id="${escapeHtml(message.id)}"><div class="assistant-avatar" aria-hidden="true">🤖</div><div class="message-content ${message.error ? 'error-card' : ''}">${attachment}${renderContext(message)}<div class="assistant-response-text" data-assistant-text>${renderMessageBody(message)}</div>${message.streaming ? '<span class="stream-caret" aria-hidden="true"></span>' : ''}${renderInterrupted(message)}${renderAmbiguity(message)}${renderComponents(message)}${renderSources(message)}${renderKnowledge(message)}${options}${assistantActions(message)}</div></article>`;
   }
 
   function createNodeFromHtml(html) {
@@ -857,10 +1365,15 @@
     const container = $('messages');
     const viewport = $('messageScroll');
     const keepBottom = isNearBottom(viewport);
-    $('welcome').hidden = Boolean(conversation.messages.length);
+    const home = state.view === 'home';
+    $('welcome').hidden = !home;
+    container.hidden = home;
     renderFavoritesHome();
     renderPopularQuestions();
+    renderHomeConversationPanels();
     renderPinnedAnswer();
+    syncViewUi();
+    syncActiveContextUi();
 
     const visible = conversation.messages.slice(-state.renderLimit);
     const visibleIds = new Set(visible.map(message => message.id));
@@ -909,7 +1422,8 @@
 
   function render() {
     ensureComposerAttached();
-    syncTestModeUi();
+    syncAnonymousModeUi();
+    ensureAssistantSidebarNav();
     renderMessages();
     syncSendingUi();
     ensureComposerAttached();
@@ -995,7 +1509,7 @@
     if (banner) {
       banner.hidden = status === 'online' || status === 'checking';
       if (status === 'degraded') banner.textContent = '⚠️ O Assistente está temporariamente indisponível, mas documentos e ferramentas do HUB continuam funcionando.';
-      else if (status === 'offline') banner.textContent = '📴 Você está offline. Ainda consigo consultar documentos, apps e links armazenados localmente no HUB.';
+      else if (status === 'offline') banner.textContent = '📴 Você está offline. Ainda consigo responder consultas acadêmicas essenciais e abrir conteúdo salvo localmente no HUB.';
     }
     const element = $('connectionState');
     if (!element) return;
@@ -1099,6 +1613,15 @@
     } catch { state.offlineCatalog = null; }
   }
 
+  async function loadOfflineAcademic() {
+    try {
+      const response = await fetch(CONFIG.offlineAcademicPath || 'offline-academic.json', { cache:'no-store' });
+      if (!response.ok) throw new Error();
+      const data = await response.json();
+      state.offlineAcademic = data && typeof data === 'object' ? data : null;
+    } catch { state.offlineAcademic = null; }
+  }
+
   function normalizeOffline(value = '') {
     return safeText(value).normalize('NFD').replace(/[\u0300-\u036f]/g, '').toLowerCase()
       .replace(/\btranacamento\b/g,'trancamento').replace(/\btrancamneto\b/g,'trancamento')
@@ -1106,6 +1629,189 @@
       .replace(/\bcauculo\b/g,'calculo').replace(/\bcrecencio\b/g,'crescencio')
       .replace(/\bcaledario\b/g,'calendario').replace(/\bfluxogama\b/g,'fluxograma')
       .replace(/[^a-z0-9]+/g, ' ').trim();
+  }
+
+  function containsNormalizedPhrase(query, phrase) {
+    const clean = normalizeOffline(phrase);
+    if (!clean) return false;
+    return (` ${query} `).includes(` ${clean} `);
+  }
+
+  function localProfessorFor(query) {
+    const data = state.offlineAcademic;
+    if (!data) return null;
+    let best = null;
+    for (const professor of data.professors || []) {
+      const aliases = [professor.identifier, professor.name, ...(data.professorAliases?.[professor.name] || [])]
+        .map(normalizeOffline).filter(Boolean).sort((a,b) => b.length-a.length);
+      const matched = aliases.find(alias => containsNormalizedPhrase(query, alias));
+      if (matched && (!best || matched.length > best.alias.length)) best = { professor, alias:matched };
+    }
+    return best?.professor || null;
+  }
+
+  function localDisciplineFor(query) {
+    const data = state.offlineAcademic;
+    if (!data) return null;
+    let best = null;
+    const aliasesMap = data.disciplineAliases || {};
+    for (const discipline of Object.keys(aliasesMap)) {
+      const aliases = [discipline, data.disciplineCodes?.[discipline], ...(aliasesMap[discipline] || [])]
+        .map(normalizeOffline).filter(Boolean).sort((a,b) => b.length-a.length);
+      const matched = aliases.find(alias => containsNormalizedPhrase(query, alias));
+      if (matched && (!best || matched.length > best.alias.length)) best = { discipline, alias:matched };
+    }
+    return best?.discipline || null;
+  }
+
+  function localSemesterFor(query) {
+    const direct = query.match(/(?:semestre\s*)?(\d)\s*(?:o|º)?(?:\s*semestre)?\b/u);
+    if (direct && Number(direct[1]) >= 1 && Number(direct[1]) <= 8) return Number(direct[1]);
+    const words = { primeiro:1, segundo:2, terceiro:3, quarto:4, quinto:5, sexto:6, setimo:7, oitavo:8, i:1, ii:2, iii:3, iv:4, v:5, vi:6, vii:7, viii:8 };
+    for (const [word, number] of Object.entries(words)) if (containsNormalizedPhrase(query, `${word} semestre`) || containsNormalizedPhrase(query, `semestre ${word}`)) return number;
+    return 0;
+  }
+
+  function localDayFor(query) {
+    const days = [['segunda','segunda-feira'],['terca','terça-feira'],['quarta','quarta-feira'],['quinta','quinta-feira'],['sexta','sexta-feira'],['sabado','sábado'],['domingo','domingo']];
+    const explicit = days.find(([key]) => containsNormalizedPhrase(query, key) || containsNormalizedPhrase(query, `${key} feira`))?.[1] || '';
+    if (explicit) return explicit;
+    const offset = containsNormalizedPhrase(query, 'amanha') ? 1 : containsNormalizedPhrase(query, 'hoje') ? 0 : null;
+    if (offset === null) return '';
+    try {
+      const target = new Date(Date.now() + offset * 86400000);
+      const weekday = normalizeOffline(new Intl.DateTimeFormat('pt-BR', { weekday:'long', timeZone:'America/Bahia' }).format(target));
+      return days.find(([key]) => weekday.startsWith(key))?.[1] || '';
+    } catch { return ''; }
+  }
+
+  function formatLocalScheduleRows(rows = []) {
+    return rows.map(row => `• *${row.discipline}* — ${row.day}, ${row.hours}\n  Professor: ${row.professor}\n  Sala: *${row.room || 'não informada'}*`).join('\n\n');
+  }
+
+  function localSourceKnowledge({ title = '', url = '', verifiedAt = '', status = 'vigente' } = {}) {
+    if (!title) return null;
+    return { source:{ title, url, verified:true, status }, lastReviewedAt:verifiedAt || state.offlineAcademic?.updatedAt || '', validity:'vigente' };
+  }
+
+  function localAcademicAnswer(text, { allowShortcuts = true } = {}) {
+    const data = state.offlineAcademic;
+    if (!data) return null;
+    const query = normalizeOffline(text);
+    if (!query || query.length > 220 || /\b(?:compare|analise|explique por que|opiniao|interprete|resuma detalhadamente)\b/u.test(query)) return null;
+    const has = (...terms) => terms.some(term => containsNormalizedPhrase(query, term));
+    const localAction = (title, url, label = 'Abrir') => ({ type:'hub-actions', title, actions:[{ id:`local-${normalizeOffline(title).replace(/\s+/g,'-')}`, label, kind:'open-url', url }] });
+
+    if (allowShortcuts && has('auxilio','auxilios','assistencia estudantil','paae')) {
+      const a = data.assistance || {};
+      return { text:a.text || 'Consulte o PAAE e o Serviço Social do campus.', components:a.sourceUrl ? [localAction('Assistência estudantil', a.sourceUrl, 'Abrir página oficial')] : [], knowledge:localSourceKnowledge({title:a.sourceTitle,url:a.sourceUrl,verifiedAt:a.verifiedAt}), context:{kind:'student-assistance',title:'Auxílios estudantis'}, titleHint:'Auxílios estudantis', sync:true, subject:'Auxílios estudantis' };
+    }
+    if (allowShortcuts && has('suap')) {
+      const item=data.shortcuts?.suap || {};
+      const suapUrl=String(item.url || '').trim();
+      return { text:'O SUAP é o sistema acadêmico do IFBA. Você pode abrir o portal diretamente pelo botão abaixo.', components:suapUrl ? [localAction('SUAP', suapUrl, 'Abrir SUAP')] : [], context:{kind:'app',title:'SUAP'}, titleHint:'SUAP', sync:true, subject:'SUAP' };
+    }
+    if (allowShortcuts && has('barema')) {
+      const item=data.shortcuts?.barema || {};
+      const baremaUrl=String(item.url || '').trim();
+      return { text:'Você pode consultar o Barema de Atividades Complementares diretamente no HUB.', components:baremaUrl ? [localAction('Barema de Atividades Complementares', baremaUrl, 'Abrir Barema')] : [], context:{kind:'document',title:'Barema'}, titleHint:'Barema de atividades complementares', sync:true, subject:'Barema' };
+    }
+    if (allowShortcuts && (has('ppc') || has('projeto pedagogico'))) {
+      const matches=findOfflineItems('PPC BSI',3).filter(item=>item.kind==='document');
+      const first=matches[0];
+      if (first) return { text:`Encontrei *${first.title}* no conteúdo local do HUB.`, components:[{type:'document',title:first.title,url:first.url,page:Number(first.page||0),heading:first.summary||''}], context:{kind:'document',title:first.title}, titleHint:'PPC do BSI', sync:true, subject:`Documento — ${first.title}` };
+    }
+    if (allowShortcuts && has('calendario','calendário')) {
+      const item=data.shortcuts?.calendar || {};
+      const pdfUrl=String(item.pdfUrl || '').trim();
+      const appUrl=String(item.url || '').trim();
+      const sourceTitle=String(item.sourceTitle || 'Calendário Acadêmico IFBA VCA 2026').trim();
+      const source=pdfUrl ? { title:sourceTitle, page:1, url:pdfUrl, pdfUrl, status:'vigente', verification:{verified:true} } : null;
+      const components=[];
+      if (source) components.push({type:'document',docId:'canonical-calendar',title:source.title,url:pdfUrl,pdfUrl,page:1,heading:'Calendário acadêmico 2026'});
+      if (appUrl) components.push(localAction('Calendário Acadêmico', appUrl, 'Abrir Calendário'));
+      return {
+        text:`📅 *Calendário acadêmico*
+
+O calendário de 2026 está disponível no conteúdo local do HUB. Você pode abrir o PDF oficial ou usar o app de calendário para procurar datas específicas.`,
+        attachment:{ kind:'image', mime:'image/png', mimeType:'image/png', fileName:'calendario-academico-2026.png', url:'assets/calendario-academico-2026.png' },
+        components,
+        sources:source ? [source] : [], knowledge:source ? localSourceKnowledge({title:source.title,url:pdfUrl,verifiedAt:item.verifiedAt || data.updatedAt}) : null,
+        context:{kind:'calendar',title:'Calendário Acadêmico'}, titleHint:'Calendário acadêmico', sync:true, subject:'Calendário acadêmico'
+      };
+    }
+
+    let professor=localProfessorFor(query);
+    let discipline=localDisciplineFor(query);
+    let semester=localSemesterFor(query);
+    const day=localDayFor(query);
+    const wantsRoom=has('sala','onde fica','localizacao','localização');
+    const wantsSchedule=has('horario','horarios','aula','aulas','dias');
+    const wantsProfessor=has('professor','professora','quem da','quem ensina');
+    const wantsContact=has('email','e mail','contato');
+    const localFollowup = query.length <= 80 && /^(?:e\s+)?(?:(?:qual|quais)\s+)?(?:a\s+|o\s+|os\s+|as\s+)?(?:sala|salas|horario|horarios|professor|professora|email|contato|hoje|amanha|segunda|terca|quarta|quinta|sexta|sabado|domingo)\b/u.test(query);
+    if (localFollowup && !professor && !discipline && !semester) {
+      const active=activeContextFromConversation()?.context || {};
+      const activeProfessor=String(active.professor || active.lastProfessor || '').trim();
+      const activeDiscipline=String(active.discipline || active.lastDiscipline || '').trim();
+      if (activeProfessor) professor=(data.professors || []).find(item=>item.name===activeProfessor) || null;
+      if (!professor && activeDiscipline && (data.disciplineAliases || {})[activeDiscipline]) discipline=activeDiscipline;
+      if (!professor && !discipline && Number(active.semester || 0)) semester=Number(active.semester || 0);
+    }
+    const rows=data.scheduleEntries || [];
+
+    if (professor) {
+      const professorRows=rows.filter(row => row.professor === professor.name && (!day || row.day === day));
+      let body='';
+      if (wantsContact) body=`*${professor.name}*\n\n📧 ${professor.email || 'E-mail não informado.'}`;
+      else if (wantsRoom) body=`*Salas de ${professor.name} — ${data.period || 'período atual'}*\n\n${formatLocalScheduleRows(professorRows) || 'Não encontrei aulas cadastradas para esse filtro.'}`;
+      else if (wantsSchedule || day) body=`*Horários de ${professor.name} — ${data.period || 'período atual'}*\n\n${formatLocalScheduleRows(professorRows) || 'Não encontrei aulas cadastradas para esse filtro.'}`;
+      else body=`*${professor.name}*\n\n📧 ${professor.email || 'E-mail não informado.'}\n\n${formatLocalScheduleRows(professorRows)}`;
+      return { text:body, context:{kind:'professor',professor:professor.name,lastProfessor:professor.name,title:professor.name}, titleHint:`Professor ${professor.name.split(' ')[0]}`, sync:true, subject:`Professor — ${professor.name}` };
+    }
+
+    if (discipline) {
+      const disciplineRows=rows.filter(row => row.discipline === discipline && (!day || row.day === day));
+      if (!disciplineRows.length) return null;
+      let body='';
+      if (wantsProfessor) {
+        const names=[...new Set(disciplineRows.map(row=>row.professor))];
+        body=`*Professor${names.length>1?'es':''} de ${discipline}*\n\n${names.map(name=>`• ${name}`).join('\n')}`;
+      } else if (wantsRoom) body=`*Sala de ${discipline}*\n\n${formatLocalScheduleRows(disciplineRows)}`;
+      else body=`*Horários de ${discipline} — ${data.period || 'período atual'}*\n\n${formatLocalScheduleRows(disciplineRows)}`;
+      return { text:body, context:{kind:'discipline',discipline,lastDiscipline:discipline,title:discipline}, titleHint:wantsRoom?`Sala de ${discipline}`:wantsProfessor?`Professor de ${discipline}`:`Horários de ${discipline}`, sync:true, subject:wantsRoom?`Sala — ${discipline}`:`Horários — ${discipline}` };
+    }
+
+    if (semester && (wantsSchedule || has('semestre'))) {
+      const semesterRows=rows.filter(row => Number(row.semesterNumber)===semester && (!day || row.day===day));
+      if (!semesterRows.length) return null;
+      const title=day ? `Aulas de ${day} — ${semester}º semestre` : `Horários — ${semester}º semestre`;
+      return { text:`*${day ? `Aulas de ${day}` : `Aulas e horários`} do ${semester}º semestre — ${data.period || 'período atual'}*\n\n${formatLocalScheduleRows(semesterRows)}`, context:{kind:'semester',semester,title:`${semester}º semestre`}, titleHint:day?`Aulas de ${day} — ${semester}º semestre`:`Horários do ${semester}º semestre`, sync:true, subject:title };
+    }
+    return null;
+  }
+
+  function syncLocalAnswerWithServer(text, local) {
+    if (!local?.sync || navigator.onLine === false || !CONFIG.apiBaseUrl) return Promise.resolve();
+    const conversationId=currentConversation().id;
+    state.localSyncQueue = state.localSyncQueue.then(async () => {
+      if (navigator.onLine === false || !CONFIG.apiBaseUrl) return;
+      const conversation=state.conversations.find(item=>item.id===conversationId);
+      if (!conversation) return;
+      const startedAt=Date.now();
+      try {
+        const data=await request(CONFIG.messagePath || '/api/assistant/message', { sessionId:conversation.sessionId, message:text, senderName:state.settings.senderName }, { timeoutMs:12000 });
+        if (data?.sessionId) conversation.sessionId=data.sessionId;
+        const last=[...conversation.messages].reverse().find(message=>message.role==='assistant' && message.meta?.localInstant && !message.meta?.localSynced);
+        const clearedDuringSync=Number(conversation.contextClearedAt || 0) >= startedAt;
+        if (clearedDuringSync) await clearRemoteContext(conversation.sessionId);
+        else if (last && data?.context) last.context=data.context;
+        if (last) last.meta={...(last.meta||{}), localSynced:true};
+        saveState();
+        if (conversation.id===state.currentId) syncActiveContextUi();
+      } catch {}
+    }).catch(() => {});
+    return state.localSyncQueue;
   }
 
   function findOfflineItems(text, limit = 3) {
@@ -1202,16 +1908,35 @@
     }));
   }
 
-  async function send(text, { appendUser = true } = {}) {
+  async function send(text, { appendUser = true, bypassLocal = false } = {}) {
     text = safeText(text).trim();
     if (!text) return;
+    state.view = 'conversation';
     if (state.activeRequest) abortMessageRequest('superseded');
-    const active = beginMessageRequest();
     if (appendUser) addMessage('user', text);
     const input = $('messageInput');
     if (input) input.value = '';
     persistDraft('', { immediate:true });
     resizeInput();
+
+    const local = bypassLocal ? null : localAcademicAnswer(text);
+    if (local) {
+      const message = addMessage('assistant', local.text, {
+        components:local.components || [], sources:local.sources || [], context:local.context || null,
+        knowledge:local.knowledge || null, presentation:local.presentation || null,
+        meta:{ localInstant:true, localSynced:false, subject:local.subject || '' }
+      });
+      refineConversationTitle(text, local.context, local.titleHint);
+      saveState({ immediate:true });
+      renderMessages();
+      setConnection(navigator.onLine === false ? 'offline' : 'online', navigator.onLine === false ? 'Resposta local · offline' : 'Resposta local instantânea');
+      syncLocalAnswerWithServer(text, local).then(() => {
+        if (message.context) { refineConversationTitle(text, message.context, local.titleHint); saveState(); }
+      });
+      return;
+    }
+
+    const active = beginMessageRequest();
     renderMessages();
     const streamedMessages = [];
     try {
@@ -1227,7 +1952,8 @@
           if (state.activeRequest?.id !== active.id) return;
           hideTyping();
           const message = addMessage('assistant', '', {
-            serverId:reply.id, attachment:reply.attachment, presentation:reply.presentation, streaming:true
+            serverId:reply.id, attachment:reply.attachment, presentation:reply.presentation, streaming:true,
+            interruptedPrompt:text
           });
           streamedMessages.push(message);
           renderMessages();
@@ -1237,12 +1963,12 @@
           const message = streamedMessages.find(item => item.serverId === serverId) || streamedMessages.at(-1);
           if (!message) return;
           message.text += delta;
-          renderMessages();
+          patchStreamingMessage(message);
         },
         onReplyEnd:serverId => {
           const message = streamedMessages.find(item => item.serverId === serverId) || streamedMessages.at(-1);
-          if (message) message.streaming = false;
-          renderMessages();
+          if (message) { message.streaming = false; message.interrupted = false; }
+          if (message) patchStreamingMessage(message);
         }
       });
       if (state.activeRequest?.id !== active.id) return;
@@ -1252,15 +1978,28 @@
         if (!streamedMessages.length) appendJsonResponse(data);
         else applyEnvelopeToLastMessage(data, streamedMessages);
       } else appendJsonResponse(data);
+      refineConversationTitle(text, data.context || streamedMessages.at(-1)?.context || null);
+      syncActiveContextUi();
       setConnection('online', 'Conectado');
     } catch (error) {
       if (state.activeRequest?.id !== active.id) return;
       const reason = active.reason || (error.name === 'AbortError' ? 'aborted' : 'error');
-      if (reason === 'superseded' || reason === 'reset' || reason === 'unload' || reason === 'user-stop') return;
-      for (const message of streamedMessages) message.streaming = false;
+      if (reason === 'superseded' || reason === 'reset' || reason === 'unload') return;
+      const partial = streamedMessages.filter(message => safeText(message.text).trim());
+      for (const message of streamedMessages) {
+        message.streaming = false;
+        if (safeText(message.text).trim()) { message.interrupted = true; message.interruptedPrompt = text; }
+      }
+      if (!partial.length) {
+        const academic = localAcademicAnswer(text);
+        if (academic) addMessage('assistant', academic.text, { components:academic.components || [], sources:academic.sources || [], context:academic.context || null, knowledge:academic.knowledge || null, meta:{ localInstant:true, fallback:true } });
+        else {
+          const apiUnavailable = navigator.onLine !== false;
+          const offline = offlineAnswer(text, { apiUnavailable });
+          addMessage('assistant', offline.text, { components:offline.components, knowledge:offline.knowledge, presentation:offline.presentation, error:false });
+        }
+      }
       const apiUnavailable = navigator.onLine !== false;
-      const offline = offlineAnswer(text, { apiUnavailable });
-      addMessage('assistant', offline.text, { components:offline.components, knowledge:offline.knowledge, presentation:offline.presentation, error:false });
       setConnection(apiUnavailable ? 'degraded' : 'offline', apiUnavailable ? 'Assistente indisponível' : 'Modo offline');
     } finally {
       for (const message of streamedMessages) message.streaming = false;
@@ -1271,6 +2010,16 @@
       }
       if (finishedHere && matchMedia('(pointer: fine)').matches && document.activeElement !== $('messageInput')) $('messageInput')?.focus({ preventScroll:true });
     }
+  }
+
+  async function continueInterruptedResponse(messageId) {
+    const message = messageById(messageId);
+    const prompt = safeText(message?.interruptedPrompt || priorUserText(messageId)).trim();
+    if (!prompt || state.sending) return;
+    message.interrupted = false;
+    saveState();
+    renderMessages();
+    await send(prompt, { appendUser:false, bypassLocal:true });
   }
 
   function resizeInput() {
@@ -1287,12 +2036,21 @@
     const previous = currentConversation();
     abortMessageRequest('reset');
     try { await request(CONFIG.resetPath || '/api/assistant/reset', { sessionId: previous.sessionId }, 8000); } catch {}
-    state.conversation = freshConversation();
+    const cleared = freshConversation();
+    cleared.id = previous.id;
+    cleared.createdAt = previous.createdAt;
+    state.conversations = state.conversations.map(item => item.id === previous.id ? cleared : item);
+    state.currentId = cleared.id;
+    state.conversation = cleared;
+    state.view = 'home';
     state.renderLimit = 80;
     state.editingMessageId = '';
     state.feedbackMenuMessageId = '';
     state.messageFingerprints.clear();
-    await clearSavedState();
+    const input = $('messageInput');
+    if (input) input.value = '';
+    await persistDraft('', { immediate:true });
+    await saveState({ immediate:true });
     render();
   }
 
@@ -1399,9 +2157,9 @@
     renderMessages();
   }
 
-  async function clearRemoteContext() {
+  async function clearRemoteContext(sessionId = currentConversation().sessionId) {
     try {
-      await request('/api/assistant/context/clear', { sessionId:currentConversation().sessionId }, 6000);
+      await request('/api/assistant/context/clear', { sessionId }, 6000);
     } catch {}
   }
 
@@ -1447,16 +2205,52 @@
 
 
   function stopCurrentResponse() {
+    const conversation = currentConversation();
+    const activeStreaming = [...conversation.messages].reverse().find(message => message.role === 'assistant' && message.streaming);
+    if (activeStreaming && safeText(activeStreaming.text).trim()) {
+      activeStreaming.streaming = false;
+      activeStreaming.interrupted = true;
+      activeStreaming.interruptedPrompt = activeStreaming.interruptedPrompt || priorUserText(activeStreaming.id);
+    }
     if (!abortMessageRequest('user-stop')) return false;
     saveState({ immediate: true });
     renderMessages();
     hideTyping();
-    showToast('Resposta interrompida.');
+    showToast('Resposta interrompida. Você pode continuar ou tentar novamente.');
     requestAnimationFrame(() => $('messageInput')?.focus({ preventScroll: true }));
     return true;
   }
 
+  function ensureAssistantSidebarNav() {
+    if ($('assistantSidebarNav')) return;
+    const search = $('sidebarSearchForm');
+    const nav = search?.parentElement;
+    if (!search || !nav) return;
+    const group = document.createElement('div');
+    group.id = 'assistantSidebarNav';
+    group.className = 'assistant-local-nav';
+    group.setAttribute('aria-label', 'Navegação do Assistente');
+    group.innerHTML = `
+      <button type="button" data-assistant-home><span class="nav-icon" aria-hidden="true">⌂</span><span class="sidebar-label">Início do Assistente</span></button>
+      <button type="button" data-assistant-new><span class="nav-icon" aria-hidden="true">＋</span><span class="sidebar-label">Nova conversa</span></button>`;
+    search.insertAdjacentElement('afterend', group);
+    syncViewUi();
+  }
+
   function bind() {
+    document.addEventListener('click', event => {
+      const homeButton = event.target.closest('[data-assistant-home]');
+      const newButton = event.target.closest('[data-assistant-new]');
+      if (homeButton) { event.preventDefault(); showHome(); }
+      else if (newButton) { event.preventDefault(); startNewConversation(); }
+    });
+    document.addEventListener('keydown', event => {
+      if (event.key === 'Escape' && state.dialogState) { event.preventDefault(); closeAssistantDialog(null); return; }
+      if (event.altKey && !event.ctrlKey && !event.metaKey && String(event.key).toLowerCase() === 'h') {
+        event.preventDefault();
+        showHome();
+      }
+    });
     $('sendMessage').addEventListener('click', () => {
       const draft = $('messageInput').value;
       if (state.activeRequest && !draft.trim()) stopCurrentResponse();
@@ -1474,12 +2268,26 @@
       const favorite = event.target.closest('[data-favorite-prompt]');
       const popular = event.target.closest('[data-popular-prompt]');
       const popularPeriod = event.target.closest('[data-popular-period]');
+      const removeFavorite = event.target.closest('[data-remove-home-favorite]');
+      const continueConversation = event.target.closest('[data-continue-conversation]');
+      const historyConversation = event.target.closest('[data-conversation-id]');
+      const renameHistory = event.target.closest('[data-rename-conversation]');
+      const deleteHistory = event.target.closest('[data-delete-conversation]');
       if (popularPeriod) setPopularPeriod(popularPeriod.dataset.popularPeriod);
+      else if (removeFavorite) {
+        const id = removeFavorite.dataset.removeHomeFavorite;
+        if (window.HUB_USER_STATE?.removeFavorite) window.HUB_USER_STATE.removeFavorite(id);
+        else { state.favorites = state.favorites.filter(item => String(item.id || '') !== id); saveFavorites(); render(); }
+        showToast('Removido dos favoritos');
+      } else if (continueConversation) showConversation(state.currentId);
+      else if (renameHistory) renameConversation(renameHistory.dataset.renameConversation);
+      else if (deleteHistory) deleteConversation(deleteHistory.dataset.deleteConversation);
+      else if (historyConversation) showConversation(historyConversation.dataset.conversationId);
       else if (button && !state.sending) send(button.dataset.prompt);
       else if (favorite && !state.sending) {
         if (favorite.dataset.favoriteMessageId) {
-          const node = document.querySelector(`[data-message-id="${CSS.escape(favorite.dataset.favoriteMessageId)}"]`);
-          if (node) node.scrollIntoView({ behavior:'smooth', block:'center' });
+          const conversation = findConversationContainingMessage(favorite.dataset.favoriteMessageId);
+          if (conversation) showConversation(conversation.id, { messageId:favorite.dataset.favoriteMessageId });
           else if (favorite.dataset.favoritePrompt) send(favorite.dataset.favoritePrompt);
         } else if (favorite.dataset.favoritePrompt) send(favorite.dataset.favoritePrompt);
       } else if (popular && !state.sending) send(popular.dataset.popularPrompt);
@@ -1499,6 +2307,7 @@
       const editSave = event.target.closest('[data-edit-save]');
       const editCancel = event.target.closest('[data-edit-cancel]');
       const loadEarlier = event.target.closest('[data-load-earlier]');
+      const continueInterrupted = event.target.closest('[data-continue-interrupted]');
       if (loadEarlier) {
         const viewport = $('messageScroll');
         const previousHeight = viewport?.scrollHeight || 0;
@@ -1507,7 +2316,8 @@
         requestAnimationFrame(() => { if (viewport) viewport.scrollTop += viewport.scrollHeight - previousHeight; });
       } else if (option) {
         if (!state.sending && !openOrSendAction(option.dataset.optionValue)) send(option.dataset.optionValue);
-      } else if (copy) copyMessage(copy.dataset.copyMessage);
+      } else if (continueInterrupted) continueInterruptedResponse(continueInterrupted.dataset.continueInterrupted);
+      else if (copy) copyMessage(copy.dataset.copyMessage);
       else if (feedbackReason) sendFeedback(feedbackReason.dataset.message, 'not-helpful', feedbackReason.dataset.feedbackReason);
       else if (correction) sendCorrectionForMessage(correction.dataset.correctionMessage);
       else if (favorite) toggleFavoriteMessage(favorite.dataset.favoriteMessage);
@@ -1521,7 +2331,7 @@
       else if (editCancel) cancelEditMessage();
       else if (retry) {
         const text = priorUserText(retry.dataset.retryMessage);
-        if (text) send(text);
+        if (text) send(text, { appendUser:false, bypassLocal:true });
       }
     });
     $('messages').addEventListener('keydown', event => {
@@ -1530,11 +2340,27 @@
       if (event.key === 'Escape') { event.preventDefault(); cancelEditMessage(); }
       else if (event.key === 'Enter' && !event.shiftKey) { event.preventDefault(); saveEditedMessage(editor.dataset.editInput); }
     });
-    $('testModeToggle')?.addEventListener('click', toggleTestMode);
+    $('anonymousModeToggle')?.addEventListener('click', toggleAnonymousMode);
+    $('clearActiveContext')?.addEventListener('click', clearActiveContext);
+    $('conversationHistorySearch')?.addEventListener('input', event => { state.historyQuery = String(event.currentTarget.value || '').slice(0,120); renderHomeConversationPanels(); });
+    $('assistantDialogClose')?.addEventListener('click', () => closeAssistantDialog(null));
+    $('assistantDialogCancel')?.addEventListener('click', () => closeAssistantDialog(null));
+    $('assistantDialogConfirm')?.addEventListener('click', () => {
+      const value = state.dialogState?.input ? String($('assistantDialogInput')?.value || '').trim() : true;
+      if (state.dialogState?.input && !value) { showToast('Preencha o campo antes de continuar.'); return; }
+      closeAssistantDialog(value);
+    });
+    $('assistantDialog')?.addEventListener('click', event => { if (event.target === $('assistantDialog')) closeAssistantDialog(null); });
+    $('assistantDialogInput')?.addEventListener('keydown', event => {
+      if (event.key === 'Escape') { event.preventDefault(); closeAssistantDialog(null); }
+      else if (event.key === 'Enter' && !event.shiftKey) { event.preventDefault(); $('assistantDialogConfirm')?.click(); }
+    });
     window.addEventListener('hub:favorites-changed', () => { state.favorites = loadFavorites(); render(); });
-    $('clearConversation').addEventListener('click', () => {
+    document.addEventListener('hub:sidebar-ready', ensureAssistantSidebarNav);
+    $('clearConversation').addEventListener('click', async () => {
       if (state.sending) return;
-      if (confirm('Limpar a conversa e começar novamente?')) resetCurrent();
+      const confirmed = await confirmAssistantAction({ title:'Limpar conversa', message:'Remover todas as mensagens desta conversa? Favoritos globais e outras conversas serão preservados.', confirmLabel:'Limpar conversa' });
+      if (confirmed) resetCurrent();
     });
     window.addEventListener('online', checkHealth);
     window.addEventListener('offline', () => setConnection('offline', 'Sem internet'));
@@ -1615,7 +2441,7 @@
     bindComposerGuard();
     bindViewport();
     bind();
-    const [, , draft] = await Promise.all([loadState(), loadOfflineCatalog(), loadDraft()]);
+    const [, , , draft] = await Promise.all([loadState(), loadOfflineCatalog(), loadOfflineAcademic(), loadDraft()]);
     loadPopularQuestions();
     if (!state.popularRefreshTimer) {
       state.popularRefreshTimer = setInterval(() => { if (!document.hidden) loadPopularQuestions(); }, 60_000);
@@ -1629,7 +2455,10 @@
     checkHealth();
     const searchParams = new URLSearchParams(location.search);
     const favoriteMessageId = searchParams.get('favorite');
-    if (favoriteMessageId) requestAnimationFrame(() => document.querySelector(`[data-message-id="${CSS.escape(favoriteMessageId)}"]`)?.scrollIntoView({ block:'center' }));
+    if (favoriteMessageId) {
+      const conversation = findConversationContainingMessage(favoriteMessageId);
+      if (conversation) showConversation(conversation.id, { persist:false, messageId:favoriteMessageId });
+    }
     const sharedSearchPrompt = safeText(searchParams.get('q') || '').trim().slice(0, 3000);
     if (sharedSearchPrompt && !state.sending) {
       searchParams.delete('q');

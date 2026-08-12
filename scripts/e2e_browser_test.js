@@ -37,7 +37,7 @@ function cleanupTemp(dir){if(!dir)return;for(let attempt=0;attempt<8;attempt++){
     if(!await waitUrl(`http://127.0.0.1:${port}/json/version`,10000))throw new Error('Chromium E2E não iniciou');
     const page=(await targets(port)).find(t=>t.type==='page');const cdp=new CDP(page.webSocketDebuggerUrl);await cdp.open();
     try{
-      await cdp.call('Page.enable');await cdp.call('Runtime.enable');await cdp.call('Network.enable');await cdp.call('Page.navigate',{url:siteUrl+'/apps/assistente/?e2e=1'});await cdp.waitJs("document.readyState==='complete'&&!!document.querySelector('#messageInput')",10000);await cdp.eval('window.confirm=()=>true');
+      await cdp.call('Page.enable');await cdp.call('Runtime.enable');await cdp.call('Network.enable');await cdp.call('Page.navigate',{url:siteUrl+'/apps/assistente/?e2e=1'});await cdp.waitJs("document.readyState==='complete'&&!!document.querySelector('#messageInput')",10000);
       // Busca global real: abre ao tocar, pesquisa enquanto digita, agrupa categorias e sugere correção.
       await cdp.eval("document.querySelector('#sidebarSearchInput')?.click()");
       try {
@@ -57,9 +57,25 @@ function cleanupTemp(dir){if(!dir)return;for(let attempt=0;attempt<8;attempt++){
       await cdp.call('Network.emulateNetworkConditions',{offline:true,latency:0,downloadThroughput:0,uploadThroughput:0});
       await cdp.waitJs("document.documentElement.dataset.hubNetwork==='offline'",5000);
       if(!await cdp.eval("String(document.querySelector('#hubNetworkStatus')?.textContent||'').includes('Offline')"))throw new Error('estado Offline não ficou visível');
+      // O motor acadêmico local deve responder de verdade sem rede e expor o contexto ativo.
+      const offlineBefore=await cdp.eval("document.querySelectorAll('.message-row.assistant:not(.typing-row)').length");
+      await cdp.eval("(()=>{const input=document.querySelector('#messageInput');input.value='sala leo';input.dispatchEvent(new Event('input',{bubbles:true}));document.querySelector('#sendMessage').click()})()");
+      await cdp.waitJs(`document.querySelectorAll('.message-row.assistant:not(.typing-row)').length>${offlineBefore}`,5000);
+      if(!await cdp.eval("[...document.querySelectorAll('.message-row.assistant:not(.typing-row)')].some(e=>/Leonardo Barreto Campos/i.test(e.textContent)&&/Sala|Salas/i.test(e.textContent))"))throw new Error('motor acadêmico offline não respondeu sala leo');
+      await cdp.waitJs("!document.querySelector('#activeContextBar').hidden&&/Leonardo/i.test(document.querySelector('#activeContextText')?.textContent||'')",4000);
+      const contextMessageCount=await cdp.eval("document.querySelectorAll('#messages .message-row').length");
+      await cdp.eval("document.querySelector('#clearActiveContext')?.click()");
+      await cdp.waitJs("document.querySelector('#activeContextBar').hidden",4000);
+      if(await cdp.eval("document.querySelectorAll('#messages .message-row').length")!==contextMessageCount)throw new Error('limpar contexto alterou a conversa');
       await cdp.call('Network.emulateNetworkConditions',{offline:false,latency:20,downloadThroughput:5000000,uploadThroughput:2000000});
       await cdp.waitJs("document.documentElement.dataset.hubNetwork!=='offline'",6000);
       await cdp.waitJs("String(document.querySelector('#hubNetworkToast')?.textContent||'').includes('HUB atualizado')",6000);
+      // O antigo modo de teste virou Modo anônimo e usa estado/ícone próprios.
+      if(!await cdp.eval("!!document.querySelector('#anonymousModeToggle')&&!document.querySelector('#testModeToggle')"))throw new Error('Modo anônimo não substituiu o modo de teste');
+      await cdp.eval("document.querySelector('#anonymousModeToggle').click()");
+      await cdp.waitJs("document.querySelector('#anonymousModeToggle').getAttribute('aria-pressed')==='true'",3000);
+      await cdp.eval("document.querySelector('#anonymousModeToggle').click()");
+      await cdp.waitJs("document.querySelector('#anonymousModeToggle').getAttribute('aria-pressed')==='false'",3000);
       await cdp.eval("document.querySelector('#messageInput').value='calendário';document.querySelector('#messageInput').dispatchEvent(new Event('input',{bubbles:true}));document.querySelector('#sendMessage').click()");
       await cdp.waitJs("document.querySelectorAll('.message-row.assistant:not(.typing-row)').length>0&&!document.querySelector('.typing-row')",18000);await cdp.waitJs("!!document.querySelector('[data-favorite-message]')",5000);
       await cdp.eval("document.querySelector('[data-favorite-message]').click()");await cdp.waitJs("document.querySelector('[data-favorite-message]').getAttribute('aria-pressed')==='true'",4000);
@@ -67,6 +83,8 @@ function cleanupTemp(dir){if(!dir)return;for(let attempt=0;attempt<8;attempt++){
       if(!await cdp.eval("Number(document.querySelector('#sidebarFavoritesCount')?.textContent||0)>=1"))throw new Error('sidebar não refletiu favorito global');
       await cdp.eval("document.querySelector('[data-pin-message]').click()");await cdp.waitJs("!document.querySelector('#pinnedAnswer').hidden",4000);
       const pdf=await cdp.eval("document.querySelector('.document-card .inline-open-button')?.href||''");if(!pdf||(!/\.pdf/i.test(pdf)&&!/document-viewer/i.test(pdf)))throw new Error(`Abrir PDF inválido: ${pdf}`);
+      if(!await cdp.eval("[...document.querySelectorAll('.integrated-source')].some(e=>/Fonte verificada.*Calendário Acadêmico/i.test(e.textContent))"))throw new Error('fonte consolidada/verificada do calendário não apareceu');
+      if(await cdp.eval("document.querySelectorAll('.knowledge-meta').length>0"))throw new Error('metadados de fonte duplicados fora do componente consolidado');
       const before=new Set((await targets(port)).map(t=>t.id));await cdp.eval("document.querySelector('.document-card .inline-open-button').click()");await sleep(600);const opened=(await targets(port)).filter(t=>!before.has(t.id));if(!opened.some(t=>/\.pdf|document-viewer/i.test(t.url||'')))throw new Error('clique Abrir PDF não abriu documento');
       await cdp.waitJs("[...document.querySelectorAll('.hub-action-link')].some(a=>/calend.rio/i.test(a.textContent))",5000).catch(()=>{});
       const calendar=await cdp.eval("[...document.querySelectorAll('.hub-action-link')].find(a=>/calend.rio/i.test(a.textContent))?.href||''");
@@ -78,8 +96,32 @@ function cleanupTemp(dir){if(!dir)return;for(let attempt=0;attempt<8;attempt++){
       await cdp.eval("document.querySelector('[data-theme-choice=\"light\"]')?.click()");await cdp.waitJs("document.documentElement.dataset.theme==='light'",4000);
       const suap=await cdp.eval("document.querySelector('#sidebarExternalLinks a[href*=\"suap.ifba.edu.br\"]')?.href||''");if(!suap.startsWith('https://suap.ifba.edu.br'))throw new Error(`SUAP inválido: ${suap}`);
       await cdp.call('Emulation.setDeviceMetricsOverride',{width:390,height:844,deviceScaleFactor:1,mobile:true});await cdp.eval("document.querySelector('#mobileSidebarToggle')?.click()");await cdp.waitJs("document.body.classList.contains('mobile-sidebar-open')",4000);await cdp.call('Emulation.clearDeviceMetricsOverride');
-      await cdp.eval("document.querySelector('#clearConversation')?.click()");await cdp.waitJs("document.querySelectorAll('#messages .message-row').length===0",8000);if(!await cdp.eval("JSON.parse(localStorage.getItem('hubFavoritesV2')||'[]').length>0"))throw new Error('limpar conversa apagou favoritos');if(!await cdp.eval("document.querySelector('#pinnedAnswer')?.hidden===true"))throw new Error('pin sobreviveu indevidamente à limpeza');
-      console.log('E2E Chromium: OK — busca global, typo, offline/retorno, PDF, calendário, favorito global, pin/limpeza, tema, SUAP e sidebar mobile.');
+      // A Home do Assistente é uma tela independente: abrir e voltar não apaga a conversa.
+      const messageCountBeforeHome=await cdp.eval("document.querySelectorAll('#messages .message-row').length");
+      await cdp.eval("document.querySelector('#homeViewButton')?.click()");
+      await cdp.waitJs("!document.querySelector('#welcome').hidden&&document.querySelector('#messages').hidden&&!document.querySelector('#continueConversationCard').hidden",4000);
+      await cdp.eval("document.querySelector('#continueConversationCard')?.click()");
+      await cdp.waitJs("document.querySelector('#welcome').hidden&&!document.querySelector('#messages').hidden",4000);
+      if(await cdp.eval("document.querySelectorAll('#messages .message-row').length")!==messageCountBeforeHome)throw new Error('Home alterou as mensagens da conversa');
+      // Nova conversa preserva a anterior; o histórico pesquisa, renomeia e persiste em stores separados.
+      await cdp.eval("document.querySelector('#newConversationButton')?.click()");
+      await cdp.waitJs("!document.querySelector('#welcome').hidden&&document.querySelectorAll('#messages .message-row').length===0&&!document.querySelector('#conversationHistoryPanel').hidden",5000);
+      await cdp.eval("(()=>{const input=document.querySelector('#conversationHistorySearch');input.value='calendário';input.dispatchEvent(new Event('input',{bubbles:true}))})()");
+      await cdp.waitJs("document.querySelectorAll('#conversationHistoryList [data-conversation-id]').length>=1",4000);
+      await cdp.eval("document.querySelector('#conversationHistoryList [data-rename-conversation]')?.click()");
+      await cdp.waitJs("!document.querySelector('#assistantDialog').hidden&&!document.querySelector('#assistantDialogInput').hidden",3000);
+      await cdp.eval("(()=>{const input=document.querySelector('#assistantDialogInput');input.value='Calendário e sala do Leo';document.querySelector('#assistantDialogConfirm').click()})()");
+      await cdp.waitJs("/Calendário e sala do Leo/i.test(document.querySelector('#conversationHistoryList')?.textContent||'')",4000);
+      const stores=await cdp.eval("new Promise(resolve=>{const r=indexedDB.open('hubAssistantHistoryV1');r.onsuccess=()=>{resolve([...r.result.objectStoreNames]);r.result.close()};r.onerror=()=>resolve([])})");
+      if(!stores.includes('conversations')||!stores.includes('messages'))throw new Error(`persistência estruturada ausente: ${JSON.stringify(stores)}`);
+      await cdp.eval("document.querySelector('#conversationHistoryList [data-conversation-id]')?.click()");
+      await cdp.waitJs("document.querySelector('#welcome').hidden&&document.querySelectorAll('#messages .message-row').length>0",5000);
+      // Limpar conversa usa modal próprio (não confirm() nativo) e mantém favoritos globais.
+      await cdp.eval("document.querySelector('#clearConversation')?.click()");
+      await cdp.waitJs("!document.querySelector('#assistantDialog').hidden",3000);
+      await cdp.eval("document.querySelector('#assistantDialogConfirm')?.click()");
+      await cdp.waitJs("document.querySelectorAll('#messages .message-row').length===0",8000);if(!await cdp.eval("JSON.parse(localStorage.getItem('hubFavoritesV2')||'[]').length>0"))throw new Error('limpar conversa apagou favoritos');if(!await cdp.eval("document.querySelector('#pinnedAnswer')?.hidden===true"))throw new Error('pin sobreviveu indevidamente à limpeza');
+      console.log('E2E Chromium: OK — contexto, offline acadêmico, modo anônimo, histórico estruturado, Home, busca global, fonte única, PDF, calendário, favoritos, pin/limpeza, tema, SUAP e sidebar mobile.');
     }finally{cdp.close()}
   }finally{if(configPath&&configBackup)try{fs.writeFileSync(configPath,configBackup)}catch{}for(const p of procs.reverse())await terminate(p);await sleep(250);cleanupTemp(temp)}
 })().catch(err=>{console.error('E2E Chromium: FALHOU —',err.message);process.exit(1)});

@@ -17,7 +17,7 @@ APP_VERSION = str(release_meta["assistant"])
 HUB_VERSION = str(release_meta["hub"])
 app = root / "apps" / "assistente"
 required_modules = ("config.js", "app.js")
-for name in ("index.html", "app.css", "offline-data.json", *required_modules):
+for name in ("index.html", "app.css", "offline-data.json", "offline-academic.json", *required_modules):
     assert (app / name).is_file(), f"arquivo ausente: apps/assistente/{name}"
 
 html = (app / "index.html").read_text(encoding="utf-8")
@@ -50,7 +50,8 @@ assert "🤖" in html and "🧭" not in html
 
 # O caminho que funcionava na v1.4.4 deve permanecer direto e observável.
 for marker in (
-    'async function send(text, { appendUser = true } = {})',
+    'async function send(text, { appendUser = true',
+    'bypassLocal = false',
     'const active = beginMessageRequest()',
     "if (state.activeRequest) abortMessageRequest('superseded')",
     "const result = await requestStream(CONFIG.messagePath || '/api/assistant/message'",
@@ -113,7 +114,7 @@ for marker in (
     "Informação errada", "Não entendeu a pergunta", "Fonte errada", "Resposta confusa",
     "renderSources(message)", "pdf-page-preview", "integrated-source", "context-chip",
     "hub-actions", "hub-results", "schedule-mini-table", "bestOfflineSnippet",
-    "Modo offline disponível", f"FRONTEND_RELEASE = '{APP_VERSION}-ux-federated-stream-v1'",
+    "Modo offline disponível", f"FRONTEND_RELEASE = '{APP_VERSION}-ux-offline-history-v2'",
 ):
     assert marker in app_js or marker in css, marker
 for marker in ("feedback-reasons", "visual-card", "integrated-sources", "pdf-page-preview", "offline-banner"):
@@ -394,12 +395,67 @@ for path in [*(app / name for name in required_modules), sidebar / "sidebar.js",
 subprocess.run(["node", str(scripts / "test_frontend_modules.js"), str(root)], check=True)
 print(f"Assistente web v{APP_VERSION} / HUB v{HUB_VERSION} instalado: OK")
 
-# v1.7.3 — métricas públicas não podem ser contaminadas pelo dispositivo de teste.
-assert 'id="testModeToggle"' in html
-for marker in ('telemetryMode', 'toggleTestMode()', '60_000'):
+# v2.0.0 — modo anônimo substitui o antigo modo de teste visível.
+assert 'id="anonymousModeToggle"' in html
+for marker in ('telemetryMode', 'toggleAnonymousMode()', "telemetryMode:'anonymous'", '60_000'):
     assert marker in app_js, marker
-# O endpoint público recebe o período Hoje/Semana via query string; validar o
-# contrato atual sem amarrar o teste à forma antiga sem parâmetro.
+assert 'id="testModeToggle"' not in html
 assert '/api/assistant/popular?period=' in app_js
-assert 'encodeURIComponent(state.popularPeriod)' in app_js
-assert '.test-mode-toggle.selected' in css
+assert 'encodeURIComponent(period)' in app_js
+assert '.anonymous-mode-toggle.selected' in css
+
+
+# v1.9.0 — Home do Assistente é uma view independente da conversa.
+for marker in (
+    "view: 'home'",
+    "function showHome(",
+    "function showConversation(",
+    "async function startNewConversation(",
+    "function renderHomeConversationPanels(",
+    "findConversationContainingMessage",
+    "data-assistant-home",
+    "data-assistant-new",
+    "event.altKey",
+):
+    assert marker in app_js, marker
+for marker in (
+    'id="homeViewButton"',
+    'id="newConversationButton"',
+    'id="continueConversationCard"',
+    'id="conversationHistoryPanel"',
+    'id="conversationHistoryList"',
+    'data-prompt="auxílio"',
+):
+    assert marker in html, marker
+assert "$('welcome').hidden = !home" in app_js
+assert "container.hidden = home" in app_js
+assert "Limpar conversa" in app_js and "confirmAssistantAction" in app_js
+assert "await clearSavedState()" not in app_js[app_js.index('async function resetCurrent()'):app_js.index('function messageById', app_js.index('async function resetCurrent()'))]
+assert '.continue-conversation-card' in css and '.assistant-local-nav' in css
+
+# v1.9.1 — Mais perguntadas não aparenta reset em falha transitória/redeploy.
+assert "POPULAR_CACHE_KEY = 'hubAssistantPopularCacheV1'" in app_js
+assert 'savePopularCache(state.popularCache)' in app_js
+assert 'if (!response.ok) throw new Error' in app_js
+assert 'state.popularStale = Boolean(state.popularQuestions.length)' in app_js
+assert 'Atualizações não apagam o histórico.' in html
+
+
+# v2.0.0 — contexto visível, streaming incremental, histórico, offline acadêmico e modal próprio.
+for marker in (
+    'id="activeContextBar"', 'id="clearActiveContext"', 'id="conversationHistorySearch"',
+    'id="assistantDialog"', 'id="assistantDialogInput"', 'id="anonymousModeToggle"',
+):
+    assert marker in html, marker
+for marker in (
+    'function syncActiveContextUi()', 'function patchStreamingMessage(message)',
+    'function localAcademicAnswer(', 'function renameConversation(', 'function deleteConversation(',
+    'function renderInterrupted(message)', 'DB_CONVERSATIONS', 'DB_MESSAGES',
+    'function smartConversationTitle(', 'function openAssistantDialog(',
+):
+    assert marker in app_js, marker
+assert 'prompt(' not in app_js
+assert 'confirm(' not in app_js
+assert 'offlineAcademicPath' in config_js
+assert (app / 'assets' / 'calendario-academico-2026.png').is_file()
+assert '.interrupted-state' in css and '.source-details' in css

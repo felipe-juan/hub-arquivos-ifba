@@ -28,6 +28,8 @@ ENTRIES = [
     f"./apps/assistente/app.css?v={APP_VERSION}",
     f"./apps/assistente/app.js?v={APP_VERSION}",
     f"./apps/assistente/offline-data.json?v={APP_VERSION}",
+    f"./apps/assistente/offline-academic.json?v={APP_VERSION}",
+    f"./apps/assistente/assets/calendario-academico-2026.png?v={APP_VERSION}",
     "./sidebar/sidebar.css",
     "./sidebar/sidebar.js",
     "./sidebar/hub-url-resolver.js",

@@ -12,7 +12,7 @@
     (()=>{try{const mode=localStorage.getItem("hubThemeMode")||"auto";const resolved=mode==="auto"?(matchMedia("(prefers-color-scheme: light)").matches?"light":"dark"):mode;document.documentElement.dataset.theme=resolved;document.documentElement.dataset.themeMode=mode;}catch{}})();
   </script>
   <link rel="stylesheet" href="../../styles.css">
-  <link rel="stylesheet" href="app.css?v=1.8.1">
+  <link rel="stylesheet" href="app.css?v=2.0.1">
   <link rel="stylesheet" href="../../sidebar/sidebar.css" />
 </head>
 <body>
@@ -25,33 +25,47 @@
           <span class="connection-state" id="connectionState" data-state="checking"><i aria-hidden="true"></i> Verificando conexão</span>
         </div>
         <div class="assistant-header-actions">
-          <button class="assistant-icon-button test-mode-toggle" id="testModeToggle" type="button" aria-label="Ativar modo de teste neste dispositivo" title="Modo de teste neste dispositivo" aria-pressed="false">
-            <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M9 3h6"></path><path d="M10 3v5l-5 9a2 2 0 0 0 1.7 3h10.6a2 2 0 0 0 1.7-3l-5-9V3"></path><path d="M8 14h8"></path></svg>
+          <button class="assistant-icon-button" id="homeViewButton" data-assistant-home type="button" aria-label="Início do Assistente" title="Início do Assistente (Alt+H)" aria-pressed="false">
+            <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 11.5 12 4l9 7.5"></path><path d="M5.5 10.5V20h13v-9.5"></path><path d="M9.5 20v-6h5v6"></path></svg>
+          </button>
+          <button class="assistant-icon-button" id="newConversationButton" data-assistant-new type="button" aria-label="Nova conversa" title="Nova conversa">
+            <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 5v14M5 12h14"></path></svg>
+          </button>
+          <button class="assistant-icon-button anonymous-mode-toggle" id="anonymousModeToggle" type="button" aria-label="Ativar modo anônimo neste dispositivo" title="Modo anônimo" aria-pressed="false">
+            <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 13.5c1.8-2.6 4.4-4 8-4s6.2 1.4 8 4"></path><path d="M7.5 14.5a2.5 2.5 0 1 0 5 0"></path><path d="M11.5 14.5a2.5 2.5 0 1 0 5 0"></path><path d="M3.5 9.5 6 5h12l2.5 4.5"></path></svg>
           </button>
           <button class="assistant-icon-button" id="clearConversation" type="button" aria-label="Limpar conversa" title="Limpar conversa">⌫</button>
         </div>
       </header>
 
       <section class="chat-viewport" id="messageScroll" aria-label="Conversa" aria-live="polite" aria-busy="false">
-        <div class="offline-banner" id="offlineBanner" role="status" hidden>📴 Você está offline. Ainda consigo consultar documentos, apps e links armazenados localmente no HUB.</div>
+        <div class="offline-banner" id="offlineBanner" role="status" hidden>📴 Você está offline. Ainda consigo responder consultas acadêmicas essenciais e abrir conteúdo salvo localmente no HUB.</div>
         <div class="pinned-answer" id="pinnedAnswer" hidden></div>
         <div class="welcome" id="welcome">
           <div class="assistant-avatar welcome-avatar" aria-hidden="true">🤖</div>
           <span class="eyebrow">Assistente acadêmico do HUB</span>
           <h1>Como posso ajudar?</h1>
           <p>Pergunte normalmente ou use um dos atalhos para navegar pelo HUB.</p>
+          <button type="button" class="continue-conversation-card" id="continueConversationCard" data-continue-conversation hidden>
+            <span class="continue-conversation-icon" aria-hidden="true">↩</span>
+            <span><strong>Continuar conversa</strong><small id="continueConversationText">Retomar exatamente de onde você parou.</small></span>
+          </button>
           <div class="prompt-grid prompt-grid-primary" id="promptGrid">
             <button type="button" data-prompt="Me mostre o calendário acadêmico"><strong>📅 Calendário</strong><span>Datas e prazos</span></button>
             <button type="button" data-prompt="Quero consultar salas e horários"><strong>🏫 Salas e horários</strong><span>Aulas e locais</span></button>
             <button type="button" data-prompt="Me mostre os documentos do HUB"><strong>📚 Documentos</strong><span>PPC, normas e PDFs</span></button>
             <button type="button" data-prompt="Abra o barema"><strong>🎓 Barema</strong><span>Atividades complementares</span></button>
             <button type="button" data-prompt="Quanto preciso tirar na final?"><strong>🧮 Notas e final</strong><span>Cálculo e regras</span></button>
-            <button type="button" data-prompt="Quais auxílios estão disponíveis para estudantes?"><strong>💰 Auxílios</strong><span>Assistência estudantil</span></button>
+            <button type="button" data-prompt="auxílio"><strong>💰 Auxílios</strong><span>Assistência estudantil</span></button>
           </div>
           <div class="welcome-secondary-grid">
             <section class="welcome-panel" id="favoritesPanel"><div class="welcome-panel-head"><strong>⭐ Meus favoritos</strong><small>Respostas, documentos e atalhos salvos neste dispositivo.</small></div><div class="saved-list" id="favoritesList"></div></section>
-            <section class="welcome-panel" id="popularPanel"><div class="welcome-panel-head popular-head"><div><strong id="popularTitle">Mais perguntadas hoje</strong><small>Perguntas acadêmicas agrupadas sem identificar usuários.</small></div><div class="popular-period-toggle" role="group" aria-label="Período das perguntas mais consultadas"><button type="button" data-popular-period="today" aria-pressed="true">Hoje</button><button type="button" data-popular-period="week" aria-pressed="false">Semana</button></div></div><div class="saved-list" id="popularList"></div></section>
+            <section class="welcome-panel" id="popularPanel"><div class="welcome-panel-head popular-head"><div><strong id="popularTitle">Mais perguntadas hoje</strong><small id="popularSubtitle">Perguntas acadêmicas agrupadas sem identificar usuários. Atualizações não apagam o histórico.</small></div><div class="popular-period-toggle" role="group" aria-label="Período das perguntas mais consultadas"><button type="button" data-popular-period="today" aria-pressed="true">Hoje</button><button type="button" data-popular-period="week" aria-pressed="false">Semana</button></div></div><div class="saved-list" id="popularList"></div></section>
           </div>
+          <section class="welcome-panel conversation-history-panel" id="conversationHistoryPanel" hidden>
+            <div class="welcome-panel-head conversation-history-head"><div><strong>Conversas</strong><small>Pesquise, renomeie, exclua ou retome qualquer conversa salva neste dispositivo.</small></div><input id="conversationHistorySearch" type="search" inputmode="search" autocomplete="off" placeholder="Pesquisar conversas" aria-label="Pesquisar em todas as conversas"></div>
+            <div class="saved-list" id="conversationHistoryList"></div>
+          </section>
           <div class="welcome-examples" aria-label="Exemplos de perguntas">
             <span>Experimente:</span>
             <button type="button" data-prompt="qual sala de cálculo amanhã">“qual sala de cálculo amanhã”</button>
@@ -65,6 +79,7 @@
       </section>
 
       <footer class="composer-area" id="composerArea">
+        <div class="active-context-bar" id="activeContextBar" hidden><span id="activeContextText">Contexto ativo</span><button type="button" id="clearActiveContext" aria-label="Limpar contexto ativo" title="Limpar contexto">×</button></div>
         <div class="composer" id="composer">
           <textarea id="messageInput" rows="1" maxlength="3000" placeholder="Pergunte algo ao Assistente do HUB" aria-label="Mensagem" enterkeyhint="send"></textarea>
           <button id="sendMessage" type="button" aria-label="Enviar mensagem" title="Enviar" disabled><span aria-hidden="true">↑</span></button>
@@ -76,6 +91,15 @@
 
   <div id="actionToast" class="action-toast" role="status" aria-live="polite" hidden></div>
 
+  <div class="assistant-dialog-backdrop" id="assistantDialog" hidden>
+    <section class="assistant-dialog" role="dialog" aria-modal="true" aria-labelledby="assistantDialogTitle">
+      <header><strong id="assistantDialogTitle">Confirmar</strong><button type="button" id="assistantDialogClose" aria-label="Fechar">×</button></header>
+      <p id="assistantDialogMessage"></p>
+      <textarea id="assistantDialogInput" rows="3" maxlength="280" hidden></textarea>
+      <div class="assistant-dialog-actions"><button type="button" class="secondary" id="assistantDialogCancel">Cancelar</button><button type="button" id="assistantDialogConfirm">Confirmar</button></div>
+    </section>
+  </div>
+
   <template id="typingTemplate">
     <article class="message-row assistant typing-row" data-typing="true">
       <div class="assistant-avatar" aria-hidden="true">🤖</div>
@@ -85,8 +109,8 @@
 
   <script src="../../data.js"></script>
   <script src="../../js/design-system.js"></script>
-  <script src="config.js?v=1.8.1"></script>
-  <script src="app.js?v=1.8.1"></script>
+  <script src="config.js?v=2.0.1"></script>
+  <script src="app.js?v=2.0.1"></script>
   <script src="../../sidebar/hub-url-resolver.js"></script>
   <script src="../../sidebar/hub-user-state.js"></script>
   <script src="../../sidebar/sidebar.js"></script>

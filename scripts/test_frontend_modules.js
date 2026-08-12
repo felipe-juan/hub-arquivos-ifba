@@ -7,19 +7,21 @@ const root = path.resolve(process.argv[2] || '.');
 const dir = path.join(root, 'apps', 'assistente');
 const app = fs.readFileSync(path.join(dir, 'app.js'), 'utf8');
 const html = fs.readFileSync(path.join(dir, 'index.html'), 'utf8');
+const config = fs.readFileSync(path.join(dir, 'config.js'), 'utf8');
 const release = JSON.parse(fs.readFileSync(path.join(root, 'scripts', 'hub-assistente-release.json'), 'utf8'));
 const appVersion = String(release.assistant);
 
 const search = fs.readFileSync(path.join(root, 'sidebar', 'hub-search.js'), 'utf8');
 const network = fs.readFileSync(path.join(root, 'sidebar', 'hub-network.js'), 'utf8');
 const academicSearch = JSON.parse(fs.readFileSync(path.join(root, 'sidebar', 'hub-academic-search.json'), 'utf8'));
+const offlineAcademic = JSON.parse(fs.readFileSync(path.join(dir, 'offline-academic.json'), 'utf8'));
 
 for (const obsolete of ['api-client.js','history-store.js','offline-search.js','chat-controller.js','composer-controller.js','message-renderer.js','response-actions.js']) {
   assert.equal(fs.existsSync(path.join(dir, obsolete)), false, `módulo regressivo ainda presente: ${obsolete}`);
   assert.equal(html.includes(obsolete), false, `HTML ainda carrega módulo regressivo: ${obsolete}`);
 }
 for (const marker of [
-  'async function send(text, { appendUser = true } = {})',
+  'async function send(text, { appendUser = true, bypassLocal = false } = {})',
   'const active = beginMessageRequest()',
   "if (state.activeRequest) abortMessageRequest('superseded')",
   "const result = await requestStream(CONFIG.messagePath || '/api/assistant/message'",
@@ -38,7 +40,7 @@ assert.ok(html.includes('../../sidebar/hub-url-resolver.js'));
 assert.ok(html.includes('../../sidebar/hub-user-state.js'));
 assert.ok(app.includes("const FAVORITES_KEY = 'hubFavoritesV2'"));
 assert.ok(app.includes("data-popular-period"));
-assert.ok(app.includes("period=${encodeURIComponent(state.popularPeriod)}"));
+assert.ok(app.includes("period=${encodeURIComponent(period)}"), 'Mais perguntadas deve enviar o período efetivamente capturado pela requisição');
 assert.ok(app.includes('mailto:${email}'));
 assert.ok(app.includes('visualViewport?.addEventListener(\'scroll\''));
 for (const marker of [
@@ -66,6 +68,31 @@ assert.ok(app.includes("searchParams.get('q')"));
 assert.ok(html.includes('../../sidebar/hub-search.js') && html.includes('../../sidebar/hub-network.js'));
 assert.equal(html.includes('sidebar-quick-search.js'), false);
 
+// v2.0.0 — qualidade percebida, offline acadêmico e histórico estruturado.
+for (const marker of [
+  'function syncActiveContextUi()', 'id="activeContextBar"', 'id="clearActiveContext"',
+  'function patchStreamingMessage(message)', 'data-assistant-text',
+  'function renameConversation(', 'function deleteConversation(', 'conversationHistorySearch',
+  'function localAcademicAnswer(', 'function syncLocalAnswerWithServer(',
+  'function renderInterrupted(message)', 'data-continue-interrupted',
+  'DB_CONVERSATIONS', 'DB_MESSAGES', "database.createObjectStore(DB_MESSAGES, { keyPath:'id' })",
+  'function openAssistantDialog(', 'function askAssistantText(', 'function confirmAssistantAction(',
+  'function smartConversationTitle(', 'popular-trend'
+]) assert.ok(app.includes(marker) || html.includes(marker), `contrato UX v2.0.0 ausente: ${marker}`);
+assert.ok(html.includes('id="anonymousModeToggle"') && app.includes('toggleAnonymousMode') && app.includes("telemetryMode:'anonymous'"));
+assert.equal(/\bprompt\s*\(/u.test(app), false, 'prompt() nativo não pode voltar');
+assert.equal(/\bconfirm\s*\(/u.test(app), false, 'confirm() nativo não pode voltar');
+assert.ok(config.includes('offlineAcademicPath'), 'configuração da base acadêmica offline ausente');
+assert.ok(Array.isArray(offlineAcademic.professors) && offlineAcademic.professors.length >= 20, 'base acadêmica offline sem professores');
+assert.ok(Array.isArray(offlineAcademic.scheduleEntries) && offlineAcademic.scheduleEntries.length >= 50, 'base acadêmica offline sem horários');
+assert.ok(JSON.stringify(offlineAcademic.professorAliases || {}).toLowerCase().includes('leo'), 'alias leo ausente do offline acadêmico');
+assert.ok(app.includes("timeZone:'America/Bahia'"), 'hoje/amanhã do motor offline deve usar o fuso da Bahia');
+assert.ok(app.includes('const localFollowup = query.length <= 80'), 'follow-up local não reutiliza contexto ativo');
+assert.ok(app.includes('state.localSyncQueue = state.localSyncQueue.then'), 'sincronização em segundo plano das respostas locais não está serializada');
+assert.ok(app.includes('clearedDuringSync') && app.includes('await clearRemoteContext(conversation.sessionId)'), 'limpar contexto pode perder corrida para sincronização local');
+assert.ok(app.includes("sync:true, subject:'Calendário acadêmico'"), 'calendário instantâneo deve preservar sincronização de contexto/métricas');
+assert.ok(app.includes("calendario-academico-2026.png"), 'calendário offline perdeu a imagem local');
+assert.ok(app.includes('hasIntegratedSource') && app.includes('sourceDetails'), 'fonte progressiva pode voltar a duplicar o componente consolidado');
 
 assert.ok(search.includes("input.addEventListener('click'"), 'busca global deve abrir também por click sintético/acessível'); // ativação por click
 console.log('Frontend Assistente: busca global, estados de erro, offline visível e contratos conversacionais aprovados.');
