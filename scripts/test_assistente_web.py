@@ -393,6 +393,40 @@ if local_runner:
 for path in [*(app / name for name in required_modules), sidebar / "sidebar.js", sidebar / "hub-search.js", sidebar / "hub-network.js"]:
     subprocess.run(["node", "--check", str(path)], check=True)
 subprocess.run(["node", str(scripts / "test_frontend_modules.js"), str(root)], check=True)
+
+# v2.0.2 — Mais perguntadas deve manter hierarquia e responsividade em telas estreitas.
+for marker in (
+    'class="popular-rank"', 'class="popular-item-content"', 'class="popular-item-title"',
+    'class="popular-item-stats"', 'class="popular-count"', 'class="popular-item-chevron"',
+):
+    assert marker in app_js, marker
+for marker in (
+    'grid-template-columns: 30px minmax(0, 1fr) auto 18px',
+    '@media (max-width: 680px)', '.popular-period-toggle { width: 100%',
+    'grid-template-columns: 28px minmax(0, 1fr) 16px',
+    '.popular-count-label { display: none; }', 'font-variant-numeric: tabular-nums',
+):
+    assert marker in css, marker
+assert '.saved-item.popular-item {' not in css
+
+# v2.0.4 — Conversas com hierarquia compacta e Mais perguntadas com emoji consistente.
+for marker in (
+    'class="conversation-card', 'class="conversation-card-title-row"', 'class="conversation-current-badge"',
+    'class="conversation-card-preview"', 'class="conversation-open-button"', 'class="conversation-actions-menu"',
+    'class="conversation-actions-popover"',
+):
+    assert marker in app_js, marker
+for marker in (
+    '.conversation-history-head { grid-template-columns:1fr', '.conversation-history-search { width:100%',
+    '.conversation-card {', '.conversation-card-preview {', '.conversation-current-badge {',
+    '.conversation-actions-popover {', '@media (max-width:620px)',
+    '.conversation-card-actions { display:grid; grid-template-columns:minmax(0,1fr) 36px',
+):
+    assert marker in css, marker
+assert '🔥 Mais perguntadas hoje' in html
+assert "'🔥 Mais perguntadas da semana'" in app_js and "'🔥 Mais perguntadas hoje'" in app_js
+assert 'class="saved-item conversation-history-row"' not in app_js
+
 print(f"Assistente web v{APP_VERSION} / HUB v{HUB_VERSION} instalado: OK")
 
 # v2.0.0 — modo anônimo substitui o antigo modo de teste visível.

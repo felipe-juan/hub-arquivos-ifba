@@ -5085,7 +5085,7 @@ function loadDeferredFeatureScripts() {
     "assets/build/enhancements.9aaad1d9bf82.js?v=0.2.71",
     "assets/build/experience.63cf70eebb8d.js?v=0.2.71",
     "assets/build/sidebar-quick-search.f0e1ed1ead1c.js?v=0.2.71",
-    "assets/build/performance-monitor.40d0dd35ef55.js?v=0.2.71"
+    "assets/build/performance-monitor.eb833f654cce.js?v=0.2.71"
   ];
   const load = src => new Promise(resolve => {
     if (document.querySelector(`script[src="${src}"]`)) { resolve(); return; }

@@ -12,7 +12,7 @@
     (()=>{try{const mode=localStorage.getItem("hubThemeMode")||"auto";const resolved=mode==="auto"?(matchMedia("(prefers-color-scheme: light)").matches?"light":"dark"):mode;document.documentElement.dataset.theme=resolved;document.documentElement.dataset.themeMode=mode;}catch{}})();
   </script>
   <link rel="stylesheet" href="../../styles.css">
-  <link rel="stylesheet" href="app.css?v=2.0.1">
+  <link rel="stylesheet" href="app.css?v=2.0.4">
   <link rel="stylesheet" href="../../sidebar/sidebar.css" />
 </head>
 <body>
@@ -60,11 +60,14 @@
           </div>
           <div class="welcome-secondary-grid">
             <section class="welcome-panel" id="favoritesPanel"><div class="welcome-panel-head"><strong>⭐ Meus favoritos</strong><small>Respostas, documentos e atalhos salvos neste dispositivo.</small></div><div class="saved-list" id="favoritesList"></div></section>
-            <section class="welcome-panel" id="popularPanel"><div class="welcome-panel-head popular-head"><div><strong id="popularTitle">Mais perguntadas hoje</strong><small id="popularSubtitle">Perguntas acadêmicas agrupadas sem identificar usuários. Atualizações não apagam o histórico.</small></div><div class="popular-period-toggle" role="group" aria-label="Período das perguntas mais consultadas"><button type="button" data-popular-period="today" aria-pressed="true">Hoje</button><button type="button" data-popular-period="week" aria-pressed="false">Semana</button></div></div><div class="saved-list" id="popularList"></div></section>
+            <section class="welcome-panel" id="popularPanel"><div class="welcome-panel-head popular-head"><div><strong id="popularTitle">🔥 Mais perguntadas hoje</strong><small id="popularSubtitle">Perguntas acadêmicas agrupadas sem identificar usuários. Atualizações não apagam o histórico.</small></div><div class="popular-period-toggle" role="group" aria-label="Período das perguntas mais consultadas"><button type="button" data-popular-period="today" aria-pressed="true">Hoje</button><button type="button" data-popular-period="week" aria-pressed="false">Semana</button></div></div><div class="saved-list" id="popularList"></div></section>
           </div>
           <section class="welcome-panel conversation-history-panel" id="conversationHistoryPanel" hidden>
-            <div class="welcome-panel-head conversation-history-head"><div><strong>Conversas</strong><small>Pesquise, renomeie, exclua ou retome qualquer conversa salva neste dispositivo.</small></div><input id="conversationHistorySearch" type="search" inputmode="search" autocomplete="off" placeholder="Pesquisar conversas" aria-label="Pesquisar em todas as conversas"></div>
-            <div class="saved-list" id="conversationHistoryList"></div>
+            <div class="welcome-panel-head conversation-history-head">
+              <div class="conversation-history-copy"><strong>Conversas</strong><small>Pesquise, renomeie, exclua ou retome qualquer conversa salva neste dispositivo.</small></div>
+              <label class="conversation-history-search" for="conversationHistorySearch"><span class="sr-only">Pesquisar em todas as conversas</span><input id="conversationHistorySearch" type="search" inputmode="search" autocomplete="off" placeholder="Pesquisar conversas" aria-label="Pesquisar em todas as conversas"></label>
+            </div>
+            <div class="saved-list conversation-history-list" id="conversationHistoryList"></div>
           </section>
           <div class="welcome-examples" aria-label="Exemplos de perguntas">
             <span>Experimente:</span>
@@ -109,8 +112,8 @@
 
   <script src="../../data.js"></script>
   <script src="../../js/design-system.js"></script>
-  <script src="config.js?v=2.0.1"></script>
-  <script src="app.js?v=2.0.1"></script>
+  <script src="config.js?v=2.0.4"></script>
+  <script src="app.js?v=2.0.4"></script>
   <script src="../../sidebar/hub-url-resolver.js"></script>
   <script src="../../sidebar/hub-user-state.js"></script>
   <script src="../../sidebar/sidebar.js"></script>

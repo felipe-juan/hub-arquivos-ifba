@@ -2,7 +2,7 @@
   'use strict';
 
   const CONFIG = window.HUB_ASSISTANT_CONFIG || {};
-  const FRONTEND_RELEASE = '2.0.1-ux-offline-history-v2';
+  const FRONTEND_RELEASE = '2.0.4-ux-offline-history-v2';
   const STORAGE_KEY = 'hubAssistantStateV1';
   const SETTINGS_KEY = 'hubAssistantSettingsV1';
   const FAVORITES_KEY = 'hubFavoritesV2';
@@ -466,17 +466,30 @@
         : '<div class="saved-empty">Ainda não há conversas salvas.</div>';
       return;
     }
-    list.innerHTML = history.map(conversation => `
-      <article class="saved-item conversation-history-row" data-conversation-row="${escapeHtml(conversation.id)}">
-        <button type="button" class="conversation-history-main" data-conversation-id="${escapeHtml(conversation.id)}">
-          <strong>${escapeHtml(conversation.title || 'Conversa')}${conversation.id === current.id ? ' · Atual' : ''}</strong>
-          <span>${escapeHtml(conversationPreview(conversation))}</span>
-        </button>
-        <div class="conversation-history-actions">
-          <button type="button" data-rename-conversation="${escapeHtml(conversation.id)}">Renomear</button>
-          <button type="button" data-delete-conversation="${escapeHtml(conversation.id)}">Excluir</button>
+    list.innerHTML = history.map(conversation => {
+      const isCurrent = conversation.id === current.id;
+      const actionLabel = isCurrent ? 'Continuar' : 'Abrir';
+      return `
+      <article class="conversation-card${isCurrent ? ' current' : ''}" data-conversation-row="${escapeHtml(conversation.id)}">
+        <div class="conversation-card-copy">
+          <div class="conversation-card-title-row">
+            <strong class="conversation-card-title">${escapeHtml(conversation.title || 'Conversa')}</strong>
+            ${isCurrent ? '<span class="conversation-current-badge">Atual</span>' : ''}
+          </div>
+          <span class="conversation-card-preview">${escapeHtml(conversationPreview(conversation))}</span>
         </div>
-      </article>`).join('');
+        <div class="conversation-card-actions">
+          <button type="button" class="conversation-open-button" data-conversation-id="${escapeHtml(conversation.id)}">${actionLabel}</button>
+          <details class="conversation-actions-menu">
+            <summary aria-label="Mais opções para ${escapeHtml(conversation.title || 'conversa')}" title="Mais opções"><span aria-hidden="true">⋯</span></summary>
+            <div class="conversation-actions-popover">
+              <button type="button" data-rename-conversation="${escapeHtml(conversation.id)}">Renomear</button>
+              <button type="button" class="danger" data-delete-conversation="${escapeHtml(conversation.id)}">Excluir</button>
+            </div>
+          </details>
+        </div>
+      </article>`;
+    }).join('');
   }
 
   async function renameConversation(conversationId) {
@@ -524,7 +537,7 @@
     const periodLabel = state.popularPeriod === 'week' ? 'nesta semana' : 'hoje';
     const title = $('popularTitle');
     const subtitle = $('popularSubtitle');
-    if (title) title.textContent = state.popularPeriod === 'week' ? 'Mais perguntadas da semana' : 'Mais perguntadas hoje';
+    if (title) title.textContent = state.popularPeriod === 'week' ? '🔥 Mais perguntadas da semana' : '🔥 Mais perguntadas hoje';
     if (subtitle) subtitle.textContent = state.popularStale
       ? 'Exibindo o último resultado salvo; a atualização global será retomada quando a API responder.'
       : 'Perguntas acadêmicas agrupadas sem identificar usuários. Atualizações não apagam o histórico.';
@@ -534,14 +547,32 @@
         : '<div class="saved-empty">Ainda não há perguntas suficientes nesta semana. O histórico armazenado não é zerado por atualizações do HUB.</div>';
       return;
     }
-    list.innerHTML = state.popularQuestions.slice(0, 8).map(item => {
+    list.innerHTML = state.popularQuestions.slice(0, 8).map((item, index) => {
       const trend = Number(item.trend || 0);
       const trendClass = trend > 0 ? 'up' : trend < 0 ? 'down' : 'same';
-      const trendText = trend > 0 ? `↑ ${trend}` : trend < 0 ? `↓ ${Math.abs(trend)}` : '→';
+      const trendArrow = trend > 0 ? '↑' : trend < 0 ? '↓' : '→';
+      const trendValue = trend === 0 ? '' : String(Math.abs(trend));
+      const trendLabel = trend > 0
+        ? `${trend} a mais que no período anterior`
+        : trend < 0
+          ? `${Math.abs(trend)} a menos que no período anterior`
+          : 'Mesmo número do período anterior';
+      const count = Number(item.count || 0);
+      const countLabel = count === 1 ? 'consulta' : 'consultas';
+      const subject = item.subject || item.title || 'Pergunta';
+      const prompt = item.prompt || item.subject || item.title || '';
       return `
-      <button type="button" class="saved-item popular-item" data-popular-prompt="${escapeHtml(item.prompt || item.subject || item.title || '')}">
-        <strong>${escapeHtml(item.subject || item.title || 'Pergunta')}</strong>
-        <span>${escapeHtml((item.count || 0) + ` consulta(s) ${periodLabel}`)}<em class="popular-trend ${trendClass}" title="Comparação com o período anterior">${escapeHtml(trendText)}</em></span>
+      <button type="button" class="saved-item popular-item" data-popular-prompt="${escapeHtml(prompt)}" aria-label="${escapeHtml(`${index + 1}. ${subject}. ${count} ${countLabel} ${periodLabel}. ${trendLabel}.`)}">
+        <span class="popular-rank" aria-hidden="true">${index + 1}</span>
+        <span class="popular-item-content">
+          <strong class="popular-item-title">${escapeHtml(subject)}</strong>
+          <span class="popular-item-period">${escapeHtml(periodLabel)}</span>
+        </span>
+        <span class="popular-item-stats" aria-hidden="true">
+          <span class="popular-count"><b>${count}</b><span class="popular-count-label">${countLabel}</span></span>
+          <span class="popular-trend ${trendClass}" title="${escapeHtml(trendLabel)}"><span>${trendArrow}</span>${trendValue ? `<b>${escapeHtml(trendValue)}</b>` : ''}</span>
+        </span>
+        <span class="popular-item-chevron" aria-hidden="true">›</span>
       </button>`;
     }).join('');
   }
