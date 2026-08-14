@@ -397,19 +397,19 @@ subprocess.run(["node", str(scripts / "test_frontend_modules.js"), str(root)], c
 # v2.0.2 — Mais perguntadas deve manter hierarquia e responsividade em telas estreitas.
 for marker in (
     'class="popular-rank"', 'class="popular-item-content"', 'class="popular-item-title"',
-    'class="popular-item-stats"', 'class="popular-count"', 'class="popular-item-chevron"',
+    'class="popular-item-stats"', 'class="popular-count ${trendClass}"', 'class="popular-item-chevron"',
 ):
     assert marker in app_js, marker
 for marker in (
     'grid-template-columns: 30px minmax(0, 1fr) auto 18px',
     '@media (max-width: 680px)', '.popular-period-toggle { width: 100%',
-    'grid-template-columns: 28px minmax(0, 1fr) 16px',
+    'grid-template-columns: 28px minmax(0, 1fr) auto 14px',
     '.popular-count-label { display: none; }', 'font-variant-numeric: tabular-nums',
 ):
     assert marker in css, marker
 assert '.saved-item.popular-item {' not in css
 
-# v2.0.4 — Conversas com hierarquia compacta e Mais perguntadas com emoji consistente.
+# v2.0.5 — Conversas com hierarquia compacta e Mais perguntadas com emoji consistente.
 for marker in (
     'class="conversation-card', 'class="conversation-card-title-row"', 'class="conversation-current-badge"',
     'class="conversation-card-preview"', 'class="conversation-open-button"', 'class="conversation-actions-menu"',

@@ -1,9 +1,9 @@
 {
-  "version": "2.0.4",
+  "version": "2.0.6",
   "updatedAt": "2026-08-11",
   "period": "2026.2",
   "source": {
-    "file": "https://ifbaedubr-my.sharepoint.com/:x:/g/personal/rodrigobonfim_ifba_edu_br/IQCqjeOoMcvWQoiikRSUwWOxAZSOwJaih1qWmWFq5Vxa73Y?rtime=aTN-B0Ly3kg",
+    "file": "https://ifbaedubr-my.sharepoint.com/:x:/g/personal/rodrigobonfim_ifba_edu_br/IQCqjeOoMcvWQoiikRSUwWOxAZSOwJaih1qWmWFq5Vxa73Y",
     "version": "Versão 2",
     "published_at": "2026-07-28",
     "sha256": "ec6000abd72154f3675147a20b74f0ef02eda5fb7bcea59da8b00fa2fad10f16",
@@ -1899,6 +1899,8 @@
     "barema": {
       "title": "Barema de Atividades Complementares",
       "url": "apps/barema/",
+      "officialUrl": "https://portal.ifba.edu.br/conquista/capas-e-paginas-menu-cursos/sistemas-de-informacao-arquivos/regulamentos/especificos/regulamento-atividades-complementares-ppc-2024.pdf/view",
+      "officialSpreadsheetUrl": "",
       "prompt": "abrir barema"
     },
     "ppc": {

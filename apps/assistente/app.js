@@ -2,7 +2,7 @@
   'use strict';
 
   const CONFIG = window.HUB_ASSISTANT_CONFIG || {};
-  const FRONTEND_RELEASE = '2.0.4-ux-offline-history-v2';
+  const FRONTEND_RELEASE = '2.0.6-ux-offline-history-v2';
   const STORAGE_KEY = 'hubAssistantStateV1';
   const SETTINGS_KEY = 'hubAssistantSettingsV1';
   const FAVORITES_KEY = 'hubFavoritesV2';
@@ -569,8 +569,7 @@
           <span class="popular-item-period">${escapeHtml(periodLabel)}</span>
         </span>
         <span class="popular-item-stats" aria-hidden="true">
-          <span class="popular-count"><b>${count}</b><span class="popular-count-label">${countLabel}</span></span>
-          <span class="popular-trend ${trendClass}" title="${escapeHtml(trendLabel)}"><span>${trendArrow}</span>${trendValue ? `<b>${escapeHtml(trendValue)}</b>` : ''}</span>
+          <span class="popular-count ${trendClass}" title="${escapeHtml(trendLabel)}"><b>${count}</b><span class="popular-count-label">${countLabel}</span>${trend !== 0 ? `<span class="popular-count-trend ${trendClass}">${trendArrow}</span>` : ''}</span>
         </span>
         <span class="popular-item-chevron" aria-hidden="true">›</span>
       </button>`;
@@ -1745,7 +1744,16 @@
     if (allowShortcuts && has('barema')) {
       const item=data.shortcuts?.barema || {};
       const baremaUrl=String(item.url || '').trim();
-      return { text:'Você pode consultar o Barema de Atividades Complementares diretamente no HUB.', components:baremaUrl ? [localAction('Barema de Atividades Complementares', baremaUrl, 'Abrir Barema')] : [], context:{kind:'document',title:'Barema'}, titleHint:'Barema de atividades complementares', sync:true, subject:'Barema' };
+      const officialUrl=String(item.officialUrl || '').trim();
+      const spreadsheetUrl=String(item.officialSpreadsheetUrl || '').trim();
+      const components=[];
+      if (baremaUrl) components.push(localAction('Barema de Atividades Complementares', baremaUrl, 'Abrir Barema'));
+      if (spreadsheetUrl) components.push(localAction('Planilha oficial do Barema', spreadsheetUrl, 'Abrir planilha oficial'));
+      else if (officialUrl) components.push(localAction('Regulamento oficial de Atividades Complementares', officialUrl, 'Abrir regulamento oficial'));
+      const text=spreadsheetUrl
+        ? 'Você pode abrir o app do Barema no HUB e também a planilha oficial.'
+        : 'Você pode abrir o app do Barema no HUB. A URL de uma planilha oficial separada ainda não está cadastrada neste pacote; por isso, o Assistente mostra o regulamento oficial da matriz atual em vez de inventar um link.';
+      return { text, components, context:{kind:'document',title:'Barema'}, titleHint:'Barema de atividades complementares', sync:true, subject:'Barema' };
     }
     if (allowShortcuts && (has('ppc') || has('projeto pedagogico'))) {
       const matches=findOfflineItems('PPC BSI',3).filter(item=>item.kind==='document');

@@ -78,7 +78,7 @@ for (const marker of [
   'function renderInterrupted(message)', 'data-continue-interrupted',
   'DB_CONVERSATIONS', 'DB_MESSAGES', "database.createObjectStore(DB_MESSAGES, { keyPath:'id' })",
   'function openAssistantDialog(', 'function askAssistantText(', 'function confirmAssistantAction(',
-  'function smartConversationTitle(', 'popular-trend'
+  'function smartConversationTitle(', 'popular-count-trend'
 ]) assert.ok(app.includes(marker) || html.includes(marker), `contrato UX v2.0.0 ausente: ${marker}`);
 assert.ok(html.includes('id="anonymousModeToggle"') && app.includes('toggleAnonymousMode') && app.includes("telemetryMode:'anonymous'"));
 assert.equal(/\bprompt\s*\(/u.test(app), false, 'prompt() nativo não pode voltar');
@@ -101,12 +101,12 @@ assert.ok(search.includes("input.addEventListener('click'"), 'busca global deve 
 for (const marker of ['popular-rank','popular-item-content','popular-item-stats','popular-count','popular-item-chevron']) {
   assert.ok(app.includes(marker), `Mais perguntadas sem estrutura responsiva: ${marker}`);
 }
-for (const marker of ['@media (max-width: 680px)','grid-template-columns: 28px minmax(0, 1fr) 16px','font-variant-numeric: tabular-nums']) {
+for (const marker of ['@media (max-width: 680px)','grid-template-columns: 28px minmax(0, 1fr) auto 14px','font-variant-numeric: tabular-nums']) {
   assert.ok(css.includes(marker), `Mais perguntadas sem CSS responsivo: ${marker}`);
 }
 assert.equal(css.includes('.saved-item.popular-item {'), false, 'Mais perguntadas não pode herdar o reset visual dos botões internos de Favoritos');
 
-// v2.0.4 — cards de conversa compactos e cabeçalho de populares consistente.
+// v2.0.5 — cards de conversa compactos e cabeçalho de populares consistente.
 for (const marker of ['conversation-card-title-row','conversation-current-badge','conversation-card-preview','conversation-open-button','conversation-actions-menu','conversation-actions-popover']) {
   assert.ok(app.includes(marker), `Histórico sem componente esperado: ${marker}`);
 }
