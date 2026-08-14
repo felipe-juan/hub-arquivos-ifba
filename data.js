@@ -51,7 +51,7 @@ window.HUB_DATA = {
       "id": "link-quadro-horario-2026-2",
       "title": "Quadro de horário 2026.2",
       "description": "Planilha oficial compartilhada com o quadro de horários do semestre 2026.2.",
-      "url": "https://ifbaedubr-my.sharepoint.com/:x:/g/personal/rodrigobonfim_ifba_edu_br/IQCsaQq5LEbpRbrN4aQdTsRLAYgmR5gmpZ1PZu_wD9dlFmg?rtime=Qo_J-yvO3kg",
+      "url": "https://ifbaedubr-my.sharepoint.com/:x:/g/personal/rodrigobonfim_ifba_edu_br/IQCqjeOoMcvWQoiikRSUwWOxAZSOwJaih1qWmWFq5Vxa73Y",
       "category": "Horários",
       "tags": [
         "quadro de horário",
@@ -912,7 +912,10 @@ window.HUB_DATA = {
       "horas complementares",
       "certificados",
       "simulador",
-      "PPC 2024"
+      "PPC 2024",
+      "barema",
+      "planilha do barema",
+      "barema de atividades complementares"
     ],
     "atividades": [
       "atividades complementares",
@@ -1147,6 +1150,30 @@ window.HUB_DATA = {
       "matrícula",
       "provas finais",
       "feriados"
+    ],
+    "liojes": [
+      "liojes",
+      "liojenes",
+      "liogenes",
+      "liorges",
+      "lioges"
+    ],
+    "materia": [
+      "matéria",
+      "matérias",
+      "mteria",
+      "mterias"
+    ],
+    "contato": [
+      "contato",
+      "conato"
+    ],
+    "quadro de horarios": [
+      "quadro de horários",
+      "quadro de horario",
+      "planilha de horários",
+      "planilha com os horarios de aula",
+      "horários de aula"
     ]
   },
   "answers": [

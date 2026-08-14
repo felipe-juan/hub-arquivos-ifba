@@ -23,10 +23,10 @@
     /* HUB REGISTRY FALLBACK START */
     {
       "schemaVersion": 2,
-      "version": "2.0.6",
-      "hubVersion": "0.3.5",
+      "version": "2.0.7",
+      "hubVersion": "0.3.6",
       "sourceOfTruth": true,
-      "generatedBy": "hub-assistente-v2.0.6",
+      "generatedBy": "hub-assistente-v2.0.7",
       "apps": [
         {
           "id": "app-assistente-hub",
@@ -217,7 +217,7 @@
           "id": "link-quadro-horario-2026-2",
           "title": "Quadro de horário 2026.2",
           "description": "Planilha oficial compartilhada com o quadro de horários do semestre 2026.2.",
-          "url": "https://ifbaedubr-my.sharepoint.com/:x:/g/personal/rodrigobonfim_ifba_edu_br/IQCsaQq5LEbpRbrN4aQdTsRLAYgmR5gmpZ1PZu_wD9dlFmg?rtime=Qo_J-yvO3kg",
+          "url": "https://ifbaedubr-my.sharepoint.com/:x:/g/personal/rodrigobonfim_ifba_edu_br/IQCqjeOoMcvWQoiikRSUwWOxAZSOwJaih1qWmWFq5Vxa73Y",
           "category": "Horários",
           "tags": [
             "quadro de horário",

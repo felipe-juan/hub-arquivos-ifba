@@ -247,7 +247,11 @@ with tempfile.TemporaryDirectory(prefix="hub-sidebar-registry-") as temp_dir:
             {"id": "onde-resolvo-isso", "title": "Onde resolvo isso?", "url": "apps/onde-resolvo-isso/", "emoji": "💼"},
             {"id": "app-personalizado", "title": "Ferramenta personalizada", "url": "apps/personalizado/", "emoji": "🌟"},
         ],
-        "usefulLinks": [{"title": "Biblioteca", "url": "https://example.invalid/biblioteca"}],
+        "usefulLinks": [
+            {"title": "Biblioteca", "url": "https://example.invalid/biblioteca"},
+            {"id": "link-quadro-horario-2026-2", "title": "Quadro de horários 2026.2", "url": "https://example.invalid/quadro-antigo"},
+        ],
+        "conceptMap": {"contato": ["contato"]},
     }
     (fixture / "data.js").write_text(
         installer_module.DATA_PREFIX + json.dumps(fixture_data, ensure_ascii=False) + ";\n",
@@ -273,7 +277,12 @@ with tempfile.TemporaryDirectory(prefix="hub-sidebar-registry-") as temp_dir:
     assert generated_registry["externalLinks"][0]["url"] == "https://portal.ifba.edu.br/conquista"
     assert generated_registry["externalLinks"][0]["title"] == "Portal"
     assert generated_registry["externalLinks"][1]["url"] == "https://suap.ifba.edu.br"
-    assert generated_registry["links"] == fixture_data["usefulLinks"]
+    schedule_link = next(item for item in generated_registry["links"] if item.get("id") == installer_module.OFFICIAL_SCHEDULE_LINK_ID)
+    assert schedule_link["url"] == installer_module.OFFICIAL_SCHEDULE_URL_2026_2
+    assert "example.invalid/quadro-antigo" not in json.dumps(generated_registry, ensure_ascii=False)
+    assert normalized_data["conceptMap"]["liojes"] == ["liojes", "liojenes", "liogenes", "liorges", "lioges"]
+    assert "mterias" in normalized_data["conceptMap"]["materia"]
+    assert "conato" in normalized_data["conceptMap"]["contato"]
     # Depois da migração inicial, alterações divergentes em data.js não podem
     # voltar a ser fonte de verdade: o registry canônico é preservado.
     divergent = installer_module.load_hub_data(fixture / "data.js")
@@ -283,6 +292,7 @@ with tempfile.TemporaryDirectory(prefix="hub-sidebar-registry-") as temp_dir:
     registry_second = json.loads((fixture / "sidebar" / "hub-registry.json").read_text(encoding="utf-8"))
     assert "app-personalizado" in {item["id"] for item in registry_second["apps"]}
     assert "nao-importar" not in {item["id"] for item in registry_second["apps"]}
+    assert next(item for item in registry_second["links"] if item.get("id") == installer_module.OFFICIAL_SCHEDULE_LINK_ID)["url"] == installer_module.OFFICIAL_SCHEDULE_URL_2026_2
 for name in ("normalize_document_manifests.py", "verify_document_generation.py", "build_and_validate_hub.py"):
     assert (scripts / name).is_file(), name
 verify_text = (scripts / "verify_document_generation.py").read_text(encoding="utf-8")

@@ -1,18 +1,21 @@
-# Assistente do HUB v2.0.6
+# Assistente do HUB v2.0.7
 
-Frontend web do Assistente do HUB, mantido em `config.js` + `app.js` para preservar um único estado do chat e evitar regressões de concorrência entre controladores.
+Frontend web do Assistente integrado ao HUB v0.3.6.
 
-## Experiência 1.6
+## Experiência 2.0
 
-- resposta progressiva via NDJSON, com `■` para interromper e substituição por nova pergunta;
-- edição da mensagem do usuário e regeneração da resposta;
-- feedback 👍/👎 com motivos de erro revisáveis no Admin Center;
-- fontes documentais integradas, página clicável e preview de PDF;
-- cards visuais para professor, horários, calendário, documentos, Barema e recursos do HUB;
-- ações diretas para Calculadora da Final, Calendário, Barema, fluxogramas e documentos;
-- sugestões de continuação contextuais e indicação visual quando uma pergunta curta reutiliza contexto;
-- validade/status da fonte e alerta de informação potencialmente desatualizada;
-- catálogo offline com apps, links, documentos e trechos indexados;
-- tela inicial com atalhos acadêmicos e exemplos de perguntas.
+- resposta progressiva com interrupção e substituição por nova pergunta;
+- histórico local pesquisável, renomeável e excluível;
+- feedback 👍/👎 e diagnósticos revisáveis;
+- fontes documentais integradas com página e preview;
+- cards de professores, horários, calendário, documentos, Barema e recursos do HUB;
+- consultas de professor por nome, alias, e-mail e dia;
+- consultas por semestre, dia/data, disciplina e sala;
+- sugestões de continuação contextuais;
+- contexto acadêmico ativo e removível;
+- catálogo offline e estados de conexão explícitos;
+- tela inicial com atalhos acadêmicos e exemplos;
+- “Mais perguntadas” global com contagem/tendência;
+- frontend validado contra o mesmo backend/release antes da publicação.
 
-O composer permanece utilizável durante a resposta. Com resposta em andamento, campo vazio + botão `■` interrompe; se houver uma nova mensagem digitada, Enter ou o botão de envio substitui a resposta anterior pela nova solicitação.
+O estado principal da conversa continua centralizado no frontend para impedir respostas antigas de sobrescreverem uma geração nova. A API é configurada por `config.js` durante a instalação.

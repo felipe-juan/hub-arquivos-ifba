@@ -64,6 +64,16 @@ DEFAULT_EXTERNAL_LINKS = (
     {"id": "suap", "title": "SUAP", "url": "https://suap.ifba.edu.br", "emoji": "🔐", "icon": "🔐"},
 )
 
+OFFICIAL_SCHEDULE_LINK_ID = "link-quadro-horario-2026-2"
+OFFICIAL_SCHEDULE_URL_2026_2 = "https://ifbaedubr-my.sharepoint.com/:x:/g/personal/rodrigobonfim_ifba_edu_br/IQCqjeOoMcvWQoiikRSUwWOxAZSOwJaih1qWmWFq5Vxa73Y"
+MANAGED_CONCEPT_ALIASES = {
+    "liojes": ["liojes", "liojenes", "liogenes", "liorges", "lioges"],
+    "materia": ["matéria", "materia", "matérias", "materias", "mteria", "mterias"],
+    "contato": ["contato", "conato"],
+    "barema": ["barema", "planilha do barema", "barema de atividades complementares"],
+    "quadro de horarios": ["quadro de horários", "quadro de horario", "planilha de horários", "planilha com os horarios de aula", "horários de aula"],
+}
+
 
 def normalized(value: object) -> str:
     text = unicodedata.normalize("NFD", str(value or ""))
@@ -217,6 +227,50 @@ def save_hub_data(path: Path, data: dict[str, Any]) -> None:
     write(path, DATA_PREFIX + json.dumps(data, ensure_ascii=False, indent=2) + ";\n")
 
 
+def apply_managed_link_overrides(items: list[dict[str, Any]]) -> list[dict[str, Any]]:
+    updated: list[dict[str, Any]] = []
+    schedule_found = False
+    for original in items:
+        item = dict(original)
+        identifier = str(item.get("id") or "").strip()
+        title = normalized(item.get("title") or item.get("name"))
+        if identifier == OFFICIAL_SCHEDULE_LINK_ID or "quadro de horario" in title:
+            item["id"] = identifier or OFFICIAL_SCHEDULE_LINK_ID
+            item["url"] = OFFICIAL_SCHEDULE_URL_2026_2
+            schedule_found = True
+        updated.append(item)
+    if not schedule_found:
+        updated.append({
+            "id": OFFICIAL_SCHEDULE_LINK_ID,
+            "title": "Quadro de horários 2026.2",
+            "description": "Planilha atual do quadro de horários de aulas.",
+            "url": OFFICIAL_SCHEDULE_URL_2026_2,
+        })
+    return updated
+
+
+def merge_managed_concept_aliases(data: dict[str, Any]) -> None:
+    concept_map = data.get("conceptMap")
+    if not isinstance(concept_map, dict):
+        concept_map = {}
+        data["conceptMap"] = concept_map
+    for key, required in MANAGED_CONCEPT_ALIASES.items():
+        current = concept_map.get(key, [])
+        if isinstance(current, str):
+            current = [current]
+        elif not isinstance(current, list):
+            current = []
+        merged: list[str] = []
+        seen: set[str] = set()
+        for value in [*current, *required]:
+            clean = str(value or "").strip()
+            token = normalized(clean)
+            if clean and token not in seen:
+                seen.add(token)
+                merged.append(clean)
+        concept_map[key] = merged
+
+
 def embed_sidebar_registry_fallback(registry: dict[str, Any]) -> None:
     path = ROOT / "sidebar" / "sidebar.js"
     text = read(path)
@@ -257,7 +311,8 @@ def update_data_and_registry(previous_registry: dict[str, Any] | None = None) ->
         and item.get("url") != APP_ENTRY["url"]
     ]
     apps = [normalize_app(APP_ENTRY), *apps]
-    useful = [item for item in useful if not is_obsolete_app(item)]
+    useful = apply_managed_link_overrides([item for item in useful if not is_obsolete_app(item)])
+    merge_managed_concept_aliases(data)
 
     # Links institucionais obrigatórios continuam protegidos mesmo se uma versão
     # antiga do registry estiver incompleta. Mantemos metadados já canônicos e
