@@ -23,10 +23,10 @@
     /* HUB REGISTRY FALLBACK START */
     {
       "schemaVersion": 2,
-      "version": "2.0.7",
+      "version": "2.0.13",
       "hubVersion": "0.3.6",
       "sourceOfTruth": true,
-      "generatedBy": "hub-assistente-v2.0.7",
+      "generatedBy": "hub-assistente-v2.0.13",
       "apps": [
         {
           "id": "app-assistente-hub",
