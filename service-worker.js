@@ -1,4 +1,4 @@
-const VERSION = "hub-ifba-v0.3.6";
+const VERSION = "hub-ifba-v0.3.7";
 const STATIC_CACHE = `${VERSION}-static`;
 const METADATA_CACHE = `${VERSION}-metadata`;
 const IMAGE_CACHE = `${VERSION}-images`;
@@ -15,8 +15,8 @@ const CORE = [
   "assets/build/enhancements.254c728974fb.css",
   "assets/build/sidebar-quick-search.ea5032187b1e.css",
   "assets/build/design-system.afe11aadcef7.css",
-  "assets/build/data.b2be5019a1be.js",
-  "assets/build/app.39f166314f8a.js",
+  "assets/build/data.93b7a3501a11.js",
+  "assets/build/app.60dd7a7fc9e5.js",
   "assets/build/storage.aade70adc118.js",
   "assets/build/design-system.f488faad941e.js",
   "assets/build/where-data.2815ed20f527.js",
@@ -26,13 +26,13 @@ const CORE = [
   "./favicon.ico",
   "./apps/catalog.json",
   "./apps/assistente/",
-  "./apps/assistente/index.html?v=2.0.13",
-  "./apps/assistente/config.js?v=2.0.13",
-  "./apps/assistente/app.css?v=2.0.13",
-  "./apps/assistente/app.js?v=2.0.13",
-  "./apps/assistente/offline-data.json?v=2.0.13",
-  "./apps/assistente/offline-academic.json?v=2.0.13",
-  "./apps/assistente/assets/calendario-academico-2026.png?v=2.0.13",
+  "./apps/assistente/index.html?v=2.0.14",
+  "./apps/assistente/config.js?v=2.0.14",
+  "./apps/assistente/app.css?v=2.0.14",
+  "./apps/assistente/app.js?v=2.0.14",
+  "./apps/assistente/offline-data.json?v=2.0.14",
+  "./apps/assistente/offline-academic.json?v=2.0.14",
+  "./apps/assistente/assets/calendario-academico-2026.png?v=2.0.14",
   "./sidebar/sidebar.css",
   "./sidebar/sidebar.js",
   "./sidebar/hub-url-resolver.js",
@@ -65,7 +65,7 @@ const CORE = [
 const REQUIRED_CORE = new Set([
   "./", "./index.html", "./offline.html", "./document-viewer.html",
   "assets/build/styles.4fd8de09d002.css", "assets/build/enhancements.254c728974fb.css", "assets/build/sidebar-quick-search.ea5032187b1e.css", "assets/build/design-system.afe11aadcef7.css",
-  "assets/build/data.b2be5019a1be.js", "assets/build/app.39f166314f8a.js", "assets/build/storage.aade70adc118.js", "assets/build/design-system.f488faad941e.js", "assets/build/where-data.2815ed20f527.js",
+  "assets/build/data.93b7a3501a11.js", "assets/build/app.60dd7a7fc9e5.js", "assets/build/storage.aade70adc118.js", "assets/build/design-system.f488faad941e.js", "assets/build/where-data.2815ed20f527.js",
 ]);
 
 async function installCoreResources() {

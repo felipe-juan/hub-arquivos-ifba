@@ -23,10 +23,10 @@
     /* HUB REGISTRY FALLBACK START */
     {
       "schemaVersion": 2,
-      "version": "2.0.13",
-      "hubVersion": "0.3.6",
+      "version": "2.0.14",
+      "hubVersion": "0.3.7",
       "sourceOfTruth": true,
-      "generatedBy": "hub-assistente-v2.0.13",
+      "generatedBy": "hub-assistente-v2.0.14",
       "apps": [
         {
           "id": "app-assistente-hub",
@@ -178,7 +178,8 @@
             "formulário",
             "solicitação",
             "requerimento"
-          ]
+          ],
+          "openMode": "new-tab"
         },
         {
           "id": "link-fluxograma-atual",
@@ -215,22 +216,24 @@
         },
         {
           "id": "link-quadro-horario-2026-2",
-          "title": "Quadro de horário 2026.2",
+          "title": "Quadro de horários 2026.2",
           "description": "Planilha oficial compartilhada com o quadro de horários do semestre 2026.2.",
           "url": "https://ifbaedubr-my.sharepoint.com/:x:/g/personal/rodrigobonfim_ifba_edu_br/IQCqjeOoMcvWQoiikRSUwWOxAZSOwJaih1qWmWFq5Vxa73Y",
-          "category": "Horários",
+          "category": "Planilha",
           "tags": [
             "quadro de horário",
             "quadro de horarios",
             "horário",
-            "horario",
             "2026.2",
             "aulas",
             "disciplinas",
             "planilha",
             "sharepoint",
-            "semestre"
-          ]
+            "semestre",
+            "horários"
+          ],
+          "format": "XLSX",
+          "openMode": "new-tab"
         },
         {
           "id": "link-calendario-app",
@@ -298,7 +301,7 @@
         },
         {
           "id": "link-barema-atual-planilha",
-          "title": "Planilha do Barema atual",
+          "title": "Planilha do Barema atual — PPC 2024",
           "description": "Arquivo XLSX do Barema de Atividades Complementares aplicável ao PPC 2024.",
           "url": "apps/barema/docs/barema-ppc-2024.xlsx",
           "category": "Planilha",
@@ -310,12 +313,16 @@
             "certificados",
             "PPC 2024",
             "planilha",
-            "google sheets"
-          ]
+            "xlsx"
+          ],
+          "format": "XLSX",
+          "openMode": "new-tab",
+          "emoji": "📊",
+          "icon": "📊"
         },
         {
           "id": "link-barema-antigo-planilha",
-          "title": "Planilha do Barema antigo",
+          "title": "Planilha do Barema antigo — matrizes 2010–2017",
           "description": "Arquivo XLSX do Barema de Atividades Complementares aplicável aos PPCs 2010-2017.",
           "url": "apps/barema/docs/barema-ppc-2010-2017.xlsx",
           "category": "Planilha",
@@ -328,8 +335,13 @@
             "PPC antigo",
             "PPC 2017",
             "planilha",
-            "google sheets"
-          ]
+            "PPC 2010",
+            "xlsx"
+          ],
+          "format": "XLSX",
+          "openMode": "new-tab",
+          "emoji": "📊",
+          "icon": "📊"
         },
         {
           "id": "link-email-coordenacao",
@@ -357,7 +369,8 @@
             "SI",
             "notícias",
             "comunicação"
-          ]
+          ],
+          "openMode": "new-tab"
         },
         {
           "id": "link-instagram-dasi",
@@ -370,7 +383,8 @@
             "DASI",
             "diretório acadêmico",
             "estudantes"
-          ]
+          ],
+          "openMode": "new-tab"
         },
         {
           "id": "link-instagram-btech",
@@ -383,7 +397,8 @@
             "BTECH",
             "empresa júnior",
             "estudantes"
-          ]
+          ],
+          "openMode": "new-tab"
         },
         {
           "id": "link-instagram-sinistra",
@@ -397,7 +412,8 @@
             "atlética",
             "esportes",
             "estudantes"
-          ]
+          ],
+          "openMode": "new-tab"
         },
         {
           "id": "link-caens-estagios",
@@ -411,7 +427,8 @@
             "estágios",
             "blog",
             "setor"
-          ]
+          ],
+          "openMode": "new-tab"
         },
         {
           "id": "link-whatsapp-capne",
@@ -425,7 +442,8 @@
             "acessibilidade",
             "inclusão",
             "contato"
-          ]
+          ],
+          "openMode": "new-tab"
         },
         {
           "id": "link-whatsapp-caens",
@@ -438,7 +456,8 @@
             "whatsapp",
             "estágio",
             "contato"
-          ]
+          ],
+          "openMode": "new-tab"
         },
         {
           "id": "link-whatsapp-cores",
@@ -450,7 +469,8 @@
             "CORES",
             "whatsapp",
             "contato"
-          ]
+          ],
+          "openMode": "new-tab"
         },
         {
           "id": "link-whatsapp-servicos-sociais",
@@ -463,7 +483,8 @@
             "assistência estudantil",
             "whatsapp",
             "contato"
-          ]
+          ],
+          "openMode": "new-tab"
         },
         {
           "id": "link-linktree-dasi",
@@ -477,7 +498,8 @@
             "linktree",
             "estudantes",
             "instagram"
-          ]
+          ],
+          "openMode": "new-tab"
         },
         {
           "id": "link-linktree-btech",
@@ -491,7 +513,8 @@
             "linktree",
             "estudantes",
             "instagram"
-          ]
+          ],
+          "openMode": "new-tab"
         },
         {
           "id": "link-linktree-sinistra",
@@ -505,7 +528,8 @@
             "linktree",
             "esportes",
             "instagram"
-          ]
+          ],
+          "openMode": "new-tab"
         },
         {
           "id": "link-ensalamento-professores",
@@ -522,7 +546,8 @@
             "power bi",
             "painel",
             "salas"
-          ]
+          ],
+          "openMode": "new-tab"
         },
         {
           "id": "link-provas-atividades-passadas",
@@ -540,7 +565,8 @@
             "materiais",
             "estudo",
             "prova"
-          ]
+          ],
+          "openMode": "new-tab"
         }
       ],
       "externalLinks": [
@@ -595,6 +621,12 @@
     '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;'
   })[char]);
   const isExternal = value => window.HUB_URLS?.isExternal?.(value) ?? /^(?:https?:|mailto:|tel:)/i.test(String(value || ''));
+  const linkTargetAttrs = (item = {}, href = '') => {
+    const raw = String(item.url || item.href || '').trim();
+    if (raw.startsWith('#')) return '';
+    const newTab = item.openMode === 'new-tab' || item.target === '_blank' || item.newTab === true || isExternal(href);
+    return newTab ? ' target="_blank" rel="noopener noreferrer"' : '';
+  };
   const rootHref = value => window.HUB_URLS?.resolve?.(value, { root:rootUrl }) || (() => {
     const raw = String(value || '').trim();
     if (!raw) return '';
@@ -714,7 +746,7 @@
     box.innerHTML = apps.map(item => {
       const href = rootHref(item.url);
       const active = item.id === current;
-      return `<a class="${active ? 'active' : ''}" href="${escapeHtml(href)}"${isExternal(href) ? ' target="_blank" rel="noopener"' : ''}><span aria-hidden="true">${escapeHtml(appIcon(item))}</span><span class="sidebar-label">${escapeHtml(item.title || 'App')}</span></a>`;
+      return `<a class="${active ? 'active' : ''}" href="${escapeHtml(href)}"${linkTargetAttrs(item, href)}><span aria-hidden="true">${escapeHtml(appIcon(item))}</span><span class="sidebar-label">${escapeHtml(item.title || 'App')}</span></a>`;
     }).join('');
   }
 
@@ -728,7 +760,7 @@
     const items = registry.links || [];
     box.innerHTML = items.length ? items.map(item => {
       const href = rootHref(item.url);
-      return `<a href="${escapeHtml(href)}"${isExternal(href) ? ' target="_blank" rel="noopener"' : ''}><span aria-hidden="true">${escapeHtml(linkIcon(item))}</span><span class="sidebar-label">${escapeHtml(item.title || 'Link')}</span></a>`;
+      return `<a href="${escapeHtml(href)}"${linkTargetAttrs(item, href)}><span aria-hidden="true">${escapeHtml(linkIcon(item))}</span><span class="sidebar-label">${escapeHtml(item.title || 'Link')}</span></a>`;
     }).join('') : '<p class="sidebar-empty">Nenhum atalho cadastrado.</p>';
   }
 
@@ -748,7 +780,7 @@
       const href = rootHref(item.url || fallbackAssistant);
       const icon = item.kind === 'document' ? '📄' : item.kind === 'app' ? appIcon(item) : item.kind === 'answer' ? '💬' : item.kind === 'tool' ? '🧰' : '🔗';
       const content = href
-        ? `<a href="${escapeHtml(href)}"${isExternal(href) ? ' target="_blank" rel="noopener"' : ''}><span aria-hidden="true">${escapeHtml(icon)}</span><span class="sidebar-label">${escapeHtml(item.title || 'Favorito')}</span></a>`
+        ? `<a href="${escapeHtml(href)}"${linkTargetAttrs(item, href)}><span aria-hidden="true">${escapeHtml(icon)}</span><span class="sidebar-label">${escapeHtml(item.title || 'Favorito')}</span></a>`
         : `<span class="sidebar-favorite-static"><span aria-hidden="true">${escapeHtml(icon)}</span><span class="sidebar-label">${escapeHtml(item.title || 'Favorito')}</span></span>`;
       return `<div class="sidebar-favorite-row">${content}<button class="sidebar-favorite-remove" type="button" data-remove-favorite="${escapeHtml(item.id || '')}" aria-label="Remover favorito">×</button></div>`;
     }).join('') : '<p class="sidebar-empty">Nenhum favorito salvo.</p>';

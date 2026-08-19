@@ -64,6 +64,8 @@ def item_from_entry(entry: dict[str, Any], kind: str, position: int) -> dict[str
         "category": compact(entry.get("category") or ("Aplicativos" if kind == "app" else "Links"), 100),
         "tags": tags,
         "url": internal_url(entry.get("url") or entry.get("href")),
+        "openMode": compact(entry.get("openMode"), 30),
+        "format": compact(entry.get("format"), 40),
         "source": "hub-registry",
     }
 

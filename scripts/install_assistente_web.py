@@ -66,6 +66,12 @@ DEFAULT_EXTERNAL_LINKS = (
 
 OFFICIAL_SCHEDULE_LINK_ID = "link-quadro-horario-2026-2"
 OFFICIAL_SCHEDULE_URL_2026_2 = "https://ifbaedubr-my.sharepoint.com/:x:/g/personal/rodrigobonfim_ifba_edu_br/IQCqjeOoMcvWQoiikRSUwWOxAZSOwJaih1qWmWFq5Vxa73Y"
+BAREMA_CURRENT_LINK_ID = "link-barema-atual-planilha"
+BAREMA_CURRENT_URL = "apps/barema/docs/barema-ppc-2024.xlsx"
+BAREMA_LEGACY_LINK_ID = "link-barema-antigo-planilha"
+BAREMA_LEGACY_URL = "apps/barema/docs/barema-ppc-2010-2017.xlsx"
+SPREADSHEET_SUFFIXES = (".xlsx", ".xls", ".ods", ".csv")
+DOCUMENT_SUFFIXES = (".pdf", ".doc", ".docx", ".ppt", ".pptx")
 MANAGED_CONCEPT_ALIASES = {
     "liojes": ["liojes", "liojenes", "liogenes", "liorges", "lioges"],
     "materia": ["matéria", "materia", "matérias", "materias", "mteria", "mterias"],
@@ -227,26 +233,182 @@ def save_hub_data(path: Path, data: dict[str, Any]) -> None:
     write(path, DATA_PREFIX + json.dumps(data, ensure_ascii=False, indent=2) + ";\n")
 
 
+def link_path_suffix(url: object) -> str:
+    raw = str(url or "").strip().split("#", 1)[0].split("?", 1)[0].casefold()
+    for suffix in (*SPREADSHEET_SUFFIXES, *DOCUMENT_SUFFIXES):
+        if raw.endswith(suffix):
+            return suffix
+    return ""
+
+
+def is_file_link(item: dict[str, Any]) -> bool:
+    return bool(link_path_suffix(item.get("url") or item.get("href")))
+
+
+def normalize_tags(values: object, *, remove: tuple[str, ...] = (), add: tuple[str, ...] = ()) -> list[str]:
+    source = values if isinstance(values, list) else ([values] if isinstance(values, str) else [])
+    removed = {normalized(value) for value in remove}
+    result: list[str] = []
+    seen: set[str] = set()
+    for value in [*source, *add]:
+        clean = str(value or "").strip()
+        key = normalized(clean)
+        if clean and key not in removed and key not in seen:
+            seen.add(key)
+            result.append(clean)
+    return result
+
+
+def normalize_useful_link(original: dict[str, Any]) -> dict[str, Any]:
+    item = dict(original)
+    url = str(item.get("url") or item.get("href") or "").strip()
+    suffix = link_path_suffix(url)
+    is_http = url.casefold().startswith(("http://", "https://"))
+    is_anchor = url.startswith("#")
+
+    if suffix in SPREADSHEET_SUFFIXES:
+        item["category"] = "Planilha"
+        item["format"] = suffix.lstrip(".").upper()
+        item["openMode"] = "new-tab"
+        item["tags"] = normalize_tags(item.get("tags"), remove=("google sheets", "ferramenta", "ferramenta do hub"), add=(suffix.lstrip("."), "planilha"))
+    elif suffix in (".pdf", ".doc", ".docx"):
+        item["category"] = "Documento"
+        item["format"] = suffix.lstrip(".").upper()
+        item["openMode"] = "new-tab"
+        item["tags"] = normalize_tags(item.get("tags"), add=(suffix.lstrip("."), "documento"))
+    elif suffix in (".ppt", ".pptx"):
+        item["category"] = "Apresentação"
+        item["format"] = suffix.lstrip(".").upper()
+        item["openMode"] = "new-tab"
+        item["tags"] = normalize_tags(item.get("tags"), add=(suffix.lstrip("."), "apresentação"))
+    elif is_http:
+        # Metadado explícito deixa home/sidebar/favoritos consistentes, mesmo que
+        # o renderer já saiba abrir URLs externas em nova aba.
+        item["openMode"] = "new-tab"
+    elif is_anchor:
+        item.pop("openMode", None)
+
+    return item
+
+
 def apply_managed_link_overrides(items: list[dict[str, Any]]) -> list[dict[str, Any]]:
     updated: list[dict[str, Any]] = []
-    schedule_found = False
+    found_ids: set[str] = set()
     for original in items:
         item = dict(original)
         identifier = str(item.get("id") or "").strip()
         title = normalized(item.get("title") or item.get("name"))
+        url = str(item.get("url") or "").strip()
+
         if identifier == OFFICIAL_SCHEDULE_LINK_ID or "quadro de horario" in title:
-            item["id"] = identifier or OFFICIAL_SCHEDULE_LINK_ID
-            item["url"] = OFFICIAL_SCHEDULE_URL_2026_2
-            schedule_found = True
+            item.update({
+                "id": OFFICIAL_SCHEDULE_LINK_ID,
+                "title": "Quadro de horários 2026.2",
+                "description": str(item.get("description") or "Planilha atual do quadro de horários de aulas."),
+                "url": OFFICIAL_SCHEDULE_URL_2026_2,
+                "category": "Planilha",
+                "format": "XLSX",
+                "openMode": "new-tab",
+                "tags": normalize_tags(item.get("tags"), add=("horários", "planilha", "sharepoint", "2026.2")),
+            })
+            identifier = OFFICIAL_SCHEDULE_LINK_ID
+        elif identifier == BAREMA_CURRENT_LINK_ID or url.casefold().endswith("barema-ppc-2024.xlsx"):
+            item.update({
+                "id": BAREMA_CURRENT_LINK_ID,
+                "title": "Planilha do Barema atual — PPC 2024",
+                "description": str(item.get("description") or "Planilha do Barema de Atividades Complementares da matriz/PPC 2024."),
+                "url": BAREMA_CURRENT_URL,
+                "category": "Planilha",
+                "format": "XLSX",
+                "openMode": "new-tab",
+                "emoji": str(item.get("emoji") or item.get("icon") or "📊"),
+            })
+            item["icon"] = item["emoji"]
+            item["tags"] = normalize_tags(item.get("tags"), remove=("google sheets", "ferramenta", "ferramenta do hub"), add=("barema", "PPC 2024", "xlsx", "planilha"))
+            identifier = BAREMA_CURRENT_LINK_ID
+        elif identifier == BAREMA_LEGACY_LINK_ID or url.casefold().endswith("barema-ppc-2010-2017.xlsx"):
+            item.update({
+                "id": BAREMA_LEGACY_LINK_ID,
+                "title": "Planilha do Barema antigo — matrizes 2010–2017",
+                "description": str(item.get("description") or "Planilha do Barema de Atividades Complementares das matrizes/PPCs 2010–2017."),
+                "url": BAREMA_LEGACY_URL,
+                "category": "Planilha",
+                "format": "XLSX",
+                "openMode": "new-tab",
+                "emoji": str(item.get("emoji") or item.get("icon") or "📊"),
+            })
+            item["icon"] = item["emoji"]
+            item["tags"] = normalize_tags(item.get("tags"), remove=("google sheets", "ferramenta", "ferramenta do hub"), add=("barema", "PPC 2010", "PPC 2017", "xlsx", "planilha"))
+            identifier = BAREMA_LEGACY_LINK_ID
+
+        item = normalize_useful_link(item)
+        if identifier:
+            found_ids.add(identifier)
         updated.append(item)
-    if not schedule_found:
-        updated.append({
+
+    required = (
+        {
             "id": OFFICIAL_SCHEDULE_LINK_ID,
             "title": "Quadro de horários 2026.2",
             "description": "Planilha atual do quadro de horários de aulas.",
             "url": OFFICIAL_SCHEDULE_URL_2026_2,
-        })
-    return updated
+            "category": "Planilha",
+            "format": "XLSX",
+            "openMode": "new-tab",
+            "emoji": "🕒", "icon": "🕒",
+            "tags": ["horários", "planilha", "sharepoint", "2026.2"],
+        },
+        {
+            "id": BAREMA_CURRENT_LINK_ID,
+            "title": "Planilha do Barema atual — PPC 2024",
+            "description": "Planilha do Barema de Atividades Complementares da matriz/PPC 2024.",
+            "url": BAREMA_CURRENT_URL,
+            "category": "Planilha",
+            "format": "XLSX",
+            "openMode": "new-tab",
+            "emoji": "📊", "icon": "📊",
+            "tags": ["barema", "PPC 2024", "xlsx", "planilha"],
+        },
+        {
+            "id": BAREMA_LEGACY_LINK_ID,
+            "title": "Planilha do Barema antigo — matrizes 2010–2017",
+            "description": "Planilha do Barema de Atividades Complementares das matrizes/PPCs 2010–2017.",
+            "url": BAREMA_LEGACY_URL,
+            "category": "Planilha",
+            "format": "XLSX",
+            "openMode": "new-tab",
+            "emoji": "📊", "icon": "📊",
+            "tags": ["barema", "PPC 2010", "PPC 2017", "xlsx", "planilha"],
+        },
+    )
+    for item in required:
+        if item["id"] not in found_ids:
+            updated.append(dict(item))
+
+    # Uma mesma URL/ID podia existir ao mesmo tempo em Apps antigos e Links.
+    # Depois da reclassificação, mantenha uma única entrada canônica e mescle tags.
+    deduped: list[dict[str, Any]] = []
+    id_positions: dict[str, int] = {}
+    url_positions: dict[str, int] = {}
+    for item in updated:
+        identifier = normalized(item.get("id"))
+        url_key = normalized(item.get("url") or item.get("href"))
+        position = id_positions.get(identifier) if identifier else None
+        if position is None and url_key:
+            position = url_positions.get(url_key)
+        if position is not None:
+            existing = deduped[position]
+            existing["tags"] = normalize_tags(existing.get("tags"), add=tuple(str(value) for value in (item.get("tags") or []) if value))
+            if item.get("openMode") == "new-tab":
+                existing["openMode"] = "new-tab"
+            continue
+        position = len(deduped)
+        if identifier:
+            id_positions[identifier] = position
+        if url_key:
+            url_positions[url_key] = position
+        deduped.append(item)
+    return deduped
 
 
 def merge_managed_concept_aliases(data: dict[str, Any]) -> None:
@@ -303,15 +465,20 @@ def update_data_and_registry(previous_registry: dict[str, Any] | None = None) ->
         useful = [item for item in (data.get("usefulLinks") or data.get("links") or []) if isinstance(item, dict)]
         canonical_external = []
 
+    # Arquivos (planilhas/PDFs/documentos) são Links, nunca Apps. Isso também
+    # corrige cadastros históricos em que um .xlsx sob apps/... foi classificado
+    # como ferramenta do HUB apenas por causa do caminho.
+    migrated_file_links = [dict(item) for item in source_apps if is_file_link(item)]
     apps = [
         normalize_app(item) for item in source_apps
         if not is_obsolete_app(item)
+        and not is_file_link(item)
         and item.get("id") != APP_ENTRY["id"]
         and item.get("title") != APP_ENTRY["title"]
         and item.get("url") != APP_ENTRY["url"]
     ]
     apps = [normalize_app(APP_ENTRY), *apps]
-    useful = apply_managed_link_overrides([item for item in useful if not is_obsolete_app(item)])
+    useful = apply_managed_link_overrides([*[item for item in useful if not is_obsolete_app(item)], *migrated_file_links])
     merge_managed_concept_aliases(data)
 
     # Links institucionais obrigatórios continuam protegidos mesmo se uma versão

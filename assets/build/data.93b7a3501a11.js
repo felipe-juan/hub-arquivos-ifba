@@ -12,7 +12,8 @@ window.HUB_DATA = {
         "formulário",
         "solicitação",
         "requerimento"
-      ]
+      ],
+      "openMode": "new-tab"
     },
     {
       "id": "link-fluxograma-atual",
@@ -49,22 +50,24 @@ window.HUB_DATA = {
     },
     {
       "id": "link-quadro-horario-2026-2",
-      "title": "Quadro de horário 2026.2",
+      "title": "Quadro de horários 2026.2",
       "description": "Planilha oficial compartilhada com o quadro de horários do semestre 2026.2.",
       "url": "https://ifbaedubr-my.sharepoint.com/:x:/g/personal/rodrigobonfim_ifba_edu_br/IQCqjeOoMcvWQoiikRSUwWOxAZSOwJaih1qWmWFq5Vxa73Y",
-      "category": "Horários",
+      "category": "Planilha",
       "tags": [
         "quadro de horário",
         "quadro de horarios",
         "horário",
-        "horario",
         "2026.2",
         "aulas",
         "disciplinas",
         "planilha",
         "sharepoint",
-        "semestre"
-      ]
+        "semestre",
+        "horários"
+      ],
+      "format": "XLSX",
+      "openMode": "new-tab"
     },
     {
       "id": "link-calendario-app",
@@ -132,7 +135,7 @@ window.HUB_DATA = {
     },
     {
       "id": "link-barema-atual-planilha",
-      "title": "Planilha do Barema atual",
+      "title": "Planilha do Barema atual — PPC 2024",
       "description": "Arquivo XLSX do Barema de Atividades Complementares aplicável ao PPC 2024.",
       "url": "apps/barema/docs/barema-ppc-2024.xlsx",
       "category": "Planilha",
@@ -144,12 +147,16 @@ window.HUB_DATA = {
         "certificados",
         "PPC 2024",
         "planilha",
-        "google sheets"
-      ]
+        "xlsx"
+      ],
+      "format": "XLSX",
+      "openMode": "new-tab",
+      "emoji": "📊",
+      "icon": "📊"
     },
     {
       "id": "link-barema-antigo-planilha",
-      "title": "Planilha do Barema antigo",
+      "title": "Planilha do Barema antigo — matrizes 2010–2017",
       "description": "Arquivo XLSX do Barema de Atividades Complementares aplicável aos PPCs 2010-2017.",
       "url": "apps/barema/docs/barema-ppc-2010-2017.xlsx",
       "category": "Planilha",
@@ -162,8 +169,13 @@ window.HUB_DATA = {
         "PPC antigo",
         "PPC 2017",
         "planilha",
-        "google sheets"
-      ]
+        "PPC 2010",
+        "xlsx"
+      ],
+      "format": "XLSX",
+      "openMode": "new-tab",
+      "emoji": "📊",
+      "icon": "📊"
     },
     {
       "id": "link-email-coordenacao",
@@ -191,7 +203,8 @@ window.HUB_DATA = {
         "SI",
         "notícias",
         "comunicação"
-      ]
+      ],
+      "openMode": "new-tab"
     },
     {
       "id": "link-instagram-dasi",
@@ -204,7 +217,8 @@ window.HUB_DATA = {
         "DASI",
         "diretório acadêmico",
         "estudantes"
-      ]
+      ],
+      "openMode": "new-tab"
     },
     {
       "id": "link-instagram-btech",
@@ -217,7 +231,8 @@ window.HUB_DATA = {
         "BTECH",
         "empresa júnior",
         "estudantes"
-      ]
+      ],
+      "openMode": "new-tab"
     },
     {
       "id": "link-instagram-sinistra",
@@ -231,7 +246,8 @@ window.HUB_DATA = {
         "atlética",
         "esportes",
         "estudantes"
-      ]
+      ],
+      "openMode": "new-tab"
     },
     {
       "id": "link-caens-estagios",
@@ -245,7 +261,8 @@ window.HUB_DATA = {
         "estágios",
         "blog",
         "setor"
-      ]
+      ],
+      "openMode": "new-tab"
     },
     {
       "id": "link-whatsapp-capne",
@@ -259,7 +276,8 @@ window.HUB_DATA = {
         "acessibilidade",
         "inclusão",
         "contato"
-      ]
+      ],
+      "openMode": "new-tab"
     },
     {
       "id": "link-whatsapp-caens",
@@ -272,7 +290,8 @@ window.HUB_DATA = {
         "whatsapp",
         "estágio",
         "contato"
-      ]
+      ],
+      "openMode": "new-tab"
     },
     {
       "id": "link-whatsapp-cores",
@@ -284,7 +303,8 @@ window.HUB_DATA = {
         "CORES",
         "whatsapp",
         "contato"
-      ]
+      ],
+      "openMode": "new-tab"
     },
     {
       "id": "link-whatsapp-servicos-sociais",
@@ -297,7 +317,8 @@ window.HUB_DATA = {
         "assistência estudantil",
         "whatsapp",
         "contato"
-      ]
+      ],
+      "openMode": "new-tab"
     },
     {
       "id": "link-linktree-dasi",
@@ -311,7 +332,8 @@ window.HUB_DATA = {
         "linktree",
         "estudantes",
         "instagram"
-      ]
+      ],
+      "openMode": "new-tab"
     },
     {
       "id": "link-linktree-btech",
@@ -325,7 +347,8 @@ window.HUB_DATA = {
         "linktree",
         "estudantes",
         "instagram"
-      ]
+      ],
+      "openMode": "new-tab"
     },
     {
       "id": "link-linktree-sinistra",
@@ -339,7 +362,8 @@ window.HUB_DATA = {
         "linktree",
         "esportes",
         "instagram"
-      ]
+      ],
+      "openMode": "new-tab"
     },
     {
       "id": "link-ensalamento-professores",
@@ -356,7 +380,8 @@ window.HUB_DATA = {
         "power bi",
         "painel",
         "salas"
-      ]
+      ],
+      "openMode": "new-tab"
     },
     {
       "id": "link-provas-atividades-passadas",
@@ -374,7 +399,8 @@ window.HUB_DATA = {
         "materiais",
         "estudo",
         "prova"
-      ]
+      ],
+      "openMode": "new-tab"
     }
   ],
   "apps": [

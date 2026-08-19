@@ -227,6 +227,9 @@ assert "hub-assistente-release.json" in installer
 assert "sync_hub_release_markers.py" in installer
 assert (scripts / "sync_hub_release_markers.py").is_file()
 assert "isObsoleteApp" in sidebar_js and ".filter(item => !isObsoleteApp(item))" in sidebar_js
+assert "const linkTargetAttrs" in sidebar_js
+assert "item.openMode === 'new-tab'" in sidebar_js
+assert "${linkTargetAttrs(item, href)}" in sidebar_js
 
 # Normalização real da sidebar sobre uma base com ícones genéricos e links ausentes.
 spec = importlib.util.spec_from_file_location("hub_assistente_installer_test", scripts / "install_assistente_web.py")
@@ -246,10 +249,14 @@ with tempfile.TemporaryDirectory(prefix="hub-sidebar-registry-") as temp_dir:
             {"id": "fluxogramas", "title": "Fluxogramas Curriculares", "url": "apps/fluxogramas/", "emoji": "💼"},
             {"id": "onde-resolvo-isso", "title": "Onde resolvo isso?", "url": "apps/onde-resolvo-isso/", "emoji": "💼"},
             {"id": "app-personalizado", "title": "Ferramenta personalizada", "url": "apps/personalizado/", "emoji": "🌟"},
+            {"id": "planilha-mal-classificada", "title": "Planilha antiga como ferramenta", "url": "apps/barema/docs/planilha-legada.xlsx", "emoji": "🧰", "category": "Ferramentas"},
         ],
         "usefulLinks": [
             {"title": "Biblioteca", "url": "https://example.invalid/biblioteca"},
-            {"id": "link-quadro-horario-2026-2", "title": "Quadro de horários 2026.2", "url": "https://example.invalid/quadro-antigo"},
+            {"id": "link-quadro-horario-2026-2", "title": "Quadro de horário 2026.2", "url": "https://example.invalid/quadro-antigo", "category": "Horários"},
+            {"id": "link-barema-atual-planilha", "title": "Planilha do Barema atual", "url": "apps/barema/docs/barema-ppc-2024.xlsx", "category": "Ferramenta", "tags": ["google sheets", "barema"]},
+            {"id": "link-barema-antigo-planilha", "title": "Planilha do Barema antigo", "url": "apps/barema/docs/barema-ppc-2010-2017.xlsx", "category": "Ferramenta do HUB", "tags": ["google sheets", "barema"]},
+            {"id": "documento-local", "title": "Documento local", "url": "docs/exemplo.pdf", "category": "Link"},
         ],
         "conceptMap": {"contato": ["contato"]},
     }
@@ -278,6 +285,26 @@ with tempfile.TemporaryDirectory(prefix="hub-sidebar-registry-") as temp_dir:
     assert generated_registry["externalLinks"][0]["title"] == "Portal"
     assert generated_registry["externalLinks"][1]["url"] == "https://suap.ifba.edu.br"
     schedule_link = next(item for item in generated_registry["links"] if item.get("id") == installer_module.OFFICIAL_SCHEDULE_LINK_ID)
+    assert schedule_link["url"] == installer_module.OFFICIAL_SCHEDULE_URL_2026_2
+    assert schedule_link["title"] == "Quadro de horários 2026.2"
+    assert schedule_link["category"] == "Planilha"
+    assert schedule_link["format"] == "XLSX"
+    assert schedule_link["openMode"] == "new-tab"
+    current_barema = next(item for item in generated_registry["links"] if item.get("id") == installer_module.BAREMA_CURRENT_LINK_ID)
+    legacy_barema = next(item for item in generated_registry["links"] if item.get("id") == installer_module.BAREMA_LEGACY_LINK_ID)
+    for barema_link in (current_barema, legacy_barema):
+        assert barema_link["category"] == "Planilha"
+        assert barema_link["format"] == "XLSX"
+        assert barema_link["openMode"] == "new-tab"
+        assert "google sheets" not in {str(tag).casefold() for tag in barema_link.get("tags", [])}
+        assert "xlsx" in {str(tag).casefold() for tag in barema_link.get("tags", [])}
+    assert current_barema["url"] == installer_module.BAREMA_CURRENT_URL
+    assert legacy_barema["url"] == installer_module.BAREMA_LEGACY_URL
+    pdf_link = next(item for item in generated_registry["links"] if item.get("id") == "documento-local")
+    assert pdf_link["category"] == "Documento" and pdf_link["openMode"] == "new-tab"
+    assert all(not str(item.get("url") or "").endswith(".xlsx") for item in generated_registry["apps"])
+    migrated_sheet = next(item for item in generated_registry["links"] if item.get("id") == "planilha-mal-classificada")
+    assert migrated_sheet["category"] == "Planilha" and migrated_sheet["openMode"] == "new-tab"
     assert schedule_link["url"] == installer_module.OFFICIAL_SCHEDULE_URL_2026_2
     assert "example.invalid/quadro-antigo" not in json.dumps(generated_registry, ensure_ascii=False)
     assert normalized_data["conceptMap"]["liojes"] == ["liojes", "liojenes", "liogenes", "liorges", "lioges"]
