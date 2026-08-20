@@ -1,6 +1,6 @@
-# Assistente do HUB v2.0.16
+# Assistente do HUB v2.0.22
 
-Frontend web do Assistente integrado ao HUB v0.3.7.
+Frontend web do Assistente integrado ao HUB v0.3.9.
 
 ## Experiência 2.0
 

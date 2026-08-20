@@ -19,14 +19,55 @@
     { id: 'portal', title: 'Portal', url: 'https://portal.ifba.edu.br/conquista', emoji: '🏫' },
     { id: 'suap', title: 'SUAP', url: 'https://suap.ifba.edu.br', emoji: '🔐' }
   ]);
+  const ISSUE_REPORT_WHATSAPP = '5577981357782';
+
+  function compactReportText(value, limit = 520) {
+    const clean = String(value || '').replace(/\s+/g, ' ').trim();
+    return clean.length > limit ? `${clean.slice(0, limit - 1)}…` : clean;
+  }
+
+  function buildIssueReportMessage({ title = '', context = '' } = {}) {
+    let extra = {};
+    try { extra = window.HUB_REPORT_CONTEXT?.() || {}; } catch {}
+    const lines = [
+      '🐞 Reporte de issue — HUB SI',
+      '',
+      `Área: ${compactReportText(extra.area || title || document.title || 'HUB SI', 120)}`,
+      `Contexto: ${compactReportText(extra.context || context || currentAppId() || 'hub', 120)}`,
+      extra.diagnosticId ? `Diagnostic ID: ${compactReportText(extra.diagnosticId, 80)}` : '',
+      extra.mode ? `Modo: ${compactReportText(extra.mode, 60)}` : '',
+      extra.detectedIntent ? `Intenção: ${compactReportText(extra.detectedIntent, 80)}` : '',
+      extra.entity ? `Entidade: ${compactReportText(extra.entity, 140)}` : '',
+      extra.version ? `Versão: ${compactReportText(extra.version, 100)}` : '',
+      `Página: ${location.href}`,
+      extra.conversationTitle ? `Conversa: ${compactReportText(extra.conversationTitle, 120)}` : '',
+      extra.lastUserMessage ? `Última pergunta: ${compactReportText(extra.lastUserMessage)}` : '',
+      extra.lastAssistantMessage ? `Última resposta: ${compactReportText(extra.lastAssistantMessage)}` : '',
+      '',
+      'Descrição do problema:',
+      ''
+    ].filter(line => line !== '');
+    return lines.join('\n');
+  }
+
+  function setupIssueReportButton(button, options = {}) {
+    if (!button || button.dataset.whatsappIssueBound) return;
+    button.dataset.whatsappIssueBound = '1';
+    button.addEventListener('click', () => {
+      const message = buildIssueReportMessage(options);
+      const href = `https://wa.me/${ISSUE_REPORT_WHATSAPP}?text=${encodeURIComponent(message)}`;
+      const opened = window.open(href, '_blank', 'noopener,noreferrer');
+      if (!opened) location.href = href;
+    });
+  }
   const FALLBACK_REGISTRY = Object.freeze(
     /* HUB REGISTRY FALLBACK START */
     {
       "schemaVersion": 2,
-      "version": "2.0.16",
-      "hubVersion": "0.3.7",
+      "version": "2.0.22",
+      "hubVersion": "0.3.9",
       "sourceOfTruth": true,
-      "generatedBy": "hub-assistente-v2.0.16",
+      "generatedBy": "hub-assistente-v2.0.22",
       "apps": [
         {
           "id": "app-assistente-hub",
@@ -874,7 +915,7 @@
       resetDialog?.close();
       location.reload();
     });
-    window.HUB_UI?.setupReportButton?.(document.getElementById('reportIssueButton'), { title: document.title, context: currentAppId() || 'hub' });
+    setupIssueReportButton(document.getElementById('reportIssueButton'), { title: document.title, context: currentAppId() || 'hub' });
     document.addEventListener('click', event => {
       const button = event.target.closest('[data-remove-favorite]');
       if (!button) return;

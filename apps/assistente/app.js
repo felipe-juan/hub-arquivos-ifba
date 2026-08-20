@@ -2,7 +2,7 @@
   'use strict';
 
   const CONFIG = window.HUB_ASSISTANT_CONFIG || {};
-  const FRONTEND_RELEASE = '2.0.16-ux-offline-history-v2';
+  const FRONTEND_RELEASE = '2.0.22-ux-offline-history-v2';
   const STORAGE_KEY = 'hubAssistantStateV1';
   const SETTINGS_KEY = 'hubAssistantSettingsV1';
   const FAVORITES_KEY = 'hubFavoritesV2';
@@ -25,7 +25,8 @@
     try { localStorage.setItem(POPULAR_CACHE_KEY, JSON.stringify(cache || {})); } catch {}
   }
 
-  const initialPopularPeriod = localStorage.getItem('hubPopularPeriodV1') === 'week' ? 'week' : 'today';
+  const storedPopularPeriod = localStorage.getItem('hubPopularPeriodV1');
+  const initialPopularPeriod = ['today','week','month'].includes(storedPopularPeriod) ? storedPopularPeriod : 'today';
   const initialPopularCache = loadPopularCache();
   const initialPopularItems = Array.isArray(initialPopularCache?.[initialPopularPeriod]?.items) ? initialPopularCache[initialPopularPeriod].items.slice(0, 8) : [];
   const state = {
@@ -534,17 +535,19 @@
       button.classList.toggle('active', active);
       button.setAttribute('aria-pressed', String(active));
     });
-    const periodLabel = state.popularPeriod === 'week' ? 'nesta semana' : 'hoje';
+    const periodLabel = state.popularPeriod === 'month' ? 'nos últimos 30 dias' : state.popularPeriod === 'week' ? 'nos últimos 7 dias' : 'nas últimas 24 horas';
     const title = $('popularTitle');
     const subtitle = $('popularSubtitle');
-    if (title) title.textContent = state.popularPeriod === 'week' ? '🔥 Mais perguntadas da semana' : '🔥 Mais perguntadas hoje';
+    if (title) title.textContent = state.popularPeriod === 'month' ? '🔥 Mais perguntadas do mês' : state.popularPeriod === 'week' ? '🔥 Mais perguntadas da semana' : '🔥 Mais perguntadas hoje';
     if (subtitle) subtitle.textContent = state.popularStale
       ? 'Exibindo o último resultado salvo; a atualização global será retomada quando a API responder.'
       : 'Perguntas acadêmicas agrupadas sem identificar usuários. Atualizações não apagam o histórico.';
     if (!state.popularQuestions.length) {
       list.innerHTML = state.popularPeriod === 'today'
-        ? '<div class="saved-empty">Hoje ainda não há consultas classificadas. O histórico não foi apagado; <button type="button" class="inline-link-button" data-popular-period="week">ver a semana</button>.</div>'
-        : '<div class="saved-empty">Ainda não há perguntas suficientes nesta semana. O histórico armazenado não é zerado por atualizações do HUB.</div>';
+        ? '<div class="saved-empty">Ainda não há consultas classificadas nas últimas 24 horas. <button type="button" class="inline-link-button" data-popular-period="week">Ver 7 dias</button>.</div>'
+        : state.popularPeriod === 'week'
+          ? '<div class="saved-empty">Ainda não há perguntas suficientes nos últimos 7 dias. <button type="button" class="inline-link-button" data-popular-period="month">Ver 30 dias</button>.</div>'
+          : '<div class="saved-empty">Ainda não há perguntas suficientes nos últimos 30 dias. O histórico armazenado não é zerado por atualizações do HUB.</div>';
       return;
     }
     list.innerHTML = state.popularQuestions.slice(0, 8).map((item, index) => {
@@ -577,7 +580,7 @@
   }
 
   function setPopularPeriod(period) {
-    const clean = period === 'week' ? 'week' : 'today';
+    const clean = ['today','week','month'].includes(period) ? period : 'today';
     if (state.popularPeriod === clean) return;
     state.popularPeriod = clean;
     try { localStorage.setItem('hubPopularPeriodV1', clean); } catch {}
@@ -742,6 +745,26 @@
     state.conversation = conversation;
     return conversation;
   }
+
+  window.HUB_REPORT_CONTEXT = () => {
+    const conversation = currentConversation();
+    const messages = (conversation?.messages || []).filter(message => !message.streaming && message.text);
+    const lastUser = [...messages].reverse().find(message => message.role === 'user');
+    const lastAssistant = [...messages].reverse().find(message => message.role === 'assistant');
+    const meta = lastAssistant?.meta && typeof lastAssistant.meta === 'object' ? lastAssistant.meta : {};
+    const entity = [meta.entityType, meta.entityKey].filter(Boolean).join(':');
+    return {
+      area:'Assistente do HUB', context:'assistente',
+      version:String(meta.oneClickVersion ? `one-click ${meta.oneClickVersion} / assistente ${meta.version || ''}` : FRONTEND_RELEASE),
+      diagnosticId:String(meta.diagnosticId || ''),
+      mode:String(meta.mode || ''),
+      detectedIntent:String(meta.intent || ''),
+      entity,
+      conversationTitle:String(conversation?.title || ''),
+      lastUserMessage:String(lastUser?.text || ''),
+      lastAssistantMessage:String(lastAssistant?.text || '')
+    };
+  };
 
   function findConversationContainingMessage(messageId) {
     if (!messageId) return null;
@@ -1047,8 +1070,12 @@
         ${[
           ['wrong-information','Informação errada'],
           ['misunderstood','Não entendeu a pergunta'],
+          ['incomplete','Resposta incompleta'],
           ['wrong-source','Fonte errada'],
-          ['confusing','Resposta confusa']
+          ['wrong-link','Link errado'],
+          ['outdated','Informação desatualizada'],
+          ['confusing','Resposta confusa'],
+          ['other','Outro problema']
         ].map(([value,label]) => `<button type="button" role="menuitem" data-feedback-reason="${value}" data-message="${escapeHtml(message.id)}">${label}</button>`).join('')}
         <button type="button" role="menuitem" data-correction-message="${escapeHtml(message.id)}">Informar correção</button>
       </div>` : '';
@@ -2135,8 +2162,13 @@ O calendário de 2026 está disponível no conteúdo local do HUB. Você pode ab
   const FEEDBACK_REASONS = Object.freeze({
     'wrong-information':'Informação errada',
     'misunderstood':'Não entendeu a pergunta',
+    'incomplete':'Resposta incompleta',
     'wrong-source':'Fonte errada',
-    'confusing':'Resposta confusa'
+    'wrong-link':'Link errado',
+    'outdated':'Informação desatualizada',
+    'confusing':'Resposta confusa',
+    'other':'Outro problema',
+    'correction':'Correção sugerida'
   });
 
   async function sendFeedback(messageId, value, reason = '') {
@@ -2152,10 +2184,12 @@ O calendário de 2026 está disponível no conteúdo local do HUB. Você pode ab
     showToast(nextValue === 'helpful' ? 'Salvo como útil' : nextValue === 'not-helpful' ? `${reasonLabel || 'Problema'} registrado` : 'Feedback removido');
     if (!nextValue) return;
     try {
+      const knownReasonCode = Object.prototype.hasOwnProperty.call(FEEDBACK_REASONS, reason) ? reason : (String(reason || '').startsWith('Correção sugerida:') ? 'correction' : '');
       await request(CONFIG.feedbackPath || '/api/assistant/feedback', {
         sessionId: currentConversation().sessionId,
         messageId: message.serverId || message.id,
         value: nextValue,
+        reasonCode: knownReasonCode,
         comment: reasonLabel
       }, 8000);
     } catch {

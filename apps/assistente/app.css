@@ -559,7 +559,7 @@ body.assistant-compact-height .composer-area { min-height: 58px; padding-top: .4
 .popular-head > div:first-child { min-width: 0; display: grid; gap: .18rem; }
 .popular-head strong { line-height: 1.25; }
 .popular-head small { max-width: 62ch; line-height: 1.42; }
-.popular-period-toggle { justify-self: end; display: inline-grid; grid-template-columns: repeat(2, minmax(0, 1fr)); padding: 3px; gap: 2px; border: 1px solid var(--line); border-radius: 999px; background: color-mix(in srgb, var(--surface-2) 82%, transparent); }
+.popular-period-toggle { justify-self: end; display: inline-grid; grid-template-columns: repeat(3, minmax(0, 1fr)); padding: 3px; gap: 2px; border: 1px solid var(--line); border-radius: 999px; background: color-mix(in srgb, var(--surface-2) 82%, transparent); }
 .popular-period-toggle button { min-width: 68px; min-height: 32px; padding: .32rem .68rem; border: 0; border-radius: 999px; background: transparent; color: var(--muted); font-size: .72rem; font-weight: 780; line-height: 1; box-shadow: none; }
 .popular-period-toggle button:hover { transform: none; color: var(--text); }
 .popular-period-toggle button.active { background: color-mix(in srgb, var(--cyan) 14%, var(--surface)); color: var(--cyan); }
