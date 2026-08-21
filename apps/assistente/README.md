@@ -1,4 +1,4 @@
-# Assistente do HUB v2.0.24
+# Assistente do HUB v2.0.30
 
 Frontend web do Assistente integrado ao HUB v0.3.9.
 

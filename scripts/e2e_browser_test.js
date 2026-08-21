@@ -10,7 +10,7 @@ class CDP{
   constructor(url){this.url=url;this.id=0;this.pending=new Map()}
   async open(){this.ws=new WebSocket(this.url);this.ws.onmessage=e=>{const d=JSON.parse(String(e.data));if(d.id&&this.pending.has(d.id)){const {resolve,reject}=this.pending.get(d.id);this.pending.delete(d.id);d.error?reject(new Error(JSON.stringify(d.error))):resolve(d.result||{})}};await new Promise((res,rej)=>{this.ws.onopen=res;this.ws.onerror=rej})}
   call(method,params={}){const id=++this.id;return new Promise((resolve,reject)=>{this.pending.set(id,{resolve,reject});this.ws.send(JSON.stringify({id,method,params}));setTimeout(()=>{if(this.pending.delete(id))reject(new Error(`CDP timeout: ${method}`))},8000)})}
-  async eval(expression){const r=await this.call('Runtime.evaluate',{expression,returnByValue:true,awaitPromise:true,userGesture:true});if(r.exceptionDetails)throw new Error(`JS E2E: ${JSON.stringify(r.exceptionDetails)}`);return r.result?.value}
+  async eval(expression){try{new Function(String(expression))}catch(error){throw new Error(`JS E2E preflight inválido: ${error.message}; expressão=${String(expression).slice(0,240)}`)}const r=await this.call('Runtime.evaluate',{expression,returnByValue:true,awaitPromise:true,userGesture:true});if(r.exceptionDetails)throw new Error(`JS E2E: ${JSON.stringify(r.exceptionDetails)}`);return r.result?.value}
   async waitJs(expression,timeout=12000){const end=Date.now()+timeout;while(Date.now()<end){try{if(await this.eval(expression))return}catch{}await sleep(150)}throw new Error(`Timeout aguardando: ${expression}`)}
   close(){try{this.ws.close()}catch{}}
 }
@@ -76,8 +76,52 @@ function cleanupTemp(dir){if(!dir)return;for(let attempt=0;attempt<8;attempt++){
       await cdp.waitJs("document.querySelector('#anonymousModeToggle').getAttribute('aria-pressed')==='true'",3000);
       await cdp.eval("document.querySelector('#anonymousModeToggle').click()");
       await cdp.waitJs("document.querySelector('#anonymousModeToggle').getAttribute('aria-pressed')==='false'",3000);
+      // Regressões críticas do frontend local: ele responde antes do backend,
+      // então humor, Classroom e attachments precisam estar corretos já na
+      // resposta instantânea e continuar corretos após a sincronização.
+      let criticalBefore=await cdp.eval("document.querySelectorAll('.message-row.assistant:not(.typing-row)').length");
+      await cdp.eval("document.querySelector('#messageInput').value='como passar em calculo';document.querySelector('#messageInput').dispatchEvent(new Event('input',{bubbles:true}));document.querySelector('#sendMessage').click()");
+      await cdp.waitJs(`document.querySelectorAll('.message-row.assistant:not(.typing-row)').length>${criticalBefore}`,5000);
+      if(!await cdp.eval("(()=>{const e=[...document.querySelectorAll('.message-row.assistant:not(.typing-row)')].at(-1);return /Depende da sua religião/i.test(e?.textContent||'')&&!!e?.querySelector('.attachment-preview img[src*=\"d9luxe-cry.gif\"]')})()"))throw new Error('frontend local atropelou o card de humor de Cálculo ou perdeu o GIF');
+      criticalBefore=await cdp.eval("document.querySelectorAll('.message-row.assistant:not(.typing-row)').length");
+      await cdp.eval("document.querySelector('#messageInput').value='sala de IHM';document.querySelector('#messageInput').dispatchEvent(new Event('input',{bubbles:true}));document.querySelector('#sendMessage').click()");
+      await cdp.waitJs(`document.querySelectorAll('.message-row.assistant:not(.typing-row)').length>${criticalBefore}`,5000);
+      if(!await cdp.eval("(()=>{const e=[...document.querySelectorAll('.message-row.assistant:not(.typing-row)')].at(-1);return /Interface Homem Máquina/i.test(e?.textContent||'')&&/lgfnaife/i.test(e?.textContent||'')})()"))throw new Error('frontend local não exibiu código Classroom de IHM na consulta de sala');
+      criticalBefore=await cdp.eval("document.querySelectorAll('.message-row.assistant:not(.typing-row)').length");
+      await cdp.eval("document.querySelector('#messageInput').value='classroom de OSM';document.querySelector('#messageInput').dispatchEvent(new Event('input',{bubbles:true}));document.querySelector('#sendMessage').click()");
+      await cdp.waitJs(`document.querySelectorAll('.message-row.assistant:not(.typing-row)').length>${criticalBefore}`,5000);
+      if(!await cdp.eval("(()=>{const e=[...document.querySelectorAll('.message-row.assistant:not(.typing-row)')].at(-1);return /Organização, Sistemas e Métodos/i.test(e?.textContent||'')&&/vw5tlf7r/i.test(e?.textContent||'')})()"))throw new Error('frontend local não exibiu código Classroom de OSM');
+      criticalBefore=await cdp.eval("document.querySelectorAll('.message-row.assistant:not(.typing-row)').length");
+      await cdp.eval("document.querySelector('#messageInput').value='código do classroom de contabilidade';document.querySelector('#messageInput').dispatchEvent(new Event('input',{bubbles:true}));document.querySelector('#sendMessage').click()");
+      await cdp.waitJs(`document.querySelectorAll('.message-row.assistant:not(.typing-row)').length>${criticalBefore}`,5000);
+      if(!await cdp.eval("(()=>{const e=[...document.querySelectorAll('.message-row.assistant:not(.typing-row)')].at(-1);return /Contabilidade Geral e Custos/i.test(e?.textContent||'')&&/fbrgcmkr/i.test(e?.textContent||'')})()"))throw new Error('frontend/API não exibiu código Classroom de Contabilidade');
+      criticalBefore=await cdp.eval("document.querySelectorAll('.message-row.assistant:not(.typing-row)').length");
+      await cdp.eval("document.querySelector('#messageInput').value='quero trancar cálculo';document.querySelector('#messageInput').dispatchEvent(new Event('input',{bubbles:true}));document.querySelector('#sendMessage').click()");
+      await cdp.waitJs(`document.querySelectorAll('.message-row.assistant:not(.typing-row)').length>${criticalBefore}&&!document.querySelector('.typing-row')`,10000);
+      if(!await cdp.eval("(()=>{const e=[...document.querySelectorAll('.message-row.assistant:not(.typing-row)')].at(-1);const t=e?.textContent||'';return /trancar disciplina|Trancamento de Disciplina/i.test(t)&&t.includes('04/09/2026')&&!/Depende da sua religião/i.test(t)})()"))throw new Error('trancamento explícito foi atropelado por Cálculo no frontend/API');
+      criticalBefore=await cdp.eval("document.querySelectorAll('.message-row.assistant:not(.typing-row)').length");
+      await cdp.eval("document.querySelector('#messageInput').value='barema antigo';document.querySelector('#messageInput').dispatchEvent(new Event('input',{bubbles:true}));document.querySelector('#sendMessage').click()");
+      await cdp.waitJs(`document.querySelectorAll('.message-row.assistant:not(.typing-row)').length>${criticalBefore}&&!document.querySelector('.typing-row')`,10000);
+      if(!await cdp.eval("(()=>{const e=[...document.querySelectorAll('.message-row.assistant:not(.typing-row)')].at(-1);return /2010.{0,5}2017|2010–2017/i.test(e?.textContent||'')})()"))throw new Error('atalho local de Barema atropelou o Barema antigo');
+      criticalBefore=await cdp.eval("document.querySelectorAll('.message-row.assistant:not(.typing-row)').length");
+      await cdp.eval("document.querySelector('#messageInput').value='não consigo entrar no suap';document.querySelector('#messageInput').dispatchEvent(new Event('input',{bubbles:true}));document.querySelector('#sendMessage').click()");
+      await cdp.waitJs(`document.querySelectorAll('.message-row.assistant:not(.typing-row)').length>${criticalBefore}&&!document.querySelector('.typing-row')`,10000);
+      if(!await cdp.eval("(()=>{const e=[...document.querySelectorAll('.message-row.assistant:not(.typing-row)')].at(-1);return /Problema de acesso ao SUAP/i.test(e?.textContent||'')})()"))throw new Error('atalho local de SUAP atropelou o suporte de acesso');
+      criticalBefore=await cdp.eval("document.querySelectorAll('.message-row.assistant:not(.typing-row)').length");
+      await cdp.eval("document.querySelector('#messageInput').value='aulas dia 4';document.querySelector('#messageInput').dispatchEvent(new Event('input',{bubbles:true}));document.querySelector('#sendMessage').click()");
+      await cdp.waitJs(`document.querySelectorAll('.message-row.assistant:not(.typing-row)').length>${criticalBefore}&&!document.querySelector('.typing-row')`,10000);
+      if(!await cdp.eval("(()=>{const e=[...document.querySelectorAll('.message-row.assistant:not(.typing-row)')].at(-1);const t=e?.textContent||'';return /Qual semestre você quer consultar/i.test(t)&&!/4º semestre/i.test(t)})()"))throw new Error('dia 4 foi confundido com 4º semestre no frontend/API');
+      // Respostas fechadas criam uma fronteira real no histórico local: depois de
+      // Auxílio, um follow-up não pode ressuscitar Cálculo de turnos anteriores.
+      for(const q of ['sala de calculo','auxilio','e a sala?']){
+        criticalBefore=await cdp.eval("document.querySelectorAll('.message-row.assistant:not(.typing-row)').length");
+        await cdp.eval(`(()=>{const input=document.querySelector('#messageInput');input.value=${JSON.stringify(q)};input.dispatchEvent(new Event('input',{bubbles:true}));document.querySelector('#sendMessage').click()})()`);
+        await cdp.waitJs(`document.querySelectorAll('.message-row.assistant:not(.typing-row)').length>${criticalBefore}&&!document.querySelector('.typing-row')`,10000);
+      }
+      if(!await cdp.eval("(()=>{const e=[...document.querySelectorAll('.message-row.assistant:not(.typing-row)')].at(-1);const t=e?.textContent||'';return !/Cálculo Diferencial|CDAC|H008|H202/i.test(t)&&/(contexto|disciplina|professor|referência|referencia)/i.test(t)})()"))throw new Error('frontend ressuscitou contexto antigo de Cálculo após Auxílio');
       await cdp.eval("document.querySelector('#messageInput').value='calendário';document.querySelector('#messageInput').dispatchEvent(new Event('input',{bubbles:true}));document.querySelector('#sendMessage').click()");
       await cdp.waitJs("document.querySelectorAll('.message-row.assistant:not(.typing-row)').length>0&&!document.querySelector('.typing-row')",18000);await cdp.waitJs("!!document.querySelector('[data-favorite-message]')",5000);
+      if(!await cdp.eval("(()=>{const e=[...document.querySelectorAll('.message-row.assistant:not(.typing-row)')].at(-1);return !!e?.querySelector('.attachment-preview img[src*=\"calendario-academico-2026.png\"]')})()"))throw new Error('calendário não exibiu a imagem attachment no frontend');
       await cdp.eval("document.querySelector('[data-favorite-message]').click()");await cdp.waitJs("document.querySelector('[data-favorite-message]').getAttribute('aria-pressed')==='true'",4000);
       if(!await cdp.eval("JSON.parse(localStorage.getItem('hubFavoritesV2')||'[]').length>0"))throw new Error('favorito global não persistiu');
       if(!await cdp.eval("Number(document.querySelector('#sidebarFavoritesCount')?.textContent||0)>=1"))throw new Error('sidebar não refletiu favorito global');

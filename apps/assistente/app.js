@@ -2,7 +2,7 @@
   'use strict';
 
   const CONFIG = window.HUB_ASSISTANT_CONFIG || {};
-  const FRONTEND_RELEASE = '2.0.24-ux-offline-history-v2';
+  const FRONTEND_RELEASE = '2.0.30-ux-offline-history-v2';
   const STORAGE_KEY = 'hubAssistantStateV1';
   const SETTINGS_KEY = 'hubAssistantSettingsV1';
   const FAVORITES_KEY = 'hubFavoritesV2';
@@ -795,9 +795,10 @@
     if (discipline) return `Horários de ${discipline}`.slice(0,100);
     if (semester) return `Horários do ${semester}º semestre`;
     const localProfessor = state.offlineAcademic ? localProfessorFor(query) : null;
-    if (localProfessor) return `Professor ${localProfessor.name.split(' ').slice(0,2).join(' ')}`.slice(0,100);
+    const titleAcademicCue = hasLocalAcademicCue(query);
+    if (localProfessor && titleAcademicCue) return `Professor ${localProfessor.name.split(' ').slice(0,2).join(' ')}`.slice(0,100);
     const localDiscipline = state.offlineAcademic ? localDisciplineFor(query) : null;
-    if (localDiscipline) return (/\bsala\b/u.test(query) ? `Sala de ${localDiscipline}` : `Horários de ${localDiscipline}`).slice(0,100);
+    if (localDiscipline && titleAcademicCue) return (/\b(?:sala|classroom)\b/u.test(query) ? `Sala de ${localDiscipline}` : `Horários de ${localDiscipline}`).slice(0,100);
     const localSemester = localSemesterFor(query);
     if (localSemester && /\b(?:horario|horarios|aula|aulas|semestre)\b/u.test(query)) return `Horários do ${localSemester}º semestre`;
     return safeText(text).replace(/\s+/g,' ').trim().slice(0,72) || 'Nova conversa';
@@ -843,6 +844,16 @@
     await saveState({immediate:true});
     syncActiveContextUi();
     showToast('Contexto limpo; a conversa foi preservada');
+  }
+
+  function markLocalContextBoundary(conversation = currentConversation(), at = Date.now()) {
+    if (!conversation) return;
+    conversation.contextClearedAt=Math.max(Number(conversation.contextClearedAt || 0), Number(at || Date.now()));
+  }
+
+  function responseClosesContext(data = null) {
+    if (!data || typeof data !== 'object' || !Object.prototype.hasOwnProperty.call(data,'context')) return false;
+    return !data.context && !Boolean(data.meta?.usedPriorContext);
   }
 
   function syncViewUi() {
@@ -1722,8 +1733,11 @@
   }
 
   function localSemesterFor(query) {
-    const direct = query.match(/(?:semestre\s*)?(\d)\s*(?:o|º)?(?:\s*semestre)?\b/u);
-    if (direct && Number(direct[1]) >= 1 && Number(direct[1]) <= 8) return Number(direct[1]);
+    // Nunca trate um número solto como semestre. "aula dia 4" é uma data,
+    // não uma consulta ao 4º semestre.
+    const direct = query.match(/(?:^|\s)(?:semestre|periodo)\s*([1-8])(?:\s|$)|(?:^|\s)([1-8])\s*(?:semestre|periodo)(?:\s|$)/u);
+    const directNumber = Number(direct?.[1] || direct?.[2] || 0);
+    if (directNumber >= 1 && directNumber <= 8) return directNumber;
     const words = { primeiro:1, segundo:2, terceiro:3, quarto:4, quinto:5, sexto:6, setimo:7, oitavo:8, i:1, ii:2, iii:3, iv:4, v:5, vi:6, vii:7, viii:8 };
     for (const [word, number] of Object.entries(words)) if (containsNormalizedPhrase(query, `${word} semestre`) || containsNormalizedPhrase(query, `semestre ${word}`)) return number;
     return 0;
@@ -1742,8 +1756,51 @@
     } catch { return ''; }
   }
 
-  function formatLocalScheduleRows(rows = []) {
-    return rows.map(row => `• *${row.discipline}* — ${row.day}, ${row.hours}\n  Professor: ${row.professor}\n  Sala: *${row.room || 'não informada'}*`).join('\n\n');
+  function localClassroomCodeForRow(row = {}) {
+    const data = state.offlineAcademic || {};
+    const byDiscipline = data.classroomCodes20262 || {};
+    return String(byDiscipline[row.discipline] || '').trim();
+  }
+
+  function formatLocalScheduleRows(rows = [], { includeClassroom = false } = {}) {
+    return rows.map(row => {
+      const code = includeClassroom ? localClassroomCodeForRow(row) : '';
+      return `• *${row.discipline}* — ${row.day}, ${row.hours}\n  Professor: ${row.professor}\n  Sala: *${row.room || 'não informada'}*${code ? `\n  Código do Classroom — 2026.2: \`${code}\`` : ''}`;
+    }).join('\n\n');
+  }
+
+  function isLocalCalculusHumorRequest(query = '') {
+    const q = normalizeOffline(query);
+    return /\b(?:como|dicas?|jeito|forma|segredo)\b[\s\S]{0,90}\b(?:passar|aprovar|aprovado|aprovada)\b[\s\S]{0,70}\b(?:calculo|calc)\b/u.test(q)
+      || /\b(?:calculo|calc)\b[\s\S]{0,70}\b(?:como|dicas?|jeito|forma|segredo)\b[\s\S]{0,90}\b(?:passar|aprovar|aprovado|aprovada)\b/u.test(q);
+  }
+
+  function isSimpleLocalSuapRequest(query = '') {
+    return /^(?:suap|abrir suap|abre suap|acessar suap|acesso ao suap|link do suap|qual o link do suap|onde entro no suap)$/u.test(query);
+  }
+
+  function isSimpleLocalBaremaRequest(query = '') {
+    if (!/\bbarema\b/u.test(query)) return false;
+    if (/\b(?:atual|novo|antigo|anterior|2010|2017|2024|ppc|matriz|comprovante|comprovacao|comprovação|classificar|encaixar|item)\b/u.test(query)) return false;
+    return /^(?:barema|abrir barema|abre o barema|quero o barema|link do barema|planilha do barema|barema de atividades complementares)$/u.test(query);
+  }
+
+  function isSimpleLocalPpcRequest(query = '') {
+    return /^(?:ppc|ppc do bsi|abrir ppc|abre o ppc|quero o ppc|link do ppc|projeto pedagogico|projeto pedagogico do curso|me mostre o ppc)$/u.test(query);
+  }
+
+  function isSimpleLocalCalendarRequest(query = '') {
+    if (!/\bcalendario\b/u.test(query)) return false;
+    if (/\b(?:trancar|trancamento|matricula|rematricula|estagio|tcc|barema|auxilio|paae|protocolo|jubilamento|requisito|equivalencia|aproveitamento)\b/u.test(query)) return false;
+    return /^(?:calendario|calendario academico|calendario letivo|calendario do ifba|abrir calendario|abre o calendario|link do calendario|qual o calendario|onde esta o calendario|calendario 2026|calendario 2026 2)$/u.test(query);
+  }
+
+  function isSimpleLocalAssistanceRequest(query = '') {
+    return /^(?:auxilio|auxilios|auxilio estudantil|auxilios estudantis|assistencia estudantil|paae|quais auxilios|quais auxilios estudantis|como pedir auxilio|como pedir auxilio estudantil)$/u.test(query);
+  }
+
+  function hasLocalAcademicCue(query = '') {
+    return /\b(?:sala|salas|classroom|horario|horarios|aula|aulas|dia|dias|professor|professora|quem da|quem ensina|email|e mail|contato|segunda|terca|quarta|quinta|sexta|sabado|domingo|hoje|amanha)\b/u.test(query);
   }
 
   function localSourceKnowledge({ title = '', url = '', verifiedAt = '', status = 'vigente' } = {}) {
@@ -1759,16 +1816,24 @@
     const has = (...terms) => terms.some(term => containsNormalizedPhrase(query, term));
     const localAction = (title, url, label = 'Abrir') => ({ type:'hub-actions', title, actions:[{ id:`local-${normalizeOffline(title).replace(/\s+/g,'-')}`, label, kind:'open-url', url }] });
 
-    if (allowShortcuts && has('auxilio','auxilios','assistencia estudantil','paae')) {
-      const a = data.assistance || {};
-      return { text:a.text || 'Consulte o PAAE e o Serviço Social do campus.', components:a.sourceUrl ? [localAction('Assistência estudantil', a.sourceUrl, 'Abrir página oficial')] : [], knowledge:localSourceKnowledge({title:a.sourceTitle,url:a.sourceUrl,verifiedAt:a.verifiedAt}), context:{kind:'student-assistance',title:'Auxílios estudantis'}, titleHint:'Auxílios estudantis', sync:true, subject:'Auxílios estudantis' };
+    if (allowShortcuts && isLocalCalculusHumorRequest(query)) {
+      return {
+        text:'Depende da sua religião:\n- Se católico, apele para todos os santos;\n- Se evangélico, faça jejum e campanha de oração;\n- Se for umbanda/candomblé, faça despacho pras entidades e pros orixás;\n- Se for ateu, apenas lamento.',
+        attachment:{ kind:'gif', mime:'image/gif', mimeType:'image/gif', fileName:'d9luxe-cry.gif', url:'https://media1.tenor.com/m/BCrME2FPFTYAAAAd/d9luxe-cry.gif' },
+        context:null, clearsContext:true, titleHint:'Como passar em Cálculo?', sync:true, subject:'Como Passar em Cálculo?'
+      };
     }
-    if (allowShortcuts && has('suap')) {
+
+    if (allowShortcuts && isSimpleLocalAssistanceRequest(query)) {
+      const a = data.assistance || {};
+      return { text:a.text || 'Consulte o PAAE e o Serviço Social do campus.', components:a.sourceUrl ? [localAction('Assistência estudantil', a.sourceUrl, 'Abrir página oficial')] : [], knowledge:localSourceKnowledge({title:a.sourceTitle,url:a.sourceUrl,verifiedAt:a.verifiedAt}), context:null, clearsContext:true, titleHint:'Auxílios estudantis', sync:true, subject:'Auxílios estudantis' };
+    }
+    if (allowShortcuts && isSimpleLocalSuapRequest(query)) {
       const item=data.shortcuts?.suap || {};
       const suapUrl=String(item.url || '').trim();
-      return { text:'O SUAP é o sistema acadêmico do IFBA. Você pode abrir o portal diretamente pelo botão abaixo.', components:suapUrl ? [localAction('SUAP', suapUrl, 'Abrir SUAP')] : [], context:{kind:'app',title:'SUAP'}, titleHint:'SUAP', sync:true, subject:'SUAP' };
+      return { text:'O SUAP é o sistema acadêmico do IFBA. Você pode abrir o portal diretamente pelo botão abaixo.', components:suapUrl ? [localAction('SUAP', suapUrl, 'Abrir SUAP')] : [], context:null, clearsContext:true, titleHint:'SUAP', sync:true, subject:'SUAP' };
     }
-    if (allowShortcuts && has('barema')) {
+    if (allowShortcuts && isSimpleLocalBaremaRequest(query)) {
       const item=data.shortcuts?.barema || {};
       const baremaUrl=String(item.url || '').trim();
       const officialUrl=String(item.officialUrl || '').trim();
@@ -1780,14 +1845,14 @@
       const text=spreadsheetUrl
         ? 'Você pode abrir o app do Barema no HUB e também a planilha oficial.'
         : 'Você pode abrir o app do Barema no HUB. A URL de uma planilha oficial separada ainda não está cadastrada neste pacote; por isso, o Assistente mostra o regulamento oficial da matriz atual em vez de inventar um link.';
-      return { text, components, context:{kind:'document',title:'Barema'}, titleHint:'Barema de atividades complementares', sync:true, subject:'Barema' };
+      return { text, components, context:null, clearsContext:true, titleHint:'Barema de atividades complementares', sync:true, subject:'Barema' };
     }
-    if (allowShortcuts && (has('ppc') || has('projeto pedagogico'))) {
+    if (allowShortcuts && isSimpleLocalPpcRequest(query)) {
       const matches=findOfflineItems('PPC BSI',3).filter(item=>item.kind==='document');
       const first=matches[0];
-      if (first) return { text:`Encontrei *${first.title}* no conteúdo local do HUB.`, components:[{type:'document',title:first.title,url:first.url,page:Number(first.page||0),heading:first.summary||''}], context:{kind:'document',title:first.title}, titleHint:'PPC do BSI', sync:true, subject:`Documento — ${first.title}` };
+      if (first) return { text:`Encontrei *${first.title}* no conteúdo local do HUB.`, components:[{type:'document',title:first.title,url:first.url,page:Number(first.page||0),heading:first.summary||''}], context:null, clearsContext:true, titleHint:'PPC do BSI', sync:true, subject:`Documento — ${first.title}` };
     }
-    if (allowShortcuts && has('calendario','calendário')) {
+    if (allowShortcuts && isSimpleLocalCalendarRequest(query)) {
       const item=data.shortcuts?.calendar || {};
       const pdfUrl=String(item.pdfUrl || '').trim();
       const appUrl=String(item.url || '').trim();
@@ -1800,10 +1865,10 @@
         text:`📅 *Calendário acadêmico*
 
 O calendário de 2026 está disponível no conteúdo local do HUB. Você pode abrir o PDF oficial ou usar o app de calendário para procurar datas específicas.`,
-        attachment:{ kind:'image', mime:'image/png', mimeType:'image/png', fileName:'calendario-academico-2026.png', url:'assets/calendario-academico-2026.png' },
+        attachment:{ kind:'image', mime:'image/png', mimeType:'image/png', fileName:'calendario-academico-2026.png', url:'apps/assistente/assets/calendario-academico-2026.png' },
         components,
         sources:source ? [source] : [], knowledge:source ? localSourceKnowledge({title:source.title,url:pdfUrl,verifiedAt:item.verifiedAt || data.updatedAt}) : null,
-        context:{kind:'calendar',title:'Calendário Acadêmico'}, titleHint:'Calendário acadêmico', sync:true, subject:'Calendário acadêmico'
+        context:null, clearsContext:true, titleHint:'Calendário acadêmico', sync:true, subject:'Calendário acadêmico'
       };
     }
 
@@ -1811,11 +1876,13 @@ O calendário de 2026 está disponível no conteúdo local do HUB. Você pode ab
     let discipline=localDisciplineFor(query);
     let semester=localSemesterFor(query);
     const day=localDayFor(query);
-    const wantsRoom=has('sala','onde fica','localizacao','localização');
-    const wantsSchedule=has('horario','horarios','aula','aulas','dias');
+    const wantsClassroom=has('classroom','google classroom','codigo do classroom');
+    const asksWhere=has('onde fica','onde encontro','onde acho','localizacao','local de atendimento','gabinete');
+    const wantsRoom=wantsClassroom || has('sala','salas','local da aula');
+    const wantsSchedule=has('horario','horarios','aula','aulas','dias','quando');
     const wantsProfessor=has('professor','professora','quem da','quem ensina');
     const wantsContact=has('email','e mail','contato');
-    const localFollowup = query.length <= 80 && /^(?:e\s+)?(?:(?:qual|quais)\s+)?(?:a\s+|o\s+|os\s+|as\s+)?(?:sala|salas|horario|horarios|professor|professora|email|contato|hoje|amanha|segunda|terca|quarta|quinta|sexta|sabado|domingo)\b/u.test(query);
+    const localFollowup = query.length <= 80 && /^(?:e\s+)?(?:(?:qual|quais)\s+)?(?:a\s+|o\s+|os\s+|as\s+)?(?:sala|salas|classroom|horario|horarios|professor|professora|email|contato|hoje|amanha|segunda|terca|quarta|quinta|sexta|sabado|domingo)\b/u.test(query);
     if (localFollowup && !professor && !discipline && !semester) {
       const active=activeContextFromConversation()?.context || {};
       const activeProfessor=String(active.professor || active.lastProfessor || '').trim();
@@ -1825,14 +1892,25 @@ O calendário de 2026 está disponível no conteúdo local do HUB. Você pode ab
       if (!professor && !discipline && Number(active.semester || 0)) semester=Number(active.semester || 0);
     }
     const rows=data.scheduleEntries || [];
+    const disciplineWantsRoom=Boolean(discipline) && (wantsRoom || asksWhere);
+    const hasAcademicCue=Boolean(wantsRoom || wantsSchedule || wantsProfessor || wantsContact || day || localFollowup || disciplineWantsRoom);
+
+    // O cache local é uma aceleração, não um segundo interpretador geral. Se a
+    // frase só menciona uma entidade ("ementa de IHM", "Liojes é
+    // coordenador?", "quero trancar Cálculo"), deixe o backend/catálogo
+    // canônico decidir. Isso evita a resposta instantânea errada de sala.
+    if ((professor || discipline) && !hasAcademicCue) return null;
+    // "onde fica Liojes" é localização de atendimento do professor, não sala
+    // da aula. O backend possui uma resposta própria para isso.
+    if (professor && asksWhere && !wantsRoom && !has('aula','turma')) return null;
 
     if (professor) {
       const professorRows=rows.filter(row => row.professor === professor.name && (!day || row.day === day));
       let body='';
       if (wantsContact) body=`*${professor.name}*\n\n📧 ${professor.email || 'E-mail não informado.'}`;
-      else if (wantsRoom) body=`*Salas de ${professor.name} — ${data.period || 'período atual'}*\n\n${formatLocalScheduleRows(professorRows) || 'Não encontrei aulas cadastradas para esse filtro.'}`;
-      else if (wantsSchedule || day) body=`*Horários de ${professor.name} — ${data.period || 'período atual'}*\n\n${formatLocalScheduleRows(professorRows) || 'Não encontrei aulas cadastradas para esse filtro.'}`;
-      else body=`*${professor.name}*\n\n📧 ${professor.email || 'E-mail não informado.'}\n\n${formatLocalScheduleRows(professorRows)}`;
+      else if (wantsRoom) body=`*Salas de ${professor.name} — ${data.period || 'período atual'}*\n\n${formatLocalScheduleRows(professorRows, { includeClassroom:wantsRoom }) || 'Não encontrei aulas cadastradas para esse filtro.'}`;
+      else if (wantsSchedule || day) body=`*Horários de ${professor.name} — ${data.period || 'período atual'}*\n\n${formatLocalScheduleRows(professorRows, { includeClassroom:wantsRoom }) || 'Não encontrei aulas cadastradas para esse filtro.'}`;
+      else body=`*${professor.name}*\n\n📧 ${professor.email || 'E-mail não informado.'}\n\n${formatLocalScheduleRows(professorRows, { includeClassroom:wantsRoom })}`;
       return { text:body, context:{kind:'professor',professor:professor.name,lastProfessor:professor.name,title:professor.name}, titleHint:`Professor ${professor.name.split(' ')[0]}`, sync:true, subject:`Professor — ${professor.name}` };
     }
 
@@ -1843,9 +1921,9 @@ O calendário de 2026 está disponível no conteúdo local do HUB. Você pode ab
       if (wantsProfessor) {
         const names=[...new Set(disciplineRows.map(row=>row.professor))];
         body=`*Professor${names.length>1?'es':''} de ${discipline}*\n\n${names.map(name=>`• ${name}`).join('\n')}`;
-      } else if (wantsRoom) body=`*Sala de ${discipline}*\n\n${formatLocalScheduleRows(disciplineRows)}`;
-      else body=`*Horários de ${discipline} — ${data.period || 'período atual'}*\n\n${formatLocalScheduleRows(disciplineRows)}`;
-      return { text:body, context:{kind:'discipline',discipline,lastDiscipline:discipline,title:discipline}, titleHint:wantsRoom?`Sala de ${discipline}`:wantsProfessor?`Professor de ${discipline}`:`Horários de ${discipline}`, sync:true, subject:wantsRoom?`Sala — ${discipline}`:`Horários — ${discipline}` };
+      } else if (disciplineWantsRoom) body=`*Sala de ${discipline}*\n\n${formatLocalScheduleRows(disciplineRows, { includeClassroom:wantsClassroom || wantsRoom })}`;
+      else body=`*Horários de ${discipline} — ${data.period || 'período atual'}*\n\n${formatLocalScheduleRows(disciplineRows, { includeClassroom:wantsRoom })}`;
+      return { text:body, context:{kind:'discipline',discipline,lastDiscipline:discipline,title:discipline}, titleHint:disciplineWantsRoom?`Sala de ${discipline}`:wantsProfessor?`Professor de ${discipline}`:`Horários de ${discipline}`, sync:true, subject:disciplineWantsRoom?`Sala — ${discipline}`:`Horários — ${discipline}` };
     }
 
     if (semester && (wantsSchedule || has('semestre'))) {
@@ -1868,11 +1946,27 @@ O calendário de 2026 está disponível no conteúdo local do HUB. Você pode ab
       try {
         const data=await request(CONFIG.messagePath || '/api/assistant/message', { sessionId:conversation.sessionId, message:text, senderName:state.settings.senderName }, { timeoutMs:12000 });
         if (data?.sessionId) conversation.sessionId=data.sessionId;
+        if (responseClosesContext(data)) markLocalContextBoundary(conversation);
         const last=[...conversation.messages].reverse().find(message=>message.role==='assistant' && message.meta?.localInstant && !message.meta?.localSynced);
         const clearedDuringSync=Number(conversation.contextClearedAt || 0) >= startedAt;
         if (clearedDuringSync) await clearRemoteContext(conversation.sessionId);
-        else if (last && data?.context) last.context=data.context;
-        if (last) last.meta={...(last.meta||{}), localSynced:true};
+        else if (last) {
+          const replies=Array.isArray(data?.replies) ? data.replies.filter(Boolean) : [];
+          const canonical=replies[0] || null;
+          if (canonical) {
+            last.text=String(canonical.text || last.text || '');
+            last.attachment=canonical.attachment || null;
+            last.presentation=canonical.presentation || data?.presentation || last.presentation || null;
+          }
+          last.options=normalizeOptions(data?.options || data?.suggestions || []);
+          last.components=Array.isArray(data?.components) ? data.components : [];
+          last.sources=Array.isArray(data?.sources) ? data.sources : [];
+          last.context=data?.context && typeof data.context==='object' ? data.context : null;
+          last.ambiguity=data?.ambiguity && typeof data.ambiguity==='object' ? data.ambiguity : null;
+          last.knowledge=data?.knowledge && typeof data.knowledge==='object' ? data.knowledge : null;
+          last.citation=data?.citation && typeof data.citation==='object' ? data.citation : null;
+        }
+        if (last) { last.meta={...(last.meta||{}), localSynced:true}; renderMessages(); saveState(); }
         saveState();
         if (conversation.id===state.currentId) syncActiveContextUi();
       } catch {}
@@ -1943,6 +2037,7 @@ O calendário de 2026 está disponível no conteúdo local do HUB. Você pode ab
   function applyEnvelopeToLastMessage(data, streamedMessages = []) {
     const last = streamedMessages.at(-1);
     if (!last) return;
+    if (responseClosesContext(data)) markLocalContextBoundary();
     last.options = normalizeOptions(data.options || data.suggestions || []);
     last.components = Array.isArray(data.components) ? data.components : [];
     last.sources = Array.isArray(data.sources) ? data.sources : [];
@@ -1954,6 +2049,7 @@ O calendário de 2026 está disponível no conteúdo local do HUB. Você pode ab
   }
 
   function appendJsonResponse(data) {
+    if (responseClosesContext(data)) markLocalContextBoundary();
     const replies = Array.isArray(data.replies) ? data.replies : [];
     if (!replies.length) {
       addMessage('assistant', 'Não encontrei uma resposta para essa mensagem. Tente reformular em uma frase curta.', { error:true });
@@ -1985,10 +2081,14 @@ O calendário de 2026 está disponível no conteúdo local do HUB. Você pode ab
     persistDraft('', { immediate:true });
     resizeInput();
 
-    const local = bypassLocal ? null : localAcademicAnswer(text);
+    // Online, o backend é a única autoridade de interpretação. O cache local
+    // fica reservado ao modo offline (ou ao fallback após falha da API), evitando
+    // que duas camadas respondam intenções diferentes para a mesma mensagem.
+    const local = (!bypassLocal && navigator.onLine === false) ? localAcademicAnswer(text) : null;
     if (local) {
+      if (local.clearsContext) markLocalContextBoundary();
       const message = addMessage('assistant', local.text, {
-        components:local.components || [], sources:local.sources || [], context:local.context || null,
+        attachment:local.attachment || null, components:local.components || [], sources:local.sources || [], context:local.context || null,
         knowledge:local.knowledge || null, presentation:local.presentation || null,
         meta:{ localInstant:true, localSynced:false, subject:local.subject || '' }
       });
@@ -2058,7 +2158,7 @@ O calendário de 2026 está disponível no conteúdo local do HUB. Você pode ab
       }
       if (!partial.length) {
         const academic = localAcademicAnswer(text);
-        if (academic) addMessage('assistant', academic.text, { components:academic.components || [], sources:academic.sources || [], context:academic.context || null, knowledge:academic.knowledge || null, meta:{ localInstant:true, fallback:true } });
+        if (academic) addMessage('assistant', academic.text, { attachment:academic.attachment || null, components:academic.components || [], sources:academic.sources || [], context:academic.context || null, knowledge:academic.knowledge || null, meta:{ localInstant:true, fallback:true } });
         else {
           const apiUnavailable = navigator.onLine !== false;
           const offline = offlineAnswer(text, { apiUnavailable });

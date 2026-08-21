@@ -1,5 +1,5 @@
 {
-  "version": "2.0.24",
+  "version": "2.0.30",
   "updatedAt": "2026-08-11",
   "period": "2026.2",
   "source": {
@@ -1913,5 +1913,10 @@
       "url": "https://suap.ifba.edu.br/",
       "prompt": "abrir SUAP"
     }
+  },
+  "classroomCodes20262": {
+    "Interface Homem Máquina": "lgfnaife",
+    "Contabilidade Geral e Custos": "fbrgcmkr",
+    "Organização, Sistemas e Métodos": "vw5tlf7r"
   }
 }
