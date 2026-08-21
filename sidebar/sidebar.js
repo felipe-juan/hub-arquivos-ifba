@@ -64,10 +64,10 @@
     /* HUB REGISTRY FALLBACK START */
     {
       "schemaVersion": 2,
-      "version": "2.0.30",
+      "version": "2.0.31",
       "hubVersion": "0.3.9",
       "sourceOfTruth": true,
-      "generatedBy": "hub-assistente-v2.0.30",
+      "generatedBy": "hub-assistente-v2.0.31",
       "apps": [
         {
           "id": "app-assistente-hub",
